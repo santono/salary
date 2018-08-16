@@ -705,6 +705,9 @@ object MainForm: TMainForm
           object N010720101: TMenuItem
             Action = ActionGenerate
           end
+          object NFormMonthGener: TMenuItem
+            Action = ActionFormMonthGener
+          end
         end
         object N92: TMenuItem
           Caption = #1055#1086#1076#1075#1086#1090#1086#1074#1082#1072' '#1074#1089#1077#1093' '#1088#1072#1089#1095#1077#1090#1085#1099#1093' '#1083#1080#1089#1090#1082#1086#1074
@@ -1495,6 +1498,10 @@ object MainForm: TMainForm
     object ActionGenerate: TAction
       Caption = #1055#1077#1088#1077#1074#1086#1076' '#1085#1072' '#1089#1083#1077#1076#1091#1102#1097#1080#1081' '#1084#1077#1089#1103#1094
       OnExecute = ActionGenerateExecute
+    end
+    object ActionFormMonthGener: TAction
+      Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1082#1072#1083#1077#1085#1076#1072#1088#1103'  '#1076#1083#1103' '#1075#1077#1085#1077#1088#1072#1094#1080#1080
+      OnExecute = ActionFormMonthGenerExecute
     end
   end
   object ImageList1: TImageList

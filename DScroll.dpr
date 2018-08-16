@@ -327,7 +327,8 @@ uses
   UFormCalcPrem_11_2017 in 'UFormCalcPrem_11_2017.pas' {FormCalcPrem_11_2017},
   UFormMoveAwans2017_12 in 'UFormMoveAwans2017_12.pas' {FormMoveAwans2017_12},
   UFormRepWordkers in 'UFormRepWordkers.pas' {FormRepWordkers},
-  UFormGener in 'UFormGener.pas' {FormGener};
+  UFormGener in 'UFormGener.pas' {FormGener},
+  UFormMonthForGener in 'UFormMonthForGener.pas' {FormMonthForGener};
 
 {$R *.res}
 begin

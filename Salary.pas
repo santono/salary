@@ -373,6 +373,8 @@ type
     N168: TMenuItem;
     N010720181: TMenuItem;
     N010720101: TMenuItem;
+    ActionFormMonthGener: TAction;
+    NFormMonthGener: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -622,6 +624,7 @@ type
     procedure ActionRepWorkersForPlanExecute(Sender: TObject);
     procedure ActionGenerateExecute(Sender: TObject);
     procedure N010720181Click(Sender: TObject);
+    procedure ActionFormMonthGenerExecute(Sender: TObject);
 
 
   private
@@ -706,7 +709,7 @@ implementation
   UFormDelSowm82, UFormReport148, UFormConvertXMLGrnToRub,
   UFormRepPersDolgOsn, UFormRepAUP_PPS, UFormKomand, UFormRepairUwol,
   UFormRecalcNight, UFormChangeTabno,uSQLUnit, UFormChangeNMES,
-  UFormFillExcel0417, UFormRepWordkers, UFormGener;
+  UFormFillExcel0417, UFormRepWordkers, UFormGener, UFormMonthForGener;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1281,6 +1284,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
                   NSecretWorker.Enabled := True;
                   NGenNewMonth.Visible  := true;
                   NGenNewMonth.Enabled  := true;
+                  ActionFormMonthGener.Enabled:=true;
+                  NFormMonthGener.Visible := true;
+                  NFormMonthGener.Enabled := true;
              end
           else
              begin
@@ -1290,6 +1296,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
                   NSecretWorker.Enabled := false;
                   NGenNewMonth.Visible  := false;
                   NGenNewMonth.Enabled  := false;
+                  ActionFormMonthGener.Enabled:=false;
+                  NFormMonthGener.Visible := false;
+                  NFormMonthGener.Enabled := false;
              end
 
        {$ENDIF}
@@ -4446,6 +4455,26 @@ begin
     Application.CreateForm(TFormGen, FormGen);
     FormGen.ShowModal;
     StringGrid1.SetFocus;
+end;
+
+procedure TMainForm.ActionFormMonthGenerExecute(Sender: TObject);
+ var newDate:TDate;
+     y,m:word;
+begin
+//    Application.CreateForm(TFormMonthForGener, FormMonthForGener);
+    y:=CurrYear;
+    m:=nmes;
+    m:=m+1;
+    if (m>12) then
+       begin
+            m:=1;
+            inc(y);
+       end;
+    newDate:=enCodeDate(y,m,1);
+    FormMonthForGener:=TFormMonthForGener.CreateUsingDate(Application,newDate);
+    FormMonthForGener.ShowModal;
+    StringGrid1.SetFocus;
+
 end;
 
 end.
