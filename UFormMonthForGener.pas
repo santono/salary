@@ -75,6 +75,7 @@ implementation
 
 {$R *.dfm}
 constructor TFormMonthForGener.CreateUsingDate(AOwner:TComponent;newDate:TDate);
+  var y:integer;
   begin
        Self.Create(AOwner);
        self.WantedData:=newDate;
@@ -82,9 +83,14 @@ constructor TFormMonthForGener.CreateUsingDate(AOwner:TComponent;newDate:TDate);
        FillChar(d,SizeOf(d),0);
        GetFromMonths;
        LabelRDay.Caption:=IntToStr(workdayu);
+       UpDownWorkClock.Max:=DaysInMonth(wanteddata)*8;
+       if (workclock>UpDownWorkClock.Max) then
+          workclock:=UpDownWorkClock.Max;
        UpDownWorkClock.Position:=workclock;
        self.FillStandart(1);
        UpDownWorkClock.Position:=workclock;
+       y:=yearof(wanteddata)+1;
+       bitbtn3.Caption:='Создать month'+inttostr(y-2000)+'.txt';
 //       self.GetWorkDays;
 //       self.getWorkClocks;
   end;
@@ -116,7 +122,8 @@ procedure TFormMonthForGener.FillStandart(Mode:integer);
      strCell:String;
  begin
        FillChar(d,SizeOf(d),0);
-       FillChar(d_db,SizeOf(d_db),0);
+       if mode=0 then
+          FillChar(d_db,SizeOf(d_db),0);
        StringGridMPr.Cells[0,0]:='Пнд';
        StringGridMPr.Cells[1,0]:='Втр';
        StringGridMPr.Cells[2,0]:='Срд';
@@ -127,7 +134,7 @@ procedure TFormMonthForGener.FillStandart(Mode:integer);
        l:=LenMonth(WantedData);
        CurrDate:=WantedData;
        DecodeDate(WantedData,y,m,da);
-       if Mode=1 then GetFromDB;
+    //   if Mode=1 then GetFromDB;
        i_start  := 1;
        RowCount := 2;
        CurrDow  := 0;
@@ -151,7 +158,8 @@ procedure TFormMonthForGener.FillStandart(Mode:integer);
                    begin
                          if d_db[i]=2 then d[i,2]:=2
                          else if d_db[i]=3 then d[i,2]:=3
-                         else if d_db[i]=4 then d[i,2]:=4;
+                         else if d_db[i]=4 then d[i,2]:=4
+                         else d[i,2]:=d_db[i];
                    end;
                 d[i,3]:=currRow;
                 d[i,4]:=dof-1;
@@ -469,8 +477,12 @@ begin
 end;
 
 procedure TFormMonthForGener.BitBtn3Click(Sender: TObject);
+ var y:integer;
  begin
-     GetFromMonths;
+     y:=yearOf(wanteddata);
+     inc(y);
+     makeMonthForYear(y);
+//     GetFromMonths;
  end;
 
 procedure TFormMonthForGener.GetFromMonths;
@@ -570,9 +582,9 @@ procedure TFormMonthForGener.SaveToMonths;
      s:string;
  begin
       DeCodeDate(WantedData,yw,mw,dw);
-      FName:=CDIR+'MONTH'+COPY(ALLTRIM(IntToStr(Yw)),3,2)+'.TXT';
-      FNameColedg:=CDIR+'MNTHC'+COPY(ALLTRIM(IntToStr(Yw)),3,2)+'.TXT';
-      FNameBAK:=CDIR+'MONTH'+COPY(ALLTRIM(IntToStr(Yw)),3,2)+'.BAK';
+      FName:=CDIR+'month'+COPY(ALLTRIM(IntToStr(Yw)),3,2)+'.TXT';
+      FNameColedg:=CDIR+'mnthc'+COPY(ALLTRIM(IntToStr(Yw)),3,2)+'.TXT';
+      FNameBAK:=CDIR+'month'+COPY(ALLTRIM(IntToStr(Yw)),3,2)+'.BAK';
       if not FileExists(FName) then
          begin
               ShowMessage('Нет календаря для '+IntToStr(Yw)+' года.');
@@ -585,15 +597,15 @@ procedure TFormMonthForGener.SaveToMonths;
       rewrite(devO);
       for i:=1 to 12 do
            begin
+                readln(dev,s);
                 if i<>mw then
                    begin
-                       readln(dev,s);
                        writeln(devo,s);
                        continue;
                    end;
                 s:='';
                 for j:=1 to 31 do
-                    s:=s+' '+intToStr(d[i,2]);
+                    s:=s+' '+intToStr(d[j,2]);
                 s:=trim(s);
                 writeln(devo,s);
 
@@ -645,9 +657,9 @@ procedure TFormMonthForGener.SaveToMonths;
                rewrite(devO);
                for i:=1 to 12 do
                    begin
+                         readln(dev,s);
                          if i<>mw then
                          begin
-                              readln(dev,s);
                               writeln(devO,s);
                               continue;
                          end;
@@ -695,11 +707,16 @@ function TFormMonthForGener.GetWorkDays:integer;
  end;
 function TFormMonthForGener.GetWorkClocks;
  var i,r:integer;
+     rc:integer;
  begin
-      r:=0;
-      for i:=1 to l_arr do
-          if d[i,2]=1 then Inc(R);
-      UpDownWorkClock.Position:=r*8;
+      r  := 0;
+      rc := 0;
+      for i:=1 to l_arr-1 do
+          if (d[i,2]=1) then
+           if (d[i+1,2]=4) then Rc:=rc+7
+                           else rc:=rc+8;
+      UpDownWorkClock.Position:=rc;
+      workclock:=UpDownWorkClock.Position;
       Application.ProcessMessages;
  end;
 
@@ -738,6 +755,7 @@ procedure TFormMonthForGener.UpDownWorkClockChanging(Sender: TObject;
   var AllowChange: Boolean);
 begin
      EditWorkClock.Text:=IntToStr(UpDownWorkClock.Position);
+     workclock:=UpDownWorkClock.Position;
 end;
 
 end.

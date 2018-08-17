@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons;
+  Dialogs, StdCtrls, Buttons, ExtCtrls;
 
 type
   TFormGener = class(TForm)
@@ -21,6 +21,9 @@ type
     Label14: TLabel;
     Label15: TLabel;
     cbNeedArc: TCheckBox;
+    Panel1: TPanel;
+    LabelNextMonth: TLabel;
+    LabelDC: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtnStartClick(Sender: TObject);
@@ -31,6 +34,7 @@ type
     procedure makeRecalcNalogi;
     procedure makeNextData;
     function makeArchives(M:INTEGER=0):boolean;
+    procedure GetFromDay(m:integer;var d,c:integer);
 
     { Private declarations }
   public
@@ -52,7 +56,37 @@ begin
       Action := caFree;
 end;
 
+procedure TFormGener.GetFromDay(m:integer;var d,c:integer);
+ var i   : integer;
+     FName     : string;
+     Dev       : TextFile;
+     dummy:integer;
+ begin
+      FName:=CDIR+'DAY.TXT';
+      if not FileExists(FName) then
+         begin
+              ShowMessage('Нет файла рабочих дней '+FName);
+              Exit;
+         end;
+      AssignFile(Dev,FName);
+      reset(dev);
+      for i:=1 to 12 do
+          begin
+              if i<>m then
+                 begin
+                     readln(dev);
+                     continue;
+                 end;
+                 read(dev,d,dummy,dummy,dummy,c);
+                 break;
+          end;
+      CloseFile(dev);
+
+ end;
+
 procedure TFormGener.FormCreate(Sender: TObject);
+ var m,y:integer;
+     c,d:integer;
 begin
      Caption:='Генерация данных за '+getNameNextData;
      Label11.Caption:='. . . ';
@@ -61,6 +95,14 @@ begin
      Label14.Caption:='. . . ';
      Label15.Caption:='. . . ';
      cbNeedArc.Checked:=false;
+     getnextmy(m,y);
+     if isSVDN then
+       LabelNextMonth.Caption:='Генерация данных для перехода на '+trim(getMonthUkr(M))+' '+intToStr(y)+' р.'
+     else
+       LabelNextMonth.Caption:='Генерация данных для перехода на '+trim(getMonthRus(M))+' '+intToStr(y)+' г.';
+     GetFromDay(m,d,c);
+
+     LabelDC.Caption:='Рабочих дней '+IntToStr(d)+'. Часов '+IntToStr(c)+'.';
 end;
 
 procedure TFormGener.moveDAYS;
@@ -83,6 +125,11 @@ procedure TFormGener.moveDataToArchive;
     getNextMY(m,y);
     d:=1;
     Application.CreateForm(TFormToSQL, FormToSQL);
+    FormToSql.TransparentColor:=true;
+    FormToSql.TransparentColorValue:=clFuchsia;  // clLime;
+    FormToSql.AlphaBlend:=true;
+    FormToSQl.AlphaBlendValue:=127;
+    FormToSQl.Color:=clSkyBlue;
     FormToSql.Show;
     FormToSql.BitBtn1.Hide;
     FormToSql.BitBtn2.Hide;
@@ -112,6 +159,11 @@ procedure TFormGener.makeGenerNewMonth;
   begin
        markPKG66;
        Application.CreateForm(TFormGen, FormGen);
+       FormGen.TransparentColor:=true;
+       FormGen.TransparentColorValue:=clFuchsia;  // clLime;
+       FormGen.AlphaBlend:=true;
+       FormGen.AlphaBlendValue:=127;
+       FormGen.Color:=clSkyBlue;
        FormGen.Show;
        FormGen.BitBtn1.Hide;
        FormGen.BitBtn2.Hide;
@@ -128,6 +180,11 @@ procedure TFormGener.makeGenerNewMonth;
        FormGen.BitBtn1Click(Self);
 //       FormGen.Button2Click(Self);
        Application.CreateForm(TFormMakeOtpTableFromSQL, FormMakeOtpTableFromSQL);
+       FormMakeOtpTableFromSQL.TransparentColor:=true;
+       FormMakeOtpTableFromSQL.TransparentColorValue:=clFuchsia;  // clLime;
+       FormMakeOtpTableFromSQL.AlphaBlend:=true;
+       FormMakeOtpTableFromSQL.AlphaBlendValue:=127;
+       FormMakeOtpTableFromSQL.Color:=clSkyBlue;
        FormMakeOtpTableFromSQL.Show;
        FormMakeOtpTableFromSQL.BitBtn1.Hide;
        FormMakeOtpTableFromSQL.BitBtn2.Hide;
@@ -142,6 +199,11 @@ procedure TFormGener.makeGenerNewMonth;
        FormGen.Hide;
        FormGen.Close;
        Application.CreateForm(TFormMakeAllChain, FormMakeAllChain);
+       FormMakeAllChain.TransparentColor:=true;
+       FormMakeAllChain.TransparentColorValue:=clFuchsia;  // clLime;
+       FormMakeAllChain.AlphaBlend:=true;
+       FormMakeAllChain.AlphaBlendValue:=127;
+       FormMakeAllChain.Color:=clSkyBlue;
        FormMakeAllChain.Show;
        FormMakeAllChain.BitBtn1.Hide;
        FormMakeAllChain.BitBtn2.Hide;
@@ -149,6 +211,11 @@ procedure TFormGener.makeGenerNewMonth;
        FormMakeAllChain.Hide;
        FormMakeAllChain.Close;
        Application.CreateForm(TFormClearBolnGenerators, FormClearBolnGenerators);
+       FormClearBolnGenerators.TransparentColor:=true;
+       FormClearBolnGenerators.TransparentColorValue:=clFuchsia;  // clLime;
+       FormClearBolnGenerators.AlphaBlend:=true;
+       FormClearBolnGenerators.AlphaBlendValue:=127;
+       FormClearBolnGenerators.Color:=clSkyBlue;
        FormClearBolnGenerators.Show;
        FormClearBolnGenerators.BitBtn1.Hide;
        FormClearBolnGenerators.BitBtn2.Hide;
@@ -171,6 +238,11 @@ procedure TFormGener.makeGenerNewMonth;
 procedure TFormGener.makeRecalcNalogi;
   begin
        Application.CreateForm(TFormRecalcNalCurr, FormRecalcNalCurr);
+       FormRecalcNalCurr.TransparentColor:=true;
+       FormRecalcNalCurr.TransparentColorValue:=clFuchsia;  // clLime;
+       FormRecalcNalCurr.AlphaBlend:=true;
+       FormRecalcNalCurr.AlphaBlendValue:=127;
+       FormRecalcNalCurr.Color:=clSkyBlue;
        FormRecalcNalCurr.Show;
        FormRecalcNalCurr.BitBtn1.Hide;
        FormRecalcNalCurr.BitBtn2.Hide;

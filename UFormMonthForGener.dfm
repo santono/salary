@@ -79,10 +79,8 @@ object FormMonthForGener: TFormMonthForGener
     Top = 232
     Width = 193
     Height = 25
-    Caption = #1042#1079#1103#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1080#1079' Month'
-    Enabled = False
+    Caption = #1057#1075#1077#1085#1077#1088#1080#1088#1086#1074#1072#1090#1100
     TabOrder = 3
-    Visible = False
     OnClick = BitBtn3Click
   end
   object EditWorkClock: TEdit

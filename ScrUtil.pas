@@ -555,6 +555,7 @@ interface
   function getNameNextData:string;
   procedure getNextMY(var m:integer; var y: integer);
   procedure markPKG66;
+  procedure makeMonthForYear(Y:integer);
 
 
 
@@ -11514,5 +11515,111 @@ function getNachPremForPersonInNSRV(Curr_Person:person_ptr):real;
          MarkKat66;
          MarkGru66;
     end;
+ function isPrazdn(dt:TDateTime):boolean;
+  var retVal:boolean;
+      y,m,d,dow:word;
+  begin
+       decodedate(dt,y,m,d);
+       retVal:=false;
+       if (m=1) and (d=1) then retVal:=true
+       else
+       if (m=1) and (d=7) then retVal:=true
+       else
+       if (isLNR) and (m=2) and (d=23) then retVal:=true
+       else
+       if (m=3) and (d=8) then retVal:=true
+       else
+       if (m=5) and (d=1) then retVal:=true
+       else
+       if (m=5) and (d=9) then retVal:=true
+       else
+       if (isLNR) and (m=5) and (d=12) then retVal:=true
+       else
+       if (isSvdn) and (m=6) and (d=28) then retVal:=true
+       else
+       if (isSvdn) and (m=8) and (d=24) then retVal:=true
+       else
+       if (isSvdn) and (m=10) and (d=10) then retVal:=true
+       else
+       if (isLNR) and (m=11) and (d=4) then retVal:=true;
+       isPrazdn:=retVal;
+  end;
+procedure ScrCopyFile( InFile,OutFile: String);
+var
+  OldFile,NewFile: TFileStream;
+begin
+  OldFile := TFileStream.Create(inFile, fmOpenRead or fmShareDenyWrite);
+    try
+      NewFile := TFileStream.Create(OutFile, fmCreate or fmShareDenyRead);
+      try
+        NewFile.CopyFrom(OldFile, OldFile.Size);
+      finally
+        FreeAndNil(NewFile);
+      end;
+    finally
+      FreeAndNil(OldFile);
+    end;
+
+end;
+ procedure makeMonthForYear(Y:integer);
+  var FName,FNameColedg:wideString;
+      dev:TextFile;
+      i,j,l:integer;
+      s:string;
+      dt,dtw:TDateTime;
+      yw,mw,dw,dow:integer;
+  begin
+      fName:=cdir+'month'+intToStr(Y-2000)+'.txt';
+      FNameColedg:=CDIR+'mnthc'+COPY(ALLTRIM(IntToStr(Y)),3,2)+'.TXT';
+      if fileexists(FName) then
+         begin
+              if not yesNo('Файл '+FName+' существует. Сгенерировать его заново?') then
+                 exit;
+         end;
+       AssignFile(dev,fname);
+       rewrite(dev);
+       for i:=1 to 12 do
+         begin
+              dt:=encodedate(y,i,1);
+              l:=DaysInMonth(dt);
+              s:='';
+              for j:=1 to 31 do
+                  begin
+                      if j>l then
+                         s:=s+' 0'
+                      else
+                         begin
+                              dtw:=encodedate(y,i,j);
+                              dow:=DayOfTheWeek(dtw);
+                              if isPrazdn(dtw) then
+                                  s:=s+' 4'
+                              else
+                                  case dow of
+                                    6:s:=s+' 2';
+                                    7:s:=s+' 3';
+                                    else
+                                      s:=s+' 1';
+                                   end;
+                         end;
+                  end;
+              s:=trim(s);
+              writeln(dev,s);
+         end;
+       closefile(dev);
+      if fileexists(fnamecoledg) then
+         if not SysUtils.deletefile(fnamecoledg) then
+            begin
+                 showMessage('Ошибка '+IntToStr(getLastError)+'  удаления файла'+fnamecoledg);
+                 exit;
+            end;
+       ScrCopyFile(fname,fnamecoledg);
+//       if not copyfile(PAnsiChar(fname),PAnsiChar(fnamecoledg),true) then
+//          begin
+//                 showMessage('Ошибка '+IntToStr(getLastError)+' копирования файла '+fname+' в '+fnamecoledg);
+//                 exit;
+//          end;
+
+       showMessage('Файл '+FName+' создан!');
+  end;
 end.
 
