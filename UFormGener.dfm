@@ -180,7 +180,7 @@ object FormGener: TFormGener
     object LabelNextMonth: TLabel
       Left = 8
       Top = 16
-      Width = 593
+      Width = 324
       Height = 24
       Caption = #1043#1077#1085#1077#1088#1072#1094#1080#1103' '#1076#1072#1085#1085#1099#1093' '#1076#1083#1103' '#1087#1077#1088#1077#1093#1086#1076#1072' '#1085#1072
       Font.Charset = DEFAULT_CHARSET
@@ -203,5 +203,14 @@ object FormGener: TFormGener
       Font.Style = []
       ParentFont = False
     end
+  end
+  object cbList: TComboBox
+    Left = 336
+    Top = 16
+    Width = 305
+    Height = 21
+    ItemHeight = 13
+    TabOrder = 4
+    Text = 'cbList'
   end
 end

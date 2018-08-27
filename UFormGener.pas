@@ -24,10 +24,12 @@ type
     Panel1: TPanel;
     LabelNextMonth: TLabel;
     LabelDC: TLabel;
+    cbList: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtnStartClick(Sender: TObject);
   private
+    wantedShifrPKG:integer;
     procedure moveDAYS;
     procedure moveDataToArchive;
     procedure makeGenerNewMonth;
@@ -35,6 +37,8 @@ type
     procedure makeNextData;
     function makeArchives(M:INTEGER=0):boolean;
     procedure GetFromDay(m:integer;var d,c:integer);
+    procedure SelectLine;
+    function getShifrPKGFromComboBox:integer;
 
     { Private declarations }
   public
@@ -101,7 +105,8 @@ begin
      else
        LabelNextMonth.Caption:='Генерация данных для перехода на '+trim(getMonthRus(M))+' '+intToStr(y)+' г.';
      GetFromDay(m,d,c);
-
+     SelectLine;
+     wantedShifrPKG:=66;
      LabelDC.Caption:='Рабочих дней '+IntToStr(d)+'. Часов '+IntToStr(c)+'.';
 end;
 
@@ -157,7 +162,7 @@ procedure TFormGener.moveDataToArchive;
 procedure TFormGener.makeGenerNewMonth;
   var SQLSTmnt:string;
   begin
-       markPKG66;
+       markPKG66(wantedShifrPKG);
        Application.CreateForm(TFormGen, FormGen);
        FormGen.TransparentColor:=true;
        FormGen.TransparentColorValue:=clFuchsia;  // clLime;
@@ -251,6 +256,7 @@ procedure TFormGener.makeRecalcNalogi;
        FormRecalcNalCurr.CheckBoxTN.Hide;
        FormRecalcNalCurr.RadioGroupMode.Enabled:=false;
        Application.ProcessMessages;
+       FormRecalcNalCurr.setWantedPKG(wantedShifrPKG);
        FormRecalcNalCurr.BitBtn4Click(Self);
        FormRecalcNalCurr.Hide;
        FormRecalcNalCurr.Close;
@@ -340,6 +346,12 @@ begin
         exit;
      if cbNeedArc.Checked  then
         if not makeArchives then Exit;
+     wantedShifrPKG:=getShifrPKGFromComboBox;
+     if wantedShifrPKG<1 then
+        begin
+             showMessage('Неверно указана строка для выбора списки подразделений генерации.');
+             exit;
+        end;
      needHideGenerMessages:=true;
      moveDAYS;
      Label11.Caption:='Готово!';
@@ -367,5 +379,64 @@ begin
      ShowMessage('Генерация закончена!.'+^M+' Перегрузите программу!'+^M+' ВНИМАНИЕ!. Текущие данные не сохраняйте!');
      System.Halt;
 end;
+procedure TFormGener.SelectLine;
+var Shifr    : Integer;
+    SQLStmnt : string;
+    Name     : String;
+
+
+begin
+      SqlStmnt:='SELECT SHIFRID,NAME FROM TB_NAME_PODR_SELECTION_DET WHERE SHIFRIDOWNER=5 ORDER BY shifrid';
+      cbList.Clear;
+      FIB.pFibQuery.Transaction.StartTransaction;
+      FIB.pFibQuery.SQL.Clear;
+      FIB.pFibQuery.SQL.Add(SQLStmnt);
+      FIB.pFibQuery.ExecQuery;
+      while not FIB.pFibQuery.Eof do
+       begin
+           Shifr := FIB.pFibQuery.Fields[0].AsInteger;
+           name  := FIB.pFibQuery.Fields[1].AsString;
+           cbList.Items.Add(IntToStr(shifr)+' '+trim(name));
+           if (shifr=66) then
+               cbList.Itemindex:=cbList.Items.Count-1;
+           FIB.pFibQuery.Next;
+       end;
+     FIB.pFibQuery.Close;
+     FIB.pFibQuery.Transaction.Commit;
+     Application.ProcessMessages;
+end;
+function TFormGener.getShifrPKGFromComboBox:integer;
+    var retVal:integer;
+        s,ss:string;
+        iVal,i,j,iErr:integer;
+    begin
+          retVal:=0;
+         if (cbList.ItemIndex>=0) then
+            begin
+                 s:=trim(cbList.Items[cbList.ItemIndex]);
+                 ss:='';
+                 i:=0;
+                 iVal:=0;
+                 while (true) do
+                  begin
+                       if i>=length(s) then
+                          begin
+                               retVal:=iVal;
+                               break;
+                          end;
+                       inc(i);
+                       ss:=ss+s[i];
+                       val(ss,j,iErr);
+                       if (iErr=0) then
+                          begin
+                              iVal:=j;
+                              retVal:=iVal;
+                          end
+                       else
+                           break;
+                  end;
+            end;
+         getShifrPKGFromComboBox:=retVal;
+    end;
 
 end.

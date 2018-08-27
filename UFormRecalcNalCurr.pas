@@ -30,11 +30,14 @@ type
   private
     { Private declarations }
     NeedListTN:boolean;
+    wantedShifrPKG:integer;
     function IsTabnoInList(Tabno:integer):boolean;
     function GetRecForTabnoInList(Tabno:integer):Pointer;
     procedure RecalcPodr;
     procedure InitListTN;
+
   public
+    procedure setWantedPKG(noPKG:integer);
     { Public declarations }
   end;
 
@@ -79,6 +82,7 @@ begin
       List:=TList.Create;
       RadioGroupMode.ItemIndex:=0;
       RecalcPersonMode:=AllPersonMode;
+      wantedShifrPKG:=66;
 end;
 
 procedure TFormRecalcNalCurr.BitBtn2Click(Sender: TObject);
@@ -353,17 +357,23 @@ procedure TFormRecalcNalCurr.BitBtn4Click(Sender: TObject);
 
 
 begin
+    markPKG66(wantedShifrPKG);
     RadioGroupMode.ItemIndex := 2;
     BitBtn1Click(Sender);
 //    markPodrs66;
 //    markKat66;
 //    markGru66;
-    markPKG66;
+    markPKG66(wantedShifrPKG);
     RadioGroupMode.ItemIndex := 1;
     Application.ProcessMessages;
     BitBtn1Click(Sender);
     if not needHideGenerMessages then
        ShowMessage('Перерасчет налогов закончен.');
 end;
+
+procedure TFormRecalcNalCurr.setWantedPKG(noPKG:integer);
+  begin
+       wantedShifrPKG:=noPKG;
+  end;
 
 end.

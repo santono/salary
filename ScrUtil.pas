@@ -554,7 +554,7 @@ interface
   procedure fillNamesReservPodr;
   function getNameNextData:string;
   procedure getNextMY(var m:integer; var y: integer);
-  procedure markPKG66;
+  procedure markPKG66(wantedShifrPKG:integer);
   procedure makeMonthForYear(Y:integer);
 
 
@@ -11450,13 +11450,13 @@ function getNachPremForPersonInNSRV(Curr_Person:person_ptr):real;
          y:=nextYEAR;
     end;
 
-  procedure markPKG66;
+  procedure markPKG66(wantedShifrPKG:integer);
    procedure MarkPodrs66;
     var  SQLStmnt:string;
          shifrPod:integer;
     begin
          NameServList.ClearAllSelected;
-         SQLStmnt:='select shifrpod,mode from tb_podr_selection_list where shifridowner=66 and mode=1';
+         SQLStmnt:='select shifrpod,mode from tb_podr_selection_list where shifridowner='+IntToStr(wantedShifrPKG)+' and mode=1';
          FIB.pFibQuery.Transaction.StartTransaction;
          FIB.pFibQuery.SQL.Clear;
          FIB.pFibQuery.SQL.Add(SQLStmnt);
@@ -11476,7 +11476,7 @@ function getNachPremForPersonInNSRV(Curr_Person:person_ptr):real;
 
     begin
          KategList.ClearAllSelected;
-         SQLStmnt:='select shifrpod,mode from tb_podr_selection_list where shifridowner=66 and mode=2';
+         SQLStmnt:='select shifrpod,mode from tb_podr_selection_list where shifridowner='+intToStr(wantedShifrPKG)+' and mode=2';
          FIB.pFibQuery.Transaction.StartTransaction;
          FIB.pFibQuery.SQL.Clear;
          FIB.pFibQuery.SQL.Add(SQLStmnt);
@@ -11496,7 +11496,7 @@ function getNachPremForPersonInNSRV(Curr_Person:person_ptr):real;
 
     begin
          GruppyList.ClearAllSelected;
-         SQLStmnt:='select shifrpod,mode from tb_podr_selection_list where shifridowner=66 and mode=3';
+         SQLStmnt:='select shifrpod,mode from tb_podr_selection_list where shifridowner='+intToStr(wantedShifrPKG)+' and mode=3';
          FIB.pFibQuery.Transaction.StartTransaction;
          FIB.pFibQuery.SQL.Clear;
          FIB.pFibQuery.SQL.Add(SQLStmnt);
