@@ -110,7 +110,15 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' DATABEG    = :DATABEG,'
       ' DATAEND    = :DATAEND,'
       ' CONTENT    = :CONTENT,'
-      ' SHIFRIDTYP = :SHIFRIDTYP'
+      ' SHIFRIDTYP = :SHIFRIDTYP,'
+      ' Y          = :Y,'
+      ' M          = :M,'
+      ' KODKP      = :KODKP,'
+      ' KODZKPPTR  = :KODZKPPTR,'
+      ' NAMEDOL    = :NAMEDOL,'
+      ' IDCLASSIFICATOR=:IDCLASSIFIKATOR,'
+      ' NAMEPROF   = :NAMEPROF  '
+      ''
       'WHERE'
       ' ID = :OLD_ID'
       ' ')
@@ -128,7 +136,14 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' DATABEG,'
       ' DATAEND,'
       ' CONTENT,'
-      ' SHIFRIDTYP'
+      ' SHIFRIDTYP,'
+      ' Y,'
+      ' M,'
+      ' KODKP,'
+      ' KODZKPPTR,'
+      ' NAMEDOL,'
+      ' IDCLASSIFICATOR,'
+      ' NAMEPROF '
       ')'
       'VALUES('
       ' :TABNO,'
@@ -137,7 +152,14 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' :DATABEG,'
       ' :DATAEND,'
       ' :CONTENT,'
-      ' :SHIFRIDTYP'
+      ' :SHIFRIDTYP,'
+      ' :Y,'
+      ' :M,'
+      ' :KODKP,'
+      ' :KODZKPPTR,'
+      ' :NAMEDOL,'
+      ' :IDCLASSIFICATOR,'
+      ' :NAMEPROF '
       ')')
     RefreshSQL.Strings = (
       'SELECT'
@@ -148,7 +170,14 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' DATABEG,'
       ' DATAEND,'
       ' CONTENT,'
-      ' SHIFRIDTYP'
+      ' SHIFRIDTYP,'
+      ' Y,'
+      ' M,'
+      ' KODKP,'
+      ' KODZKPPTR,'
+      ' NAMEDOL,'
+      ' IDCLASSIFICATOR,'
+      ' NAMEPROF '
       'FROM'
       ' TB_PRIKAZY'
       'where  TB_PRIKAZY.ID = :OLD_ID'
@@ -163,7 +192,14 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' DATABEG,'
       ' DATAEND,'
       ' CONTENT,'
-      ' SHIFRIDTYP'
+      ' SHIFRIDTYP,'
+      ' Y,'
+      ' M,'
+      ' KODKP,'
+      ' KODZKPPTR,'
+      ' NAMEDOL,'
+      ' IDCLASSIFICATOR,'
+      ' NAMEPROF '
       'FROM'
       ' TB_PRIKAZY'
       'where tabno=:old_tabno'
@@ -221,6 +257,35 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       KeyFields = 'SHIFRIDTYP'
       Size = 50
       Lookup = True
+    end
+    object dsPrikazyY: TFIBSmallIntField
+      FieldName = 'Y'
+    end
+    object dsPrikazyM: TFIBSmallIntField
+      FieldName = 'M'
+    end
+    object dsPrikazyKODKP: TFIBStringField
+      FieldName = 'KODKP'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsPrikazyKODZKPPTR: TFIBStringField
+      FieldName = 'KODZKPPTR'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsPrikazyNAMEDOL: TFIBStringField
+      FieldName = 'NAMEDOL'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPrikazyIDCLASSIFICATOR: TFIBIntegerField
+      FieldName = 'IDCLASSIFICATOR'
+    end
+    object dsPrikazyNAMEPROF: TFIBStringField
+      FieldName = 'NAMEPROF'
+      Size = 512
+      EmptyStrToNull = True
     end
   end
   object trRead: TpFIBTransaction

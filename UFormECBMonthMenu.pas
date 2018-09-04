@@ -120,8 +120,8 @@ procedure TFormECBMonthMenu.DateTimePicker1Change(Sender: TObject);
 begin
       WantedDate:=DateTimePicker1.Date;
       DeCodeDate(WantedDate,Y,M,D);
-      WantedYear  := Y;
-      WantedMonth := M;
+      WantedYear     := Y;
+      WantedMonth    := M;
       LabelD.Caption := GetMonthRus(WantedMonth)+' '+IntToStr(WantedYear)+' ã.';
       Application.ProcessMessages;
 end;

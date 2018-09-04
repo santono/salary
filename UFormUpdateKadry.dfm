@@ -59,7 +59,7 @@ object FormUpdateKadryFB: TFormUpdateKadryFB
     Top = 0
     Width = 673
     Height = 513
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 4
     object TabSheet1: TTabSheet

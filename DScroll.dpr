@@ -328,7 +328,8 @@ uses
   UFormMoveAwans2017_12 in 'UFormMoveAwans2017_12.pas' {FormMoveAwans2017_12},
   UFormRepWordkers in 'UFormRepWordkers.pas' {FormRepWordkers},
   UFormGener in 'UFormGener.pas' {FormGener},
-  UFormMonthForGener in 'UFormMonthForGener.pas' {FormMonthForGener};
+  UFormMonthForGener in 'UFormMonthForGener.pas' {FormMonthForGener},
+  UFormSearchClassificator in '..\..\..\rating\KFU\pages\Телефонный справочник\UFormSearchClassificator.pas' {FormSearchClassificator};
 
 {$R *.res}
 begin

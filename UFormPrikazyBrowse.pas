@@ -44,6 +44,13 @@ type
     frxXLSExport1: TfrxXLSExport;
     frxRTFExport1: TfrxRTFExport;
     BitBtn1: TBitBtn;
+    dsPrikazyY: TFIBSmallIntField;
+    dsPrikazyM: TFIBSmallIntField;
+    dsPrikazyKODKP: TFIBStringField;
+    dsPrikazyKODZKPPTR: TFIBStringField;
+    dsPrikazyNAMEDOL: TFIBStringField;
+    dsPrikazyIDCLASSIFICATOR: TFIBIntegerField;
+    dsPrikazyNAMEPROF: TFIBStringField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
     procedure frxReport1GetValue(const VarName: String;
@@ -88,7 +95,7 @@ constructor TFormPrikazyBrowse.createPrikaz(AOwner: TComponent;tabno:Integer);
       if dsPrikazy.UpdateTransaction.Active then
          dsPrikazy.UpdateTransaction.Commit;
       dsPriType.Open;
-      dsPrikazy.Params[0].Value:=tabno;
+      dsPrikazy.Params[0].Value := tabno;
       dsPrikazy.Transaction.StartTransaction;
       dsPrikazy.Open;
  end;

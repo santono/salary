@@ -230,7 +230,8 @@ function GetName(ModeDBF:integer):string;
        case ModeDbf of
 //        5 :  Result:='e04t05i';
 //        6 :  Result:='e04t06i';
-        5 :  Result:='j30T405';
+//        5 :  Result:='j30T405';
+        5 :  Result:='J30401512';
         6 :  Result:='j30T406';
         7 :  Result:='j30T407';
        else
@@ -273,7 +274,10 @@ function BuildSQLStmnt(ModeDBF:integer):string;
 
         5:
     //                        0      1   2  3    4         5       6      7   8        9
-           result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth);
+           if isLNR then
+              result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth)
+           else                                                                             // 10   11   12  13  14
+              result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv,pnr,zkpp,prof,pos,pid from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth);
 
         6:
      {                        0      1   2  3   4  5            6      7     8   9    10     11       12       13       14  15    16      17    18  19    20        21      22}
@@ -303,6 +307,7 @@ function BuildSQLStmnt(ModeDBF:integer):string;
      c_pid                           : string    ;
      kd_np,kd_nzp,kd_ptv,kd_vp,nrm   : Integer   ;
      nrc                             : Integer   ;
+     kodkp,kodzkpp,prof,pos,pid      : string    ;
  begin
        case ModeDBF of
         5:begin
@@ -323,46 +328,75 @@ function BuildSQLStmnt(ModeDBF:integer):string;
               pid_zv    := Trim(pid_zv);
               if isSVDN then
                  begin
-              dBASE.SetFieldData(1 , IntToStr(WantedMonth));
-              dBASE.SetFieldData(2 , IntToStr(WantedYear));
+                     prof    := trim(pFIBQueryECB.Fields[10].AsString);
+                     kodzkpp := trim(pFIBQueryECB.Fields[11].AsString);
+                     kodkp   := trim(pFIBQueryECB.Fields[12].AsString);
+                     pos     := trim(pFIBQueryECB.Fields[13].AsString);
+                     pid     := trim(pFIBQueryECB.Fields[14].AsString);        ;
+
+                     dBASE.SetFieldData(1 , IntToStr(WantedMonth));
+                     dBASE.SetFieldData(2 , IntToStr(WantedYear));
 //              dBASE.SetFieldData(3 , IntToStr(RowNum));
-              dBASE.SetFieldData(3 , IntToStr(Ukr_Gromad));
-              dBASE.SetFieldData(4 , IntToStr(ZO));
-              dBASE.SetFieldData(5 , NumIdent);
-              dBASE.SetFieldData(6 , Fam);
-              dBASE.SetFieldData(7 , Nam);
-              dBASE.SetFieldData(8 , Otc);
-              if Start_Dt>0 then
-                 dBASE.SetFieldData(9 , IntToStr(Start_Dt));
-              if End_Dt>0 then
-                 dBASE.SetFieldData(10 , IntToStr(End_Dt));
-              dBASE.SetFieldData(11 , SPACE(8));  //NRM_DT дата створенн€ робочого м≥сц€ всегда пустое
-              if Length(pid_zv)>0  then
-                 dBase.SetFieldData(12, Copy(pid_zv+space(150),1,150))
-              else
-                 dBase.SetFieldData(12 , space(150));
-              dBASE.SetFieldData(13 , IntToStr(DOG_CPH));
+                    dBASE.SetFieldData(3 , IntToStr(Ukr_Gromad));
+                    dBASE.SetFieldData(4 , IntToStr(ZO));
+                    dBASE.SetFieldData(5 , IntToStr(DOG_CPH));
+                    dBASE.SetFieldData(6 , NumIdent);
+                    dBASE.SetFieldData(7 , Fam);
+                    dBASE.SetFieldData(8 , Nam);
+                    dBASE.SetFieldData(9 , Otc);
+                    if Start_Dt>0 then
+                       dBASE.SetFieldData(10 , IntToStr(Start_Dt));
+                    if End_Dt>0 then
+                       dBASE.SetFieldData(11 , IntToStr(End_Dt));
+                    dBASE.SetFieldData(12 , SPACE(8));  //NRM_DT дата створенн€ робочого м≥сц€ всегда пустое
+                    if Length(pid_zv)>0  then
+                      dBase.SetFieldData(13, Copy(pid_zv+space(150),1,150))
+                    else
+                      dBase.SetFieldData(13 , space(150));
+                    if length(prof)>0 then
+                      dBase.SetFieldData(14, Copy(prof+space(250),1,250))
+                    else
+                      dBase.SetFieldData(14 , space(250));
+
+                    if length(kodzkpp)>0 then
+                      dBase.SetFieldData(15, Copy(kodzkpp+space(5),1,5))
+                    else
+                      dBase.SetFieldData(15, space(5));
+
+                    if length(kodkp)>0 then
+                      dBase.SetFieldData(16, Copy(kodkp+space(6),1,6))
+                    else
+                      dBase.SetFieldData(16, space(6));
+
+                    if length(pos)>0 then
+                      dBase.SetFieldData(17, Copy(pos+space(250),1,250))
+                    else
+                      dBase.SetFieldData(17, space(250));
+                    if length(pid)>0 then
+                      dBase.SetFieldData(18, Copy(pid+space(250),1,250))
+                    else
+                      dBase.SetFieldData(18, space(250));
                  end
               else
                  begin
-              dBASE.SetFieldData(3 , IntToStr(RowNum));
-              dBASE.SetFieldData(4 , IntToStr(Ukr_Gromad));
-              dBASE.SetFieldData(5 , IntToStr(ZO));
-              dBASE.SetFieldData(6 , IntToStr(DOG_CPH));
-              dBASE.SetFieldData(7 , NumIdent);
-              dBASE.SetFieldData(8 , Fam);
-              dBASE.SetFieldData(9 , Nam);
-              dBASE.SetFieldData(10 , Otc);
-              if Start_Dt>0 then
-                 dBASE.SetFieldData(11 , IntToStr(Start_Dt));
-              if End_Dt>0 then
-                 dBASE.SetFieldData(12 , IntToStr(End_Dt));
-              dBASE.SetFieldData(13 , SPACE(8));  //NRM_DT дата створенн€ робочого м≥сц€ всегда пустое
-              if Length(pid_zv)>0  then
-                 dBase.SetFieldData(14 , Copy(pid_zv+space(150),1,150))
-              else
-                 dBase.SetFieldData(14 , space(150));
-               end;
+                    dBASE.SetFieldData(3 , IntToStr(RowNum));
+                    dBASE.SetFieldData(4 , IntToStr(Ukr_Gromad));
+                    dBASE.SetFieldData(5 , IntToStr(ZO));
+                    dBASE.SetFieldData(6 , IntToStr(DOG_CPH));
+                    dBASE.SetFieldData(7 , NumIdent);
+                    dBASE.SetFieldData(8 , Fam);
+                    dBASE.SetFieldData(9 , Nam);
+                    dBASE.SetFieldData(10 , Otc);
+                    if Start_Dt>0 then
+                       dBASE.SetFieldData(11 , IntToStr(Start_Dt));
+                    if End_Dt>0 then
+                       dBASE.SetFieldData(12 , IntToStr(End_Dt));
+                    dBASE.SetFieldData(13 , SPACE(8));  //NRM_DT дата створенн€ робочого м≥сц€ всегда пустое
+                    if Length(pid_zv)>0  then
+                      dBase.SetFieldData(14 , Copy(pid_zv+space(150),1,150))
+                    else
+                      dBase.SetFieldData(14 , space(150));
+                 end;
               result:=true;
 
 
