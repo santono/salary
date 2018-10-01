@@ -36,7 +36,7 @@ type
     procedure makeRecalcNalogi;
     procedure makeNextData;
     function makeArchives(M:INTEGER=0):boolean;
-    procedure GetFromDay(m:integer;var d,c:integer);
+    procedure GetFromDay(m:integer;var d5,d6,c:integer);
     procedure SelectLine;
     function getShifrPKGFromComboBox:integer;
 
@@ -60,7 +60,7 @@ begin
       Action := caFree;
 end;
 
-procedure TFormGener.GetFromDay(m:integer;var d,c:integer);
+procedure TFormGener.GetFromDay(m:integer;var d5,d6,c:integer);
  var i   : integer;
      FName     : string;
      Dev       : TextFile;
@@ -81,7 +81,7 @@ procedure TFormGener.GetFromDay(m:integer;var d,c:integer);
                      readln(dev);
                      continue;
                  end;
-                 read(dev,d,dummy,dummy,dummy,c);
+                 read(dev,d5,d6,dummy,dummy,c);
                  break;
           end;
       CloseFile(dev);
@@ -90,7 +90,7 @@ procedure TFormGener.GetFromDay(m:integer;var d,c:integer);
 
 procedure TFormGener.FormCreate(Sender: TObject);
  var m,y:integer;
-     c,d:integer;
+     c,d5,d6:integer;
 begin
      Caption:='Генерация данных за '+getNameNextData;
      Label11.Caption:='. . . ';
@@ -104,10 +104,13 @@ begin
        LabelNextMonth.Caption:='Генерация данных для перехода на '+trim(getMonthUkr(M))+' '+intToStr(y)+' р.'
      else
        LabelNextMonth.Caption:='Генерация данных для перехода на '+trim(getMonthRus(M))+' '+intToStr(y)+' г.';
-     GetFromDay(m,d,c);
+     GetFromDay(m,d5,d6,c);
      SelectLine;
      wantedShifrPKG:=66;
-     LabelDC.Caption:='Рабочих дней '+IntToStr(d)+'. Часов '+IntToStr(c)+'.';
+     if isSVDN then
+        LabelDC.Caption:='Рабочих дней '+IntToStr(d5)+'. Часов '+IntToStr(c)+'.'
+     else
+        LabelDC.Caption:='Рабочих дней: пятидневка - '+IntToStr(d5)+', шестидневка - '+intToStr(d6)+'. Часов '+IntToStr(c)+'.'
 end;
 
 procedure TFormGener.moveDAYS;

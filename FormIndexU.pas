@@ -1637,7 +1637,7 @@ procedure TFormIndex.mkindex112015;
            begin
                 if curr_cn^.SHIFR=FIXSUMMAIND_SHIFR+limit_cn_base then
                    begin
-                        summa:=R10(CURR_cn^.SUMMA*work_day(1,31,curr_person)/w_day[11]);
+                        summa:=R10(CURR_cn^.SUMMA*work_day(1,31,curr_person)/w_day_5[11]);
                         if getSummaAddForPersonW(curr_person,INDEX_SHIFR,11)<0.01 then
                         if (summa>0.01) then
                            begin

@@ -400,6 +400,7 @@ var
     HEAD_PERSON,TAIL_PERSON:PERSON_PTR;
     HEAD_PERSON_OLD,TAIL_PERSON_OLD:PERSON_PTR;
     NSRV,NMES,FLOW_MONTH:LongInt;
+    NSRVARR:array[1..10] of integer;
     NPDR:LongInt;
     MainDir,
     CDIR,        {Директория для постоянной информации                   }
@@ -448,7 +449,8 @@ var
 { *} home_tema:integer;
 { *} MAX_KATEGORIJA : integer;  {МАКСИМАЛЬНОЕ ЧИСЛО КАТЕГОРИЯЙ (ПРЕПОД.,УЧ.ВСП,Н.СОТР.)   * }
 { *} MAX_ist_fin:integer;       {МАКСИМАЛЬНОЕ ЧИСЛО источников финансирования }
-    W_DAY:ARRAY[1..12] OF INTEGER;
+    W_DAY_5:ARRAY[1..12] OF INTEGER;
+    W_DAY_6:ARRAY[1..12] OF INTEGER;
     W_DayColedg:ARRAY[1..12] OF INTEGER;
     CLOCKS:ARRAY[1..12] OF REAL;
     CLOCKSColedg:ARRAY[1..12] OF REAL;
@@ -678,7 +680,7 @@ begin
     bolnLNRMode2016:=false;
     needAllPodr:=false;
     needHideGenerMessages:=false;
-
+    FillChar(NSRVarr,SIZEOF(NSRVARR),0);
 {$IFDEF SVDN}
     isSVDN := True  ;
     isLNR  := False ;

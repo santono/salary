@@ -272,7 +272,9 @@ interface
    FUNCTION IsPensionerByDate(Curr_Person:Person_Ptr):boolean;
  //  function NumeralToPhrase(const SVal: real) : String;
    function NumeralToPhrase(const SVal: real;Mode:integer=0;ShortMode:boolean=false) : String;
-   function GetWDay(Period:integer):Real;
+   function isSixDayMode(curr_person:person_ptr):boolean;
+   function isFiveDayMode(curr_person:person_ptr):boolean;
+   function GetWDay(Period:integer;curr_person:person_ptr):Real;
    function GetWorkClockForYearMonth(Y:integer;M:Integer):real;
    function GetDayCode(k:integer):Integer;
    procedure SetUpSowm(Tabno,W_P:integer);
@@ -1493,7 +1495,7 @@ FUNCTION WORK_CLOCK(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):R
   END;
  BEGIN
       A:=0;
-      IF CURR_PERSON^.MODE=FIVE_DAY THEN
+      IF isFiveDayMode(CURR_PERSON) THEN
          BEGIN
     //          FOR I:=1 TO 31 DO IF DAY_KOD[I]=1 THEN
     //                            IF DAY_KOD[I+1]=4 THEN A:=A+6
@@ -1505,7 +1507,7 @@ FUNCTION WORK_CLOCK(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):R
                              IF GetDayCode(I)=2 THEN A:=A+6;
               OO:=WORK_DAY(START_DAY,LAST_DAY,CURR_PERSON);
              // A:=A/W_DAY[NMES]*OO;
-              A:=A/GetWDay(NMES)*OO;
+              A:=A/GetWDay(NMES,CURR_PERSON)*OO;
          END
                                     ELSE
          FOR I:=START_DAY TO LAST_DAY DO IF ((CURR_PERSON^.TABEL[I]=RABOTA)       OR
@@ -1549,7 +1551,8 @@ FUNCTION NADBAWKA_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR)
       NADBAWKA_DAY:=j;      
       IF Curr_Person=Nil then Exit;
       FOR I:=START_DAY TO LAST_DAY DO
-          IF (CURR_PERSON^.MODE=FIVE_DAY) AND (CURR_PERSON^.TABEL[I] IN [TARIFN_OTPUSK,ILLNESS]) AND (TEST_SUBBOTA(I))  THEN
+          IF (isFiveDayMode(CURR_PERSON))
+         AND (CURR_PERSON^.TABEL[I] IN [TARIFN_OTPUSK,ILLNESS]) AND (TEST_SUBBOTA(I))  THEN
                                                                               ELSE
              begin
                   T:=CURR_PERSON^.TABEL[I];
@@ -1703,7 +1706,7 @@ FUNCTION THIS_PERSON(CURR_PERSON:PERSON_PTR):BOOLEAN;
                 CASE GetDayCode(I) OF
                      0 : CURR_PERSON^.TABEL[I]:=NEZAPOLN;
                      1 : CURR_PERSON^.TABEL[I]:=JAWKA;
-                     2 : IF CURR_PERSON^.MODE=FIVE_DAY THEN CURR_PERSON^.TABEL[I]:=VYHODN
+                     2 : IF isFiveDayMode(CURR_PERSON) THEN CURR_PERSON^.TABEL[I]:=VYHODN
                                                        ELSE CURR_PERSON^.TABEL[I]:=JAWKA;
                      3 : CURR_PERSON^.TABEL[I]:=VYHODN;
                      4 : CURR_PERSON^.TABEL[I]:=VYHODN;
@@ -1725,7 +1728,7 @@ FUNCTION THIS_PERSON(CURR_PERSON:PERSON_PTR):BOOLEAN;
                 CASE GetDayCode(I) OF
                      0 : CURR_PERSON^.TABEL[I]:=NEZAPOLN;
                      1 : CURR_PERSON^.TABEL[I]:=JAWKA;
-                     2 : IF CURR_PERSON^.MODE=FIVE_DAY THEN CURR_PERSON^.TABEL[I]:=VYHODN
+                     2 : IF isFiveDayMode(CURR_PERSON) THEN CURR_PERSON^.TABEL[I]:=VYHODN
                                                        ELSE CURR_PERSON^.TABEL[I]:=JAWKA;
                      3 : CURR_PERSON^.TABEL[I]:=VYHODN;
                      4 : CURR_PERSON^.TABEL[I]:=VYHODN;
@@ -5922,10 +5925,54 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
       Result:=RetVal;
   end;
 
- function GetWDay(Period:integer):Real;
+ function isSixDayMode(curr_person:person_ptr):boolean;
+  const ld=12;
+        dolgl:array[1..ld] of Integer=(70,80,1532,47,10,40,20,30,45,47,50,60);
+  var retVal:boolean;
+      shifrdol:integer;
+      function isindol(wi:integer):boolean;
+        var retval:boolean;
+            i:integer;
+        begin
+             retval:=false;
+             for i:=1 to ld do
+               begin
+                    if dolgl[i]=wi then
+                       begin
+                           retval:=true;
+                           break;
+                       end;
+               end;
+             isindol:=retval;
+        end;
+  begin
+       retVal:=false;
+       shifrDol:=GET_DOL_CODE(curr_person);
+       if (currYear>2018) or ((currYear=2018) and (nmes>8)) then
+       if (isLNR and not IsColedgPodr(NSRV)
+           and (nsrv<>1)
+           and (nsrv<>8)
+           and not isindol(shifrDol)
+           ) then
+       if (curr_Person.KATEGORIJA=1)         then
+    //       or
+    //       (isPersonAUP_PPS(curr_person))) then
+          retVal:=true;
+
+       isSixDayMode:=retVal;
+  end;
+ function isFiveDayMode(curr_person:person_ptr):boolean;
+  var retVal:boolean;
+  begin
+       retVal:=not isSixDayMode(curr_person);
+       isFiveDayMode:=retVal;
+  end;
+ function GetWDay(Period:integer;curr_person:person_ptr):Real;
   var RetVal:Real;
   begin
-       RetVal:=W_Day[Period];
+       RetVal:=W_Day_5[Period];
+       if isSixDayMode(curr_person) then
+          retVal:=w_day_6[Period]; 
        if IsColedgPodr(NSRV) then
        if W_DayColedg[Period]>0 then
           RetVal:=W_DayColedg[Period];
@@ -10213,7 +10260,7 @@ procedure CheckTabelForUwol(Curr_Person:Person_Ptr);
                 CASE GetDayCode(I) OF
                      0 : CURR_PERSON^.TABEL[I]:=NEZAPOLN;
                      1 : CURR_PERSON^.TABEL[I]:=JAWKA;
-                     2 : IF CURR_PERSON^.MODE=FIVE_DAY THEN CURR_PERSON^.TABEL[I]:=VYHODN
+                     2 : IF isFiveDayMode(CURR_PERSON) THEN CURR_PERSON^.TABEL[I]:=VYHODN
                                                        ELSE CURR_PERSON^.TABEL[I]:=JAWKA;
                      3 : CURR_PERSON^.TABEL[I]:=VYHODN;
                      4 : CURR_PERSON^.TABEL[I]:=VYHODN;

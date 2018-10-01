@@ -4095,8 +4095,9 @@ PROCEDURE OKLAD_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
                    END
                                               ELSE
                     BEGIN
-                         IF CURR_PERSON^.MODE=FIVE_DAY THEN OO:=GetWDay(NMES)//OO:=W_DAY[NMES]
-                                              ELSE OO:=GetWDay(NMES);//OO:=W_DAY[NMES];
+//                         IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,curr_person)//OO:=W_DAY[NMES]
+//                                              ELSE OO:=GetWDay(NMES,curr_person);//OO:=W_DAY[NMES];
+                         OO:=GetWDay(NMES,curr_person);//OO:=W_DAY[NMES];
                          if Abs(oo)<0.9 then
                             begin
                                  if NMES=FLOW_MONTH then
@@ -4211,7 +4212,7 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
         Exit;
      if SUMMA>SummaDoplFull then
         exit;
-     OO:=GetWDay(NMES);
+     OO:=GetWDay(NMES,CURR_PERSON);
      summaDoplRas:=R10(summaDoplFull/OO*o_day);
      o_person:=summaDoplRas-summa;
      DAY:=ROUND(O_day);
@@ -4311,7 +4312,7 @@ PROCEDURE DIFF_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      SummaDiffFull:=r10(summa*procDiffSal/100.00);
      summaDiffRas:=R10(summaDiffFull-SummaDiffVypl);
      o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON);
-     OO:=GetWDay(NMES);
+     OO:=GetWDay(NMES,CURR_PERSON);
      if abs(o_day-oo)<0.1 then
      if abs(summaDiffVypl)<0.1 then
         summaDiffRas:=roundTo(summaDiffRas,0);
@@ -4811,8 +4812,9 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                                          ProverkaTetradejShifr,
                                                          KlassnoeRukowodstwoShifr]) THEN
                                    BEGIN
-                                         IF CURR_PERSON^.MODE=FIVE_DAY THEN OO:=GetWDay(NMES)//OO:=W_DAY[NMES]
-                                                                       ELSE OO:=GetWDay(NMES);//OO:=W_DAY[NMES];
+//                                         IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,CURR_PERSON)//OO:=W_DAY[NMES]
+//                                                                          ELSE OO:=GetWDay(NMES,CURR_PERSON);//OO:=W_DAY[NMES];
+                                         OO:=GetWDay(NMES,CURR_PERSON);//OO:=W_DAY[NMES];
                                          if Abs(oo)<0.9 then
                                          if NMES=FLOW_MONTH then
                                             ShowMessage('Не указан календарь за '+getMonthRus(nmes));
@@ -4851,8 +4853,9 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                         4:BEGIN CURR_ADDW^.SHIFR  := CURR_CN^.SHIFR;
                                 CURR_ADDW^.PERIOD := PERIOD;
                                 CURR_ADDW^.WHO    := CURR_CN^.ID;
-                                IF CURR_PERSON^.MODE=FIVE_DAY THEN OO:=GetWDay(NMES)//OO := W_DAY[NMES]
-                                                              ELSE OO:=GetWDay(NMES);//OO := W_DAY[NMES];
+//                                IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,CURR_PERSON)//OO := W_DAY[NMES]
+//                                                              ELSE OO:=GetWDay(NMES,CURR_PERSON);//OO := W_DAY[NMES];
+                                OO:=GetWDay(NMES,CURR_PERSON);//OO := W_DAY[NMES];
                                 if Abs(oo)<0.9 then
                                 if NMES=FLOW_MONTH then
                                    ShowMessage('Не указан календарь за '+getMonthRus(nmes));
@@ -4895,8 +4898,9 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                                          ProverkaTetradejShifr,
                                                          KlassnoeRukowodstwoShifr]) THEN
                                    BEGIN
-                                         IF CURR_PERSON^.MODE=FIVE_DAY THEN OO:=GetWDay(NMES)//OO:=W_DAY[NMES]
-                                                                       ELSE OO:=GetWDay(NMES);//OO:=W_DAY[NMES];
+//                                         IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,CURR_PERSON)//OO:=W_DAY[NMES]
+//                                                                       ELSE OO:=GetWDay(NMES,CURR_PERSON);//OO:=W_DAY[NMES];
+                                         OO:=GetWDay(NMES,CURR_PERSON);//OO:=W_DAY[NMES];
                                          if Abs(oo)<0.9 then
                                          if NMES=FLOW_MONTH then
                                             ShowMessage('Не указан календарь за '+getMonthRus(nmes));
@@ -4936,8 +4940,9 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                         2:BEGIN CURR_ADDW^.SHIFR  := CURR_CN^.SHIFR;
                                 CURR_ADDW^.PERIOD := PERIOD;
                                 CURR_ADDW^.WHO    := CURR_CN^.ID;
-                                IF CURR_PERSON^.MODE=FIVE_DAY THEN OO:=GetWDay(NMES)//OO := W_DAY[NMES]
-                                                              ELSE OO:=GetWDay(NMES);//OO := W_DAY[NMES];
+//                                IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,CURR_PERSON)//OO := W_DAY[NMES]
+//                                                              ELSE OO:=GetWDay(NMES,CURR_PERSON);//OO := W_DAY[NMES];
+                                OO:=GetWDay(NMES,CURR_PERSON);//OO := W_DAY[NMES];
                                 if Abs(oo)<0.9 then
                                 if NMES=FLOW_MONTH then
                                    ShowMessage('Не указан календарь за '+getMonthRus(nmes));
@@ -4980,8 +4985,9 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                                          ProverkaTetradejShifr,
                                                          KlassnoeRukowodstwoShifr ]) THEN
                                    BEGIN
-                                         IF CURR_PERSON^.MODE=FIVE_DAY THEN OO:=GetWDay(NMES)//OO:=W_DAY[NMES]
-                                                                       ELSE OO:=GetWDay(NMES);//OO:=W_DAY[NMES];
+//                                         IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,CURR_PERSON)//OO:=W_DAY[NMES]
+//                                                                       ELSE OO:=GetWDay(NMES,CURR_PERSON);//OO:=W_DAY[NMES];
+                                         OO:=GetWDay(NMES,CURR_PERSON);//OO:=W_DAY[NMES];
                                          if Abs(oo)<0.9 then
                                          if NMES=FLOW_MONTH then
                                             ShowMessage('Не указан календарь за '+getMonthRus(nmes));
@@ -5018,8 +5024,9 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                         6:BEGIN CURR_ADDW^.SHIFR  := CURR_CN^.SHIFR;
                                 CURR_ADDW^.PERIOD := PERIOD;
                                 CURR_ADDW^.WHO    := CURR_CN^.ID;
-                                IF CURR_PERSON^.MODE=FIVE_DAY THEN OO:=GetWDay(NMES)//OO := W_DAY[NMES]
-                                                              ELSE OO:=GetWDay(NMES);//OO := W_DAY[NMES];
+//                                IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,CURR_PERSON)//OO := W_DAY[NMES]
+//                                                              ELSE OO:=GetWDay(NMES,CURR_PERSON);//OO := W_DAY[NMES];
+                                OO:=GetWDay(NMES,CURR_PERSON);//OO := W_DAY[NMES];
                                 if Abs(oo)<0.9 then
                                 if NMES=FLOW_MONTH then
                                    ShowMessage('Не указан календарь за '+getMonthRus(nmes));
@@ -5107,8 +5114,9 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                 CURR_UDW^.SHIFR:=CURR_CN^.SHIFR;
                                 CURR_UDW^.PERIOD:=PERIOD;
                                 CURR_UDW^.WHO   :=CURR_CN^.PRIM;
-                             IF CURR_PERSON^.MODE=FIVE_DAY THEN OO:=GetWDay(NMES)//OO:=W_DAY[NMES]
-                                                           ELSE OO:=GetWDay(NMES);//OO:=W_DAY[NMES];
+//                             IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,CURR_PERSON)//OO:=W_DAY[NMES]
+//                                                           ELSE OO:=GetWDay(NMES,CURR_PERSON);//OO:=W_DAY[NMES];
+                                OO:=GetWDay(NMES,CURR_PERSON);//OO:=W_DAY[NMES];
                              if Abs(oo)<0.9 then
                              if NMES=FLOW_MONTH then
                                 ShowMessage('Не указан календарь за '+getMonthRus(nmes));

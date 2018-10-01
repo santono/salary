@@ -771,12 +771,18 @@ var Tabno:Integer;
     WorkPLace:integer;
     RecNo:Integer;
     i:integer;
-
+    modeFive:boolean;
 begin
      if NMES<>FLOW_MONTH then
         begin
              ShowMessage('Добавлять сотрудника можно только в текущем месяце');
              Exit;
+        end;
+     modeFive:=true;
+     if isLNR then
+        begin
+             if yesNo('Шестидневка') then
+                modeFive:=false;
         end;
      if modeKadrySQL then
       with TFormFindKadryFB.Create(nil) do
@@ -806,6 +812,12 @@ begin
                            Curr_Person^.MESTO_OSN_RABOTY:=WorkPlace;
                            SetUpSowm(Tabno,WorkPlace);
                       end;
+                   if isLNR then
+                      if modeFive then
+                         begin
+                              Curr_Person^.KATEGORIJA:=2;
+                              FILL_STANDARD_TABEL_PERSON(CURR_PERSON);
+                         end;
                    MakeGrid;
 
               end;
@@ -1126,12 +1138,20 @@ PROCEDURE TFormKadry.copy_Person_From_Another_Podr(wantedMode:integer);
      NMES_TEMP:Integer;
      toPointer:Integer;
 PROCEDURE PUTINF_SAFE;
+  var saveNSRV:integer;
  BEGIN
-
+     SAVENSRV:=NSRV;
      SAFE_PUTINF:=TRUE;
+     if (selected_field=2) and (nsrvarr[2]>0) then
+        begin
+             nsrv:=nsrvarr[2];
+             mkflnm;
+        end;
      PUTINF;
      SAFE_PUTINF:=FALSE;
-     
+     NSRV:=SAVENSRV;
+     MKFLNM;
+
  END;
  PROCEDURE MAKE_NEW_SOWM(APOINTER:INTEGER);
   VAR I:INTEGER;
@@ -1139,16 +1159,25 @@ PROCEDURE PUTINF_SAFE;
       CURR_SOWM:SOWM_PTR;
       ListPodr:TList;
       Finded:Boolean;
+      saveNSRV:INTEGER;
 { -------------------------------------------------------- }
    procedure SavePodr(WantedTabno:integer;WantedPodr:integer);
     var Curr_Person:PERSON_PTR;
         PInt:PInteger;
+        saveNSRV:INTEGER;
     begin
          SELECT(2);
+         saveNSRV:=nsrv;
          NSRV:=WantedPodr;
          mkflnm;
-         if not FileExists(FNINF) then Exit;
+         if not FileExists(FNINF) then
+            BEGIN
+                 nsrv:=saveNSRV;
+                 MKFLNM;
+                 Exit;
+            END;
          GETINF(true);
+         NSRVARR[2]:=NSRV;
          Curr_Person:=HEAD_PERSON;
          while (Curr_PERSON<>Nil) do
            begin
@@ -1158,11 +1187,14 @@ PROCEDURE PUTINF_SAFE;
                 Curr_Person:=Curr_Person^.NEXT;
            end;
          PUTINF;
-         while (HEAD_PERSON<>Nil) do DEL_PERSON(Head_Person);
+         NSRVARR[2]:=0;
+         EMPTY_ALL_PERSON;
          New(PInt);
          PInt^:=WantedPodr;
          ListPodr.Add(PInt);
          SELECT(1);
+         NSRV:=saveNSRV;
+         MKFLNM;
 
     end;
 { -------------------------------------------------- }
@@ -1172,6 +1204,7 @@ PROCEDURE PUTINF_SAFE;
             error('Изменения можно вносить только в текущем месяце');
             exit;
         end;
+      saveNSRV:=NSRV;
       ListPodr:=TList.Create;
       KZ:=0;
       SELECT(1);
@@ -1208,6 +1241,8 @@ PROCEDURE PUTINF_SAFE;
                Curr_Person^.MESTO_OSN_RABOTY:=NSRV_TEMP;
             Curr_Person:=Curr_Person^.NEXT;
        end;
+      NSRV:=saveNSRV;
+      MKFLNM;
   END; {Конец процедуры Make_new_sowm}
 {+++++++++++++++++++++++++++++++++++++++++++++++++}
  PROCEDURE COPY_OLD_PERSON(FROMPOINTER,TOPOINTER:INTEGER);
@@ -1218,7 +1253,10 @@ PROCEDURE PUTINF_SAFE;
       CURR_CN,CURR_CN_OLD:CN_PTR;
       CURR_ADD,CURR_ADD_OLD:ADD_PTR;
       CURR_UD,CURR_UD_OLD:UD_PTR;
+      saveNSRV:INTEGER;
   BEGIN
+
+      SaveNSRV:=NSRV;
       KZ:=0;
   { CURR_PERSON_OLD - которого копировать }
   { CURR_PERSON     - куда копировать     }
@@ -1228,6 +1266,8 @@ PROCEDURE PUTINF_SAFE;
          begin
               select(1);
               KZ:=-1;
+              NSRV:=saveNSRV;
+              MKFLNM;
               Exit;
          end;
       IF CURR_PERSON_OLD^.WID_RABOTY<>1 THEN
@@ -1235,6 +1275,8 @@ PROCEDURE PUTINF_SAFE;
               Select(1);
               ERROR(' Переводить можно только с основного места работы');
               KZ:=-1;
+              NSRV:=saveNSRV;
+              MKFLNM;
               EXIT;
          END;
       SELECT(1);
@@ -1261,6 +1303,8 @@ PROCEDURE PUTINF_SAFE;
               CURR_PERSON_OLD^.MESTO_OSN_RABOTY:=SHIFR_SERV(NSRV_TEMP);
               SELECT(2);
               PUTINF_SAFE;        {Сохранить новый MAIN}
+              NSRV:=saveNSRV;
+              MkFLNM;
               SELECT(1);
          end;
       CURR_PERSON^.SOWM:=NIL;
@@ -1301,10 +1345,12 @@ PROCEDURE PUTINF_SAFE;
                        CURR_UD_OLD   := CURR_UD_OLD^.NEXT;
                   END;
          end;
-    if modeKadrySQL then
-       SetWorkPlaceKadrySQL(NSRV_TEMP,CURR_PERSON^.TABNO)
-    else
-       SetWorkPlaceForTabno(NSRV_TEMP,CURR_PERSON^.TABNO);
+         if modeKadrySQL then
+            SetWorkPlaceKadrySQL(NSRV_TEMP,CURR_PERSON^.TABNO)
+         else
+            SetWorkPlaceForTabno(NSRV_TEMP,CURR_PERSON^.TABNO);
+        NSRV:=saveNSRV;
+        MkFLNM;
 
  END;
  { ************************************************* }
@@ -1332,7 +1378,8 @@ PROCEDURE PUTINF_SAFE;
               NMES:=NMES_TEMP;
               MKFLNM;
               SELECT(2);
-              LDEL_PERSON;
+              EMPTY_ALL_PERSON;
+              NSRVARR[2]:=0;
               SELECT(1);
               Exit;
          end;
@@ -1342,11 +1389,14 @@ PROCEDURE PUTINF_SAFE;
       toPointer:=COUNT_PERSON;
       COPY_OLD_PERSON(I,toPointer);
       SELECT(2);
-      LDEL_PERSON;
+      EMPTY_ALL_PERSON;
+      NSRVARR[2]:=0;
       SELECT(1);
       NSRV:=NSRV_TEMP;
       NMES:=NMES_TEMP;
-      IF KZ>=0 THEN MAKE_NEW_SOWM(TOPOINTER);
+      MKFLNM;
+      IF KZ>=0 THEN
+         MAKE_NEW_SOWM(TOPOINTER);
       SELECT(1);
       NSRV:=NSRV_TEMP;
       NMES:=NMES_TEMP;

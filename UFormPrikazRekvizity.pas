@@ -68,10 +68,10 @@ constructor TFormPrikazRekvizity.createP(AOwner:TComponent;SQLAction:integer);
  begin
       inherited Create(AOwner);
       Self.SQLAction:=SQLAction;
-      if (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.value=7) then
-          ShowPerevodRekvizity
-      else
-          HidePerevodRekvizity;
+//      if (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.value=7) then
+          ShowPerevodRekvizity;
+//      else
+//          HidePerevodRekvizity;
       if Self.SQLAction=1 then
          begin
               FormPrikazyBrowse.dsoPrikazy.DataSet.Append;
@@ -119,11 +119,11 @@ end;
 
 procedure TFormPrikazRekvizity.DBLookupComboBox1Click(Sender: TObject);
 begin
-     FormPrikazyBrowse.dsPrikazyCONTENT.Value:=FormPrikazyBrowse.dsPriTypeCONTENT.Value;
-     if  (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.Value=7) then
-         ShowPerevodRekvizity
-     else
-         HidePerevodRekvizity;
+//     FormPrikazyBrowse.dsPrikazyCONTENT.Value:=FormPrikazyBrowse.dsPriTypeCONTENT.Value;
+//     if  (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.Value=7) then
+//         ShowPerevodRekvizity
+//     else
+//         HidePerevodRekvizity;
 
      Application.ProcessMessages;
 end;

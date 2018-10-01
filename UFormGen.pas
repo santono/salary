@@ -146,7 +146,7 @@ PROCEDURE MODI_INF;
                 CASE GetDayCode(i) OF
                      0 : CURR_PERSON^.TABEL[I]:=NEZAPOLN;
                      1 : CURR_PERSON^.TABEL[I]:=JAWKA;
-                     2 : IF CURR_PERSON^.MODE=FIVE_DAY THEN CURR_PERSON^.TABEL[I]:=VYHODN
+                     2 : IF isFiveDayMode(CURR_PERSON) THEN CURR_PERSON^.TABEL[I]:=VYHODN
                                                        ELSE CURR_PERSON^.TABEL[I]:=JAWKA;
                      3 : CURR_PERSON^.TABEL[I]:=VYHODN;
                      4 : CURR_PERSON^.TABEL[I]:=VYHODN;

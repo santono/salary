@@ -49,6 +49,7 @@ var SQLStmnt : string;
     dev      : TextFile;
     fname    : string;
     i,k      : Integer;
+    d5,d6    : integer;
 begin
      fname:=cdir+'day.txt';
      AssignFile(dev,fname);
@@ -57,7 +58,8 @@ begin
      for i:=1 to monthof(dataza) do
          begin
               Readln(dev,d1,d2,d3,d4,clock);
-              d:=d1;
+              d5:=d1;
+              d6:=d2;
          end;
      CloseFile(dev);
      SQLStmnt:='delete from TB_MONTHS_HEA where extract(month from datefr)='+intToStr(monthOf(dataZa))+' and extract(year from datefr)='+intToStr(yearOf(dataZa));
@@ -65,7 +67,7 @@ begin
      SQLStmnt:='delete from TB_MONTHS_PR where extract(month from datefr)='+intToStr(monthOf(dataZa))+' and extract(year from datefr)='+intToStr(yearOf(dataZa));
      SQLExecute(SQLStmnt);
      SQLStmnt:='insert into TB_MONTHS_HEA (datefr,WORK_DAY_5, WORK_DAY_6, WORK_CLOCK_5, WORK_CLOCK_6) values ('''+intToStr(yearOf(dataZa))+'-'+intToStr(monthOf(dataZa))+'-01'','+
-               intToStr(d)+','+intToStr(d)+','+intToStr(clock)+','+intToStr(clock)+')';
+               intToStr(d5)+','+intToStr(d6)+','+intToStr(clock)+','+intToStr(clock)+')';
      SQLExecute(SQLStmnt);
      for i:=1 to 31 do
          begin
@@ -76,12 +78,22 @@ begin
          end;
      SQLStmnt:='delete from TB_DAYS where yearza='+intToStr(yearOf(dataZa))+' and monthza='+intToStr(monthOf(dataZa));
      SQLExecute(SQLStmnt);
+     if isLNR then
+     SQLStmnt:='insert into TB_DAYS (YEARZA,MONTHZA,WDAYS,CLOCKS,WDAYSCOLEDG,WCLOCKSCOLEDG,WDAYS_6) values ('
+               + intToStr(yearOf(dataZa))  + ','
+               + intToStr(monthOf(dataZa)) + ','
+               + intToStr(d5)    + ','
+               + intToStr(clock) + ','
+               + intToStr(d5)    + ','
+               + intToStr(clock) + ','
+               + intToStr(d6) + ')'
+     else
      SQLStmnt:='insert into TB_DAYS (YEARZA,MONTHZA,WDAYS,CLOCKS,WDAYSCOLEDG,WCLOCKSCOLEDG) values ('
                + intToStr(yearOf(dataZa))  + ','
                + intToStr(monthOf(dataZa)) + ','
-               + intToStr(d)     + ','
+               + intToStr(d5)    + ','
                + intToStr(clock) + ','
-               + intToStr(d)     + ','
+               + intToStr(d5)    + ','
                + intToStr(clock) + ')';
      SQLExecute(SQLStmnt);
      if not needHideGenerMessages then

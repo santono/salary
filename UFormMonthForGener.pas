@@ -47,7 +47,7 @@ type
       d_db : array[1..31] of integer;      { данные прочитанные из БД }
       ComboBox:TComboBox;
       SelectedRow,SelectedCol:integer;
-      workdayu,dummy,workdayc,workclock:integer;
+      workdayu5,workdayu6,dummy,workdayc,workclock:integer;
       procedure MkCombo(ATop,ALeft,AWidth,AHeight:integer);
       procedure GetFromDB;
       procedure PutToDB;
@@ -82,7 +82,11 @@ constructor TFormMonthForGener.CreateUsingDate(AOwner:TComponent;newDate:TDate);
        FillChar(d_db,SizeOf(d_db),0);
        FillChar(d,SizeOf(d),0);
        GetFromMonths;
-       LabelRDay.Caption:=IntToStr(workdayu);
+       if isSVDN then
+          LabelRDay.Caption:=IntToStr(workdayu5)
+       else
+          LabelRDay.Caption:='5-'+IntToStr(workdayu5)+'. 6-'+IntToStr(workdayu6);
+
        UpDownWorkClock.Max:=DaysInMonth(wanteddata)*8;
        if (workclock>UpDownWorkClock.Max) then
           workclock:=UpDownWorkClock.Max;
@@ -229,12 +233,13 @@ var
     Color_My      : TColor;
     vCode,vDayNo  : integer;
 begin
-  //    Exit;
+//      Exit;
       Color_My:=0;
       vRow := aRow ;
       vCol := aCol ;
       S    := '';
       if vRow=0 then Exit;
+ //     if vCol<1 then Exit;
       Finded:=false;
       vCode:=findCodeInD(vCol,vRow,vDayNo);
       if vCode>0 then
@@ -264,7 +269,7 @@ begin
                 if color_my<>0 then Brush.Color:=color_my;
                 FillRect(Rect);
                 SetBkMode(Handle, TRANSPARENT);
-                if (vCol>0) then
+                if (vCol>=0) then
                     begin
                           SetTextAlign(Handle, TA_LEFT);
 {                          TextOut(Rect.Right, Rect.Top+2, S);}
@@ -559,7 +564,7 @@ procedure TFormMonthForGener.GetFromMonths;
                               readln(dev);
                               continue;
                          end;
-                         read(dev,workdayu,dummy,workdayc,dummy,workclock);
+                         read(dev,workdayu5,workdayu6,workdayc,dummy,workclock);
                          break;
                    end;
                CloseFile(dev);
@@ -649,7 +654,7 @@ procedure TFormMonthForGener.SaveToMonths;
          end
       else
          begin
-               workdayc:=workdayu;
+               workdayc:=workdayu5;
                workclock:=UpDownWorkClock.position;
                AssignFile(Dev,FName);
                reset(dev);
@@ -663,7 +668,7 @@ procedure TFormMonthForGener.SaveToMonths;
                               writeln(devO,s);
                               continue;
                          end;
-                         writeln(devO,workdayu,' ',workdayu,' ',workdayc,' ',workdayc,' ',workclock);
+                         writeln(devO,workdayu5,' ',workdayu6,' ',workdayc,' ',workdayc,' ',workclock);
                    end;
                CloseFile(dev);
                CloseFile(devo);
@@ -700,8 +705,15 @@ function TFormMonthForGener.GetWorkDays:integer;
       r:=0;
       for i:=1 to l_arr do
           if d[i,2]=1 then Inc(R);
-      LabelRDay.Caption:=IntToStr(r);
-      workdayu:=r;
+      workdayu5:=r;
+      r:=0;
+      for i:=1 to l_arr do
+          if ((d[i,2]=1) or (d[i,2]=2)) then Inc(R);
+      workdayu6:=r;
+      if isSVDN then
+         LabelRDay.Caption:=IntToStr(workdayu5)
+      else
+         LabelRDay.Caption:='5-'+IntToStr(workdayu5)+'. 6-'+IntToStr(workdayu6);
       getWorkClocks;
       Application.ProcessMessages;
  end;

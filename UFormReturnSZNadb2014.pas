@@ -193,7 +193,7 @@ procedure TFormReturnSZNadb2014.MoveSZPerson(Curr_Person:Person_Ptr;var NeedPut:
                      MAKE_CN(New_Cn,New_Person);
                      New_Cn.Kod:=1;
                      New_Cn.Shifr:=Curr_Cn.Shifr;
-                     OO:=GetWDay(NMES);
+                     OO:=GetWDay(NMES,new_person);
                      New_Cn.Summa:=Curr_Person^.OKLAD*NADBAWKA_DAY(1,31,New_Person)*Curr_Cn^.SUMMA/100/OO;
                      Curr_Cn.AUTOMATIC:=MANUAL_MODE;
                 end;

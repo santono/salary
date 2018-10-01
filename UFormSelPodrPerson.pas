@@ -130,6 +130,7 @@ procedure TFormSelPodrPerson.fillPersonList;
          end;
       SELECT(2);
       GETINF(true);
+      NSRVARR[2]:=NSRV;
    //   NMES:=NMESTmp;
    //   NSRV:=NSRVTmp;
       MKFLNM;

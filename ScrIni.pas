@@ -1038,7 +1038,7 @@ end;
 { ***************************************************** }
 PROCEDURE INI_W_DAY_SQL;
 VAR I:INTEGER;
-    day,dayc:integer;
+    day,dayc,day_6:integer;
     clck,clckc:real;
     y,m,yc,mc:Integer;
     Stmnt:string;
@@ -1049,7 +1049,10 @@ BEGIN
     y:=CURRYEAR;
     KZ:=0;
     IStartTransaction:=false;
-    Stmnt:='select monthza,wdays,clocks,wdayscoledg,wclockscoledg from tb_days where  yearza='+IntToStr(y)+' order by monthza';
+    if isSVDN then
+       Stmnt:='select monthza,wdays,clocks,wdayscoledg,wclockscoledg from tb_days where  yearza='+IntToStr(y)+' order by monthza'
+    else
+       Stmnt:='select monthza,wdays,clocks,wdayscoledg,wclockscoledg,wdays_6 from tb_days where  yearza='+IntToStr(y)+' order by monthza';
     if FIB.pFIBQuery.Open then
        FIB.pFIBQuery.Close;
     FIB.pFIBQuery.SQL.Clear;
@@ -1070,6 +1073,8 @@ BEGIN
                 clck  := FIB.pFIBQuery.Fields[2].AsFloat;
                 dayc  := FIB.pFIBQuery.Fields[3].AsInteger;
                 clckc := FIB.pFIBQuery.Fields[4].AsFloat;
+                if isLNR then
+                   day_6 := FIB.pFIBQuery.Fields[5].AsInteger;
                 if mc<>I then
                    begin
                         ScrUtil.Error('Отсутствуют нормочасы за '+IntToStr(I)+'-'+IntToStr(Y));
@@ -1079,9 +1084,14 @@ BEGIN
                 else
                  begin
                       if mc=NMES then IsNMESFill:=True;
-                      W_DAY[i]       := day;
+                      W_DAY_5[i]     := day;
+                      if isLNR then
+                         W_DAY_6[i]  := day_6
+                      else
+                         W_DAY_6[i]  := day;
+
                       CLOCKS[i]      := clck;
-                      W_DayColedg[i] := W_DAY[i];;
+                      W_DayColedg[i] := W_DAY_5[i];;
                       ClocksColedg[i]:= CLOCKS[i];
                       if dayc>1 then
                          W_DayColedg[i] := dayc;

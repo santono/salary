@@ -84,7 +84,7 @@ object FormMonthForGener: TFormMonthForGener
     OnClick = BitBtn3Click
   end
   object EditWorkClock: TEdit
-    Left = 328
+    Left = 336
     Top = 0
     Width = 121
     Height = 28
@@ -92,7 +92,7 @@ object FormMonthForGener: TFormMonthForGener
     Text = '0'
   end
   object UpDownWorkClock: TUpDown
-    Left = 449
+    Left = 465
     Top = 0
     Width = 16
     Height = 28
