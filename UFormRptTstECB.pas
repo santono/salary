@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, frxClass, frxDBSet, frxDMPExport, Buttons, StdCtrls, ComCtrls,
   frxExportTXT, frxExportXLS, frxExportHTML, FIBDatabase, pFIBDatabase,
-  FIBQuery, pFIBQuery;
+  FIBQuery, pFIBQuery, DB, DBClient;
 
 type
   TFormRptTstECB = class(TForm)
@@ -35,6 +35,17 @@ type
     frxReportPod: TfrxReport;
     BitBtn2: TBitBtn;
     cbCurrentMonthOnly: TCheckBox;
+    btnWS: TBitBtn;
+    cdsWS: TClientDataSet;
+    cdsWStabno: TIntegerField;
+    cdsWSFIO: TStringField;
+    cdsWSDOLG: TStringField;
+    cdsWSsummaadd: TFloatField;
+    cdsWSsummaud: TFloatField;
+    cdsWSsummaerr: TFloatField;
+    frxReportWS: TfrxReport;
+    frxUserDataSet1: TfrxUserDataSet;
+    frxDBDatasetWS: TfrxDBDataset;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -68,6 +79,9 @@ type
     procedure frxUserDataSetPodNext(Sender: TObject);
     procedure PerformTest;
     procedure BitBtn2Click(Sender: TObject);
+    procedure btnWSClick(Sender: TObject);
+    procedure frxReportWSGetValue(const VarName: String;
+      var Value: Variant);
 
   private
     { Private declarations }
@@ -78,6 +92,8 @@ type
     procedure MakeEcbSwod1;
     procedure MakeEcbSwod1ForYM(Y:Integer;M:Integer);
     procedure BuildListYMForSwod;
+    procedure PerformTestWS;
+
 
   public
     { Public declarations }
@@ -206,6 +222,16 @@ begin
       CheckBox1.Checked:=False;
       cbCurrentMonthOnly.Checked:=False;
       PodohOnly:=false;
+      if isSVDN then
+         begin
+              btnWS.Show;
+              btnWS.Enabled:=true;
+         end
+      else
+         begin
+              btnWS.Hide;
+              btnWS.Enabled:=false;
+         end;
 
 end;
 
@@ -1456,9 +1482,111 @@ begin
       inc(i_count);
 
 end;
+
+
+
+procedure TFormRptTstECB.btnWSClick(Sender: TObject);
+begin
+     PerformTestWS;
+end;
+procedure TFormRptTstECB.PerformTestWS;
+ var savnmes,savnsrv:integer;
+     curr_person:person_ptr;
+     curr_add:add_ptr;
+     curr_ud:ud_ptr;
+     i_nsrv:integer;
+     summaadd:real;
+     summaud:real;
+     countErr:integer;
+ begin
+     if not isSVDN then Exit;
+     savnmes := nmes;
+     savnsrv := nsrv;
+     putinf;
+     empty_all_person;
+     Application.ProcessMessages;
+     List:=TStringList.Create;
+     List.Sorted:=true;
+     List.Capacity:=6000;
+     ProgressBar1.max:=count_serv*2;
+     ProgressBar1.min:=0;
+     ProgressBar1.Position:=0;
+     cdsWS.Open;
+     countErr:=0;
+     for i_nsrv:=1 to count_serv do
+         begin
+//              if i_nsrv<>87 then continue;
+              ProgressBar1.Position:=i_nsrv;
+              LabelPodr.Caption:=name_serv(i_nsrv);
+              Application.ProcessMessages;
+              nsrv:=i_nsrv;
+              mkflnm;
+              if not FileExists(fninf) then continue;
+              if nsrv=106 then continue; // с материальной помощи есв не берется
+              LabelPodr.Caption:=Name_Serv(NSRV);
+              getinf(true);
+              curr_person:=head_person;
+              while (curr_Person<>NIl) do
+                begin
+                     LabelFio.Caption:=Curr_Person^.FIO;
+                     summaadd:=0;
+                     summaud:=0;
+                     Curr_Add:=Curr_Person^.Add;
+                     while (Curr_Add<>Nil) do
+                       begin
+                            if ((curr_add^.shifr<>31) //мат помощь
+                                and
+                                (curr_add^.shifr<>32)) then//Декретный больничный
+                                summaadd:=summaadd+r10(curr_add^.summa);
+                            Curr_Add:=Curr_Add^.NEXT;
+                       end;
+                     Curr_Ud:=Curr_Person^.Ud;
+                     while (Curr_Ud<>Nil) do
+                        begin
+                            if (curr_ud^.shifr=WAR_SBOR_SHIFR) then
+                                summaud:=summaud+r10(curr_ud^.summa);
+                            Curr_Ud:=Curr_Ud^.NEXT;
+                        end;
+                     if abs(abs(summaadd)*0.015-abs(summaud))>0.01 then
+                        begin
+                              inc(countErr);
+                              cdsWS.Append;
+                              cdsWStabno.Value:=curr_person^.TABNO;
+                              cdsWsFio.Value:=Curr_Person^.FIO;
+                              cdsWSDOLG.Value:=curr_person^.DOLG;
+                              cdsWSsummaadd.value:=summaadd;
+                              cdsWSsummaud.value:=summaud;
+                              cdsWSsummaerr.value:=abs(summaadd)*0.015-abs(summaud);
+                              cdsWS.Post;
+                        end;
+                     Curr_Person:=Curr_Person^.NEXT;
+                end;
+              EMPTY_ALL_PERSON;
+         end;
+     if (countErr<1)  then
+         showMessage('Ошибок расчета не обнаружено')
+     else
+       begin
+            frxReportWS.ShowReport;
+       end;
+     nsrv    := savnsrv;
+     nmes    := savnmes;
+     mkflnm;
+     GetInf(true);
+     Self.Close;
+
+ end;
+
+procedure TFormRptTstECB.frxReportWSGetValue(const VarName: String;
+  var Value: Variant);
+begin
+     if CompareText(ansiUpperCase(varName),'M')=0 then
+        value:=getMonthUkr(nmes)
+     else
+     if CompareText(ansiUpperCase(varName),'Y')=0 then
+        value:=IntToStr(CURRYEAR);
+end;
 begin
   CntFormRptTstECB:=0;
-
-
 
 end.

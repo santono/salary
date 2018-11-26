@@ -71,6 +71,10 @@ object FormCN: TFormCN
       Caption = #1053#1072#1076#1073#1072#1074#1082#1080
       OnClick = N8Click
     end
+    object GUID1: TMenuItem
+      Caption = #1048#1079#1084#1077#1085#1080#1090#1100' GUID'
+      OnClick = GUID1Click
+    end
   end
   object ImageList1: TImageList
     Left = 232

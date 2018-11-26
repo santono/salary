@@ -522,6 +522,15 @@ object FormKadry: TFormKadry
     TabOrder = 28
     OnClick = btSearchDolgClick
   end
+  object BitBtnDogPodSowm: TBitBtn
+    Left = 624
+    Top = 296
+    Width = 30
+    Height = 25
+    Caption = '. . .'
+    TabOrder = 29
+    OnClick = BitBtnDogPodSowmClick
+  end
   object ActionList1: TActionList
     Left = 120
     Top = 200

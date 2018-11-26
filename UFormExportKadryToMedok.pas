@@ -19,13 +19,16 @@ type
     dsKadryNAL_CODE: TFIBStringField;
     dsKadryFIO: TFIBStringField;
     ceValue: TcxCalcEdit;
+    Label1: TLabel;
+    Label2: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtnExportClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
+     startCode:integer;
      procedure MoveKadryToDBFMedok;
      function  MakeDBFFile:String;
-
+     procedure getOldList;
     { Private declarations }
   public
     { Public declarations }
@@ -34,8 +37,18 @@ type
 var
   FormExportKadryToMedok: TFormExportKadryToMedok;
 
+
 implementation
   uses UFibModule,scrdef,dbf,scrutil,iniFiles,uFormWait;
+
+type prec=^trec;
+     trec=record
+           code:integer;
+           inn:string;
+           fio:string;
+          end;
+var
+   list:TList;
 
 {$R *.dfm}
 
@@ -46,8 +59,16 @@ begin
 end;
 
 procedure TFormExportKadryToMedok.BitBtnExportClick(Sender: TObject);
+var i:integer;
 begin
+     list      := TList.Create;
+     startCode := 0;
+     getOldList;
      MoveKadryToDBFMedok;
+//     if list.count>0 then
+//     for i:=1 to list.count do
+//         disposeStr(pRec(list.Items[i-1])^)
+     list.Free;
 end;
 procedure TFormExportKadryToMedok.MoveKadryToDBFMedok;
  var Rec:integer;
@@ -59,8 +80,34 @@ procedure TFormExportKadryToMedok.MoveKadryToDBFMedok;
      fam,nam,otc:shortstring;
      nal_code:string;
      pib:string;
-     startcode:Integer;
+//     startcode:Integer;
      ch:Char;
+    function existsInList(nal_code:string):boolean;
+     var i:integer;
+         retVal:boolean;
+     begin
+          retVal:=false;
+          if list.count<1 then
+             begin
+                  result:=retVal;
+                  exit;
+             end;
+          if length(trim(nal_code))<>10 then
+             begin
+                  result:=retVal;
+                  exit;
+             end;
+          for i:=1 to list.Count do
+             begin
+                  if trim(pRec(list.Items[i-1])^.inn)=trim(nal_code) then
+                     begin
+                          retVal:=true;
+                          break;
+                     end;
+
+             end;
+          result:=retVal;   
+     end;
 begin
      FName:=MakeDBFFile;
      try
@@ -97,7 +144,7 @@ begin
      ProgressBar1.Max:=rec;
      ProgressBar1.Position:=0;
      sc:=0;
-     startcode:=Round(ceValue.value);
+//     startcode:=Round(ceValue.value);
      while not dsKadry.Eof do
       begin
            sc:=sc+1;
@@ -110,6 +157,7 @@ begin
            SplitFIO(pib,fam,nam,otc);
            nal_code:=dsKadryNAL_CODE.Value;
            nal_code:=Trim(nal_code);
+           if not existsInList(nal_code) then
            if Length(pib)>3 then
            if Length(nal_code)=10 then
            if IsNumericString(nal_code) then
@@ -119,10 +167,10 @@ begin
                    dBase.ClearFields;
                    dBASE.SetFieldData(1 , IntToStr(startCode));
                    dBASE.SetFieldData(2 , Nal_code);
-                   PIB:=WinToDos(pib);
-                   fam:=WinToDos(fam);
-                   nam:=WinToDos(nam);
-                   otc:=WinToDos(otc);
+//                   PIB:=WinToDos(pib);
+//                   fam:=WinToDos(fam);
+//                   nam:=WinToDos(nam);
+//                   otc:=WinToDos(otc);
                    dBASE.SetFieldData(3 , pib);
                    ch:=nal_code[9];
                    if ch in ['0','2','4','6','8'] then
@@ -137,7 +185,7 @@ begin
 
               end;
 
-           
+
            dsKadry.Next;
       end;
      dBase.Close;
@@ -214,5 +262,106 @@ begin
     //  ceValue.Value:=107234;
       ceValue.Value:=109800;
 end;
+
+procedure TFormExportKadryToMedok.getOldList;
+   var fName : string;
+       dBase : TDBF;
+       rec   : pRec;
+       codeS : String;
+       FIO   : String;
+       Inn   : String;
+       code  : integer;
+       iErr,iVal:integer;
+      function MakeDBFFile:String;
+        const FNameINI='DScroll.Ini';
+        var
+           Ini      : TIniFile ;
+           S        : string   ;
+           DBFDir   : string   ;
+           Ch       : string   ;
+           DBFName  : string   ;
+        begin
+            S   := ExtractFilePath(Application.ExeName)+FNameINI;
+            Ini := TIniFile.Create(S);
+            try
+               DBFDir := Ini.ReadString( 'Parameters', 'PFUDir', '' );
+            finally
+               Ini.Free;
+            end;
+            DBFDir:=Trim(DBFDir);
+            if Length(DBFDir)<5 then
+               begin
+                    ShowMessage('Не указан параметр PFUDir в файле DScroll.ini');
+                    Result:='';
+                    Exit;
+               end;
+            if not DirectoryExists(DBFDir) then
+               begin
+                    ShowMessage('Отсутствует каталог '+DBFDir+' и не возможно создать его');
+                    Result:='';
+                    Exit;
+               end;
+            Ch:=copy(DBFDir,Length(DBFDir),1);
+            if (not (Ch[1]  in ['\','/'])) then
+               begin
+                    if pos('\',DBFDir)>0 then DBFDir:=DBFDir+'\'
+                    else
+                    if pos('/',DBFDir)>0 then DBFDir:=DBFDir+'/';
+               end;
+            DBFName:=DBFDir+'personsold.dbf';
+            if not FileExists(DBFName) then
+               begin
+                    ShowMessage('Отсутствует файл '+DBFName);
+                    Result:='';
+                    Exit;
+               end;
+            Result:=DBFName;
+        end;
+ begin
+      fname:=MakeDBFFile;
+      if length(trim(fname))<5 then exit;
+      try
+         dBase:=TDBF.Create(Self);
+      except
+        on E: Exception do begin
+            messagebox(0,pchar(E.Message),'Ошибка',16);
+            dBase.Free;
+            Exit;
+        end;
+      end;
+     dBase.TableName:=FName;
+     dBase.Open;
+     dBase.First;
+     while not dBase.Eof do
+        begin
+             codeS:=dBase.GetFieldData(1);
+             val(codeS,iVal,iErr);
+             if (iErr=0) then
+                begin
+                     code := iVal;
+                     if code>startCode then
+                        startCode:=code;
+                     inn  := dBase.GetFieldData(2);
+                     fio  := dBase.GetFieldData(3);
+                     if ( (code>0)
+                           and
+                           (length(trim(inn))=10)
+                           and
+                           (length(trim(fio))>5)
+                        ) then
+                        begin
+                            rec:=new(pRec);
+                            rec^.code := code ;
+                            rec^.inn  := inn  ;
+                            rec^.fio  := fio  ;
+                            list.Add(rec);
+                        end;
+                end;
+             dBase.Next;
+        end;
+     dBase.Close;
+     dBase.Free;
+      
+ end;
 
 end.

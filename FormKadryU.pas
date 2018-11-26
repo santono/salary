@@ -69,6 +69,7 @@ type
     N5: TMenuItem;
     ChgTabno: TBitBtn;
     btSearchDolg: TBitBtn;
+    BitBtnDogPodSowm: TBitBtn;
     function Execute: boolean;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -111,6 +112,7 @@ type
     procedure actCopyPersonFromPMExecute(Sender: TObject);
     procedure ChgTabnoClick(Sender: TObject);
     procedure btSearchDolgClick(Sender: TObject);
+    procedure BitBtnDogPodSowmClick(Sender: TObject);
   private
     { Private declarations }
     Curr_Person : Person_Ptr;
@@ -137,7 +139,7 @@ var
 implementation
   uses ScrUtil,ScrLists, FormKadryClU,KadClU,ScrIo,ScrNalog,
   UFormSelPodrPerson,uFrmFindKadryFB,UFormPersonMainState,
-  DateUtils,UFormSearchDolg;
+  DateUtils,UFormSearchDolg,USQLUnit,UFormSelDogPodSowm;
 {$R *.dfm}
 function TFormKadry.getMORItemIndexForShifrPod(shifrPod:integer):Integer;
   var retVal:Integer;
@@ -345,6 +347,7 @@ begin
             ComboBoxProf.Enabled := False;
             ComboBoxSwm.Enabled  := False;
             ComboBoxTemy.Enabled := False;
+            BitBtnDogPodSowm.Enabled:=false;
             ComboBoxWR.Enabled   := False;
             EditDolg.Enabled     := false;
             EditIdCode.Enabled   := false;
@@ -366,6 +369,9 @@ begin
              LabelTemy.Hide;
              ComboBoxTemy.Hide;
              ComboBoxTemy.Enabled:=False;
+             BitBtnDogPodSowm.Enabled:=false;
+             BitBtnDogPodSowm.Hide;
+
 //             LabelBank.Hide;
 //             ComboBoxBank.Hide;
 //             ComboBoxBank.Enabled:=False;
@@ -442,15 +448,23 @@ begin
             Label9.Hide;
         end;
      ComboBoxTemy.Text:=Curr_Person^.N_temy;
+     BitBtnDogPodSowm.Hide;
      if Curr_Person^.Gruppa=1 then
         begin
             ComboBoxTemy.Hide;
             LabelTemy.Hide;
+            BitBtnDogPodSowm.Hide;
         end
                               else
         begin
             ComboBoxTemy.Show;
             LabelTemy.Show;
+            if isSVDN then
+            if (nmes=flow_month) then
+            if (curr_person^.WID_RABOTY=2) then
+            if (curr_person^.MESTO_OSN_RABOTY=82) then
+                BitBtnDogPodSowm.Show;
+
         end;
      ComboBoxMOR.Text:=NAME_SERV(Curr_Person^.MESTO_OSN_RABOTY);
   //   ComboBoxMOR.ItemIndex:=Curr_Person^.MESTO_OSN_RABOTY-1;
@@ -559,11 +573,20 @@ begin
          begin
              ComboBoxTemy.Hide;
              LabelTemy.Hide;
+             BitBtnDogPodSowm.Hide;
          end
                               else
         begin
             ComboBoxTemy.Show;
             LabelTemy.Show;
+            if (NMES=flow_month)then
+            if isSVDN then
+            if Curr_person^.WID_RABOTY=2 then
+            if Curr_person^.MESTO_OSN_RABOTY=82 then
+               begin
+                    BitBtnDogPodSowm.Show;
+               end;
+
         end ;
       TestChangePerson;
 
@@ -878,7 +901,7 @@ begin
              Exit;
         end;
      if not Assigned(Curr_Person) then Exit;
-     if Curr_Person^.Tabno=0 then Exit;
+     if Curr_Person^.Tabno<1 then Exit;
      if not YesNo('Удалить работника?') then Exit;
      if Curr_Person^.Wid_Raboty=OSN_WID_RABOTY then
         if Count_Sowm(Curr_Person)>0 then
@@ -1622,4 +1645,44 @@ begin
 
         end;
 end;
+procedure TFormKadry.BitBtnDogPodSowmClick(Sender: TObject);
+ var Stmnt:string;
+     v:variant;
+     cnt:integer;
+     selectedId:integer;
+     selectedTema:string;
+begin
+     if not isSVDN then
+        Exit;
+     Stmnt:='select count(*) from tb_dogovora_gn_det where tabno='+intToStr(curr_person^.tabno);
+     v:=SQLQueryValue(Stmnt);
+     cnt:=0;
+     if not VarIsNull(v) then
+     if VarIsNumeric(v) then
+        cnt:=v;
+     if (v<1) then
+        begin
+             ShowMessage('Для этого сотрудника на введена информация по договорам поряда');
+             Exit;
+        end;
+     FormSelDogPodSowm:=TFormSelDogPodSowm.init(Self,Curr_Person^.TABNO,trim(curr_person^.fio));
+     if (FormSelDogPodSowm.ShowModal=mrOk) then
+        begin
+             selectedId:=FormSelDogPodSowm.selectedId;
+             if selectedId>0 then
+             selectedTema:=trim(FormSelDogPodSowm.selectedTema);
+             if selectedId>0 then
+                MAKE_IDDOGPODFORSOWM_PERSON(curr_person,selectedId);
+//             if (length(selectedTema)<=10)
+//              and (length(selectedTema)>2) then
+//                begin
+//                     ComboBoxTemy.Text:=selectedtema;
+//                     curr_person^.N_TEMY:=ComboBoxTemy.Text;
+//                end;
+             Application.ProcessMessages;
+
+        end;
+     FormSelDogPodSowm.Free;
+end;
+
 end.

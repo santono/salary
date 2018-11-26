@@ -18,20 +18,30 @@ type
     pFIBTransactionWrite: TpFIBTransaction;
     BitBtn3: TBitBtn;
     LabelPodr: TLabel;
-    pFIBDataSet1NPP: TFIBIntegerField;
-    pFIBDataSet1TABNO: TFIBSmallIntField;
+    pFIBDataSet1PODR: TFIBStringField;
+    pFIBDataSet1NPP: TFIBStringField;
+    pFIBDataSet1TABNO: TFIBIntegerField;
     pFIBDataSet1FIO: TFIBStringField;
     pFIBDataSet1DOLG: TFIBStringField;
+    pFIBDataSet1KOEF: TFIBBCDField;
+    pFIBDataSet1OKLAD: TFIBBCDField;
     pFIBDataSet1PROC: TFIBBCDField;
+    pFIBDataSet1GUID_BUD: TFIBStringField;
     pFIBDataSet1SUMMA: TFIBBCDField;
-    pFIBDataSet1FIOS: TFIBStringField;
-    pFIBDataSet1MOVED: TFIBSmallIntField;
-    pFIBDataSet1SHIFRPOD: TFIBSmallIntField;
+    pFIBDataSet1FIOF: TFIBStringField;
+    pFIBDataSet1MOVED: TFIBIntegerField;
+    pFIBDataSet1SHIFRPOD: TFIBIntegerField;
+    pFIBDataSet1TABNOS: TFIBStringField;
+    pFIBDataSet1KOEF_VNE: TFIBBCDField;
+    pFIBDataSet1OKLAD_VNE: TFIBBCDField;
+    pFIBDataSet1SUMMA_VNE: TFIBBCDField;
+    pFIBDataSet1GUID_VNE: TFIBStringField;
+    pFIBDataSet1MOVED_VNE: TFIBIntegerField;
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
   private
     { Private declarations }
-     procedure ExecuteMovePrem10_2017;
+     procedure ExecuteMovePrem10_2018;
 
   public
     { Public declarations }
@@ -47,9 +57,9 @@ implementation
 
 procedure TFormMovePremFromSQL.BitBtn1Click(Sender: TObject);
 begin
-     if not ((nmes=10) and (CURRYEAR=2017)) then
+     if not ((nmes=10) and (CURRYEAR=2018)) then
         begin
-             ShowMessage('ѕеренос возможен только в окт€бре 2017 г.');
+             ShowMessage('ѕеренос возможен только в окт€бре 2018 г.');
              exit;
         end;
      if NameServList.CountSelected<=0 then
@@ -68,15 +78,15 @@ begin
              Exit;
         end;
 
-     if MessageDlg('¬ыполнить перенос премии в окт€бре 2017 г.?',
+     if MessageDlg('¬ыполнить перенос премии в окт€бре 2018 г.?',
         mtConfirmation, [mbYes, mbNo], 0) = mrYes  then
         begin
-             ExecuteMovePrem10_2017;
+             ExecuteMovePrem10_2018;
              showMessage('ѕеренос закончен');
         end;
 end;
 
-procedure TFormMovePremFromSQL.ExecuteMovePrem10_2017;
+procedure TFormMovePremFromSQL.ExecuteMovePrem10_2018;
 const wantedShifr=46;
       id=37;
       wantedPeriod=10;
@@ -98,7 +108,7 @@ var NMES_Sav,NSRV_Sav:Integer;
                        begin
                             if Curr_Add^.SHIFR  = WantedShifr then
                             if Curr_Add^.Period = wantedPeriod      then
-                            if Curr_Add^.YEAR   = 2017-1990   then
+                            if Curr_Add^.YEAR   = 2018-1990   then
                             if Curr_Add^.WHO    = Id          then
                                begin
                                     DEL_Add(Curr_Add,Curr_Person);
@@ -123,24 +133,61 @@ var NMES_Sav,NSRV_Sav:Integer;
 
    function fillPerson:boolean;
      var Curr_Person:Person_Ptr;
-         tabno    : integer;
-         retVal   : boolean;
-         shifrDol : integer;
-         summa    : real;
-         curr_add : add_ptr;
-         moved    : integer;
-         shifrwr  : integer;
-         shifrpod : integer;
+         tabno     : integer;
+         retVal    : boolean;
+         shifrDol  : integer;
+         summa     : real;
+         summa_vne : real;
+         curr_add  : add_ptr;
+         moved     : integer;
+         moved_vne : integer;
+         shifrwr   : integer;
+         shifrpod  : integer;
+         guid_bud  : string;
+         guid_vne  : string;
+         amnt      : integer;
+         amntofmoved:integer;
+         guid      : string;
      begin
          retVal:=false;
-         tabno:=pFIBDataSet1TABNO.Value;
-         summa:=pFIBDataSet1Summa.Value;
-         moved:=pFIBDataSet1MOVED.Value;
+         tabno:=0;
+         if not pFIBDataSet1Tabno.IsNull then
+            tabno:=pFIBDataSet1TABNO.Value;
+         summa:=0.00;
+         summa_vne:=0.00;
+         if not pFIBDataSet1SUMMA.IsNull then
+            summa:=pFIBDataSet1Summa.Value;
+         if not pFIBDataSet1SUMMA_VNE.IsNull then
+            summa_vne:=pFIBDataSet1SUMMA_VNE.Value;
+         moved:=0;
+         moved_vne:=0;
+         if not pFIBDataSet1MOVED.IsNull then
+            moved:=pFIBDataSet1MOVED.Value;
+         if not pFIBDataSet1MOVED_VNE.IsNull then
+            moved_vne:=pFIBDataSet1MOVED_VNE.Value;
          shifrpod:=pFIBDataSet1SHIFRPOD.Value;
+         guid_bud:='';
+         guid_vne:='';
+         if not pFIBDataSet1GUID_BUD.IsNull then
+            guid_bud:=pFIBDataSet1GUID_BUD.Value;
+         if not pFIBDataSet1GUID_VNE.IsNull then
+            guid_vne:=pFIBDataSet1GUID_vne.Value;
          shifrwr:=1;
          if shifrPod<0 then
             shifrwr:=2;
-         if ((tabno=0) or (abs(summa)<0.01) or (moved=1) ) then
+         if ((tabno=0) or ((abs(summa)<0.01) and (abs(summa_vne)<0.01))
+                        ) then
+            begin
+                 fillPerson:=false;
+                 exit;
+            end;
+         amntofmoved:=0;
+         amnt:=0;
+         if ((summa>1.00) and (moved<1)) then
+            inc(amnt);
+         if ((summa_vne>1.00) and (moved_vne<1)) then
+            inc(amnt);
+         if amnt<1 then
             begin
                  fillPerson:=false;
                  exit;
@@ -149,9 +196,10 @@ var NMES_Sav,NSRV_Sav:Integer;
          while (Curr_Person<>NIl) do
                begin
                     if (curr_person^.tabno=tabno) then
-                    if shifrwr=2 then
-                       shifrDol:=1;
-                    shifrDol:=get_dol_code(curr_person);
+//                    if shifrwr=2 then
+//                       shifrDol:=1;
+//                    shifrDol:=get_dol_code(curr_person);
+                    guid:=GetGUIDPersonToString(Curr_Person);
                     if GruppyList.IsSelected(Curr_Person^.Gruppa) then
                     if KategList.IsSelected(Curr_Person^.KATEGORIJA) then
                     if  (
@@ -160,19 +208,39 @@ var NMES_Sav,NSRV_Sav:Integer;
                          ((shifrwr=2) and NOT IS_OSN_WID_RABOTY(Curr_Person))
                         )
                          then
-                    if checkNeedDolgTest(shifrdol) then
+//                    if checkNeedDolgTest(shifrdol) then
                     if (curr_person.tabno=tabno) then
+                    if is_osn_wid_raboty(curr_person) then
                        begin
                             Make_add(Curr_add,curr_person);
-                            curr_ADD^.SHIFR:=wantedShifr;
-                            curr_add^.period:=wantedPeriod;
-                            curr_add^.year:=2017-1990;
-                            curr_add^.summa:=summa;
-                            curr_add^.fzp:=summa;
-                            curr_add^.who:=id;
-                            retVal := true;
-                            maked  := true;
-                            break;
+                            curr_ADD^.SHIFR  := wantedShifr;
+                            curr_add^.period := wantedPeriod;
+                            curr_add^.year   := 2018-1990;
+                            if curr_person^.gruppa=1 then
+                               begin
+                                    curr_add^.summa  := summa;
+                                    curr_add^.fzp    := summa;
+                                    moved:=1;
+                                    inc(amntofmoved);
+                               end
+                            else
+                               begin
+                                    curr_add^.summa  := summa_vne;
+                                    curr_add^.fzp    := summa_vne;
+                                    moved_vne:=1;
+                                    inc(amntofmoved);
+                               end;
+                            curr_add^.who    := id;
+                            retVal           := true;
+                            maked            := true;
+                            if amnt<=amntofmoved then
+                               begin
+                                    pFIBDataSet1.Edit;
+                                    pFIBDataSet1MOVED.Value     := moved;
+                                    pFIBDataSet1MOVED_VNE.Value := moved_VNE;
+                                    pFIBDataSet1.Post;
+                                    break;
+                               end
                        end;
                     Curr_Person:=Curr_Person^.Next;
                end;
@@ -207,9 +275,10 @@ begin
                 begin
                      if fillPerson then
                         begin
-                             pFIBDataSet1.Edit;
-                             pFIBDataSet1MOVED.Value:=1;
-                             pFIBDataSet1.Post;
+//                             pFIBDataSet1.Edit;
+//                             pFIBDataSet1MOVED.Value     := moved;
+//                             pFIBDataSet1MOVED_VNE.Value := moved_VNE;
+//                             pFIBDataSet1.Post;
                         end;
                      pFIBDataSet1.next;
                 end;

@@ -63,9 +63,10 @@ object FormMovePremFromSQL: TFormMovePremFromSQL
   object pFIBDataSet1: TpFIBDataSet
     UpdateRecordTypes = [cusUnmodified, cusModified]
     UpdateSQL.Strings = (
-      'UPDATE TB_PREM_04'
+      'UPDATE TB_PREM_2018'
       'SET '
-      ' MOVED = :MOVED'
+      ' MOVED = :MOVED,'
+      ' MOVED_VNE = :MOVED_VNE'
       'WHERE'
       ' TABNO = :OLD_TABNO'
       ' ')
@@ -80,73 +81,134 @@ object FormMovePremFromSQL: TFormMovePremFromSQL
       ' DOLG,'
       ' PROC,'
       ' SUMMA,'
-      ' FIOS,'
       ' MOVED,'
       ' SHIFRPOD'
       'FROM'
-      ' TB_PREM_04 '
+      ' TB_PREM_2018 '
       ' where(  tabno is not null'
       ' and shifrpod=:shifrpod'
-      '  ) and (  TB_PREM_04.TABNO = :OLD_TABNO'
+      '  ) and (  TB_PREM_2018.TABNO = :OLD_TABNO'
       '  )'
       ' ')
     SelectSQL.Strings = (
       'SELECT'
+      ' PODR,'
       ' NPP,'
       ' TABNO,'
       ' FIO,'
       ' DOLG,'
+      ' KOEF,'
+      ' OKLAD,'
       ' PROC,'
+      ' GUID_BUD,'
       ' SUMMA,'
-      ' FIOS,'
+      ' FIOF,'
       ' MOVED,'
-      ' SHIFRPOD'
+      ' SHIFRPOD,'
+      ' TABNOS,'
+      ' KOEF_VNE,'
+      ' OKLAD_VNE,'
+      ' SUMMA_VNE,'
+      ' GUID_VNE,'
+      ' MOVED_VNE'
       'FROM'
-      ' TB_PREM_04 '
+      ' TB_PREM_2018 '
       ' where tabno is not null'
-      ' and abs(coalesce(shifrpod,0))=:shifrpod')
+      ' and abs(coalesce(shifrpod,0))=:shifrpod'
+      ' and ((coalesce(summa,0.00)>1.00) '
+      '   or (coalesce(summa_vne,0.00)>1.00)) ')
     AllowedUpdateKinds = [ukModify]
     Transaction = pFIBTransactionRead
     Database = FIB.pFIBDatabaseSal
     UpdateTransaction = pFIBTransactionWrite
     Left = 96
     Top = 120
-    object pFIBDataSet1NPP: TFIBIntegerField
-      FieldName = 'NPP'
+    object pFIBDataSet1PODR: TFIBStringField
+      FieldName = 'PODR'
+      Size = 69
+      EmptyStrToNull = True
     end
-    object pFIBDataSet1TABNO: TFIBSmallIntField
+    object pFIBDataSet1NPP: TFIBStringField
+      FieldName = 'NPP'
+      Size = 60
+      EmptyStrToNull = True
+    end
+    object pFIBDataSet1TABNO: TFIBIntegerField
       FieldName = 'TABNO'
     end
     object pFIBDataSet1FIO: TFIBStringField
       FieldName = 'FIO'
-      Size = 50
+      Size = 64
       EmptyStrToNull = True
     end
     object pFIBDataSet1DOLG: TFIBStringField
       FieldName = 'DOLG'
-      Size = 40
+      Size = 180
       EmptyStrToNull = True
+    end
+    object pFIBDataSet1KOEF: TFIBBCDField
+      FieldName = 'KOEF'
+      Size = 2
+      RoundByScale = True
+    end
+    object pFIBDataSet1OKLAD: TFIBBCDField
+      FieldName = 'OKLAD'
+      Size = 2
+      RoundByScale = True
     end
     object pFIBDataSet1PROC: TFIBBCDField
       FieldName = 'PROC'
       Size = 2
       RoundByScale = True
     end
+    object pFIBDataSet1GUID_BUD: TFIBStringField
+      FieldName = 'GUID_BUD'
+      Size = 32
+      EmptyStrToNull = True
+    end
     object pFIBDataSet1SUMMA: TFIBBCDField
       FieldName = 'SUMMA'
       Size = 2
       RoundByScale = True
     end
-    object pFIBDataSet1FIOS: TFIBStringField
-      FieldName = 'FIOS'
-      Size = 50
+    object pFIBDataSet1FIOF: TFIBStringField
+      FieldName = 'FIOF'
+      Size = 30
       EmptyStrToNull = True
     end
-    object pFIBDataSet1MOVED: TFIBSmallIntField
+    object pFIBDataSet1MOVED: TFIBIntegerField
       FieldName = 'MOVED'
     end
-    object pFIBDataSet1SHIFRPOD: TFIBSmallIntField
+    object pFIBDataSet1SHIFRPOD: TFIBIntegerField
       FieldName = 'SHIFRPOD'
+    end
+    object pFIBDataSet1TABNOS: TFIBStringField
+      FieldName = 'TABNOS'
+      Size = 15
+      EmptyStrToNull = True
+    end
+    object pFIBDataSet1KOEF_VNE: TFIBBCDField
+      FieldName = 'KOEF_VNE'
+      Size = 2
+      RoundByScale = True
+    end
+    object pFIBDataSet1OKLAD_VNE: TFIBBCDField
+      FieldName = 'OKLAD_VNE'
+      Size = 2
+      RoundByScale = True
+    end
+    object pFIBDataSet1SUMMA_VNE: TFIBBCDField
+      FieldName = 'SUMMA_VNE'
+      Size = 2
+      RoundByScale = True
+    end
+    object pFIBDataSet1GUID_VNE: TFIBStringField
+      FieldName = 'GUID_VNE'
+      Size = 32
+      EmptyStrToNull = True
+    end
+    object pFIBDataSet1MOVED_VNE: TFIBIntegerField
+      FieldName = 'MOVED_VNE'
     end
   end
   object pFIBTransactionRead: TpFIBTransaction

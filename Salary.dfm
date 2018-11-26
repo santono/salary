@@ -344,7 +344,13 @@ object MainForm: TMainForm
       end
       object N48: TMenuItem
         Caption = #1058#1077#1084#1099
-        OnClick = N48Click
+        object N169: TMenuItem
+          Caption = #1058#1077#1084#1099
+          OnClick = N48Click
+        end
+        object NDogovora: TMenuItem
+          Action = ActionBrowseDogovora
+        end
       end
       object N62: TMenuItem
         Caption = #1042#1089#1087#1086#1084#1072#1075#1072#1090#1077#1083#1100#1085#1099#1077' '#1089#1087#1088#1072#1074#1086#1095#1085#1080#1082#1080
@@ -1502,6 +1508,10 @@ object MainForm: TMainForm
     object ActionFormMonthGener: TAction
       Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1082#1072#1083#1077#1085#1076#1072#1088#1103'  '#1076#1083#1103' '#1075#1077#1085#1077#1088#1072#1094#1080#1080
       OnExecute = ActionFormMonthGenerExecute
+    end
+    object ActionBrowseDogovora: TAction
+      Caption = #1057#1087#1080#1089#1086#1082' '#1076#1086#1075#1086#1074#1086#1088#1086#1074
+      OnExecute = ActionBrowseDogovoraExecute
     end
   end
   object ImageList1: TImageList

@@ -56,7 +56,7 @@ CONST
          MANUAL_MODE               = 2;  {Не пересчитывать в АВТОМАТЕ       }
 { *}     PENSIJA_PODRAZD1           = 81; {ПОДРАЗДЕЛЕНИЕ ПЕНСИОНЕРОВ                               * }
 {$IFDEF SVDN}
-{ *}     MAXSHIFR                  = 171; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
+{ *}     MAXSHIFR                  = 174; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
 {$ELSE}
 { *}     MAXSHIFR                  = 171; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
 {$ENDIF}
@@ -205,6 +205,7 @@ CONST
 { *}     NeedToPersSwod            = 166; { Включать в свод по персонофикации без сумм  }
 { *}     INNERSOWM_SHIFR           = 168;
 { *}     DIFFER_SHIFR              = 169;
+{ *}     DOG_POD_VNESH_SOWM_SHIFR  = 173;
 {$ELSE}
 { *}     NeedToPersSwod            = 999; { Включать в свод по персонофикации без сумм  }
 { *}     INNERSOWM_SHIFR           = 999;
@@ -568,7 +569,7 @@ var
                   end;
 
 {$IFDEF SVDN}
-const LenBlSta=34;
+const LenBlSta=35;
 {$ELSE}
 const LenBlSta=35;
 {$ENDIF}
@@ -581,6 +582,9 @@ const BlSta:array[1..LenBlSta] of integer = (PENSIJA_SHIFR, STIPENDIJA_SHIFR    
                                       DataPriShifr        , FIXSUMMAIND_SHIFR     , NeedToPersSwod  , INNERSOWM_SHIFR
                                       {$IFNDEF SVDN}
                                        , NOMER_PODR_SHIFR
+                                      {$ENDIF}
+                                      {$IFDEF SVDN}
+                                       ,DOG_POD_VNESH_SOWM_SHIFR 
                                       {$ENDIF}
                                       );
 {$IFDEF SVDN}

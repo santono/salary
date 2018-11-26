@@ -8,6 +8,7 @@ interface
    USES SCRDEF;
    type DWord = LongWord;
    PROCEDURE MKFLNM;
+   FUNCTION testFninf : boolean;
    PROCEDURE MKFLNM_Y;
    function MKFLPODR_Y:string;
    function MKFLNM_TMP_SAVE(var EscPressed:boolean):string;
@@ -69,6 +70,8 @@ interface
    FUNCTION GET_DOL_CODE(CURR_PERSON:PERSON_PTR):INTEGER;
    FUNCTION GET_DOL_NAME(CURR_PERSON:PERSON_PTR):STRING;
    PROCEDURE MAKE_DOL_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
+   PROCEDURE MAKE_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
+   FUNCTION GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR):INTEGER;
    FUNCTION NAME_DOLG(WANTED_DOLG:INTEGER):STRING;
    FUNCTION NAME_DOLG_BY_SHIFR(WANTED_DOLG:INTEGER):STRING;
    FUNCTION RAZR_DOLG(WANTED_DOLG:INTEGER):INTEGER;
@@ -558,7 +561,7 @@ interface
   procedure getNextMY(var m:integer; var y: integer);
   procedure markPKG66(wantedShifrPKG:integer);
   procedure makeMonthForYear(Y:integer);
-
+  function CheckExcelInstalled(AValue: String): boolean;
 
 
 
@@ -624,6 +627,54 @@ implementation
      //               ELSE
          FNINF:=DDIR+A_MONTH[NMES]+'\F'+P+S+D+'.DAT';
 
+
+    END;
+   FUNCTION testFninf:boolean;
+    VAR retVal               : boolean;
+        shifrPod,shifrNmes   : integer;
+        shifrPodS,shifrNmesS : String;
+        fileName             : string;
+        iErr:integer;
+    BEGIN
+        retVal:=false;
+        fileName   := ExtractFileName(fninf);
+        ShifrPodS  := copy(fileName,6,3);
+        val(shifrPodS,shifrPod,iErr);
+        if iErr>0 then
+           begin
+                testFninf:=retVal;
+                exit;
+           end;
+        if not ((ShifrPod>=1) and (ShifrPod<=MAX_COUNT_PODRAZD)) then
+           begin
+                testFninf:=retVal;
+                exit;
+           end;
+        if (shifrPod<>NSRV) then
+           begin
+                testFninf:=retVal;
+                exit;
+           end;
+
+        shifrNmesS:=copy(fileName,4,2);
+        val(shifrNmesS,shifrNmes,iErr);
+        if iErr>0 then
+           begin
+                testFninf:=retVal;
+                exit;
+           end;
+        if not ((ShifrNmes>=1) and (ShifrNmes<=12)) then
+           begin
+                testFninf:=retVal;
+                exit;
+           end;
+        if (shifrNmes<>NMES) then
+           begin
+                testFninf:=retVal;
+                exit;
+           end;
+        retVal:=true;
+         testFninf:=retVal;
 
     END;
 { ***************************************************** }
@@ -2942,9 +2993,9 @@ procedure SetUpSowm(Tabno,W_P:integer);
               i:=findFreeSelected;
               if i>0 then
                  begin
-                      TempHeadPerson:=Head_Person;
-                      TempNSRV:=NSRV;
-                      saveSelect:=SELECTED_FIELD;
+                      TempHeadPerson := Head_Person;
+                      TempNSRV       := NSRV;
+                      saveSelect     := SELECTED_FIELD;
                       finded:=false;
                       NSRV:=W_P;
                       MKFLNM;
@@ -3135,6 +3186,42 @@ PROCEDURE MAKE_DOL_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
              CURR_CN^.KOD:=100;
         END;
      CURR_CN^.PRIM:=A;
+ END;
+PROCEDURE MAKE_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
+ VAR CURR_CN:CN_PTR;
+     FINDED:BOOLEAN;
+ BEGIN
+     CURR_CN:=CURR_PERSON^.CN;
+     FINDED:=FALSE;
+     WHILE (NOT FINDED) AND (CURR_CN<>NIL) DO
+      IF CURR_CN^.SHIFR=DOG_POD_VNESH_SOWM_SHIFR+LIMIT_CN_BASE THEN
+         FINDED:=TRUE
+                                                       ELSE
+         CURR_CN:=CURR_CN^.NEXT;
+     IF NOT FINDED THEN
+        BEGIN
+             MAKE_CN(CURR_CN,CURR_PERSON);
+             CURR_CN^.SHIFR:=DOG_POD_VNESH_SOWM_SHIFR+LIMIT_CN_BASE;
+             CURR_CN^.KOD:=100;
+        END;
+     CURR_CN^.PRIM:=A;
+ END;
+FUNCTION GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR):INTEGER;
+ VAR CURR_CN:CN_PTR;
+     FINDED:BOOLEAN;
+     RETVAL:integer;
+ BEGIN
+     RETVAL:=-1;
+     CURR_CN:=CURR_PERSON^.CN;
+     FINDED:=FALSE;
+     WHILE (CURR_CN<>NIL) DO
+      IF CURR_CN^.SHIFR=DOG_POD_VNESH_SOWM_SHIFR+LIMIT_CN_BASE THEN
+         begin
+              retVal:=curr_cn^.PRIM;
+              FINDED:=TRUE;
+              break;
+         end;
+     GET_IDDOGPODFORSOWM_PERSON:=retval;
  END;
 
  FUNCTION GET_PERSON_OKLAD(CURR_PERSON:PERSON_PTR):REAL;
@@ -4456,10 +4543,20 @@ FUNCTION IS_TEST_DEKRET(CURR_PERSON:PERSON_PTR):BOOLEAN;
  FUNCTION SUM_VYPLACHENO_UD(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER):REAL;
   VAR
       SUMMA:REAL;
-      I,I_U:INTEGER;
+//      I,I_U:INTEGER;
       CURR_UD:UD_PTR;
   BEGIN
        SUMMA:=0;
+       curr_ud:=curr_person^.UD;
+       while (curr_ud<>nil) do
+        begin
+             IF CURR_UD^.SHIFR=WANTED_SHIFR THEN
+             IF CURR_UD^.VYPLACHENO=GET_OUT THEN
+             IF CURR_UD^.PERIOD=START_MONTH THEN
+                 SUMMA:=SUMMA+CURR_UD^.SUMMA;
+             curr_ud:=curr_ud^.NEXT;
+        end;
+{
        I_U:=COUNT_UD(CURR_PERSON);
        IF I_U>0 THEN FOR I:=1 TO I_U DO
           BEGIN
@@ -4470,15 +4567,26 @@ FUNCTION IS_TEST_DEKRET(CURR_PERSON:PERSON_PTR):BOOLEAN;
                IF CURR_UD^.PERIOD=START_MONTH THEN
                   SUMMA:=SUMMA+CURR_UD^.SUMMA;
           END;
+}
        SUM_VYPLACHENO_UD:=SUMMA;
   END;
  FUNCTION SUM_VYPLACHENO_ADD(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER):REAL;
   VAR
       SUMMA:REAL;
-      I,I_A:INTEGER;
+//      I,I_A:INTEGER;
       CURR_ADD:ADD_PTR;
   BEGIN
        SUMMA:=0;
+       curr_add:=curr_person^.add;
+       while (curr_add<>nil) do
+        begin
+             IF CURR_adD^.SHIFR=WANTED_SHIFR THEN
+             IF CURR_adD^.VYPLACHENO=GET_OUT THEN
+             IF CURR_adD^.PERIOD=START_MONTH THEN
+                 SUMMA:=SUMMA+CURR_adD^.SUMMA;
+             curr_add:=curr_add^.NEXT;
+        end;
+{
        I_A:=COUNT_ADD(CURR_PERSON);
        IF I_A>0 THEN FOR I:=1 TO I_A DO
           BEGIN
@@ -4489,6 +4597,7 @@ FUNCTION IS_TEST_DEKRET(CURR_PERSON:PERSON_PTR):BOOLEAN;
                IF CURR_ADD^.PERIOD=START_MONTH THEN
                   SUMMA:=SUMMA+CURR_ADD^.SUMMA;
           END;
+}
        SUM_VYPLACHENO_ADD:=SUMMA;
   END;
  FUNCTION SUM_VYPLACHENO_ADD_ID(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER;ID:WORD):REAL;
@@ -5949,6 +6058,12 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
        retVal:=false;
        shifrDol:=GET_DOL_CODE(curr_person);
        if (currYear>2018) or ((currYear=2018) and (nmes>8)) then
+       if isLNR then
+          if not IsColedgPodr(NSRV) then
+             if nsrv<>1 then
+                 if nsrv<>8 then
+                     if isindol(shifrDol) then
+                         retVal:=true;
        if (isLNR and not IsColedgPodr(NSRV)
            and (nsrv<>1)
            and (nsrv<>8)
@@ -6593,6 +6708,7 @@ end;
          end;
         if not Finded then
            Result:=nil;
+//        Result:=finded;
    end;
 
   {    MoveOtpPerson }
@@ -7016,10 +7132,12 @@ const
     //динам. функция определения "что больше???"
   begin
     if C1 = C2 then
-      Result := 0;
+      Result := 0
+    else
     if C1 > C2 then
-      Result := 1;
-    if C1 < C2 then
+      Result := 1
+    else
+//    if C1 < C2 then
       Result := -1;
   end;
 var
@@ -7639,7 +7757,25 @@ function NeedCodePersonLine(Tabno:integer):boolean;
        S:String[8];
        a1,a2,a3:real48;
        i:integer;
+       finished:boolean;
    begin
+        while true do
+          begin
+                finished:=true;
+                curr_cn:=curr_person^.CN;
+                while (curr_cn<>nil) do
+                 begin
+                      if curr_cn^.shifr=guidshifr+limit_cn_base then
+                         begin
+                              del_cn(curr_cn,curr_person);
+                              finished:=false;
+                              break;
+                         end;
+                      curr_cn:=curr_cn^.Next;   
+                 end;
+                 if finished then
+                    break;
+         end;           
         GetGUID(S,A1,a2,a3);
         Make_Cn(Curr_Cn,Curr_Person);
         Curr_Cn^.SHIFR:=GUIDShifr+Limit_CN_Base;;
@@ -7730,6 +7866,7 @@ PROCEDURE MAKE_PERSON_STATE(CURR_PERSON:PERSON_PTR);
        ys,ms,ds,ist,s:string;
        Finded : boolean;
    begin
+        finded:=false;
         dt:=Date;
         DecodeDate(dt,y,m,d);
         ds:=IntToStr(d);
@@ -9747,12 +9884,12 @@ function IsNumericString(S:String):Boolean;
 
   end;
  procedure putNSRVFeaturesToSQL(Op:string);
-  var SQLStmnt,MD5:string;
+  var SQLStmnt,MD5:widestring;
       nmbOfPerson,nmbOfAdd,nmbOfUd,nmbOfCN,nmbOfSowm:Integer;
   begin
        MD5:=GetMd5ForNSRV;
        GetFeaturesOfNSRV(nmbOfPerson,nmbOfAdd,nmbOfUd,nmbOfCN,nmbOfSowm);
-       SQLStmnt:='insert into tb_io_statistic (NSRV,NMES_THIS, NMES_CURR, YEAR_ZA, YEAR_CURR,NMBOFPERSON, NMBOFADD,  NMBOFUD, NMBOFCN, NMBOFSOWM,OPERATION, MD5) values(';
+       SQLStmnt:='insert into tb_io_statistic (NSRV,NMES_THIS, NMES_CURR, YEAR_ZA, YEAR_CURR,NMBOFPERSON, NMBOFADD,  NMBOFUD, NMBOFCN, NMBOFSOWM,OPERATION, MD5,FNINF) values(';
        SQLStmnt:=trim(SQLStmnt)+IntToStr(NSRV)+',';
        SQLStmnt:=trim(SQLStmnt)+IntToStr(NMES)+',';
        SQLStmnt:=trim(SQLStmnt)+IntToStr(FLOW_MONTH)+',';
@@ -9764,7 +9901,8 @@ function IsNumericString(S:String):Boolean;
        SQLStmnt:=trim(SQLStmnt)+IntToStr(NMbOfCn)+',';
        SQLStmnt:=trim(SQLStmnt)+IntToStr(NMbOfSowm)+',';
        SQLStmnt:=trim(SQLStmnt)+''''+trim(OP)+''',';
-       SQLStmnt:=trim(SQLStmnt)+''''+trim(MD5)+''')';
+       SQLStmnt:=trim(SQLStmnt)+''''+trim(MD5)+''',';
+       SQLStmnt:=trim(SQLStmnt)+''''+trim(FNINF)+''')';
        FIB.pFIBDatabaseSal.Execute(SQLStmnt);
 
   end;
@@ -11228,6 +11366,7 @@ function getPersonWPList(Curr_Person:person_ptr):TList;
 
      end;
   begin
+       tmpNSRV:=NSRV;
        ListWP:=TList.Create;
        AddToList(nsrv);
        if Curr_Person^.WID_RABOTY=OSN_WID_RABOTY then
@@ -11668,5 +11807,22 @@ end;
 
        showMessage('Файл '+FName+' создан!');
   end;
+function CheckExcelInstalled(AValue: String): boolean;
+var
+  FCLSID: TCLSID;
+  P:PChar;
+  n:widestring;
+  s:string;
+
+begin
+  s:=aValue;
+  CheckExcelInstalled:=true;
+  //    http://www.vr-online.ru/blog/rabota-s-excel-iz-delphi-chast-1-2552
+ // Не работает
+ // n:=AValue;
+//  P:=PChar(Avlue);
+//  Result := (CLSIDFromProgID(PChar(s), FCLSID) = S_OK);
+//  Result := (CLSIDFromProgID(@AValue[1], FCLSID) = S_OK);
+end;
 end.
 

@@ -202,7 +202,7 @@ object FormMkEmpList: TFormMkEmpList
     Top = 416
     Width = 241
     Height = 25
-    Caption = #1056#1072#1089#1095#1077#1090' '#1087#1088#1077#1084#1080#1080' '#1074' 11 2017'
+    Caption = #1055#1077#1088#1077#1085#1086#1089' '#1087#1088#1077#1084#1080#1080' '#1074' 10 2018'
     TabOrder = 19
     OnClick = BitBtn16Click
   end

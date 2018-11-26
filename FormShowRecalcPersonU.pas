@@ -417,7 +417,7 @@ procedure TFormShowRecalcPerson.frxReport1ManualBuild(Page: TfrxPage);
       var
         CurrItem : TTreeNode;
         Child    : TTreeNode;
-        I        : integer;
+//        I        : integer;
       begin
          if TreeNode=Nil then
             Exit;

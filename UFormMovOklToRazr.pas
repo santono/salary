@@ -55,6 +55,14 @@ begin
 end;
 
 procedure TFormMoveNewOkladToRazr.BitBtn1Click(Sender: TObject);
+ type pRec=^TRec;
+      TRec=record
+            shifrDol:integer;
+            oklad:real;
+           end;
+ const lDolg=13;
+       shifrDols:array[1..lDolg] of integer=(20,30,40,520,605,1424,80,1531,1532,185,1536,180,302);
+
  var SaveNMES,SaveNSRV,SC,I_NSRV:integer;
      Curr_Person:Person_Ptr;
      Koef,KoefP:real;
@@ -62,6 +70,81 @@ procedure TFormMoveNewOkladToRazr.BitBtn1Click(Sender: TObject);
      Oklad:real;
      NeedPut:boolean;
      shifrdol:Integer;
+     list:TList;
+     testOklad:real;
+     oldOklad,newOklad:real;
+
+ function isInSpecDolgList(shifrDol:integer):boolean;
+  var retVal:boolean;
+      i:integer;
+  begin
+      retVal:=false;
+      for i:=1 to lDolg do
+          if shifrDols[i]=shifrDol then
+             begin
+                  retVal:=true;
+                  break;
+             end;
+      isInSpecDolgList:=retVal;
+  end;
+ function fillDolgOklady:boolean;
+  var fName:String;
+      dev:TextFile;
+      s:string;
+      shifrDolS,okladS:string;
+      iErr,l:integer;
+      shifrDol:integer;
+      oklad:real;
+      rec:pRec;
+  begin
+       fName:=cdir+'DolgOklady.txt';
+       if not FileExists(fNAme) then
+          begin
+               showMessage('Отсутствует файл '+FName);
+               result:=false;
+               exit;
+          end;
+       list:=TList.Create;
+       AssignFile(dev,fName);
+       reset(dev);
+       while not eof(dev) do
+         begin
+              readln(dev,s);
+            //  s:=trim(s);
+              l:=length(s);
+              if l<53 then continue;
+              shifrDolS:=copy(s,1,4);
+              val(shifrDolS,shifrDol,iErr);
+              if iErr<>0 then continue;
+              if shifrDol=1532 then
+                 iErr:=iErr;
+              okladS:=copy(s,49,5);
+              val(okladS,oklad,iErr);
+              if iErr<>0 then continue;
+              if ((oklad<3000) or (oklad>13000)) then
+                continue;
+              new(Rec);
+              rec^.shifrDol:=shifrDol;
+              rec^.oklad:=oklad;
+              list.Add(rec);
+         end;
+       closeFile(dev);
+       result:=true;
+  end;
+ function getOkladByShifrDol(shifrDol:integer):real;
+  var retVal:real;
+      i:integer;
+  begin
+       retVal:=0;
+       if list.Count>0 then
+       for i:=1 to list.Count do
+           if pRec(list.Items[i-1])^.shifrDol=shifrDol then
+              begin
+                   retVal:=pRec(list.Items[i-1])^.oklad;
+                   break;
+              end;
+       getOkladByShifrDol:=retVal;
+  end;
  function OkladProrektor:Real;
  // shifrDol=20,30,40
    begin
@@ -127,8 +210,8 @@ procedure TFormMoveNewOkladToRazr.BitBtn1Click(Sender: TObject);
        begin
             if Curr_Add^.SHIFR=OzdShifr then
                begin
-                    Curr_add^.SUMMA:=Curr_person^.OKLAD;
-                    Curr_add^.FZP:=Curr_person^.OKLAD;
+                    Curr_add^.SUMMA := Curr_person^.OKLAD;
+                    Curr_add^.FZP   := Curr_person^.OKLAD;
                     Break;
                end;
             Curr_Add:=Curr_Add.NEXT;
@@ -173,6 +256,8 @@ begin
              Exit;
         end;
      FillOkladyForRazr;
+     if isLNR then
+        fillDolgOklady;
      SaveNMES:=NMES;
      SaveNSRV:=NSRV;
      PutInf;
@@ -195,6 +280,7 @@ begin
               Curr_Person:=Head_Person;
               while (Curr_Person<>Nil) do
                begin
+                     oldOklad:=curr_person^.oklad;
                      Razr:=GetRazrjadPerson(Curr_Person);
                      shifrdol:=get_dol_code(curr_person);
                      if isLNR then
@@ -255,12 +341,26 @@ begin
                                       180:      Curr_Person^.OKLAD := OkladZamNachUcjOtdela;
                                       302:      Curr_Person^.OKLAD := OkladZamNachETO;
                                      end;
-                                     if (NMES=7) and (curryear=2016) then
+//                                     if (NMES=7) and (curryear=2016) then
+//                                        begin
+//                                             MakeOzdorov(Curr_person);
+//                                        end;
+                                     if isInSpecDolgList(shifrDol) then
                                         begin
-                                             MakeOzdorov(Curr_person);
+                                            testOklad:=getOkladByShifrDol(shifrDol);
+                                            if testOklad<3000 then
+                                               begin
+                                                    showMessage('Не найден оклад для '+Name_DOLG(shifrDol));
+                                                    Curr_Person:=Curr_Person^.NEXT;
+                                                    continue;
+                                               end;
+                                            curr_person^.OKLAD:=testOklad;
+                                            newOklad:=testOklad;
                                         end;
                                 end;
                              NeedPut:=true;
+                             if abs(abs(newOklad)-abs(oldOklad))<1.00 then
+                                showMessage('Оклад стал меньше у '+intToStr(curr_person^.tabno)+' '+trim(curr_person^.fio));
                         end;
                      Curr_Person:=Curr_Person^.NEXT;
                end;

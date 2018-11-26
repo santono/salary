@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids,ScrDef, StdCtrls, Buttons;
+  Dialogs, Grids,ScrDef, StdCtrls, Buttons, ImgList;
 
 type
   TFormTabel = class(TForm)
@@ -13,6 +13,8 @@ type
     BitBtn1: TBitBtn;
     BoxTabel: TComboBox;
     BoxDirection: TComboBox;
+    ImageList1: TImageList;
+    BitBtnExcel: TBitBtn;
     procedure SetCurrPerson(C_Person:Person_Ptr);
     function GetRow:integer;
     procedure FormShow(Sender: TObject);
@@ -24,6 +26,7 @@ type
     procedure StringGridTKeyPress(Sender: TObject; var Key: Char);
     procedure StringGridTSelectCell(Sender: TObject; ACol, ARow: Integer;
       var CanSelect: Boolean);
+    procedure BitBtnExcelClick(Sender: TObject);
   private
     { Private declarations }
     RetCode : integer;
@@ -42,7 +45,7 @@ var
   FormTabel: TFormTabel;
 
 implementation
-  uses ScrUtil,Salary;
+  uses ScrUtil,Salary,UFormExportTabelToExcel;
 
 {$R *.dfm}
 const
@@ -298,6 +301,12 @@ begin
       i:=1;
       if ARow<>RowForCaption then
          ShowCaption(ARow);
+end;
+
+procedure TFormTabel.BitBtnExcelClick(Sender: TObject);
+begin
+     Application.CreateForm(TFormExportTabelToExcel,FormExportTabelToExcel);
+     FormExportTabelToExcel.ShowModal;
 end;
 
 end.

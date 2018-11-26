@@ -1840,10 +1840,10 @@ procedure TFormMkEmpList.BitBtn16Click(Sender: TObject);
 begin
 //     Application.CreateForm(TFormPovLNR,FormPovLNR);
 //     FormPovLNR.ShowModal;
-//     Application.CreateForm(TFormMovePremFromSQL,FormMovePremFromSQL);
-//     FormMovePremFromSQL.ShowModal;
-     Application.CreateForm(TFormCalcPrem_11_2017,FormCalcPrem_11_2017);
-     FormCalcPrem_11_2017.showModal;
+     Application.CreateForm(TFormMovePremFromSQL,FormMovePremFromSQL);
+     FormMovePremFromSQL.ShowModal;
+//     Application.CreateForm(TFormCalcPrem_11_2017,FormCalcPrem_11_2017);
+//     FormCalcPrem_11_2017.showModal;
 
 end;
 

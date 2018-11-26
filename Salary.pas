@@ -375,6 +375,9 @@ type
     N010720101: TMenuItem;
     ActionFormMonthGener: TAction;
     NFormMonthGener: TMenuItem;
+    ActionBrowseDogovora: TAction;
+    N169: TMenuItem;
+    NDogovora: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -625,6 +628,7 @@ type
     procedure ActionGenerateExecute(Sender: TObject);
     procedure N010720181Click(Sender: TObject);
     procedure ActionFormMonthGenerExecute(Sender: TObject);
+    procedure ActionBrowseDogovoraExecute(Sender: TObject);
 
 
   private
@@ -709,7 +713,8 @@ implementation
   UFormDelSowm82, UFormReport148, UFormConvertXMLGrnToRub,
   UFormRepPersDolgOsn, UFormRepAUP_PPS, UFormKomand, UFormRepairUwol,
   UFormRecalcNight, UFormChangeTabno,uSQLUnit, UFormChangeNMES,
-  UFormFillExcel0417, UFormRepWordkers, UFormGener, UFormMonthForGener;
+  UFormFillExcel0417, UFormRepWordkers, UFormGener, UFormMonthForGener,
+  UFormBrowseDogovora;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1218,6 +1223,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
           N20112.Enabled:=true;  { за август 2017 }
           Excel0420171.Visible:=false;
           Excel0420171.Enabled:=false;
+          NDogovora.Visible:=true;
+          ActionBrowseDogovora.Enabled:=true;
        {$ELSE}
 
           NLNR2.Visible:=true;
@@ -1274,6 +1281,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
           N20112.Enabled:=false;  { за август 2017 (только для СВДН)}
           Excel0420171.Visible:=true;
           Excel0420171.Enabled:=true;
+          NDogovora.Visible:=false;
+          ActionBrowseDogovora.Enabled:=false;
 
 
           if (CurrRight>3) then
@@ -3449,7 +3458,7 @@ begin
      if CntFormWantedAdd=0 then
         begin
              Application.CreateForm(TFormRptWantedAdd,FormRptWantedAdd);
-             FormRptWantedAdd.Show;
+             FormRptWantedAdd.ShowModal;
         end;
 end;
 
@@ -3992,7 +4001,7 @@ begin
      Application.CreateForm(TFormMkEmpList,FormMkEmpList);
      FormMkEmpList.ShowModal;
   {$ELSE}
-     ShowMessage('Список сотруников формировать не следует');
+     ShowMessage('Список сотрудников формировать не следует');
   {$ENDIF}
 end;
 
@@ -4474,6 +4483,14 @@ begin
     FormMonthForGener:=TFormMonthForGener.CreateUsingDate(Application,newDate);
     FormMonthForGener.ShowModal;
     StringGrid1.SetFocus;
+
+end;
+
+procedure TMainForm.ActionBrowseDogovoraExecute(Sender: TObject);
+begin
+    if not isSVDN then Exit;
+    Application.CreateForm(TFormBrowseDogovora, FormBrowseDogovora);
+    FormBrowseDogovora.ShowModal;
 
 end;
 

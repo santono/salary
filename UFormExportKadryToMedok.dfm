@@ -22,6 +22,26 @@ object FormExportKadryToMedok: TFormExportKadryToMedok
     Height = 13
     Caption = 'LabelFIO'
   end
+  object Label1: TLabel
+    Left = 48
+    Top = 104
+    Width = 219
+    Height = 13
+    Caption = #1060#1072#1081#1083' '#1101#1082#1089#1087#1086#1088#1090#1072' '#1082#1072#1076#1088#1086#1074' '#1080#1079' '#1052#1077#1076#1082#1072' '#1085#1072#1079#1086#1074#1080#1090#1077
+  end
+  object Label2: TLabel
+    Left = 272
+    Top = 96
+    Width = 130
+    Height = 24
+    Caption = ' personsold.dbf'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
   object ProgressBar1: TProgressBar
     Left = 24
     Top = 24
@@ -49,9 +69,10 @@ object FormExportKadryToMedok: TFormExportKadryToMedok
   end
   object ceValue: TcxCalcEdit
     Left = 208
-    Top = 80
+    Top = 72
     EditValue = 0.000000000000000000
     TabOrder = 3
+    Visible = False
     Width = 185
   end
   object dsKadry: TpFIBDataSet

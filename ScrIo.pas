@@ -1343,7 +1343,13 @@ PROCEDURE PUTINF;
              if not YesNo('Произошла ошибка в работе программы'+^M+'Вы уверены в необходимости сохранения возможно некорректных данных подразделения?') then
                 Exit;
         end;
+     if not testFninf then
+        begin
+             Exit;
+        end;
 {
+
+
      IF (NOT BUH^.MAY_BE_PUT(NSRV)) AND (NOT MAY_ALL_CORRECT) THEN
         BEGIN
              ERROR('Вам разрешен для '+ALLTRIM(NAME_SERV(NSRV))+' только просмотр');

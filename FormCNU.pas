@@ -19,6 +19,7 @@ type
     N6: TMenuItem;
     N7: TMenuItem;
     N8: TMenuItem;
+    GUID1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure SetPerson(C_Person:Person_Ptr);
@@ -37,6 +38,7 @@ type
     procedure StringCNKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure N8Click(Sender: TObject);
+    procedure GUID1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -710,6 +712,32 @@ begin
              Self.MakeGrid;
              Application.ProcessMessages;
         end;
+end;
+
+procedure TFormCN.GUID1Click(Sender: TObject);
+  var curr_cn:cn_ptr;
+      i:integer;
+begin
+     if (Nmes<>Flow_Month) then exit;
+     Curr_Cn:=Curr_Person^.Cn;
+     i:=0;
+     while (Curr_Cn<>Nil) do
+      begin
+           inc(i);
+           if I=StringCn.Row then break;
+              Curr_Cn:=Curr_Cn^.Next;
+      end;
+      if i>0 then
+         begin
+              if curr_cn^.shifr=GUIDSHIFR+LIMIT_CN_BASE then
+              if YesNo('Изменить GUID?') then
+                 begin
+                      makeguid(Curr_Person);
+                      Self.MakeGrid;
+                      showMessage('Изменен');
+                 end;
+        end;
+
 end;
 
 end.
