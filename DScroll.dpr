@@ -2,7 +2,7 @@
 {$WARNINGS OFF}
 {$HINTS OFF}
 program DScroll;
-                    
+
 uses
   Windows,
   Forms,
@@ -332,10 +332,11 @@ uses
   UFormSearchClassificator in '..\..\..\rating\KFU\pages\Телефонный справочник\UFormSearchClassificator.pas' {FormSearchClassificator},
   UFormExportTabelToExcel in 'UFormExportTabelToExcel.pas' {FormExportTabelToExcel},
   UFormBrowseDogovora in 'UFormBrowseDogovora.pas' {FormBrowseDogovora},
-  UFormUpdateDogovora in '..\SVDN\ib\UFormUpdateDogovora.pas' {FormUpdateDogovora},
-  UFormBrowseDogovoraDet in '..\SVDN\ib\UFormBrowseDogovoraDet.pas' {FormBrowseDogovoraDet},
-  UFormUpdateDogovoraDet in '..\SVDN\ib\UFormUpdateDogovoraDet.pas' {FormUpdateDogovoraDet},
-  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas' {FormSelDogPodSowm};
+  UFormUpdateDogovora in 'UFormUpdateDogovora.pas' {FormUpdateDogovora},
+  UFormBrowseDogovoraDet in 'UFormBrowseDogovoraDet.pas' {FormBrowseDogovoraDet},
+  UFormSelDogPodSowm in 'UFormSelDogPodSowm.pas' {FormSelDogPodSowm};
+
+//  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 
 {$R *.res}
 begin

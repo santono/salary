@@ -50,7 +50,11 @@ begin
   SetWindowLong (Main.Handle,GWL_STYLE,
   GetWindowLong(Main.Handle, GWL_STYLE) AND NOT
   WS_CAPTION OR WS_SIZEBOX);
-}  
+}
+  {$IFDEF SVDN}
+   Label1.Caption:='Автоматизована система';
+   ProductName.Caption:='розрахунку заробітної платні';
+  {$ENDIF}
 end;
 
 procedure TAboutBox.OKButtonClick(Sender: TObject);

@@ -116,8 +116,11 @@ begin
       if DOG_POD_PODRAZD(NSRV) then
          begin
               ShifrSta:=DogPodShifr;
-              BitBtn1.Hide;
-              BitBtn1.Enabled:=false;
+              if isSVDN then
+                 begin
+                      BitBtn1.Hide;
+                      BitBtn1.Enabled:=false;
+                 end;
          end;
       Days       := 0 ;
       WorkClock  := 0;

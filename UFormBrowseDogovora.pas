@@ -46,8 +46,8 @@ var
   FormBrowseDogovora: TFormBrowseDogovora;
 
 implementation
-  uses uFIBModule,UFormUpdateDogovora,
-       UFormBrowseDogovoraDet;
+  uses uFIBModule,UFormUpdateDogovora{,
+       UFormBrowseDogovoraDet}, UFormBrowseDogovoraDet;
 
 {$R *.dfm}
 

@@ -139,7 +139,8 @@ var
 implementation
   uses ScrUtil,ScrLists, FormKadryClU,KadClU,ScrIo,ScrNalog,
   UFormSelPodrPerson,uFrmFindKadryFB,UFormPersonMainState,
-  DateUtils,UFormSearchDolg,USQLUnit,UFormSelDogPodSowm;
+  DateUtils,UFormSearchDolg,USQLUnit{,UFormSelDogPodSowm},
+  UFormSelDogPodSowm;
 {$R *.dfm}
 function TFormKadry.getMORItemIndexForShifrPod(shifrPod:integer):Integer;
   var retVal:Integer;
@@ -1654,6 +1655,7 @@ procedure TFormKadry.BitBtnDogPodSowmClick(Sender: TObject);
 begin
      if not isSVDN then
         Exit;
+
      Stmnt:='select count(*) from tb_dogovora_gn_det where tabno='+intToStr(curr_person^.tabno);
      v:=SQLQueryValue(Stmnt);
      cnt:=0;
@@ -1665,6 +1667,7 @@ begin
              ShowMessage('Для этого сотрудника на введена информация по договорам поряда');
              Exit;
         end;
+
      FormSelDogPodSowm:=TFormSelDogPodSowm.init(Self,Curr_Person^.TABNO,trim(curr_person^.fio));
      if (FormSelDogPodSowm.ShowModal=mrOk) then
         begin
@@ -1683,6 +1686,7 @@ begin
 
         end;
      FormSelDogPodSowm.Free;
+    
 end;
 
 end.

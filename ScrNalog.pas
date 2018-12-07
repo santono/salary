@@ -4057,6 +4057,7 @@ PROCEDURE OKLAD_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      CURR_CNC:CN_PTR;
      CLOCK:REAL;
      DAY:INTEGER;
+     workDayPerson:real;
  BEGIN
 
      IF CURR_PERSON^.AUTOMATIC<>AUTOMATIC_MODE THEN EXIT;
@@ -4084,7 +4085,8 @@ PROCEDURE OKLAD_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
                             MAKE_ADD(CURR_ADD,CURR_PERSON);
                             CURR_ADD^.PERIOD:=NMES;
                        END;
-     IF ((CURR_PERSON^.OKLAD<=0) OR (WORK_DAY(1,LAST_DAY,CURR_PERSON)<=0)) THEN O_PERSON:=0.
+     WorkDayPerson:=WORK_DAY(1{CURR_PERSON^.START_DAY},LAST_DAY,CURR_PERSON,round(GetWDay(NMES,curr_person)));
+     IF ((CURR_PERSON^.OKLAD<=0) OR (WorkDayPerson<=0)) THEN O_PERSON:=0.
             ELSE
                 BEGIN
                 IF CURR_PERSON^.WID_OPLATY=POCHAS_WID_OPLATY THEN {Почасовка}
@@ -4105,9 +4107,14 @@ PROCEDURE OKLAD_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
                                  O_PERSON:=0
                             end
                          else
-                            O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1{CURR_PERSON^.START_DAY},LAST_DAY,CURR_PERSON);
+                            begin
+//                                 WorkDayPerson:=WORK_DAY(1{CURR_PERSON^.START_DAY},LAST_DAY,CURR_PERSON,round(oo));
+                                 if WorkDayPerson>oo then
+                                    WorkDayPerson:=oo;
+                                 O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORKDAYperson;
+                            end;
                     CLOCK:=0;
-                    DAY:=ROUND(WORK_DAY(1,LAST_DAY,CURR_PERSON));
+                    DAY:=round(WorkDayPerson);
                     END;
                 END;
      IF ((O_PERSON>0) OR (CURR_PERSON^.OKLAD>0.005)) THEN
@@ -4171,7 +4178,8 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
         Exit;
      if (CURR_PERSON^.OKLAD<=0.01) then
         Exit;
-     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON);
+     OO:=GetWDay(NMES,CURR_PERSON);
+     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON,round(oo));
      if O_day<1 then
         Exit;
      repeat
@@ -4274,7 +4282,8 @@ PROCEDURE DIFF_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
         Exit;
      if (CURR_PERSON^.OKLAD<=0.01) then
         Exit;
-     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON);
+     OO:=GetWDay(NMES,CURR_PERSON);
+     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON,round(oo));
      if O_day<1 then
         Exit;
      repeat
@@ -4311,8 +4320,9 @@ PROCEDURE DIFF_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      if not existsDopl then Exit;  
      SummaDiffFull:=r10(summa*procDiffSal/100.00);
      summaDiffRas:=R10(summaDiffFull-SummaDiffVypl);
-     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON);
      OO:=GetWDay(NMES,CURR_PERSON);
+     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON,round(oo));
+//     OO:=GetWDay(NMES,CURR_PERSON);
      if abs(o_day-oo)<0.1 then
      if abs(summaDiffVypl)<0.1 then
         summaDiffRas:=roundTo(summaDiffRas,0);
@@ -4361,22 +4371,34 @@ FUNCTION IS_GET_OUT_AWANS(CURR_PERSON:PERSON_PTR;PERIOD_NEW:INTEGER):BOOLEAN;
        FOUND:BOOLEAN;
    BEGIN
         FOUND:=FALSE;
-        I_U:=COUNT_UD(CURR_PERSON);
-        IF I_U>0 THEN
-           BEGIN
-                 I:=0;
-                 FOUND:=FALSE;
-                 WHILE (I<I_U) AND (NOT FOUND) DO
-                       BEGIN
-                             I:=I+1;
-                             IF I=1 THEN CURR_UD:=CURR_PERSON^.UD
-                                    ELSE CURR_UD:=CURR_UD^.NEXT;
-                             IF (CURR_UD^.SHIFR=AWANS_SHIFR)  THEN
-                             IF (CURR_UD^.PERIOD=PERIOD_NEW)  THEN
-                             IF (CURR_UD^.VYPLACHENO=GET_OUT) THEN
-                                FOUND:=TRUE;
-                       END;
-           END;
+        CURR_UD:=CURR_person^.UD;
+        while (curr_ud<>nil) do
+          begin
+               IF (CURR_UD^.SHIFR=AWANS_SHIFR)  THEN
+               IF (CURR_UD^.PERIOD=PERIOD_NEW)  THEN
+               IF (CURR_UD^.VYPLACHENO=GET_OUT) THEN
+                  begin
+                       FOUND:=TRUE;
+                       break;
+                  end;
+               curr_ud:=curr_UD^.NEXT;;
+          end;
+//        I_U:=COUNT_UD(CURR_PERSON);
+//        IF I_U>0 THEN
+//           BEGIN
+//                 I:=0;
+//                 FOUND:=FALSE;
+//                 WHILE (I<I_U) AND (NOT FOUND) DO
+//                       BEGIN
+//                             I:=I+1;
+//                             IF I=1 THEN CURR_UD:=CURR_PERSON^.UD
+//                                    ELSE CURR_UD:=CURR_UD^.NEXT;
+//                             IF (CURR_UD^.SHIFR=AWANS_SHIFR)  THEN
+//                             IF (CURR_UD^.PERIOD=PERIOD_NEW)  THEN
+//                             IF (CURR_UD^.VYPLACHENO=GET_OUT) THEN
+//                                FOUND:=TRUE;
+//                       END;
+//           END;
         IS_GET_OUT_AWANS:=FOUND;
    END;
  FUNCTION MUST_MAKE_AWANS(CURR_PERSON:PERSON_PTR;PERIOD_NEW:INTEGER):BOOLEAN;
@@ -4835,7 +4857,7 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
 }                                            END
                                                                          ELSE
                                             CURR_ADDW^.SUMMA := R10(CURR_CN^.SUMMA/OO*
-                                              WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON)-
+                                              WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,round(oo))-
                                               SUM_VYPLACHENO_ADD_ID(CURR_CN^.SHIFR,CURR_PERSON,PERIOD,CURR_ADDW^.WHO));
                                          CURR_ADDW^.FMP   := CURR_ADDW^.SUMMA;
                                          CURR_ADDW^.FZP   := 0;
@@ -4866,7 +4888,7 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                 if Abs(oo)<0.9 then
                                   o_person:=0
                                 else                                                
-      O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON);
+      O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,round(OO));
                                 CURR_ADDW^.SUMMA:=R10(O_PERSON*CURR_CN^.SUMMA/100-
                                       SUM_VYPLACHENO_ADD_ID(CURR_CN^.SHIFR,CURR_PERSON,PERIOD,CURR_ADDW^.WHO));
                                 CURR_ADDW^.FMP  :=CURR_ADDW^.SUMMA;
@@ -4922,7 +4944,7 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
 }                                            END
                                                                          ELSE
                                             CURR_ADDW^.SUMMA := R10(CURR_CN^.SUMMA/OO*
-                                              WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON)-
+                                              WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,ROUND(OO))-
                                               SUM_VYPLACHENO_ADD_ID(CURR_CN^.SHIFR,CURR_PERSON,PERIOD,CURR_ADDW^.WHO));
                                          CURR_ADDW^.FZP   := CURR_ADDW^.SUMMA;
                                          CURR_ADDW^.FMP   := 0;
@@ -4952,7 +4974,7 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                 if Abs(oo)<0.99 then
                                    O_PERSON:=0
                                 else                                                 
-    O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON);
+    O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,ROUND(OO));
                                 if O_PERSON<0.1 then O_PERSON:=0;
                                 CURR_ADDW^.SUMMA:=R10(O_PERSON*CURR_CN^.SUMMA/100-
                                       SUM_VYPLACHENO_ADD_ID(CURR_CN^.SHIFR,CURR_PERSON,PERIOD,CURR_ADDW^.WHO));
@@ -5006,7 +5028,7 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                             END
                                                                          ELSE
                                             CURR_ADDW^.SUMMA := R10(CURR_CN^.SUMMA/OO*
-                                              WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON)-
+                                              WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,ROUND(OO))-
                                               SUM_VYPLACHENO_ADD_ID(CURR_CN^.SHIFR,CURR_PERSON,PERIOD,CURR_ADDW^.WHO));
                                          CURR_ADDW^.OTHER   := CURR_ADDW^.SUMMA;
                                          CURR_ADDW^.FMP   := 0;
@@ -5036,7 +5058,7 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                 if Abs(oo)<0.9 then
                                    o_person:=0
                                 else                                                 
-   O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON);
+   O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,ROUND(OO));
                                 CURR_ADDW^.SUMMA:=R10(O_PERSON*CURR_CN^.SUMMA/100-
                                       SUM_VYPLACHENO_ADD_ID(CURR_CN^.SHIFR,CURR_PERSON,PERIOD,CURR_ADDW^.WHO));
                                 CURR_ADDW^.OTHER :=CURR_ADDW^.SUMMA;
@@ -5123,7 +5145,7 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                              if Abs(oo)<0.9 then
                                 o_person:=0
                              else
-     O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON);
+     O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,round(OO));
                                 CURR_UDW^.SUMMA:=R10(O_PERSON*CURR_CN^.SUMMA/100-
                                             SUM_VYPLACHENO_UD(CURR_CN^.SHIFR,CURR_PERSON,PERIOD));
                                 IF CURR_UDW^.SHIFR=AWANS_SHIFR THEN CURR_UDW^.SUMMA:=AWANS_SUMMA(CURR_UDW^.SUMMA);
