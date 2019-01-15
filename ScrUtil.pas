@@ -1,7 +1,7 @@
 {$H-}
 {$WARNINGS OFF}
 {$HINTS OFF}
-
+{$I+}
 unit ScrUtil;
                                
 interface
@@ -525,6 +525,8 @@ interface
   function IsBankShifr(Shifr:integer):Boolean;
   function getOkladLastForRazr(wantedRazr:integer):real;
   PROCEDURE FILL_STANDARD_TABEL_PERSON(CURR_PERSON:Person_Ptr);
+//  procedure Make_Otp_Tabel_person(Curr_Person:Person_ptr);
+  procedure FILL_TABEL_UW_PERSON(curr_person:person_ptr);
   procedure RestPerson09(Curr_Person:Person_Ptr;fname:string);
   procedure tryToFind09inAllFiles(Curr_Person:Person_Ptr);
   function getRektorFIO:string;
@@ -562,6 +564,7 @@ interface
   procedure markPKG66(wantedShifrPKG:integer);
   procedure makeMonthForYear(Y:integer);
   function CheckExcelInstalled(AValue: String): boolean;
+  function getMORForPutInf:integer;
 
 
 
@@ -1767,6 +1770,31 @@ FUNCTION THIS_PERSON(CURR_PERSON:PERSON_PTR):BOOLEAN;
                      4 : CURR_PERSON^.TABEL[I]:=VYHODN;
                 END;
   END;
+ PROCEDURE FILL_TABEL_UW_PERSON(CURR_PERSON:PERSON_PTR);
+  VAR I   : INTEGER;
+      Dt  : TDateTime;
+      D   : Integer;
+      y,m : integer;
+  BEGIN
+       Dt := getDataUwPerson(Curr_person);
+       y  := yearof(dt);
+       m  := monthof(dt);
+       d  := dayof(dt);
+       if YearOf(Dt)  <> Work_Year_Val then Exit;
+       if MonthOf(Dt) <> NMES          then Exit;
+       D:=DayOf(Dt);
+       IF CURR_PERSON^.MAIN<=0 THEN EXIT;
+       FOR I:=1 TO 31 DO
+          //      CASE MONTH_DAY[2,NMES,I] OF
+           if isLNR then
+               if i>D then
+                  CURR_PERSON^.TABEL[I]:=NEZAPOLN
+               else
+           else
+               if i>=D then
+                  CURR_PERSON^.TABEL[I]:=NEZAPOLN;
+  END;
+
 
 
 
@@ -6045,6 +6073,10 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
  function isSixDayMode(curr_person:person_ptr):boolean;
   const ld=12;
         dolgl:array[1..ld] of Integer=(70,80,1532,47,10,40,20,30,45,47,50,60);
+        lNSRV=3;
+        nsrvl:array[1..lNSRV] of Integer=(1,8,72);
+        lBiblDolg=7;
+        bibldolgl:array[1..lBiblDolg] of Integer=(825,827,1393,1423,1426,1427,1435);
   var retVal:boolean;
       shifrdol:integer;
       function isindol(wi:integer):boolean;
@@ -6062,26 +6094,64 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                end;
              isindol:=retval;
         end;
+      function isinnsrvl(wi:integer):boolean;
+        var retval:boolean;
+            i:integer;
+        begin
+             retval:=false;
+             for i:=1 to lNSRV do
+               begin
+                    if nsrvl[i]=wi then
+                       begin
+                           retval:=true;
+                           break;
+                       end;
+               end;
+             isinnsrvl:=retval;
+        end;
+      function isinbibldolgl(wi:integer):boolean;
+        var retval:boolean;
+            i:integer;
+        begin
+             retval:=false;
+             for i:=1 to lBiblDolg do
+               begin
+                    if bibldolgl[i]=wi then
+                       begin
+                           retval:=true;
+                           break;
+                       end;
+               end;
+             isinbibldolgl:=retval;
+        end;
   begin
        retVal:=false;
        shifrDol:=GET_DOL_CODE(curr_person);
        if (currYear>2018) or ((currYear=2018) and (nmes>8)) then
+{
        if isLNR then
           if not IsColedgPodr(NSRV) then
-             if nsrv<>1 then
-                 if nsrv<>8 then
+             if not isinnsrvl(NSRV) then
                      if isindol(shifrDol) then
                          retVal:=true;
-       if (isLNR and not IsColedgPodr(NSRV)
-           and (nsrv<>1)
-           and (nsrv<>8)
+}
+       if (isLNR
+           and not IsColedgPodr(NSRV)
+           and not isinnsrvl(NSRV)
            and not isindol(shifrDol)
            ) then
        if (curr_Person.KATEGORIJA=1)         then
     //       or
     //       (isPersonAUP_PPS(curr_person))) then
           retVal:=true;
-
+     // Библиотека
+{
+       if isLNR then
+       if not retVal then
+       if nsrv=9 then
+       if isinbibldolgl(shifrdol) then
+          retVal:=true;
+}
        isSixDayMode:=retVal;
   end;
  function isFiveDayMode(curr_person:person_ptr):boolean;
@@ -11832,5 +11902,77 @@ begin
 //  Result := (CLSIDFromProgID(PChar(s), FCLSID) = S_OK);
 //  Result := (CLSIDFromProgID(@AValue[1], FCLSID) = S_OK);
 end;
+function getMORForPutInf:integer;
+ type PRec=^TRec;
+      TRec=record
+            shifrPod:integer;
+            count:integer;
+           end;
+ var listMOR:TList;
+     Curr_Person:Person_Ptr;
+     retVal:integer;
+     i:integer;
+     procedure addToList(wantedVal:integer);
+       var i:integer;
+           p:PRec;
+           finded:boolean;
+       begin
+            if listMOR.Count<1 then
+               begin
+                    p := new(PRec);
+                    p^.shifrPod := wantedVal;
+                    p^.count    := 1;
+                    listMor.Add(p);
+                    exit;
+               end;
+            finded:=false;
+            for i:=1 to listMOR.Count do
+                begin
+                     if (wantedVal=pRec(listMOR.items[i-1])^.shifrPod) then
+                        begin
+                            inc(pRec(listMOR.items[i-1])^.count);
+                             finded:=true;
+                             break;
+                        end;
+                end;
+            if not finded then
+               begin
+                    p := new(PRec);
+                    p^.shifrPod := wantedVal;
+                    p^.count    := 1;
+                    listMor.Add(p);
+               end;
+       end;
+      function compare(p1:pointer;p2:pointer):integer;
+        begin
+             if pRec(p1)^.count<pRec(p2)^.count then compare:=1
+             else
+             if pRec(p1)^.count>pRec(p2)^.count then compare:=-1
+             else
+             compare:=0;
+        end;
+ begin
+      retVal      := 0;
+      ListMOR     := TList.Create();
+      curr_person := head_person;
+      while (curr_person<>nil) do
+       begin
+            if curr_person.WID_RABOTY=1 then
+               addToList(Curr_Person^.mesto_osn_raboty)
+            else
+               addToList(Curr_Person^.from);
+            curr_person:=curr_person^.next;
+       end;
+      retVal:=0;
+      if (listMOR.Count>0) then
+          begin
+               listMOR.sort(@compare);
+               retVal:=PRec(listMOR.items[0])^.shifrPod;
+               for i:=1 to listMOR.count do
+                   dispose(PRec(listMOR.Items[i-1]));
+          end;
+      FreeAndNil(listMOR);
+      getMORForPutInf:=retVal;
+ end;
 end.
 

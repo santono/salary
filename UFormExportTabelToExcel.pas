@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, ComCtrls;
+  Dialogs, StdCtrls, Buttons, ComCtrls,scrdef;
 
 type
   TFormExportTabelToExcel = class(TForm)
@@ -20,7 +20,7 @@ type
     procedure exportToExcel;
     procedure fillDayCodes;
     function  getDayCode(i:integer):integer;
-    function  getSTabel(CodeT:Byte):String;
+    function  getSTabel(CodeT:Byte;Curr_Person:person_ptr):String;
 
     { Private declarations }
   public
@@ -31,7 +31,7 @@ var
   FormExportTabelToExcel: TFormExportTabelToExcel;
 
 implementation
-  uses scrdef,scrutil,ComObj;
+  uses scrutil,ComObj;
 
 {$R *.dfm}
 
@@ -235,9 +235,9 @@ procedure TFormExportTabelToExcel.exportToExcel;
              for i:=1 to l do
                  begin
                       if i<17 then
-                         E.WorkBooks[1].WorkSheets[1].Cells[currRow,5+i]:=Self.GetSTabel(Curr_Person^.Tabel[i])
+                         E.WorkBooks[1].WorkSheets[1].Cells[currRow,5+i]:=Self.GetSTabel(Curr_Person^.Tabel[i],curr_Person)
                       else
-                         E.WorkBooks[1].WorkSheets[1].Cells[currRow+1,5+(i-16)]:=Self.GetSTabel(Curr_Person.Tabel[i]);
+                         E.WorkBooks[1].WorkSheets[1].Cells[currRow+1,5+(i-16)]:=Self.GetSTabel(Curr_Person.Tabel[i],curr_person);
                  end;
              JJW:=Work_Day(1,31,Curr_Person);
              if JJW>0 then
@@ -293,11 +293,37 @@ procedure TFormExportTabelToExcel.exportToExcel;
             retVal:=dayCodes[i];
         getDayCode:=retVal;
    end;
- function TFormExportTabelToExcel.GetSTabel(CodeT:Byte):String;
+ function TFormExportTabelToExcel.GetSTabel(CodeT:Byte;curr_Person:person_ptr):String;
+  var koef:real;
+      done:boolean;
   begin
       Result:=' ';
+      done:=false;
+      koef:=GET_KOEF_OKLAD_PERSON(Curr_Person);
       if ((CodeT>0) and (CodeT<=MAX_TABEL_KOD)) then
-         Result:=Trim(SHIFR_TABEL[CodeT]);
+         begin
+              if (nsrv=3) then
+              if codet=1  then
+              if abs(abs(koef)-1.0)<0.01 then
+                 begin
+                      Result := '8';
+                      done   := true;
+                 end
+              else
+              if abs(abs(koef)-0.5)<0.01 then
+                 begin
+                      Result := '4';
+                      done   := true;
+                 end
+              else
+              if abs(abs(koef)-0.25)<0.01 then
+                 begin
+                       Result := '2';
+                       done   := true;
+                 end;
+              if not done then
+                 Result:=Trim(SHIFR_TABEL[CodeT]);
+         end;
   end;
 
 

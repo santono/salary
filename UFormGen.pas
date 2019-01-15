@@ -51,7 +51,7 @@ var
   FormGen: TFormGen;
 
 implementation
-  uses ScrDef,ScrIo,ScrUtil,ScrNalog,uFIBModule,uFormWait,uFormSelPKG,ScrLists,
+  uses scrDef,ScrIo,ScrUtil,ScrNalog,uFIBModule,uFormWait,uFormSelPKG,ScrLists,
   UFormMakeOtpTableFromSQL,DateUtils,USQLUnit;
 
 {$R *.dfm}

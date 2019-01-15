@@ -334,11 +334,24 @@ uses
   UFormBrowseDogovora in 'UFormBrowseDogovora.pas' {FormBrowseDogovora},
   UFormUpdateDogovora in 'UFormUpdateDogovora.pas' {FormUpdateDogovora},
   UFormBrowseDogovoraDet in 'UFormBrowseDogovoraDet.pas' {FormBrowseDogovoraDet},
-  UFormSelDogPodSowm in 'UFormSelDogPodSowm.pas' {FormSelDogPodSowm};
+  UFormSelDogPodSowm in 'UFormSelDogPodSowm.pas' {FormSelDogPodSowm},
+  UFormRepPomKOtp in 'UFormRepPomKOtp.pas' {FormRepPomKOtp},
+  UFormTestCrossSaving in 'UFormTestCrossSaving.pas' {FormTestCrossSaving};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 
 {$R *.res}
+
+const
+  IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
+  // Following are already defined in D7's Windows.pas
+  IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP       = $0400;
+  IMAGE_FILE_NET_RUN_FROM_SWAP             = $0800;
+
+{$SetPEOptFlags IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE}
+
+{$SetPEFlags IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP 
+  or IMAGE_FILE_NET_RUN_FROM_SWAP}
 begin
   if mmm then
      begin // Запуск программмы  Application.Initialize;

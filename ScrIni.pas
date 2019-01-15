@@ -915,7 +915,7 @@ end;
  procedure InitMain;
   begin
        FillChar(MainScreen,SizeOf(MainScreen),0);
-       MainScreen[1].Shifr := 1;
+       MainScreen[1].Shifr := Oklad_Shifr;
        MainScreen[1].Add   := true;
        if isSVDN then
           begin
@@ -932,15 +932,15 @@ end;
           end
        else
           begin
-               MainScreen[2].Shifr := L_Shifr;
+               MainScreen[2].Shifr := ZA_STEP_SHIFR;
                MainScreen[2].Add   := true;
-               MainScreen[3].Shifr := podoh_Shifr;
-               MainScreen[3].Add   := false;
-               MainScreen[4].Shifr := ECBShifr;
-               MainScreen[4].Add   := false;
-               MainScreen[5].Shifr := ECBNShifr;
-               MainScreen[5].Add   := false;
-               MainScreen[6].Shifr := PROF_SHIFR;
+               MainScreen[3].Shifr := ZA_ZWAN_SHIFR;
+               MainScreen[3].Add   := true;
+               MainScreen[4].Shifr := VYSLUGA_SHIFR;
+               MainScreen[4].Add   := true;
+               MainScreen[5].Shifr := l_shifr;
+               MainScreen[5].Add   := true;
+               MainScreen[6].Shifr := podoh_shifr;
                MainScreen[6].Add   := false;
           end;
     //   MainScreen[6].Shifr := ECBDpShifr;

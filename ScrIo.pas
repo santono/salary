@@ -1057,7 +1057,7 @@ PROCEDURE PUTINF;
      FNameTmp     : string;
      RewriteExecuted:boolean;
      Zero         : Word;
-
+     testedMOR    : integer;
   procedure FirstRewrite;
    begin
         ReWriteExecuted:=True;
@@ -1347,6 +1347,15 @@ PROCEDURE PUTINF;
         begin
              Exit;
         end;
+     testedMOR:=getMORForPutInf;
+//     showMessage('MOR='+IntToStr(testedMOR));
+     if (testedMOR>0) then
+     if (testedMOR<>NSRV) then
+     if not YesNo('Произошла ошибка в работе программы'+^M
+        +'Попытка сохранить подразделение '+intToStr(testedMOR)+' в подразделение '+intToStr(NSRV)+^M
+        +'Вы уверены в необходимости сохранения возможно некорректных данных подразделения?') then
+        Exit;
+
 {
 
 

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids,ScrDef, StdCtrls, Buttons, ImgList;
+  Dialogs, Grids,ScrDef, StdCtrls, Buttons, ImgList, Menus;
 
 type
   TFormTabel = class(TForm)
@@ -15,6 +15,8 @@ type
     BoxDirection: TComboBox;
     ImageList1: TImageList;
     BitBtnExcel: TBitBtn;
+    PopupMenu1: TPopupMenu;
+    N1: TMenuItem;
     procedure SetCurrPerson(C_Person:Person_Ptr);
     function GetRow:integer;
     procedure FormShow(Sender: TObject);
@@ -27,6 +29,7 @@ type
     procedure StringGridTSelectCell(Sender: TObject; ACol, ARow: Integer;
       var CanSelect: Boolean);
     procedure BitBtnExcelClick(Sender: TObject);
+    procedure N1Click(Sender: TObject);
   private
     { Private declarations }
     RetCode : integer;
@@ -37,6 +40,9 @@ type
     procedure MakeGrid;
     function GetSTabel(CodeT:Byte):String;
     procedure ShowCaption(WantedRow:integer);
+    procedure fillStandartTabel(curr_person:person_ptr);
+    procedure showGridRow(wantedRow:integer;curr_person:person_ptr);
+
   public
     { Public declarations }
   end;
@@ -250,6 +256,14 @@ end;
 procedure TFormTabel.FormCreate(Sender: TObject);
 begin
       CurrDir:=1;
+      n1.Enabled:=false;
+      n1.Visible:=false;
+      if nmes=flow_month then
+      if curryear=work_year_val then
+         begin
+              n1.Enabled:=true;
+              n1.Visible:=true;
+         end;
 end;
 
 procedure TFormTabel.StringGridTKeyPress(Sender: TObject; var Key: Char);
@@ -309,4 +323,68 @@ begin
      FormExportTabelToExcel.ShowModal;
 end;
 
+procedure TFormTabel.N1Click(Sender: TObject);
+var c_person:person_ptr;
+    r:integer;
+begin
+     if nmes<>flow_month     then exit;
+     if curryear<>WORK_YEAR_VAL  then exit;
+     c_Person:=Head_Person;
+     r:=1;
+     while (r<StringGridT.Row) do
+           begin
+                C_Person:=C_Person^.Next;
+                inc(r);
+           end;
+     if c_person<>nil then
+        begin
+             if curr_person^.AUTOMATIC=AUTOMATIC_MODE then
+                begin
+                     fillStandartTabel(c_person);
+                     showGridRow(r,c_person);
+                end;
+        end;
+end;
+procedure TFormTabel.fillStandartTabel(curr_person:person_ptr);
+ begin
+      FILL_STANDARD_TABEL_PERSON(curr_person);
+      MAKE_OTP_TABEL_FROM_SQL(CURR_PERSON);
+      MAKE_OG_TABEL_FROM_SQL(CURR_PERSON);
+      FILL_TABEL_UW_person(CURR_PERSON);
+
+ end;
+procedure TFormTabel.showGridRow(wantedRow:integer;curr_person:person_ptr);
+ var j,jj:integer;
+ begin
+//      StringGridT.Cells[0,wantedRow]:=IntToStr(Curr_Person^.Tabno)+' '+Trim(Curr_Person^.Fio)+' '+FormatFloat(F,GET_KOEF_OKLAD_PERSON(Curr_Person));
+            for j:=1 to StringGridT.ColCount-1 do
+                StringGridT.Cells[j,wantedRow]:=Self.GetSTabel(Curr_Person^.Tabel[j]);
+            JJ:=Work_Day(1,31,Curr_Person);
+            if JJ>0 then StringGridS.Cells[0,wantedRow]:=IntToStr(JJ)
+                    else StringGridS.Cells[0,wantedRow]:='';
+            JJ:=Ill_Day(1,Curr_Person);
+            if JJ>0 then StringGridS.Cells[1,wantedRow]:=IntToStr(JJ)
+                    else StringGridS.Cells[1,wantedRow]:='';
+            JJ:=Otpusk_Day(1,Curr_Person);
+            if JJ>0 then StringGridS.Cells[2,wantedRow]:=IntToStr(JJ)
+                    else StringGridS.Cells[2,wantedRow]:='';
+            if Curr_Person^.Automatic=1 then
+               begin
+                    for jj:=0 to StringGridT.ColCount-1 do
+                        begin
+                             StringGridT.Objects[jj,wantedRow]:= TStrColor.Create;
+                             (StringGridT.Objects[jj,wantedRow] as TStrColor).Color         := clInfoText;
+                             (StringGridT.Objects[jj,wantedRow] as TStrColor).BackColor     := clInfoBk;
+                             (StringGridT.Objects[jj,wantedRow] as TStrColor).SelectedColor := clYellow;
+                        end;
+               end
+            else
+              for jj:=0 to StringGridT.ColCount-1 do
+                if Assigned(StringGridT.Objects[jj,wantedRow]) then
+                   begin
+                        StringGridT.Objects[jj,wantedRow].Free;
+                        StringGridT.Objects[jj,wantedRow]:=Nil;
+                   end;
+
+ end;
 end.

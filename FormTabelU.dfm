@@ -1,6 +1,6 @@
 object FormTabel: TFormTabel
-  Left = 103
-  Top = 69
+  Left = 181
+  Top = 192
   Width = 1001
   Height = 629
   Caption = #1058#1072#1073#1077#1083#1100
@@ -30,6 +30,7 @@ object FormTabel: TFormTabel
     Font.Style = []
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goRowSizing]
     ParentFont = False
+    PopupMenu = PopupMenu1
     TabOrder = 0
     OnKeyPress = StringGridTKeyPress
     OnSelectCell = StringGridTSelectCell
@@ -373,5 +374,13 @@ object FormTabel: TFormTabel
       F00F000000000000F00F000000000000F00F000000000000F00F000000000000
       F00F000000000000FFFF00000000000000000000000000000000000000000000
       000000000000}
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 176
+    Top = 88
+    object N1: TMenuItem
+      Caption = #1047#1072#1087#1086#1083#1085#1080#1090#1100' '#1090#1072#1073#1077#1083#1100
+      OnClick = N1Click
+    end
   end
 end

@@ -378,6 +378,14 @@ type
     ActionBrowseDogovora: TAction;
     N169: TMenuItem;
     NDogovora: TMenuItem;
+    ActionRepPomKOtp: TAction;
+    N84: TMenuItem;
+    ActionTest: TAction;
+    ActionTestCrossSaving: TAction;
+    N170: TMenuItem;
+    N171: TMenuItem;
+    N172: TMenuItem;
+    N173: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -629,6 +637,8 @@ type
     procedure N010720181Click(Sender: TObject);
     procedure ActionFormMonthGenerExecute(Sender: TObject);
     procedure ActionBrowseDogovoraExecute(Sender: TObject);
+    procedure ActionRepPomKOtpExecute(Sender: TObject);
+    procedure ActionTestCrossSavingExecute(Sender: TObject);
 
 
   private
@@ -714,7 +724,7 @@ implementation
   UFormRepPersDolgOsn, UFormRepAUP_PPS, UFormKomand, UFormRepairUwol,
   UFormRecalcNight, UFormChangeTabno,uSQLUnit, UFormChangeNMES,
   UFormFillExcel0417, UFormRepWordkers, UFormGener, UFormMonthForGener,
-  UFormBrowseDogovora;
+  UFormBrowseDogovora, UFormRepPomKOtp, UFormTestCrossSaving;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -4491,6 +4501,19 @@ begin
     if not isSVDN then Exit;
     Application.CreateForm(TFormBrowseDogovora, FormBrowseDogovora);
     FormBrowseDogovora.ShowModal;
+
+end;
+
+procedure TMainForm.ActionRepPomKOtpExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormRepPomKOtp, FormRepPomKOtp);
+    FormRepPomKOtp.ShowModal;
+end;
+
+procedure TMainForm.ActionTestCrossSavingExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormTestCrossSaving, FormTestCrossSaving);
+    FormTestCrossSaving.ShowModal;
 
 end;
 

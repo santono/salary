@@ -1,6 +1,6 @@
 {$WARNINGS OFF}
 {$HINTS OFF}
-
+{$I+}
 unit ScrNalog;
                                                                                        
 interface

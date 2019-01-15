@@ -1,6 +1,7 @@
 {$H-}
 {$WARNINGS OFF}
 {$HINTS OFF}
+{$I+}
 unit UORecalcAbon;
 
 interface
