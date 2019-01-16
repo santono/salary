@@ -566,6 +566,7 @@ interface
   function CheckExcelInstalled(AValue: String): boolean;
   function getMORForPutInf:integer;
   function getIniFileName:string;
+  function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
 
 
 
@@ -11989,13 +11990,12 @@ function getMORForPutInf:integer;
       s3:=s2+copy(s1,3,length(s1)-2);
       getIniFileName:=s3;
   end;
-function isCorrectLNRPodoh13Person(curr_person):boolean;
+function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
  const procPod=0.13;
  var curr_add:add_ptr;
      curr_ud:ud_ptr;
      summaAdd:real;
-     summePod,summaPodRas:real;
-     procPod:real;
+     summaPod,summaPodRas:real;
      retVal:boolean;
  begin
       if not isLNR then
@@ -12015,13 +12015,13 @@ function isCorrectLNRPodoh13Person(curr_person):boolean;
       curr_ud:=curr_person^.ud;
       while (curr_ud<>nil) do
        begin
-            if curr_ud^.shifr:=podoh_shifr then
-               summaPod=summaPod+curr_ud^.SUMMA;
+            if curr_ud^.shifr=podoh_shifr then
+               summaPod:=summaPod+curr_ud^.SUMMA;
             curr_ud:=curr_ud^.NEXT;
        end;
       summaPodRas:=summaAdd*procPod;
       if abs(summaPod-summaPodRas)>0.009 then
-         retVal:=false;
+         retVal:=false
       else
          retVal:=true;
       isCorrectLNRPodoh13Person:=retVal;

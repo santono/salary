@@ -379,13 +379,13 @@ type
     N169: TMenuItem;
     NDogovora: TMenuItem;
     ActionRepPomKOtp: TAction;
-    N84: TMenuItem;
     ActionTest: TAction;
     ActionTestCrossSaving: TAction;
     N170: TMenuItem;
     N171: TMenuItem;
     N172: TMenuItem;
     N173: TMenuItem;
+    N174: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -816,6 +816,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
      Curr_Ud      : Ud_Ptr;
      SecretWorker : boolean;
      prefix       : string;
+     fio          : string;
  begin
 {    Caption:=AllTrim(Month[NMES])+' '+IntToStr(CurrYear)+' г. '+FNINF+' '+iNTtOsTR(cOUNT_pERSON);}
      CurrWrk   := FIB.GetShifrWrk   ;
@@ -856,6 +857,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                       begin
                            StringGrid1.Objects[i,j].Free;
                            StringGrid1.Objects[i,j]:=Nil;
+//                           FreeAndNil(StringGrid1.Objects[i,j]);
                       end;
              end;
      StringGrid1.Cells[0,0]:='Т.н.';
@@ -991,6 +993,25 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                                      if length(S)<10 then S:=space(10-length(S))+S;
                                      StringGrid1.Cells[j+1,I+1]:=S
                                 end;
+//      контроль подоходного в ЛНР 16 01 2019
+                             if isLNR then
+                             if MainScreen[j].Shifr=podoh_shifr then
+                                begin
+                                     if not isCorrectLNRPodoh13Person(curr_person) then
+                                        begin
+                                            fio:=curr_person^.fio;
+                                            if Assigned(StringGrid1.Objects[j+1,i+1]) then
+                                               begin
+                                                    StringGrid1.Objects[j+1,i+1].Free;
+                                                    StringGrid1.Objects[j+1,i+1]:=Nil;
+                                               end;
+                                            StringGrid1.Objects[j+1,i+1]:=TStrColor.Create;
+                                           (StringGrid1.Objects[j+1,i+1] as TStrColor).Color         := clWhite;
+                                           (StringGrid1.Objects[j+1,i+1] as TStrColor).BackColor     := clRed;
+                                           (StringGrid1.Objects[j+1,i+1] as TStrColor).SelectedColor := clYellow;
+                                        end;
+                                end;
+
                         end;
                      if (not MainScreen[j].Add) and (MainScreen[j].Shifr=m_shifr) then
                         begin
@@ -1444,6 +1465,8 @@ var
 begin
       vRow := aRow ;
       vCol := aCol ;
+      if ((vRow=16) and (vCol=7)) then
+          shift:=1;
       S    := StringGrid1.Cells[vCol,vRow];
       if vCol=1 then
          begin
@@ -1473,8 +1496,10 @@ begin
                                  OldFontColor := Font.Color;
                                  OldBrushColor := Brush.Color;
                                  Font.Color := (Objects[vCol,vRow] as TStrColor).SelectedColor;
-{                                 Brush.Color := (Objects[vCol,vRow] as TStrColor).BackColor;}
-                           end;
+{
+                                 if isLNR then
+                                    Brush.Color := (Objects[vCol,vRow] as TStrColor).BackColor;
+}                           end;
                    end
                                          else
                    if (gdFixed in State) then
@@ -1499,7 +1524,7 @@ begin
 }
                            if (vRow mod 2 = 0) then Brush.Color:=clInfoBk
                                                else Brush.Color:=cl3dLight;
-{
+                           if isLNR then
                            If assigned(Objects[vCol,vRow]) then
                               begin
                                     OldFontColor := Font.Color;
@@ -1507,7 +1532,7 @@ begin
                                     Font.Color := (Objects[vCol,vRow] as TStrColor).Color;
                                     Brush.Color := (Objects[vCol,vRow] as TStrColor).BackColor;
                              end;
-}
+
                       end;
 {
                 if vCol=1 then
@@ -2771,6 +2796,7 @@ var PathName  : String;
     KZ        : LongInt;
     Ini       : TIniFile;
     CmdString : string;
+    fName     : string;
 begin
      if modeKadrySQL then
         begin
@@ -2796,7 +2822,9 @@ begin
       WinExec('C:\C55\EXAMPLES\LMSI\KADRY.EXE',
                     sw_ShowNormal);
 }
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fName:=getIniFileName;
+//      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      Ini := TIniFile.Create(fName );
       try
          CmdString := Ini.ReadString( 'Parameters', 'EditKadryProc', '' )
       finally
@@ -2930,8 +2958,11 @@ var PathName  : String;
     KZ        : LongInt;
     Ini       : TIniFile;
     CmdString : string;
+    fName     : string;
 begin
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fName:=getIniFileName;
+//      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      Ini := TIniFile.Create(fName);
       try
          CmdString := Ini.ReadString( 'Parameters', 'EditTemyProc', '' )
       finally
