@@ -83,9 +83,12 @@ function getDBFDir(var EscPressed:Boolean):string;
  const FNameINI='DScroll.Ini';
  var S,Ch,DBFDir:String;
      Ini:TIniFile;
+     fName:string;
  begin
+     fNAme:=getIniFileName;
+     s:=fName;
      EscPressed := False;
-     S   := ExtractFilePath(Application.ExeName)+FNameINI;
+//     S   := ExtractFilePath(Application.ExeName)+FNameINI;
      Ini := TIniFile.Create(S);
      try
          DBFDir := Ini.ReadString( 'Parameters', '1DFDir', '' );

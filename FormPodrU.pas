@@ -138,8 +138,11 @@ procedure TFormPodr.MakeGrid;
      v           : Variant;
      i_pos       : Integer;
      FIBName     : string;
+     fName       : string;
  begin
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fName:=getIniFileName;
+//      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      Ini := TIniFile.Create(fName);
       try
          SQL_ModeS := Ini.ReadString( 'Parameters', 'SQLPickMode', '0' );
          if SQL_ModeS='SQL' then SQL_Mode:=1

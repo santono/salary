@@ -2044,7 +2044,7 @@ begin
                        FIB.pFIBDatabaseArc.CloseDataSets;
                        FIB.pFIBDatabaseArc.Connected:=false;
                   end;
-               Action:=caFree;
+//               Action:=caFree;
          end
       else
           Action:=caNone;

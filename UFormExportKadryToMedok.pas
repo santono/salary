@@ -204,8 +204,11 @@ function TFormExportKadryToMedok.MakeDBFFile:String;
     Ch       : string   ;
     DBFNameE : string   ;
     DBFNameD : string   ;
+    fName    : string   ;
  begin
-     S   := ExtractFilePath(Application.ExeName)+FNameINI;
+     fName := getIniFileName;
+     s:=fName;
+//     S   := ExtractFilePath(Application.ExeName)+FNameINI;
      Ini := TIniFile.Create(S);
      try
          DBFDir := Ini.ReadString( 'Parameters', 'PFUDir', '' );
@@ -280,8 +283,11 @@ procedure TFormExportKadryToMedok.getOldList;
            DBFDir   : string   ;
            Ch       : string   ;
            DBFName  : string   ;
+           fName    : string;
         begin
-            S   := ExtractFilePath(Application.ExeName)+FNameINI;
+            fName:=getIniFileName;
+            s:=fName;
+//            S   := ExtractFilePath(Application.ExeName)+FNameINI;
             Ini := TIniFile.Create(S);
             try
                DBFDir := Ini.ReadString( 'Parameters', 'PFUDir', '' );

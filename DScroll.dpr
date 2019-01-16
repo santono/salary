@@ -19,6 +19,7 @@ uses
   ScrExport in 'ScrExport.pas',
   UToSQL in 'UToSQL.pas' {FormToSQL},
   uDBF in 'uDBF.pas' {FormDBF},
+  ScrNetwork in 'ScrNetwork.pas',
   uCKadry in 'uCKadry.pas' {frmKadry},
   FormNmesU in 'FormNmesU.pas' {FormNmes},
   FormAddUdU in 'FormAddUdU.pas' {FormAdd},
@@ -337,6 +338,7 @@ uses
   UFormSelDogPodSowm in 'UFormSelDogPodSowm.pas' {FormSelDogPodSowm},
   UFormRepPomKOtp in 'UFormRepPomKOtp.pas' {FormRepPomKOtp},
   UFormTestCrossSaving in 'UFormTestCrossSaving.pas' {FormTestCrossSaving};
+
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -30,7 +30,7 @@ function Fill_Oklady_Razr_From_SQL:boolean;
 
 implementation
   Uses SysUtils,QDialogs,ScrDef,ScrUtil,IniFiles,UFibModule,FORMS,SCrLists,
-       Registry,Windows;
+       Registry,Windows,ScrNetwork;
 
 PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
  VAR DEV:TEXT;
@@ -43,7 +43,10 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
      DRIVE:CHAR;
      CURR_DRIVE:BYTE;
      SavPath,S:string;
+     neededDrive:string;
  BEGIN
+       neededDrive:=getMainDataDrive;
+       s:=getIniFileName;
        kz:=0;
        if isParameterIskra then
           modeIskra:=true;
@@ -57,7 +60,7 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
        j:=pos('\',S);
        if j>0 then Delete(S,j,i);
 }
-       MainDir:='\'+S;
+       MainDir:=neededDrive+'\'+S;
   {     MAINDIR  := COPY(CURR_DIR,3,I-6);}
        if Length(Trim(wantedMainDir))>0 then
           if DirectoryExists(wantedMainDir) then
@@ -630,10 +633,13 @@ PROCEDURE LOAD_PCK(VAR WantedTabno,WantedWR:INTEGER);
      Ini         : TIniFile;
      SQL_Mode    : Integer;
      SQL_ModeS   : String;
+     fName:String;
   BEGIN
       if modeIskra then
          nsrv:=179;
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fName:=getIniFileName;
+//      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      Ini := TIniFile.Create(fNAme);
       try
          SQL_ModeS := Ini.ReadString( 'Parameters', 'SQLPickMode', '0' );
          if SQL_ModeS='SQL' then SQL_Mode:=1
@@ -718,8 +724,11 @@ PROCEDURE SAVE_PCK(WantedRow:INTEGER);
      Ini         : TIniFile;
      SQL_Mode    : Integer;
      SQL_ModeS   : String;
+     fNAme       : string;
  BEGIN
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fName:=getIniFileName;
+//      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      Ini := TIniFile.Create(fNAme);
       try
          SQL_ModeS := Ini.ReadString( 'Parameters', 'SQLPickMode', '0' );
          if SQL_ModeS='SQL' then SQL_Mode:=1
@@ -1347,8 +1356,11 @@ PROCEDURE INIT_MIN_SALARY;
    var
      Ini         : TIniFile;
      S           : String;
+     fName       : String;
    begin
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fName:=getIniFileName;
+//      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      Ini := TIniFile.Create(fName);
       try
          S := Ini.ReadString( 'Parameters', 'SummaPltFormatSeparator', 'Defis' );
          S := Upper_String(S);
@@ -1366,9 +1378,12 @@ PROCEDURE INIT_MIN_SALARY;
    var
      Ini : TIniFile;
      S   : String;
+     FName:string;
    begin
       TmpFirstMode:=True;
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fName:=getIniFileName;
+//      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      Ini := TIniFile.Create(fName );
       try
          S := Ini.ReadString( 'Parameters', 'TmpFirstMode', 'New' );
          S := Upper_String(S);
@@ -1384,9 +1399,11 @@ PROCEDURE INIT_MIN_SALARY;
 PROCEDURE InitInitialParamentersFromIniFile;
  var Ini         : TIniFile;
      ValS        : string;
-     iVal,iErr   : Integer;    
+     iVal,iErr   : Integer;
+     fName       : string;
   BEGIN
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fName:=getIniFileName;
+      Ini := TIniFile.Create( fName );
       try
          ValS := Ini.ReadString('Parameters','NeedTestAddDuplicates','No');
          if Length(Trim(ValS))<2 then ValS:='No';

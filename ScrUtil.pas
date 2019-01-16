@@ -565,13 +565,15 @@ interface
   procedure makeMonthForYear(Y:integer);
   function CheckExcelInstalled(AValue: String): boolean;
   function getMORForPutInf:integer;
+  function getIniFileName:string;
 
 
 
 implementation
    uses Math,SysUtils,QDialogs,DateUtils,QControls,ScrLists,ScrIo,ScrLini,
         UFIBModule,uFormWait,FORMS,ScrNalog,ShellApi,WinDows,ScrExport,Classes,
-        ComObj,ActiveX,IniFiles,uMD5,Variants, FIBDatabase,USQLUnit,UFormDepartmentSeek;
+        ComObj,ActiveX,IniFiles,uMD5,Variants, FIBDatabase,USQLUnit,UFormDepartmentSeek,
+        scrnetwork;
    const doss:array[1..72] of byte = ($49,$69,$80,$81,$82,$83,$84,$85,$F0,$F2,$F3,$F4,$F5,$86,$87,$88,$89,$8A,$8B,$8C,$8D,$8E,$8F,$90,$91,$92,$93,$94,$95,$96,$97,$98,$99,$9A,$9B,$9C,$9D,$9E,$9F,$A0,$A1,$A2,$A3,$A4,$A5,$F1,$A6,$A7,$A8,$A9,$AA,$AB,$AC,$AD,$AE,$AF,$E0,$E1,$E2,$E3,$E4,$E5,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF);
    const wins:array[1..72] of byte = ($B2,$B3,$C0,$C1,$C2,$C3,$C4,$C5,$A8,$AA,$BA,$AF,$BF,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD,$CE,$CF,$D0,$D1,$D2,$D3,$D4,$D5,$D6,$D7,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$E0,$E1,$E2,$E3,$E4,$E5,$B8,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF,$F0,$F1,$F2,$F3,$F4,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$FC,$FD,$FE,$FF);
  { AA(BA) -win f2(f3) - dos ukr E; AF(BF) - win F4(F5) - dos ukr II}
@@ -7979,9 +7981,10 @@ PROCEDURE MAKE_PERSON_STATE(CURR_PERSON:PERSON_PTR);
    end;
   begin
      MakeArchivForData:='';
-     S   := Application.ExeName;
-     ApplicationExePath:=ExtractFilePath(s);
-     S   := copy(S,1,length(s)-3)+'ini';
+//     S   := Application.ExeName;
+//     ApplicationExePath:=ExtractFilePath(s);
+//     S   := copy(S,1,length(s)-3)+'ini';
+     s   := getIniFileName;
      Ini := TIniFile.Create(S);
      try
          ModeArcS := Ini.ReadString( 'Parameters', 'ModeArc', 'arj' );
@@ -11973,6 +11976,55 @@ function getMORForPutInf:integer;
           end;
       FreeAndNil(listMOR);
       getMORForPutInf:=retVal;
+ end;
+ function getIniFileName:string;
+  var retVal:string;
+      s,s1,s2,s3:string;
+
+  begin
+
+      s:=Application.ExeName;
+      s1:=ChangeFileExt(s,'.ini');
+      s2:=getMainDataDrive;
+      s3:=s2+copy(s1,3,length(s1)-2);
+      getIniFileName:=s3;
+  end;
+function isCorrectLNRPodoh13Person(curr_person):boolean;
+ const procPod=0.13;
+ var curr_add:add_ptr;
+     curr_ud:ud_ptr;
+     summaAdd:real;
+     summePod,summaPodRas:real;
+     procPod:real;
+     retVal:boolean;
+ begin
+      if not isLNR then
+         begin
+              isCorrectLNRPodoh13Person:=true;
+              exit;
+         end;
+      summaPod:=0;
+      summaAdd:=0;
+      curr_add:=curr_person^.add;
+      while (curr_add<>nil) do
+       begin
+            if shifrList.IsPodoh(curr_add^.shifr) then
+               summaAdd:=summaAdd+curr_add^.SUMMA;
+            curr_add:=curr_add^.NEXT;
+       end;
+      curr_ud:=curr_person^.ud;
+      while (curr_ud<>nil) do
+       begin
+            if curr_ud^.shifr:=podoh_shifr then
+               summaPod=summaPod+curr_ud^.SUMMA;
+            curr_ud:=curr_ud^.NEXT;
+       end;
+      summaPodRas:=summaAdd*procPod;
+      if abs(summaPod-summaPodRas)>0.009 then
+         retVal:=false;
+      else
+         retVal:=true;
+      isCorrectLNRPodoh13Person:=retVal;
  end;
 end.
 

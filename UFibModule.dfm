@@ -75,8 +75,7 @@ object FIB: TFIB
     DBParams.Strings = (
       'user_name=SYSDBA'
       'lc_ctype=WIN1251'
-      'password=masterkey'
-      'sql_role_name=')
+      'password=masterkey')
     DefaultTransaction = pFIBTransactionArc
     DefaultUpdateTransaction = pFIBTransactionArcWrite
     SQLDialect = 3

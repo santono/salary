@@ -75,7 +75,7 @@ var
 
 implementation
  uses IniFiles,QForms,Dialogs,FORMS,Windows,USMessages,Registry,
-      ScrDef{,Salary},USQlUnit, Variants;
+      ScrDef{,Salary},USQlUnit, Variants,scrutil;
 {$R *.dfm}
 { ***************************************************** }
 { *                SaveLoginToRegistry                * }
@@ -151,7 +151,9 @@ begin
   FN  := ChangeFileExt(FN,'.INI');
   if not (AnsiUpperCase(FN)='DARCHIV.INI') then
      FNameINI:=FN;
-  S   := ExtractFilePath(Application.ExeName)+FNameINI;
+//  S   := ExtractFilePath(Application.ExeName)+FNameINI;
+  S   := ExtractFilePath(getIniFileName)+FNameINI;
+//  s   := getIniFileName;
   if not FileExists(S) then
      begin
           ShowMessage('Не найден файл инициализации '+S);
@@ -600,7 +602,8 @@ begin
   FN  := ChangeFileExt(FN,'.INI');
   if not (AnsiUpperCase(FN)='DARCHIV.INI') then
      FNameINI:=FN;
-  S   := ExtractFilePath(Application.ExeName)+FNameINI;
+//  S   := ExtractFilePath(Application.ExeName)+FNameINI;
+  S   := ExtractFilePath(getIniFileName)+FNameINI;
   if not FileExists(S) then
      begin
           ShowMessage('Не найден файл инициализации '+S);

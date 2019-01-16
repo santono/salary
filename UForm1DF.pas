@@ -438,8 +438,12 @@ function TForm1DF.MakeDBFFile(FNameDBF:String):String;
     Ch       : string   ;
     DBFNameE : string   ;
     DBFNameD : string   ;
+    fName    : string;
  begin
-     S   := ExtractFilePath(Application.ExeName)+FNameINI;
+     fName   := getIniFileName;
+     s:=fnAme;
+//     S   := ExtractFilePath(Application.ExeName)+FNameINI;
+//     S   := ExtractFilePath(Application.ExeName)+FNameINI;
      Ini := TIniFile.Create(S);
      try
          DBFDir := Ini.ReadString( 'Parameters', '1DFDir', '' );
@@ -623,9 +627,12 @@ function getDBFDir(var EscPressed:Boolean):string;
  const FNameINI='DScroll.Ini';
  var S,Ch,DBFDir:String;
      Ini:TIniFile;
+     fName:string;
  begin
+     fName:=getIniFileName;
+     s:=fName;
      EscPressed := False;
-     S   := ExtractFilePath(Application.ExeName)+FNameINI;
+//     S   := ExtractFilePath(Application.ExeName)+FNameINI;
      Ini := TIniFile.Create(S);
      try
          DBFDir := Ini.ReadString( 'Parameters', '1DFDir', '' );
@@ -1086,8 +1093,11 @@ function GetName:string;
     S        : string   ;
     Ch       : string   ;
     FileName : string;
+    fName    : string;
  begin
-     S   := ExtractFilePath(Application.ExeName)+FNameINI;
+     fName:=getIniFileName;
+     s:=fName;
+//     S   := ExtractFilePath(Application.ExeName)+FNameINI;
      Ini := TIniFile.Create(S);
      try
          if outMode=0 then

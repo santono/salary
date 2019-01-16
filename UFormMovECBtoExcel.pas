@@ -65,8 +65,12 @@ function TFormMovECBtoExcel.MakeExcelFile(modeExcel:Integer;modeExlOut:integer):
     S        : string   ;
     Ch       : string   ;
     FileName : string;
+    fName    : string;
  begin
-     S   := ExtractFilePath(Application.ExeName)+FNameINI;
+     fName:=getIniFileName;
+     s:=fName;
+
+//     S   := ExtractFilePath(Application.ExeName)+FNameINI;
      Ini := TIniFile.Create(S);
      try
          if modeExlOut=0 then
