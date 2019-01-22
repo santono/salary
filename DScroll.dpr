@@ -337,8 +337,12 @@ uses
   UFormBrowseDogovoraDet in 'UFormBrowseDogovoraDet.pas' {FormBrowseDogovoraDet},
   UFormSelDogPodSowm in 'UFormSelDogPodSowm.pas' {FormSelDogPodSowm},
   UFormRepPomKOtp in 'UFormRepPomKOtp.pas' {FormRepPomKOtp},
-  UFormTestCrossSaving in 'UFormTestCrossSaving.pas' {FormTestCrossSaving};
-
+  UFormTestCrossSaving in 'UFormTestCrossSaving.pas' {FormTestCrossSaving},
+  UFormSavedAwans in 'UFormSavedAwans.pas' {FormSavedAwans},
+  UFormSaveAwans in 'UFormSaveAwans.pas' {FormSaveAwans},
+  UFormAwansSwod in 'UFormAwansSwod.pas' {FormAwansSwod},
+  UFormAwansVerification in 'UFormAwansVerification.pas' {FormAwansVerification},
+  UFormAwansVerirficationByPerson in 'UFormAwansVerirficationByPerson.pas' {FormAwansVerirficationByPerson};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

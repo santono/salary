@@ -42,7 +42,7 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
      CURR_DIR:STRING;
      DRIVE:CHAR;
      CURR_DRIVE:BYTE;
-     SavPath,S:string;
+     SavPath,S,SS:string;
      neededDrive:string;
  BEGIN
        neededDrive:=getMainDataDrive;
@@ -52,15 +52,15 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
           modeIskra:=true;
        GETDIR(0,CURR_DIR);
        I:=Length(Curr_Dir);
-       S:=COPY(CURR_DIR,4,I);
-       for j:=length(S) downto 1 do
-           if s[j]='\' then break;
-       if j>1 then S:=copy(S,1,j-1);
+       SS:=COPY(CURR_DIR,4,I);
+       for j:=length(SS) downto 1 do
+           if sS[j]='\' then break;
+       if j>1 then SS:=copy(SS,1,j-1);
 {
        j:=pos('\',S);
        if j>0 then Delete(S,j,i);
 }
-       MainDir:=neededDrive+'\'+S;
+       MainDir:=neededDrive+'\'+SS;
   {     MAINDIR  := COPY(CURR_DIR,3,I-6);}
        if Length(Trim(wantedMainDir))>0 then
           if DirectoryExists(wantedMainDir) then

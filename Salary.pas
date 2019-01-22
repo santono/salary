@@ -386,6 +386,8 @@ type
     N172: TMenuItem;
     N173: TMenuItem;
     N174: TMenuItem;
+    ActionTestAwans: TAction;
+    N84: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -639,6 +641,7 @@ type
     procedure ActionBrowseDogovoraExecute(Sender: TObject);
     procedure ActionRepPomKOtpExecute(Sender: TObject);
     procedure ActionTestCrossSavingExecute(Sender: TObject);
+    procedure ActionTestAwansExecute(Sender: TObject);
 
 
   private
@@ -724,7 +727,8 @@ implementation
   UFormRepPersDolgOsn, UFormRepAUP_PPS, UFormKomand, UFormRepairUwol,
   UFormRecalcNight, UFormChangeTabno,uSQLUnit, UFormChangeNMES,
   UFormFillExcel0417, UFormRepWordkers, UFormGener, UFormMonthForGener,
-  UFormBrowseDogovora, UFormRepPomKOtp, UFormTestCrossSaving;
+  UFormBrowseDogovora, UFormRepPomKOtp, UFormTestCrossSaving,
+  scrnetwork, UFormSavedAwans;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1110,6 +1114,12 @@ procedure TMainForm.FormCreate(Sender: TObject);
    KZ:=0;
    NmbOfTransactSal := 0;
    NmbOfTransactArc := 0;
+   if needCopyOriginProgram then
+      begin
+           showMessage('На сервере имеется новая версия программы.'+^M+'Скачайте новую версию программы');
+      end;
+
+
    Init_Dir_Name;
  //  testSVDNRec;
 
@@ -1490,30 +1500,34 @@ begin
                 OldBrushColor := Brush.Color;
                 if (gdSelected in State) then
                    begin
+//      if ((vRow=16) and (vCol=7)) then
+          shift:=1;
                         Brush.Color := clHighlight;
                         If assigned(Objects[vCol,vRow]) then
                            begin
                                  OldFontColor := Font.Color;
                                  OldBrushColor := Brush.Color;
                                  Font.Color := (Objects[vCol,vRow] as TStrColor).SelectedColor;
-{
+
                                  if isLNR then
+                                 if length(trim(StringGrid1.Cells[vCol,vRow]))>0 then
+                                 if vCol=7 then
                                     Brush.Color := (Objects[vCol,vRow] as TStrColor).BackColor;
-}                           end;
+                           end;
                    end
                                          else
                    if (gdFixed in State) then
                       begin
                            Brush.Color := FixedColor;
                            If assigned(Objects[vCol,vRow]) then
-                              begin
-                                    OldFontColor := Font.Color;
-                                    OldBrushColor := Brush.Color;
-                                    Font.Color := (Objects[vCol,vRow] as TStrColor).Color;
-                                    Brush.Color := (Objects[vCol,vRow] as TStrColor).BackColor;
+                             begin
+                                  OldFontColor := Font.Color;
+                                  OldBrushColor := Brush.Color;
+                                  Font.Color := (Objects[vCol,vRow] as TStrColor).Color;
+                                  Brush.Color := (Objects[vCol,vRow] as TStrColor).BackColor;
                              end;
                       end
-                                         else
+                   else
                       begin
                            OldFontColor := Font.Color;
                            OldBrushColor := Brush.Color;
@@ -1527,12 +1541,11 @@ begin
                            if isLNR then
                            If assigned(Objects[vCol,vRow]) then
                               begin
-                                    OldFontColor := Font.Color;
-                                    OldBrushColor := Brush.Color;
-                                    Font.Color := (Objects[vCol,vRow] as TStrColor).Color;
-                                    Brush.Color := (Objects[vCol,vRow] as TStrColor).BackColor;
-                             end;
-
+                                   OldFontColor := Font.Color;
+                                   OldBrushColor := Brush.Color;
+                                   Font.Color := (Objects[vCol,vRow] as TStrColor).Color;
+                                   Brush.Color := (Objects[vCol,vRow] as TStrColor).BackColor;
+                              end;
                       end;
 {
                 if vCol=1 then
@@ -1556,7 +1569,7 @@ begin
                           TextOut(Rect.Right-Shift, Rect.Top+2, S);
 
                     end
-                         else
+                else
                     begin
                          SetTextAlign(Handle, TA_LEFT);
                          TextRect(Rect, Rect.Left+5, Rect.Top, S);
@@ -2174,7 +2187,7 @@ begin
       begin
            inc(i);
            if I=StringGrid1.Row then break;
-              Curr_Person:=Curr_Person^.Next;
+           Curr_Person:=Curr_Person^.Next;
       end;
      with TFormCN.Create(nil) do
         try
@@ -4545,6 +4558,13 @@ procedure TMainForm.ActionTestCrossSavingExecute(Sender: TObject);
 begin
     Application.CreateForm(TFormTestCrossSaving, FormTestCrossSaving);
     FormTestCrossSaving.ShowModal;
+
+end;
+
+procedure TMainForm.ActionTestAwansExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormSavedAwans, FormSavedAwans);
+    FormSavedAwans.ShowModal;
 
 end;
 

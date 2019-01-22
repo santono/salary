@@ -608,7 +608,7 @@ begin
     Gl_BUH_DOLG_NAME    := 'Главный бухгалтер      Белоусова Л.И.';
     LIMIT_NET_TIME      := 5;
     DELAY_NET           := 1;
-    MAX_COUNT_PODRAZD   := 169;
+    MAX_COUNT_PODRAZD   := 182;
     SELECTED_FIELD      := 1;
     Flag_Filter         := false;
     MUST_SHOW_IO_TABLE  := false;

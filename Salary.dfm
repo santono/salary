@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 227
-  Top = 175
+  Left = 194
+  Top = 154
   Width = 783
   Height = 493
   HorzScrollBar.Visible = False
@@ -800,7 +800,7 @@ object MainForm: TMainForm
           OnClick = GUIDSQL1Click
         end
         object N20112: TMenuItem
-          Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1072' '#1090#1072#1073#1077#1083#1103' '#1074' '#1072#1074#1075#1091#1089#1090#1077' 2017 '#1076#1083#1103' '#1074#1089#1077#1075#1086' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090#1072
+          Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1072' '#1090#1072#1073#1077#1083#1103' '#1074' '#1103#1085#1074#1072#1088#1077' 2019 '#1076#1083#1103' '#1074#1089#1077#1075#1086' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090#1072
           OnClick = N20112Click
         end
         object N107: TMenuItem
@@ -980,6 +980,9 @@ object MainForm: TMainForm
         end
         object N173: TMenuItem
           Action = ActionTestMissing
+        end
+        object N84: TMenuItem
+          Action = ActionTestAwans
         end
       end
     end
@@ -1538,6 +1541,10 @@ object MainForm: TMainForm
     object ActionTestCrossSaving: TAction
       Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1087#1077#1088#1077#1089#1086#1088#1090#1080#1094#1099' '#1087#1086#1076#1088#1072#1079#1076#1077#1083#1077#1085#1080#1081
       OnExecute = ActionTestCrossSavingExecute
+    end
+    object ActionTestAwans: TAction
+      Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1074#1099#1087#1083#1072#1090
+      OnExecute = ActionTestAwansExecute
     end
   end
   object ImageList1: TImageList

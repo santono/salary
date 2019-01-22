@@ -4262,6 +4262,7 @@ PROCEDURE DIFF_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      shifrDol:Integer;
      existsDopl:Boolean;
  BEGIN
+     Exit;  // Отменили 21 01 2019
      if not isSVDN then
         Exit;
      IF CURR_PERSON^.AUTOMATIC<>AUTOMATIC_MODE THEN EXIT;
@@ -5325,7 +5326,7 @@ BEGIN
                       OKLAD_PERSON(CURR_PERSON,LAST_DAY);
                       CALC_NAUD_WORK_WITHOUT_ALL_REST(CURR_PERSON,NMES,LAST_DAY);
                       DOPL_DO_MIN_SAL_PERSON(CURR_PERSON,LAST_DAY);
-                      DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
+//                      DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
                       PODOH_PERSON(CURR_PERSON,2,1);
                       PROF_PERSON(CURR_PERSON);
                       WS_PERSON(Curr_Person);
@@ -5385,12 +5386,12 @@ BEGIN {НАЧАЛО ГЛАВНОЙ ПРОГРАММЫ CALC_NAUD(CURR_PERSON)}
          else
            Error('Ошибка расчета доплаты до мини.з.п.');
        end;
-       try
-           DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
-       except
-           else
-           Error('Ошибка расчета дифееренциацииз.п.');
-       end;
+//       try
+//           DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
+//       except
+//           else
+//           Error('Ошибка расчета дифееренциацииз.п.');
+//       end;
 
        if NeedTestAddDuplicates then
           IsPersonDup(Curr_Person,NeedRepairFindedAddDuplicates,' при перерасчете Calc_Naud');
@@ -5468,7 +5469,7 @@ BEGIN {НАЧАЛО ГЛАВНОЙ ПРОГРАММЫ CALC_NAUD(CURR_PERSON)}
              end;
        end;
        DOPL_DO_MIN_SAL_PERSON(CURR_PERSON,LAST_DAY);
-       DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
+//       DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
 {    IF CURR_PERSON^.WID_RABOTY=SOWM_WID_RABOTY THEN PODOH_SOWM_PERSON(CURR_PERSON)
                                                ELSE PODOH_PERSON(CURR_PERSON);}
        if NeedTestAddDuplicates then
@@ -5525,7 +5526,7 @@ BEGIN {НАЧАЛО ГЛАВНОЙ ПРОГРАММЫ CALC_NAUD(CURR_PERSON)}
     l:=count_add(curr_person);
     CALC_NAUD_WORK_WITHOUT_ALL_REST(CURR_PERSON,NMES,LAST_DAY);
     DOPL_DO_MIN_SAL_PERSON(CURR_PERSON,LAST_DAY);
-    DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
+//    DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
     ExcludeShift_Shifr(Curr_Person);
 {    IF CURR_PERSON^.WID_RABOTY=SOWM_WID_RABOTY THEN PODOH_SOWM_PERSON(CURR_PERSON)
                                                ELSE PODOH_PERSON(CURR_PERSON);}

@@ -154,7 +154,7 @@ begin
      Gauge3.MaxValue := 12;
      Gauge3.Progress :=  0;
      NSRVT := NSRV;
-     WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+     EMPTY_ALL_PERSON;
      nmes_t := nmes;
      nmes   := 1;
      CurrData:=DateFr;
@@ -200,7 +200,7 @@ begin
                        if not FileExists(FNINF) then continue;
                        GETINF(TRUE);
                        PUTTOSQL(NeedClear,DstMode);
-                       WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                       EMPTY_ALL_PERSON;
                        Application.ProcessMessages;
                        if ModeArc then
                           if FIB.pFIBDatabaseArc.ActiveTransactionCount>1 then

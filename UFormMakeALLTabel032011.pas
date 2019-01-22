@@ -75,23 +75,23 @@ var savnsrv,i_nsrv : integer;
  procedure Fill_Tabel(var need:boolean);
   begin
 
-       if Curr_Person^.Tabel[25]=Jawka  then
+       if Curr_Person^.Tabel[19]=Jawka  then
           begin
-               Curr_Person^.Tabel[25]:=VYHODN;
+               Curr_Person^.Tabel[19]:=VYHODN;
                need:=true;
           end;
-       if Curr_Person^.Tabel[19]=VYHODN  then
+       if Curr_Person^.Tabel[26]=VYHODN  then
           begin
-              Curr_Person^.Tabel[19]:=Jawka;
+               Curr_Person^.Tabel[26]:=Jawka;
                need:=true;
           end;
   end;
 begin
     if not isSVDN then exit;
-    if not YesNo('Внести корректировки в табель всего университета за август 2017?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then Exit;
-    IF not ((CurrYear=2017) and (nmes=08)) THEN
+    if not YesNo('Внести корректировки в табель всего университета в январе 2019?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then Exit;
+    IF not ((CurrYear=2019) and (nmes=01)) THEN
        begin
-            ShowMessage('Внести корректировки можно только в октябре 2015');
+            ShowMessage('Внести корректировки можно только в январе 2019');
             Exit;
        end;
     if NameServList.CountSelected<=0 then
@@ -105,14 +105,14 @@ begin
     ProgressBar1.Position := 0;
     savnsrv               := nsrv;
     putinf;
-    while (head_person<>nil) do del_person(Head_Person);
+    empty_all_person;
     for i_nsrv:=1 to count_serv do
         begin
              nsrv:=i_nsrv;
-             if not NameServList.IsSelected(NSRV) then continue;
-             mkflnm;
              ProgressBar1.Position := i_nsrv;
              Application.ProcessMessages;
+             if not NameServList.IsSelected(NSRV) then continue;
+             mkflnm;
              if not fileexists(fninf) then continue;
              getinf(true);
              need:=false;

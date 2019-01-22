@@ -350,20 +350,26 @@ end;
 
 function TFIB.GetShifrWrk:integer;
  var RetVal:integer;
+     SQLStmnt:string;
+     v:variant;
  begin
       RetVal:=0;
-      pFIBQuery.SQL.Clear;
-      pFIBQuery.SQL.Add('SELECT FIRST 1 SHIFRWRK FROM CURRSHIFRWRK');
-      pFIBTransactionSAL.StartTransaction;
-      try
-         pFIBQuery.ExecQuery;
-         RetVal:=FIB.pFIBQuery.Fields[0].AsInteger;
-         FIB.pFIBQuery.Close;
-      except
-            MessageDlg('Ошибка GetShifrWrk',mtInformation, [mbOk], 0);
-            Exit;
-      end;
-      pFIBTransactionSAL.Commit;
+      SQLStmnt:='SELECT FIRST 1 SHIFRWRK FROM CURRSHIFRWRK';
+      v:=SQLQueryValue(SQLStmnt);
+      if VarIsNumeric(v) then
+         retVal:=v;
+//      pFIBQuery.SQL.Clear;
+//      pFIBQuery.SQL.Add('SELECT FIRST 1 SHIFRWRK FROM CURRSHIFRWRK');
+//      pFIBTransactionSAL.StartTransaction;
+//      try
+//         pFIBQuery.ExecQuery;
+//         RetVal:=FIB.pFIBQuery.Fields[0].AsInteger;
+//         FIB.pFIBQuery.Close;
+//      except
+//            MessageDlg('Ошибка GetShifrWrk',mtInformation, [mbOk], 0);
+//            Exit;
+//      end;
+//      pFIBTransactionSAL.Commit;
       GetShifrWrk:=RetVal;
  end;
 function TFIB.GetShifrRight:integer;
@@ -443,20 +449,26 @@ function TFIB.GetRightForSecretWorker(Tabno:integer):boolean;
  end;
 function TFIB.GetFioCurrWrk(ShifrWrk:integer):string;
  var RetVal:String;
+     SQLStmnt:string;
+     v:variant;
  begin
       RetVal:='Не найден';
-      pFIBQuery.SQL.Clear;
-      pFIBQuery.SQL.Add('SELECT FIRST 1 FIOOP FROM OperatORY WHERE shifrwrk='+inttostr(ShifrWrk));
-      pFIBTransactionSAL.StartTransaction;
-      try
-         pFIBQuery.ExecQuery;
-         RetVal:=FIB.pFIBQuery.Fields[0].AsString;
-         FIB.pFIBQuery.Close;
-      except
-            MessageDlg('Ошибка GetFioCurrWrk',mtInformation, [mbOk], 0);
-            Exit;
-      end;
-      pFIBTransactionSAL.Commit;
+      SQLStmnt:='SELECT FIRST 1 FIOOP FROM OperatORY WHERE shifrwrk='+inttostr(ShifrWrk);
+      v:=SQLQueryValue(SQLStmnt);
+      if VarIsStr(v) then
+         retVal:=v;
+//      pFIBQuery.SQL.Clear;
+//      pFIBQuery.SQL.Add('SELECT FIRST 1 FIOOP FROM OperatORY WHERE shifrwrk='+inttostr(ShifrWrk));
+//      pFIBTransactionSAL.StartTransaction;
+//      try
+//         pFIBQuery.ExecQuery;
+//         RetVal:=FIB.pFIBQuery.Fields[0].AsString;
+//         FIB.pFIBQuery.Close;
+//      except
+//            MessageDlg('Ошибка GetFioCurrWrk',mtInformation, [mbOk], 0);
+//            Exit;
+//      end;
+//      pFIBTransactionSAL.Commit;
       GetFioCurrWrk:=RetVal;
  end;
 
