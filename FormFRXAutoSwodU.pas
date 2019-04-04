@@ -84,9 +84,15 @@ end;
 
 procedure TFormFRXAutoSwod.MakeSwod;
  const F='######0.00';
+ {$IFDEF SVDN}
+ const Nmb_Col=7;
+ const Header:array[1..Nmb_Col] of string = ('Т.ном.','ПІБ','Посада',
+                                           'Катег','Рб','Вдп','Лк');
+ {$ELSE}
  const Nmb_Col=8;
- const Header:array[1..Nmb_Col] of string = ('Т.ном.','ФИО.','Должн.','Счет',
+ const Header:array[1..Nmb_Col] of string = ('Т.ном.','ФИО','Должн.','Счет',
                                            'Катег','Рб','Отп','Бл');
+ {$ENDIF}
  var Curr_Person : Person_Ptr;
      Curr_Add    : Add_Ptr;
      Curr_Ud     : Ud_Ptr;
@@ -226,7 +232,10 @@ procedure TFormFRXAutoSwod.MakeSwod;
                         S2:=S1;
                     Cross.AddValue([0],[S],[S2]);
                  end;
-             Cross.AddValue([0],['Итого'+chr(13)+'начислено'],[' ']);
+             if isSVDN then
+                Cross.AddValue([0],['Ітого'+chr(13)+'нараховано'],[' '])
+             else
+                Cross.AddValue([0],['Итого'+chr(13)+'начислено'],[' ']);
           end;
        if ListUdT.Count>0 then
           begin
@@ -251,7 +260,10 @@ procedure TFormFRXAutoSwod.MakeSwod;
                           S2:=S1;
                       Cross.AddValue([0],[S],[S2]);
                  end;
-             Cross.AddValue([0],['Итого'+chr(13)+'удержано'],[' ']);
+             if isSVDN then
+                Cross.AddValue([0],['Ітого'+chr(13)+'утримано'],[' '])
+             else
+                Cross.AddValue([0],['Итого'+chr(13)+'удержано'],[' ']);
           end;
   end;
 begin
@@ -286,8 +298,16 @@ begin
             Cross.AddValue([LineNo],[Header[1]],[S]);
             Cross.AddValue([LineNo],[Header[2]],[Curr_Person^.FIO]);
             Cross.AddValue([LineNo],[Header[3]],[Curr_Person^.Dolg]);
-            Cross.AddValue([LineNo],[Header[4]],[Get_Ist_Name(Curr_Person^.Gruppa)]);
-            Cross.AddValue([LineNo],[Header[5]],[Get_Kat_Short_Name(Curr_Person^.Kategorija)]);
+            if isSVDN then
+               begin
+//                    Cross.AddValue([LineNo],[Header[4]],[Get_Ist_Name(Curr_Person^.Gruppa)]);
+                    Cross.AddValue([LineNo],[Header[4]],[Get_Kat_Short_Name(Curr_Person^.Kategorija)]);
+               end
+            else
+               begin
+                    Cross.AddValue([LineNo],[Header[4]],[Get_Ist_Name(Curr_Person^.Gruppa)]);
+                    Cross.AddValue([LineNo],[Header[5]],[Get_Kat_Short_Name(Curr_Person^.Kategorija)]);
+               end;
 {
             S:='Осн';
             if not Is_Osn_Wid_Raboty(Curr_Person) then
@@ -297,15 +317,23 @@ begin
             s:=' ';
             if Work_Day(1,31,Curr_Person)>0 then
                S:=IntToStr(Work_Day(1,31,Curr_Person));
-            Cross.AddValue([LineNo],[Header[6]],[S]);
+            Cross.AddValue([LineNo],[Header[Nmb_Col-2]],[S]);
+//            if isSVDN then
+//               Cross.AddValue([LineNo],[Header[5]],[S])
+//            else
+//               Cross.AddValue([LineNo],[Header[6]],[S]);
             s:=' ';
             if Otpusk_Day(1,Curr_Person)>0 then
                S:=IntToStr(Otpusk_Day(1,Curr_Person));
-            Cross.AddValue([LineNo],[Header[7]],[S]);
+            Cross.AddValue([LineNo],[Header[Nmb_Col-1]],[S]);
+//            if isSVDN then
+//               Cross.AddValue([LineNo],[Header[6]],[S])
+//            else
+//               Cross.AddValue([LineNo],[Header[7]],[S]);
             s:=' ';
             if Ill_Day(1,Curr_Person)>0 then
                S:=IntToStr(Ill_Day(1,Curr_Person));
-            Cross.AddValue([LineNo],[Header[8]],[S]);
+            Cross.AddValue([LineNo],[Header[Nmb_Col]],[S]);
             ListAdd:=TList.Create;
             ListUd:=TList.Create;
             Curr_Ud:=Curr_Person^.Ud;
@@ -337,7 +365,10 @@ begin
             if ListAddT.Count>0 then
                begin
                     S1:=FormatFloat(F,SummaAdd);
-                    Cross.AddValue([LineNo],['Итого'+chr(13)+'начислено'],[S1]);
+                    if isSVDN then
+                       Cross.AddValue([LineNo],['Iтого'+chr(13)+'нараховано'],[S1])
+                    else
+                       Cross.AddValue([LineNo],['Итого'+chr(13)+'начислено'],[S1]);
                end;
             SummaUd:=0;
             if ListUd.Count>0 then
@@ -357,7 +388,10 @@ begin
             if ListUdT.Count>0 then
                begin
                     S1:=FormatFloat(F,SummaUd);
-                    Cross.AddValue([LineNo],['Итого'+chr(13)+'удержано'],[S1]);
+                    if isSVDN then
+                       Cross.AddValue([LineNo],['Ітого'+chr(13)+'утримано'],[S1])
+                    else
+                       Cross.AddValue([LineNo],['Итого'+chr(13)+'удержано'],[S1]);
                end;
             ListUd.Free;
             ListAdd.Free;
@@ -378,7 +412,10 @@ begin
                     Dispose(PPersonRec(ListAddT.Items[i-1]));
                  end;
              S1:=FormatFloat(F,SummaAddT);
-             Cross.AddValue(['9999'],['Итого'+chr(13)+'начислено'],[S1]);
+             if isSVDN then
+                Cross.AddValue(['9999'],['Ітого'+chr(13)+'нараховано'],[S1])
+             else
+                Cross.AddValue(['9999'],['Итого'+chr(13)+'начислено'],[S1]);
           end;
        if ListUdT.Count>0 then
           begin
@@ -393,7 +430,10 @@ begin
                       Dispose(PPersonRec(ListUdT.Items[i-1]));
                  end;
              S1:=FormatFloat(F,SummaUdT);
-             Cross.AddValue(['9999'],['Итого'+chr(13)+'удержано'],[S1]);
+             if isSVDN then
+                Cross.AddValue(['9999'],['Ітого'+chr(13)+'утримано'],[S1])
+             else
+                Cross.AddValue(['9999'],['Итого'+chr(13)+'удержано'],[S1]);
           end;
        ListAddT.Free;
        ListUdT.Free;
@@ -492,8 +532,13 @@ begin
       if CheckBoxGru.Checked then
       if GruppyList.CountSelected<=0 then
          begin
-              ShowMessage('Не выбраны счета');
-              Exit;
+              if isSVDN then
+                 GruppyList.setAllSelected()
+              else
+                  begin
+                       ShowMessage('Не выбраны счета');
+                       Exit;
+                  end;
          end;
       if NameServList.CountSelected<=0 then
          begin
@@ -505,8 +550,7 @@ begin
       savNMES:=NMES;
       savNSRV:=NSRV;
       putinf;
-      while (HEAD_PERSON<>NIL) do
-            DEL_PERSON(HEAD_PERSON);
+      EMPTY_ALL_PERSON;
       First:=True;
       ProgressBar1.Max:=COUNT_SERV;
       ProgressBar1.Min:=0;
@@ -594,7 +638,10 @@ begin
               Value:=trim(GetMonthRus(WantedMonth))+' '+IntToStr(WantedYear)+' г. '+trim(GetFullPodrNameFromSQL(NSRV))
            else
 //              Value:=trim(GetMonthRus(WantedMonth))+' '+IntToStr(WantedYear)+' г. '+trim(Name_Serv(NSRV))
-              Value:=trim(GetMonthUkr(WantedMonth))+' '+IntToStr(WantedYear)+' г. '+trim(GetHistoryPodrNameFromSQL(nsrv,WantedYear,WantedMonth))
+              if wantedYear>2017 then
+                 Value:=trim(GetMonthUkr(WantedMonth))+' '+IntToStr(WantedYear)+' р. '+trim(Name_Serv(NSRV))
+              else
+                 Value:=trim(GetMonthUkr(WantedMonth))+' '+IntToStr(WantedYear)+' р. '+trim(GetHistoryPodrNameFromSQL(nsrv,WantedYear,WantedMonth))
 
 
         else
@@ -602,7 +649,12 @@ begin
               Value:=trim(GetMonthRus(NMES))+' '+IntToStr(Work_Year_Val)+' г. '+trim(GetFullPodrNameFromSQL(NSRV))
            else
 //              Value:=trim(GetMonthRus(NMES))+' '+IntToStr(Work_Year_Val)+' г. '+trim(Name_Serv(NSRV))
-              Value:=trim(GetMonthUkr(NMES))+' '+IntToStr(Work_Year_Val)+' г. '+trim(GetHistoryPodrNameFromSQL(nsrv,Work_Year_Val,NMES))
+              if wantedYear>2017 then
+                 Value:=trim(GetMonthUkr(WantedMonth))+' '+IntToStr(WantedYear)+' р. '+trim(Name_Serv(NSRV))
+              else
+                 Value:=trim(GetMonthUkr(WantedMonth))+' '+IntToStr(WantedYear)+' р. '+trim(GetHistoryPodrNameFromSQL(nsrv,WantedYear,WantedMonth))
+
+//              Value:=trim(GetMonthUkr(NMES))+' '+IntToStr(Work_Year_Val)+' г. '+trim(GetHistoryPodrNameFromSQL(nsrv,Work_Year_Val,NMES))
      else
      if CompareText(VarName, 'NameUni') = 0 then
         if isLNR then
@@ -623,7 +675,8 @@ begin
      //      Value:='ГОУ ВПО Луганский государственный университет имени В.Даля'
              Value:=copy(getRektorDolg+space(35),1,35)+getRektorFIO
         else
-           Value:='Ректор'
+//           Value:='Ректор'
+           Value:=''
      else
      if CompareText(VarName, 'isSVDN') = 0 then
         if isLNR then

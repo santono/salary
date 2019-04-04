@@ -114,7 +114,7 @@ object FormFRXAutoSwod: TFormFRXAutoSwod
     PrintOptions.PrintMode = pmScale
     PrintOptions.PrintOnSheet = 9
     ReportOptions.CreateDate = 39605.870624814800000000
-    ReportOptions.LastChange = 43129.433065937500000000
+    ReportOptions.LastChange = 43524.418776412040000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       ''
@@ -123,9 +123,18 @@ object FormFRXAutoSwod: TFormFRXAutoSwod
         'procedure Cross1OnPrintCell(Memo: TfrxMemoView; RowIndex, Column' +
         'Index, CellIndex: Integer; RowValues, ColumnValues, Value: Varia' +
         'nt);'
+      'var svdn : string;'
+      '    l    : integer;                                        '
       'begin'
+      '     svdn:=<isSVDN>;'
+      '     if svdn<>'#39'1'#39' then l:=6'
       
-        '     if (ColumnIndex>0) and (ColumnIndex<6) and (RowIndex>0) the' +
+        '                  else l:=5;                                    ' +
+        '                                                                ' +
+        '                                                                ' +
+        '                                              '
+      
+        '     if (ColumnIndex>0) and (ColumnIndex<l) and (RowIndex>0) the' +
         'n'
       '        Memo.HAlign:=haLeft'
       '     else'

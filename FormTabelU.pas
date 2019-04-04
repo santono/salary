@@ -17,6 +17,7 @@ type
     BitBtnExcel: TBitBtn;
     PopupMenu1: TPopupMenu;
     N1: TMenuItem;
+    bitBtnItogoCLocks: TBitBtn;
     procedure SetCurrPerson(C_Person:Person_Ptr);
     function GetRow:integer;
     procedure FormShow(Sender: TObject);
@@ -30,6 +31,7 @@ type
       var CanSelect: Boolean);
     procedure BitBtnExcelClick(Sender: TObject);
     procedure N1Click(Sender: TObject);
+    procedure bitBtnItogoCLocksClick(Sender: TObject);
   private
     { Private declarations }
     RetCode : integer;
@@ -51,13 +53,13 @@ var
   FormTabel: TFormTabel;
 
 implementation
-  uses ScrUtil,Salary,UFormExportTabelToExcel;
+  uses ScrUtil,Salary,UFormExportTabelToExcel, UFormTabelItogoClocks,Math;
 
 {$R *.dfm}
 const
-      MAX_TABEL_KOD=17;
+      MAX_TABEL_KOD=18;
       SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
-         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До');
+         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК');
       LONG_MONTH:ARRAY[1..12] OF INTEGER=
          (31,29,31,30,31,30,31,31,30,31,30,31);
       NAME_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[35]=
@@ -77,7 +79,8 @@ const
             'Прогул                            ',
             'Пробел                            ',
             'Легкий труд                       ',
-            'Донорские                         ');
+            'Донорские                         ',
+            'Повышение квалификации            ');
             RIGHT_DIRECTION = 1;
             DOWN_DIRECTION  = 2;
             LEFT_DIRECTION  = 3;
@@ -89,6 +92,8 @@ procedure TFormTabel.MakeGrid;
 var I_C,I,J,JJ:Integer;
     Curr_P:Person_Ptr;
     CurrRow:Integer;
+    JJClock:real;
+    s:string;
  begin
      Caption:='Табель '+Trim(Month[NMES])+' '+IntToStr(CurrYear)+' г. '+NAME_SERV(NSRV);
      I_C:=Count_Person;
@@ -106,20 +111,30 @@ var I_C,I,J,JJ:Integer;
      StringGridS.Height     := StringGridT.Height;
      StringGridS.Left       := StringGridT.Left + StringGridT.width+1;
      StringGridS.RowCount   := StringGridT.RowCount;
-     StringGridS.ColCount   := 3;
+     if isSvdn then
+        StringGridS.ColCount   := 4
+     else
+        StringGridS.ColCount   := 3;
      StringGridS.Cells[0,0] :='Раб';
      StringGridS.Cells[1,0] :='Бол';
      StringGridS.Cells[2,0] :='Отп';
-     for i:=0 to 2 do StringGridS.ColWidths[i]:=25;
+     if isSvdn then
+        StringGridS.Cells[3,0] :='Год';
+
+     for i:=0 to StringGridS.ColCount-1 do StringGridS.ColWidths[i]:=25;
+     if isSVDN then
+        StringGridS.ColWidths[StringGridS.ColCount-1]:=50;
      StringGridS.Width := 0;
      for i:=0 to StringGridS.ColCount-1 do
-         StringGridS.Width := StringGridS.Width + StringGridS.ColWidths[1];;
+         StringGridS.Width := StringGridS.Width + StringGridS.ColWidths[i];;
      StringGridS.Width := StringGridS.Width + 30;
      for I:=1 to StringGridS.RowCount-1 do
          begin
               StringGridS.Cells[0,i]:=IntToStr(1);
               StringGridS.Cells[1,i]:=IntToStr(15);
               StringGridS.Cells[2,i]:=IntToStr(10);
+              if isSVDN then
+                 StringGridS.Cells[3,i]:=' ';
          end;
 
      Curr_P:=Head_Person;
@@ -142,6 +157,16 @@ var I_C,I,J,JJ:Integer;
             JJ:=Otpusk_Day(1,Curr_P);
             if JJ>0 then StringGridS.Cells[2,i]:=IntToStr(JJ)
                     else StringGridS.Cells[2,i]:='';
+            if isSVDN then
+               begin
+                    JJClock:=WORK_CLOCK_LERA(1,31,Curr_P);
+                    if (JJClock>0.01) then
+                       begin
+                            str(roundto(JJClock,-1):15:1,s);
+                            s:=trim(s);
+                            StringGridS.Cells[3,i]:=s;
+                       end;
+               end;
             if Curr_P^.Automatic=1 then
                begin
                     for jj:=0 to StringGridT.ColCount-1 do
@@ -264,6 +289,17 @@ begin
               n1.Enabled:=true;
               n1.Visible:=true;
          end;
+      if isSVDN then
+         begin
+           bitBtnItogoCLocks.Show;
+           bitBtnItogoCLocks.Enabled:=true;
+         end
+      else
+         begin
+           bitBtnItogoCLocks.Hide;
+           bitBtnItogoCLocks.Enabled:=false;
+         end
+
 end;
 
 procedure TFormTabel.StringGridTKeyPress(Sender: TObject; var Key: Char);
@@ -355,6 +391,8 @@ procedure TFormTabel.fillStandartTabel(curr_person:person_ptr);
  end;
 procedure TFormTabel.showGridRow(wantedRow:integer;curr_person:person_ptr);
  var j,jj:integer;
+     JJClock:real;
+     s:string;
  begin
 //      StringGridT.Cells[0,wantedRow]:=IntToStr(Curr_Person^.Tabno)+' '+Trim(Curr_Person^.Fio)+' '+FormatFloat(F,GET_KOEF_OKLAD_PERSON(Curr_Person));
             for j:=1 to StringGridT.ColCount-1 do
@@ -368,6 +406,14 @@ procedure TFormTabel.showGridRow(wantedRow:integer;curr_person:person_ptr);
             JJ:=Otpusk_Day(1,Curr_Person);
             if JJ>0 then StringGridS.Cells[2,wantedRow]:=IntToStr(JJ)
                     else StringGridS.Cells[2,wantedRow]:='';
+            if isSVDN then
+               begin
+                     JJClock:=work_clock_lera(1,31,curr_person);
+                     Str(JJClock:12:1,s);
+                     s:=trim(s);
+                     if JJClock>0.1 then StringGridS.Cells[3,wantedRow]:=s
+                                  else StringGridS.Cells[3,wantedRow]:='';
+               end;
             if Curr_Person^.Automatic=1 then
                begin
                     for jj:=0 to StringGridT.ColCount-1 do
@@ -387,4 +433,10 @@ procedure TFormTabel.showGridRow(wantedRow:integer;curr_person:person_ptr);
                    end;
 
  end;
+procedure TFormTabel.bitBtnItogoCLocksClick(Sender: TObject);
+begin
+      Application.CreateForm(TFormTabelItogoClocks,FormTabelItogoClocks);
+      FormTabelItogoClocks.ShowModal;
+end;
+
 end.

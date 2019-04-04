@@ -64,7 +64,7 @@ var
 
 implementation
  uses UFibModule, uFormEditPensSpr,uFormArc,uFormPensSprPra,uFormArcTot,UFormSecretSotr,
-      UInitArc;
+      UInitArc,USQLunit;
 
 {$R *.dfm}
 
@@ -143,6 +143,8 @@ begin
              ShowMessage('Воспользуйтесь программой с нового сервера. Пожалуйста!');
              Halt;
         end;
+     uSQLUnit.setSal;
+
    {
      Fib.pFIBDatabaseSal.AfterStartTransaction := StartTransactionSal;
      Fib.pFIBDatabaseArc.AfterStartTransaction := StartTransactionArc;

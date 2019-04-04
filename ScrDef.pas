@@ -33,6 +33,7 @@ CONST
          NEZAPOLN                  =15;  {оПНАЕК                            }
          LEGK_TRUD                 =16;  {кЕЦЙХИ РПСД                           }
          Donorsk_tabel             =17;  {кЕЦЙХИ РПСД                           }
+         Povkwa_table              =18;  {оНБШЬЕМХЕ ЙБЮКХТХЙЮЖХХ }
 
          TEACHER_KATEGORIJA        =  1;
          UCH_WCPOM_KATEGORIJA      =  2;
@@ -63,6 +64,7 @@ CONST
 { *}     LIMIT1_SHIFR              = 49; {цпюмхжю оепеундю хг мювхякемхи б сдепфюмхе               * }
 
 { *}     VYHODNOE_POSOBIE_SHIFR    = 23; {бшундмне онянахе                                         * }
+{ *}     MAT_POOSHR_SHIFR          = 35; {люрепхюкэмнее онныпемхе                                  * }
 { *}     KOMPENS_SHIFR             = 36; {йнлоемяюжхъ                                              * }
 { *}     PODOH_SHIFR               = 50; {ьхтп сдепфюмхи онднундмнцн мюкнцю                        * }
 { *}     MALO_SHIFR                =999; {ьхтп сдепфюмхи люкняелеимнцн мюкнцю                      * }

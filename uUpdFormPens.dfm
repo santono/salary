@@ -110,7 +110,7 @@ object FormPensSpr2006: TFormPensSpr2006
     Top = 440
     Width = 105
     Height = 25
-    Caption = '2015-2018'
+    Caption = '2015-2019'
     TabOrder = 8
     OnClick = BitBtnLNR2015Click
   end

@@ -176,10 +176,12 @@ procedure TFormMemBud.MakeOrder;
    ExcelList   : TExcelList;
    Ini         : TIniFile;
    NeedBoln    : boolean;
-   NameSwod,NameSQL : string;
+   NameSwod,
+   NameSQL      : string;
    l:integer;
-   finished    : boolean;
-   shifrDol:integer;
+   finished     : boolean;
+   shifrDol     : integer;
+   fIniFileName : string;
 
 //   SummaPodrInv : Real;
 //   devDebug     : TextFile;
@@ -946,7 +948,8 @@ procedure TFormMemBud.MakeOrder;
       NeedBoln    := CheckBoxBol.Checked;;
       EmptyInSQL;
       FNAME:='';
-      Ini := TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+      fIniFileName:=getIniFileName;
+      Ini := TIniFile.Create( fIniFileName  );
       nameSwod:='Ìולמנטאכüםûי מנהונ';
       try
          if MemMode=MemBudMode then

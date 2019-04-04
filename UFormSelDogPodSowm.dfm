@@ -42,6 +42,7 @@ object FormSelDogPodSowm: TFormSelDogPodSowm
     SummaryGroups = <>
     SummarySeparator = ', '
     TabOrder = 1
+    OnDblClick = dxDBGridWorkerDogsDblClick
     DataSource = dsoWorkersDog
     Filter.Criteria = {00000000}
     OptionsDB = [edgoCancelOnExit, edgoCanDelete, edgoCanInsert, edgoCanNavigation, edgoConfirmDelete, edgoLoadAllRecords, edgoUseBookmarks]
@@ -111,6 +112,15 @@ object FormSelDogPodSowm: TFormSelDogPodSowm
       RowIndex = 0
       FieldName = 'NOMERDOGGN'
     end
+  end
+  object BitBtn1: TBitBtn
+    Left = 240
+    Top = 408
+    Width = 75
+    Height = 25
+    Caption = #1042#1099#1073#1088#1072#1090#1100
+    TabOrder = 2
+    OnClick = BitBtn1Click
   end
   object dsoWorkersDog: TDataSource
     DataSet = dsWorkerDogs

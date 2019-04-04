@@ -134,6 +134,7 @@ interface
 
     TServList=class(TList)
                procedure ClearAllSelected;
+               procedure setAllSelected;
                function CountSelected:integer;
                procedure SetSelected(WS:integer);
                procedure ClearSelected(WS:integer);
@@ -853,6 +854,13 @@ function TServList.getLinenoByCode(code:integer):Integer;
         if Self.Count>0 then
            for i:=1 to Self.Count do
                PPodrRec(Self.Items[i-1])^.Selected:=false;
+  end;
+ procedure TServList.setAllSelected;
+  var i:Integer;
+  begin
+        if Self.Count>0 then
+           for i:=1 to Self.Count do
+               PPodrRec(Self.Items[i-1])^.Selected:=true;
   end;
 
  procedure TServList.SetSelected(WS:integer);

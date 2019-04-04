@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, FIBDatabase, pFIBDatabase, DB, FIBDataSet, pFIBDataSet,
   ExtCtrls, DBCtrls, dxExEdtr, dxDBTLCl, dxGrClms, dxTL, dxDBCtrl,
-  dxDBGrid, dxCntner;
+  dxDBGrid, dxCntner, StdCtrls, Buttons;
 
 type
   TFormSelDogPodSowm = class(TForm)
@@ -35,8 +35,11 @@ type
     dxDBGridWorkerDogsGUID: TdxDBGridMaskColumn;
     dxDBGridWorkerDogsREASONOK: TdxDBGridMaskColumn;
     dxDBGridWorkerDogsNOMERDOGGN: TdxDBGridMaskColumn;
+    BitBtn1: TBitBtn;
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure dxDBGridWorkerDogsDblClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -60,6 +63,7 @@ implementation
         if dsWorkerDogs.Transaction.Active then
            dsWorkerDogs.Transaction.Commit;
         dsWorkerDogs.Params[0].Value:=tabno;
+//        DBNavigator1.VisibleButtons.
         dsWorkerDogs.Transaction.StartTransaction;
         dsWorkerDogs.Open;
 
@@ -83,6 +87,16 @@ begin
            dsWorkerDogs.Transaction.Commit;
         dsWorkerDogs.Close;
 
+end;
+
+procedure TFormSelDogPodSowm.dxDBGridWorkerDogsDblClick(Sender: TObject);
+begin
+     DBNavigator1Click(Sender,nbPost);
+end;
+
+procedure TFormSelDogPodSowm.BitBtn1Click(Sender: TObject);
+begin
+     DBNavigator1Click(Sender,nbPost);
 end;
 
 end.

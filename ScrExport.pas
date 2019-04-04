@@ -3123,7 +3123,7 @@ begin
                                            mkflnm;
                                            getinf(true);
                                            PutAllWantedPersonFromPodrToSQL(Curr_Person^.Tabno);
-                                           while (head_person<>nil) do Del_Person(Head_person);
+                                           EMPTY_ALL_PERSON;
                                            select(2);
                                       end;
                                    Curr_Sowm:=Curr_Sowm^.Next;
@@ -3132,7 +3132,7 @@ begin
                    end;
                 c_person:=c_person^.next;
            end;
-     while (Head_Person<>Nil) do Del_Person(Head_Person);
+     EMPTY_ALL_PERSON;
  //    Error('STEP 2');
 (*
  // Записать в БД текущее подр 24 12 2010
@@ -3164,7 +3164,7 @@ begin
              select(3);
              GetInf(true);
              PutAllWantedPersonFromPodrToSQL(Curr_Person^.Tabno);
-             while (Head_Person<>Nil) do Del_Person(Head_Person);
+             EMPTY_ALL_PERSON;
         end;
      select(1);
      NSRV:=savNSRV;

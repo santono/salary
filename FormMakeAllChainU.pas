@@ -118,7 +118,7 @@ procedure TFormMakeAllChain.ProcessAllChain;
                                     begin
                                          FIB.pFIBQuery.Close;
                                          FIB.pFIBQuery.SQL.Clear;
-                                         SQL:='select w_place from tb_chain where tabno='+IntToStr(Curr_Person^.tabno)+' and yearvy='+IntToStr(CurrYear)+' and monthvy='+IntToStr(NMES)+' and w_r=2';
+                                         SQL:='select w_place from tb_chain where tabno='+IntToStr(Curr_Person^.tabno)+' and yearvy='+IntToStr(CurrYear)+' and monthvy='+IntToStr(NMES)+' and (w_r=2 or w_place in (11,102,81,140))';
                                          FIB.pFIBQuery.SQL.Add(SQL);
                                          try
                                              FIB.pFIBQuery.ExecQuery;

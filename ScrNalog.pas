@@ -4205,6 +4205,7 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
             if not (curr_add^.shifr=DIFFER_SHIFR) then
             if not (curr_add^.shifr=NOT_USE_HOLIDAY_SHIFR) then
             if not (curr_add^.shifr=NIGHT_SHIFR) then
+            if not (curr_add^.shifr=MAT_POOSHR_SHIFR) then
                begin
                     summa:=summa+curr_add^.SUMMA;
                     if curr_add^.SHIFR=WANTED_SHIFR then

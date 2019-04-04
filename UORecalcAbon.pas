@@ -298,7 +298,7 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
       begin
            RetVal := 0;
        //   if not (((Podr=105) or (Podr=106)) and isLNR) then
-           if not ((Podr=105) or (Podr=106)) then
+    //       if not ((Podr=105) or (Podr=106)) then
                  RetVal := Nach_Person_For_Nalog_Exl(PodohNalog,Person,WantedM,WantedY,WantedM);
            GetSummaAddForPod := RetVal;
       end;
@@ -306,7 +306,7 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
       var RetVal  : Real;
       begin
            RetVal := 0;
-           if not ((Podr=105) or (Podr=106)) then
+//           if not ((Podr=105) or (Podr=106)) then
                  RetVal := Nach_Person_For_Nalog_Exl(WSNalog,Person,WantedM,WantedY,WantedM);
            GetSummaAddForWS := RetVal;
       end;
@@ -335,11 +335,11 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
          WantedShifr:Integer;
      begin
           RetVal:=0;
-          if ((Podr=105) or (Podr=106)) then
-             begin
-                  GetSummaUdPod:=0;
-                  Exit;
-             end;
+//          if ((Podr=105) or (Podr=106)) then
+//             begin
+//                  GetSummaUdPod:=0;
+//                  Exit;
+//             end;
           Curr_Person:=Self.Person;
 
           Curr_Ud:=Curr_Person^.Ud;
@@ -362,11 +362,11 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
          WantedShifr:Integer;
      begin
           RetVal:=0;
-          if ((Podr=105) or (Podr=106)) then
-             begin
-                  GetSummaUdWS:=0;
-                  Exit;
-             end;
+//          if ((Podr=105) or (Podr=106)) then
+//             begin
+//                  GetSummaUdWS:=0;
+//                  Exit;
+//             end;
           Curr_Person:=Self.Person;
 
           Curr_Ud:=Curr_Person^.Ud;

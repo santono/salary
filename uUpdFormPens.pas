@@ -7,7 +7,7 @@ uses
   Dialogs, Grids, StdCtrls, Buttons;
 
 const YearFr = 2000;
-      YearTo = 2018;
+      YearTo = 2019;
 
 type
   TFormPensSpr2006 = class(TForm)
@@ -48,7 +48,7 @@ type
      procedure PrintPensSpr2013_2;
      procedure PrintPensSpr2013_Ola;
      procedure PrintLnr20132015Grn(yStart:integer);
-     procedure PrintLnr20152018Rub;
+     procedure PrintLnr20152019Rub;
 
 
 
@@ -562,7 +562,7 @@ end;
 
 procedure TFormPensSpr2006.PrintPensSpr2013_Ola;
 const FNameIni='dscroll.ini';
-      Years:array[1..5,1..2] of Integer=((2000,2004),(2005,2009),(2010,2015),(2016,2017),(2018,2018));
+      Years:array[1..5,1..2] of Integer=((2000,2004),(2005,2009),(2010,2015),(2016,2017),(2018,2019));
 var FName,S:string;
     Ini          : TIniFile;
     V            : Variant;
@@ -741,9 +741,10 @@ begin
 
 end;
 
-procedure TFormPensSpr2006.PrintLnr20152018Rub;
+procedure TFormPensSpr2006.PrintLnr20152019Rub;
 const FNameIni='dscroll.ini';
-      Years:array[1..4] of Integer=(2015,2016,2017,2018);
+      amntOfYear=5;
+      Years:array[1..amntOfYear] of Integer=(2015,2016,2017,2018,2019);
 var FName,S:string;
     Ini          : TIniFile;
     V            : Variant;
@@ -756,12 +757,12 @@ var FName,S:string;
          a,summaTot:Real;
      begin
          RowEx := 6 ;
-         ColEx := 5 ;
+         ColEx := 4 ;
          V.WorkBooks[1].WorkSheets[1].Cells[RowEx,ColEx] := WantedFio;
          YF := Years [1];
-         YT := Years [4];
+         YT := Years [amntOfYear];
          startRow := 14 ;
-         startCol :=  6 ;
+         startCol :=  5 ;
          summaTot :=  0 ;
          for i:=YF to YT do
          for j:=1 to 12 do
@@ -791,7 +792,7 @@ begin
       S   := ExtractFilePath(Application.ExeName)+FNameINI;
       Ini := TIniFile.Create(S);
       try
-          FName := Ini.ReadString( 'Parameters', 'PENS_LNR_2015_2018_RUB', '' )
+          FName := Ini.ReadString( 'Parameters', 'PENS_LNR_2015_2019_RUB', '' )
       finally
          Ini.Free;
       end;
@@ -839,7 +840,7 @@ end;
 procedure TFormPensSpr2006.BitBtnLNR2015Click(Sender: TObject);
 begin
      if isLNR then
-        PrintLnr20152018Rub;
+        PrintLnr20152019Rub;
 end;
 
 procedure TFormPensSpr2006.BitBtnLnr2009Click(Sender: TObject);

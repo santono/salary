@@ -388,6 +388,12 @@ type
     N174: TMenuItem;
     ActionTestAwans: TAction;
     N84: TMenuItem;
+    ActionRecalcJan2019: TAction;
+    N20191: TMenuItem;
+    ActionRepClocks: TAction;
+    N175: TMenuItem;
+    ActionRepRazr: TAction;
+    N176: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -642,6 +648,9 @@ type
     procedure ActionRepPomKOtpExecute(Sender: TObject);
     procedure ActionTestCrossSavingExecute(Sender: TObject);
     procedure ActionTestAwansExecute(Sender: TObject);
+    procedure ActionRecalcJan2019Execute(Sender: TObject);
+    procedure ActionRepClocksExecute(Sender: TObject);
+    procedure ActionRepRazrExecute(Sender: TObject);
 
 
   private
@@ -728,7 +737,8 @@ implementation
   UFormRecalcNight, UFormChangeTabno,uSQLUnit, UFormChangeNMES,
   UFormFillExcel0417, UFormRepWordkers, UFormGener, UFormMonthForGener,
   UFormBrowseDogovora, UFormRepPomKOtp, UFormTestCrossSaving,
-  scrnetwork, UFormSavedAwans;
+  scrnetwork, UFormSavedAwans, UFormRecalcJan2019, UFormRepClockItogi,
+  UFormRepRazr;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1114,9 +1124,17 @@ procedure TMainForm.FormCreate(Sender: TObject);
    KZ:=0;
    NmbOfTransactSal := 0;
    NmbOfTransactArc := 0;
+//   if yesno('1 - На сервере имеется новая версия программы.'+^M+'Обновить программу с сервера?') then
+//       halt(99);
    if needCopyOriginProgram then
       begin
-           showMessage('На сервере имеется новая версия программы.'+^M+'Скачайте новую версию программы');
+           if isLNR then
+              begin
+                   if yesno('На сервере имеется новая версия программы.'+^M+'Обновить программу с сервера?') then
+                      halt(99);
+              end
+           else
+              showMessage('На сервері знаходиться нова версія програми.'+^M+'Завантажте нову версію програми з серверу.');
       end;
 
 
@@ -1266,6 +1284,12 @@ procedure TMainForm.FormCreate(Sender: TObject);
           Excel0420171.Enabled:=false;
           NDogovora.Visible:=true;
           ActionBrowseDogovora.Enabled:=true;
+          ActionRecalcJan2019.Enabled:=true;
+          N20191.Visible:=true;
+          N20191.Enabled:=true;
+          actionrepclocks.Enabled:=true;
+          n175.Enabled:=true;
+          n175.Visible:=true;
        {$ELSE}
 
           NLNR2.Visible:=true;
@@ -1324,7 +1348,12 @@ procedure TMainForm.FormCreate(Sender: TObject);
           Excel0420171.Enabled:=true;
           NDogovora.Visible:=false;
           ActionBrowseDogovora.Enabled:=false;
-
+          ActionRecalcJan2019.Enabled:=false;
+          N20191.Visible:=false;
+          N20191.Enabled:=false;
+          actionrepclocks.Enabled:=false;
+          n175.Enabled:=false;
+          n175.Visible:=false;
 
           if (CurrRight>3) then
              begin
@@ -4566,6 +4595,28 @@ begin
     Application.CreateForm(TFormSavedAwans, FormSavedAwans);
     FormSavedAwans.ShowModal;
 
+end;
+
+procedure TMainForm.ActionRecalcJan2019Execute(Sender: TObject);
+begin
+    if not isSVDN then exit;
+    Application.CreateForm(TFormRecalcJan2019, FormRecalcJan2019);
+    FormRecalcJan2019.ShowModal;
+
+end;
+
+procedure TMainForm.ActionRepClocksExecute(Sender: TObject);
+begin
+    if not isSVDN then exit;
+    Application.CreateForm(TFormRepClockItogi, FormRepClockItogi);
+    FormRepClockItogi.ShowModal;
+
+end;
+
+procedure TMainForm.ActionRepRazrExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormRepRazr, FormRepRazr);
+    FormRepRazr.ShowModal;
 end;
 
 end.

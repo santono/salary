@@ -334,6 +334,7 @@ begin
      block_Program:=False;
      isLNR:=false;
      isSVDN:=False;
+
      {$IFDEF SVDN}
        isSVDN:=True;
      {$ELSE}

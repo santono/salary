@@ -144,7 +144,7 @@ function needCopyOriginProgram:boolean;
      ageLocal:=FileAge(nameLocal);
      s:=getMainDataDrive;
      nameNetwork:=s+copy(nameLocal,2,length(nameLocal)-1);
-     ageNetwork:=FileAge(nameLocal);
+     ageNetwork:=FileAge(nameNetwork);
      if ageNetwork>ageLocal then
         retVal:=true;
      needCopyOriginProgram:=retVal;

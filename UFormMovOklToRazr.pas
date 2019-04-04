@@ -318,6 +318,7 @@ begin
                              Oklad:=R10(R_O[Razr] * Koef);
                              if isSVDN then
                                 Curr_Person^.OKLAD:=RoundTo(Oklad,-2)
+//                                Curr_Person^.OKLAD:=RoundTo(Oklad,-2)
                              else
                                 begin
                                      if (abs(abs(koef)-1.00)<0.001) then

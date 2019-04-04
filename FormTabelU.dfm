@@ -1,6 +1,6 @@
 object FormTabel: TFormTabel
-  Left = 181
-  Top = 192
+  Left = 201
+  Top = 96
   Width = 1001
   Height = 629
   Caption = #1058#1072#1073#1077#1083#1100
@@ -38,7 +38,7 @@ object FormTabel: TFormTabel
   end
   object StringGridS: TStringGrid
     Left = 632
-    Top = 8
+    Top = 0
     Width = 185
     Height = 545
     ColCount = 3
@@ -99,6 +99,15 @@ object FormTabel: TFormTabel
     Caption = #1042' Excel'
     TabOrder = 5
     OnClick = BitBtnExcelClick
+  end
+  object bitBtnItogoCLocks: TBitBtn
+    Left = 648
+    Top = 544
+    Width = 75
+    Height = 25
+    Caption = #1048#1090#1086#1075#1086' '#1095#1072#1089#1086#1074
+    TabOrder = 6
+    OnClick = bitBtnItogoCLocksClick
   end
   object ImageList1: TImageList
     Left = 328

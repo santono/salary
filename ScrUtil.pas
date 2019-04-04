@@ -3,7 +3,7 @@
 {$HINTS OFF}
 {$I+}
 unit ScrUtil;
-                               
+
 interface
    USES SCRDEF;
    type DWord = LongWord;
@@ -41,6 +41,7 @@ interface
    FUNCTION GET_IST_plt_name(n_IST:INTEGER):string;
    FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
    FUNCTION WORK_CLOCK(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
+   FUNCTION WORK_CLOCK_LERA(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
    FUNCTION ILL_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
    FUNCTION OTPUSK_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
    FUNCTION NADBAWKA_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
@@ -1578,6 +1579,38 @@ FUNCTION WORK_CLOCK(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):R
                                                  ELSE  A:=A+7;
       CURR_PERSON^.DAY:=A;
       WORK_CLOCK:=A;
+ END;
+
+FUNCTION WORK_CLOCK_LERA(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
+ VAR I:INTEGER;
+     A,OO:REAL;
+     koef:real;
+ FUNCTION TEST_SUBBOTA(I:INTEGER):BOOLEAN;
+   var L:boolean;
+  BEGIN
+     L:=FALSE;
+     IF CURR_PERSON^.TABEL[I+1]=VYHODN THEN L:=TRUE
+                                       ELSE
+          //    IF (((GetDayKodDAY_KOD[I+1]=0) OR (I=31)) AND (CURR_PERSON^.TABEL[I-6]=VYHODN))
+              IF (((GetDayCode(I+1)=0) OR (I=31)) AND (CURR_PERSON^.TABEL[I-6]=VYHODN))
+                                                 THEN  L:=TRUE
+                                       ELSE
+              IF (NMES=4) AND (I=30) THEN L:=TRUE;
+     TEST_SUBBOTA:=L;
+  END;
+ BEGIN
+      A:=0;
+         FOR I:=START_DAY TO LAST_DAY DO IF ((CURR_PERSON^.TABEL[I]=RABOTA)       OR
+        //                      (CURR_PERSON^.TABEL[I]=KOMANDIROWKA) OR
+                              (CURR_PERSON^.TABEL[I]=GOS_OB))       THEN
+                              if curr_person^.kategorija=1 then A:=A+7.2
+                                                      ELSE  A:=A+8;
+
+      koef:=GET_KOEF_OKLAD_PERSON(curr_person);
+      a:=a*koef;
+      if abs(curr_person^.oklad)<1.00 then a:=0;
+      a:=RoundTo(a,-1);
+      WORK_CLOCK_LERA:=A;
  END;
 
 FUNCTION NADBAWKA_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
@@ -6066,6 +6099,12 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
  function GetDayCode(k:integer):Integer;
   var RetVal:Integer;
   begin
+       if ((k<1) or (k>31)) then
+          begin
+               showMessage('error: k='+intToStr(k)); 
+               Result:=0;
+               exit;
+          end;
        RetVal:=Day_Kod[k];
        if IsColedgPodr(nsrv) then
           RetVal:=Day_Kod_Coledge[k];
@@ -12020,7 +12059,7 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
             curr_ud:=curr_ud^.NEXT;
        end;
       summaPodRas:=summaAdd*procPod;
-      if abs(summaPod-summaPodRas)>0.009 then
+      if abs(summaPod-summaPodRas)>0.01111 then
          retVal:=false
       else
          retVal:=true;
