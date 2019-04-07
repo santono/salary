@@ -24,7 +24,7 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
     Top = 32
     Width = 671
     Height = 481
-    ActivePage = TabSheetPod
+    ActivePage = TabSheetMatHelp
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object TabSheetPod: TTabSheet
@@ -821,6 +821,246 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
         Height = 20
         Alignment = taRightJustify
         Caption = '0.00'
+      end
+    end
+    object TabSheetMatHelp: TTabSheet
+      Caption = #1053#1072#1083#1086#1075' '#1052' '#1055
+      ImageIndex = 7
+      DesignSize = (
+        663
+        446)
+      object lblMatHeloLimit: TLabel
+        Left = 0
+        Top = 304
+        Width = 170
+        Height = 20
+        Caption = #1053#1077#1086#1073#1083#1072#1075#1072#1077#1084#1099#1081' '#1083#1080#1084#1080#1090' '
+      end
+      object lblMatHelpLimitSumma: TLabel
+        Left = 248
+        Top = 304
+        Width = 58
+        Height = 20
+        Caption = '2690.00'
+      end
+      object Label1: TLabel
+        Left = 328
+        Top = 216
+        Width = 4
+        Height = 20
+        Caption = 'Label1'
+      end
+      object lblMatHelpNeed: TLabel
+        Left = 0
+        Top = 334
+        Width = 243
+        Height = 20
+        Caption = #1055#1086#1076#1083#1077#1078#1080#1090' '#1086#1073#1083#1086#1078#1077#1085#1080#1102' '#1085#1072#1083#1086#1075#1086#1084' '
+      end
+      object lblMatHelpMustObl: TLabel
+        Left = 248
+        Top = 334
+        Width = 57
+        Height = 20
+        Caption = '0.00'
+      end
+      object Label2: TLabel
+        Left = 0
+        Top = 364
+        Width = 131
+        Height = 20
+        Caption = #1056#1072#1089#1095#1077#1090#1085#1099#1081' '#1085#1072#1083#1086#1075
+      end
+      object Label3: TLabel
+        Left = 336
+        Top = 224
+        Width = 4
+        Height = 20
+        Caption = 'Label3'
+      end
+      object Label4: TLabel
+        Left = 0
+        Top = 394
+        Width = 171
+        Height = 20
+        Caption = #1060#1072#1082#1090#1080#1095#1077#1089#1082#1080' '#1091#1076#1077#1088#1078#1072#1085#1086
+      end
+      object lblMatHelpNalRas: TLabel
+        Left = 248
+        Top = 364
+        Width = 31
+        Height = 20
+        Caption = '0.00'
+      end
+      object lblMatHelpNalFakt: TLabel
+        Left = 248
+        Top = 394
+        Width = 31
+        Height = 20
+        Caption = '0.00'
+      end
+      object Label7: TLabel
+        Left = 0
+        Top = 424
+        Width = 63
+        Height = 20
+        Caption = #1056#1072#1079#1085#1080#1094#1072
+      end
+      object lblMatHelpNalRazn: TLabel
+        Left = 248
+        Top = 424
+        Width = 31
+        Height = 20
+        Caption = '0.00'
+        Color = clBtnFace
+        ParentColor = False
+      end
+      object Label5: TLabel
+        Left = 352
+        Top = 334
+        Width = 117
+        Height = 20
+        Caption = #1042#1110#1081#1089#1100#1082#1086#1074#1080#1081' '#1079#1073#1110#1088
+      end
+      object lblMatHelpWSRas: TLabel
+        Left = 384
+        Top = 364
+        Width = 31
+        Height = 20
+        Caption = '0.00'
+      end
+      object lblMatHelpWSFakt: TLabel
+        Left = 384
+        Top = 394
+        Width = 31
+        Height = 20
+        Caption = '0.00'
+      end
+      object lblMatHelpWSRazn: TLabel
+        Left = 384
+        Top = 424
+        Width = 31
+        Height = 20
+        Caption = '0.00'
+      end
+      object dxDBGridMatHelp: TdxDBGrid
+        Left = 0
+        Top = 0
+        Width = 657
+        Height = 289
+        Bands = <
+          item
+            Caption = #1053#1072#1088#1072#1093#1086#1074#1072#1085#1086
+          end
+          item
+            Caption = #1053#1072#1083#1086#1075
+          end
+          item
+            Caption = #1042'. '#1089#1073#1086#1088
+          end>
+        DefaultLayout = False
+        HeaderPanelRowCount = 1
+        KeyField = 'id'
+        ShowSummaryFooter = True
+        SummaryGroups = <>
+        SummarySeparator = ', '
+        TabOrder = 0
+        DataSource = dsoMatHelp
+        Filter.Criteria = {00000000}
+        OptionsDB = [edgoCancelOnExit, edgoCanDelete, edgoCanInsert, edgoCanNavigation, edgoConfirmDelete, edgoLoadAllRecords, edgoUseBookmarks]
+        OptionsView = [edgoAutoHeaderPanelHeight, edgoAutoWidth, edgoBandHeaderWidth, edgoUseBitmap]
+        ShowBands = True
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        object dxDBGridMatHelpshifrAdd: TdxDBGridMaskColumn
+          Caption = #1064#1092#1088
+          HeaderAlignment = taCenter
+          Width = 51
+          BandIndex = -1
+          RowIndex = 0
+          FieldName = 'shifrAdd'
+        end
+        object dxDBGridMatHelpmonthVyAdd: TdxDBGridMaskColumn
+          Caption = #1052#1094
+          HeaderAlignment = taCenter
+          Width = 49
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'monthVyAdd'
+        end
+        object dxDBGridMatHelpyearVy: TdxDBGridMaskColumn
+          Caption = #1056#1110#1082
+          HeaderAlignment = taCenter
+          Width = 48
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'yearVy'
+        end
+        object dxDBGridMatHelpsummaAdd: TdxDBGridMaskColumn
+          Caption = #1053#1072#1088#1072#1093#1086#1074#1072#1085#1086
+          HeaderAlignment = taCenter
+          Width = 141
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'summaAdd'
+          SummaryFooterType = cstSum
+          SummaryField = 'summaAdd'
+        end
+        object dxDBGridMatHelpmonthVyNal: TdxDBGridMaskColumn
+          Caption = #1052#1094
+          HeaderAlignment = taCenter
+          Width = 38
+          BandIndex = 1
+          RowIndex = 0
+          FieldName = 'monthVyNal'
+        end
+        object dxDBGridMatHelpsummaNal: TdxDBGridMaskColumn
+          Caption = #1057#1091#1084#1072
+          HeaderAlignment = taCenter
+          Width = 106
+          BandIndex = 1
+          RowIndex = 0
+          FieldName = 'summaNal'
+          SummaryFooterType = cstSum
+        end
+        object dxDBGridMatHelpmonthVyWS: TdxDBGridMaskColumn
+          Caption = #1052#1094
+          HeaderAlignment = taCenter
+          Sorted = csUp
+          Width = 65
+          BandIndex = 2
+          RowIndex = 0
+          FieldName = 'monthVyWS'
+        end
+        object dxDBGridMatHelpsummaWS: TdxDBGridMaskColumn
+          Caption = #1057#1091#1084#1072
+          HeaderAlignment = taCenter
+          Width = 155
+          BandIndex = 2
+          RowIndex = 0
+          FieldName = 'summaWS'
+          SummaryFooterType = cstSum
+        end
+        object dxDBGridMatHelpshifrNal: TdxDBGridMaskColumn
+          Visible = False
+          Width = 169
+          BandIndex = -1
+          RowIndex = 0
+          FieldName = 'shifrNal'
+        end
+        object dxDBGridMatHelpshifrWS: TdxDBGridMaskColumn
+          Visible = False
+          Width = 169
+          BandIndex = -1
+          RowIndex = 0
+          FieldName = 'shifrWS'
+        end
+        object dxDBGridMatHelpid: TdxDBGridMaskColumn
+          Visible = False
+          Width = 169
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'id'
+        end
       end
     end
   end
@@ -1663,5 +1903,130 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
     TPBMode = tpbDefault
     Left = 364
     Top = 319
+  end
+  object cdsMatHelp: TClientDataSet
+    Active = True
+    Aggregates = <>
+    FieldDefs = <
+      item
+        Name = 'shifrAdd'
+        DataType = ftInteger
+      end
+      item
+        Name = 'monthVyAdd'
+        DataType = ftInteger
+      end
+      item
+        Name = 'yearVy'
+        DataType = ftInteger
+      end
+      item
+        Name = 'summaAdd'
+        DataType = ftFloat
+      end
+      item
+        Name = 'summaNal'
+        DataType = ftFloat
+      end
+      item
+        Name = 'summaWS'
+        DataType = ftFloat
+      end
+      item
+        Name = 'shifrNal'
+        DataType = ftInteger
+      end
+      item
+        Name = 'monthVyNal'
+        DataType = ftInteger
+      end
+      item
+        Name = 'monthVyWS'
+        DataType = ftInteger
+      end
+      item
+        Name = 'shifrWS'
+        DataType = ftInteger
+      end
+      item
+        Name = 'id'
+        DataType = ftInteger
+      end>
+    IndexDefs = <>
+    Params = <>
+    StoreDefs = True
+    Left = 332
+    Top = 359
+    Data = {
+      D00000009619E0BD01000000180000000B000000000003000000D00008736869
+      667241646404000100000000000A6D6F6E746856794164640400010000000000
+      0679656172567904000100000000000873756D6D614164640800040000000000
+      0873756D6D614E616C08000400000000000773756D6D61575308000400000000
+      000873686966724E616C04000100000000000A6D6F6E746856794E616C040001
+      0000000000096D6F6E7468567957530400010000000000077368696672575304
+      0001000000000002696404000100000000000000}
+    object cdsMatHelpshifrAdd: TIntegerField
+      FieldName = 'shifrAdd'
+    end
+    object cdsMatHelpmonthVyAdd: TIntegerField
+      FieldName = 'monthVyAdd'
+    end
+    object cdsMatHelpyearVy: TIntegerField
+      FieldName = 'yearVy'
+    end
+    object cdsMatHelpsummaAdd: TFloatField
+      FieldName = 'summaAdd'
+      DisplayFormat = '######0.00'
+    end
+    object cdsMatHelpsummaWS: TFloatField
+      FieldName = 'summaWS'
+      DisplayFormat = '#######0.00'
+    end
+    object cdsMatHelpshifrNal: TIntegerField
+      FieldName = 'shifrNal'
+    end
+    object cdsMatHelpmonthVyNal: TIntegerField
+      FieldName = 'monthVyNal'
+    end
+    object cdsMatHelpmonthVyWS: TIntegerField
+      FieldName = 'monthVyWS'
+    end
+    object cdsMatHelpshifrWS: TIntegerField
+      FieldName = 'shifrWS'
+    end
+    object cdsMatHelpsummaNal: TFloatField
+      FieldName = 'summaNal'
+      DisplayFormat = '#######0.00'
+    end
+    object cdsMatHelpid: TIntegerField
+      FieldName = 'id'
+    end
+  end
+  object DataSource1: TDataSource
+    Left = 336
+    Top = 264
+  end
+  object dsoMatHelp: TDataSource
+    DataSet = cdsMatHelp
+    Left = 364
+    Top = 359
+  end
+  object pFIBQueryMatHelp: TpFIBQuery
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    Left = 404
+    Top = 359
+  end
+  object trRead: TpFIBTransaction
+    DefaultDatabase = FIB.pFIBDatabaseSal
+    TimeoutAction = TARollback
+    TRParams.Strings = (
+      'isc_tpb_read'
+      'isc_tpb_nowait'
+      'isc_tpb_rec_version'
+      'isc_tpb_read_committed')
+    TPBMode = tpbDefault
+    Left = 436
+    Top = 359
   end
 end

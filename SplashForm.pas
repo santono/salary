@@ -5,7 +5,7 @@ unit SplashForm;
 interface
 
 uses Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
-  Buttons, ExtCtrls;
+  Buttons, ExtCtrls, ActnList;
 
 type
   TAboutBox = class(TForm)
@@ -16,6 +16,7 @@ type
     OKButton: TButton;
     Label1: TLabel;
     Timer1: TTimer;
+    ActionList1: TActionList;
     procedure Timer1Timer(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);

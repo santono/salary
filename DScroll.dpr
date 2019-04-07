@@ -342,7 +342,12 @@ uses
   UFormSaveAwans in 'UFormSaveAwans.pas' {FormSaveAwans},
   UFormAwansSwod in 'UFormAwansSwod.pas' {FormAwansSwod},
   UFormAwansVerification in 'UFormAwansVerification.pas' {FormAwansVerification},
-  UFormAwansVerirficationByPerson in 'UFormAwansVerirficationByPerson.pas' {FormAwansVerirficationByPerson};
+  UFormAwansVerirficationByPerson in 'UFormAwansVerirficationByPerson.pas' {FormAwansVerirficationByPerson},
+  UFormRecalcJan2019 in 'UFormRecalcJan2019.pas' {FormRecalcJan2019},
+  UFormTabelItogoClocks in 'UFormTabelItogoClocks.pas' {FormTabelItogoClocks},
+  UFormRepClockItogi in 'UFormRepClockItogi.pas' {FormRepClockItogi},
+  UFormRepRazr in 'UFormRepRazr.pas' {FormRepRazr},
+  UMatHelpCalc in 'UMatHelpCalc.pas';
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 
@@ -356,8 +361,7 @@ const
 
 {$SetPEOptFlags IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE}
 
-{$SetPEFlags IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP 
-  or IMAGE_FILE_NET_RUN_FROM_SWAP}
+{$SetPEFlags IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP or IMAGE_FILE_NET_RUN_FROM_SWAP}
 begin
   if mmm then
      begin // Запуск программмы  Application.Initialize;
@@ -394,3 +398,9 @@ begin
   end
 
 end.
+
+
+
+
+
+

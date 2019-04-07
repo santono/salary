@@ -45,7 +45,7 @@ object AboutBox: TAboutBox
       Top = 104
       Width = 216
       Height = 24
-      Caption = 'Version 1.0 '#1086#1090' 04 04 2019'
+      Caption = 'Version 1.0 '#1086#1090' 07 04 2019'
       IsControl = True
     end
     object Copyright: TLabel
@@ -84,6 +84,10 @@ object AboutBox: TAboutBox
   object Timer1: TTimer
     OnTimer = Timer1Timer
     Left = 256
+    Top = 120
+  end
+  object ActionList1: TActionList
+    Left = 144
     Top = 120
   end
 end

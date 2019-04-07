@@ -8,7 +8,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, FIBDatabase, pFIBDatabase, DB, FIBDataSet, pFIBDataSet, ComCtrls,
   dxExEdtr, dxCntner, dxTL, dxDBCtrl, dxDBGrid, dxDBTLCl, dxGrClms, ImgList,
-  ExtCtrls, StdCtrls,ScrDef, Buttons;
+  ExtCtrls, StdCtrls,ScrDef, Buttons, DBClient, FIBQuery, pFIBQuery;
 
 type
   TFormAnalyzeNalogi = class(TForm)
@@ -240,6 +240,51 @@ type
     pFIBDataSetWSSUMMAUDR: TFIBBCDField;
     pFIBDataSetWSSUMMAUDN: TFIBBCDField;
     pFIBDataSetWSMODEPRSN: TFIBIntegerField;
+    TabSheetMatHelp: TTabSheet;
+    cdsMatHelp: TClientDataSet;
+    DataSource1: TDataSource;
+    dsoMatHelp: TDataSource;
+    pFIBQueryMatHelp: TpFIBQuery;
+    trRead: TpFIBTransaction;
+    cdsMatHelpshifrAdd: TIntegerField;
+    cdsMatHelpmonthVyAdd: TIntegerField;
+    cdsMatHelpyearVy: TIntegerField;
+    cdsMatHelpsummaAdd: TFloatField;
+    cdsMatHelpsummaWS: TFloatField;
+    cdsMatHelpshifrNal: TIntegerField;
+    cdsMatHelpmonthVyNal: TIntegerField;
+    cdsMatHelpmonthVyWS: TIntegerField;
+    cdsMatHelpshifrWS: TIntegerField;
+    cdsMatHelpsummaNal: TFloatField;
+    dxDBGridMatHelp: TdxDBGrid;
+    cdsMatHelpid: TIntegerField;
+    dxDBGridMatHelpshifrAdd: TdxDBGridMaskColumn;
+    dxDBGridMatHelpmonthVyAdd: TdxDBGridMaskColumn;
+    dxDBGridMatHelpyearVy: TdxDBGridMaskColumn;
+    dxDBGridMatHelpsummaAdd: TdxDBGridMaskColumn;
+    dxDBGridMatHelpsummaWS: TdxDBGridMaskColumn;
+    dxDBGridMatHelpshifrNal: TdxDBGridMaskColumn;
+    dxDBGridMatHelpmonthVyNal: TdxDBGridMaskColumn;
+    dxDBGridMatHelpmonthVyWS: TdxDBGridMaskColumn;
+    dxDBGridMatHelpshifrWS: TdxDBGridMaskColumn;
+    dxDBGridMatHelpsummaNal: TdxDBGridMaskColumn;
+    dxDBGridMatHelpid: TdxDBGridMaskColumn;
+    lblMatHeloLimit: TLabel;
+    lblMatHelpLimitSumma: TLabel;
+    Label1: TLabel;
+    lblMatHelpNeed: TLabel;
+    lblMatHelpMustObl: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    lblMatHelpNalRas: TLabel;
+    lblMatHelpNalFakt: TLabel;
+    Label7: TLabel;
+    lblMatHelpNalRazn: TLabel;
+    Label5: TLabel;
+    lblMatHelpWSRas: TLabel;
+    lblMatHelpWSFakt: TLabel;
+    lblMatHelpWSRazn: TLabel;
 
   
 
@@ -304,6 +349,7 @@ type
   ModePrsnCol:Integer;MonthVyCol:integer);
     procedure CalcPodoh;
     procedure showItogi;
+    procedure fillMatHelpDataSet;
 
 
 
@@ -331,7 +377,7 @@ var
   FormAnalyzeNalogi: TFormAnalyzeNalogi;
 
 implementation
- uses ufibmodule,ScrNalog,ScrUtil,ScrExport, uFormWait;
+ uses ufibmodule,ScrIo,ScrNalog,ScrUtil,ScrExport, uFormWait,uSQLUnit;
 
 {$R *.dfm}
 
@@ -1117,6 +1163,7 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
             SummaUd  := SummaUd  + pFIBDataSetPodSummaUd.Value;
             pFIBDataSetPod.Next;
        end;
+{
       pFIBDataSetECBN.First;
       while not pFIBDataSetECBN.Eof do
        begin
@@ -1151,6 +1198,7 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
       pFIBDataSetECB.First;
       pFIBDataSetECBDP.First;
       pFIBDataSetECBIll.First;
+}
       pFIBDataSetPod.First;
 {
       s:=trim(Format('%12.2f',[SummaAddECBN]));
@@ -1170,6 +1218,7 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
       s:=trim(Format('%12.2f',[SummaUdECBIll]));
       lblSummaUdECBIll.Caption:=s;
 }
+{
       SetUpMaxECBs;
       SummaUdECBNRas     :=r10 (SummaMaxECBN   * ECBNProc   );
       SummaUdECBRas      :=r10 (SummaMaxECB    * ECBProc    );
@@ -1179,6 +1228,7 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
       SummaUdECBRazn     := SummaUdECBRas    - SummaUdECB    ;
       SummaUdECBDpRazn   := SummaUdECBDpRas  - SummaUdECBDp  ;
       SummaUdECBIllRazn  := SummaUdECBIllRas - SummaUdECBIll ;
+}
 {
       s:=trim(Format('%12.2f',[SummaMaxECBN]));
       lblSummaMaxECBN.Caption:=s;
@@ -1207,7 +1257,7 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
  }
       { Налог с дохода }
 
-      SummaECB:=SummaUdECBNRas+SummaUdECBRas+SummaUdECBIllRas;
+//      SummaECB:=SummaUdECBNRas+SummaUdECBRas+SummaUdECBIllRas;
 
 //      SummaPodRas:=PODOH_2004_2011(SummaAdd,SummaECB,0,MonthVy,YearVy,Wanted_PERSON);
       SetPersonForPodoh;
@@ -1259,7 +1309,7 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
 procedure TFormAnalyzeNalogi.showItogi;
  var s:string;
  begin
-
+{
       s:=trim(Format('%12.2f',[SummaAddECBN]));
       lblSummaAddECBN.Caption:=s;
       s:=trim(Format('%12.2f',[SummaUdECBN]));
@@ -1305,7 +1355,7 @@ procedure TFormAnalyzeNalogi.showItogi;
 //         lblSummaECB.Caption     := Trim(Format('%15.2f',[SummaECB]))
 //      else
          lblSummaECB.Caption:='';
-
+}
       lbSummaAddPod.Caption   := Trim(Format('%15.2f',[SummaAdd]));
       lblSummaPodFakt.Caption := Trim(Format('%15.2f',[SummaUd]));
       lblSummaPodRas.Caption  := Trim(Format('%15.2f',[SummaPodRas]));
@@ -1344,6 +1394,7 @@ begin
      DecodeDate(Dt,y,m,d);
      MonthVy := M;
      YearVy  := y;
+{
      if (YearVy>2015) then
         begin
               TabSheetECB.Hide;
@@ -1388,6 +1439,7 @@ begin
               lblECB.Show;
 
         end;
+}
 //     if ((YearVy=curryear) and
 //         (nmes>=flow_month)) then
      PutSummyToTmpTables(Wanted_Person,YearVy,MonthVy);
@@ -1412,7 +1464,7 @@ procedure TFormAnalyzeNalogi.OpenDataSets;
       pFIBDataSetPod.ParamByName('M').Value     := MonthVy;
       pFIBDataSetPod.ParamByName('MODE').Value  := 0;
       pFIBDataSetPod.Open;
-
+{
       if pFIBDataSetECBN.Active then
          pFIBDataSetECBN.Close;
       if pFIBDataSetECBN.Transaction.Active then
@@ -1458,20 +1510,303 @@ procedure TFormAnalyzeNalogi.OpenDataSets;
       pFIBDataSetECBIll.ParamByName('M').Value     := MonthVy;
       pFIBDataSetECBIll.ParamByName('MODE').Value  := 7;
       pFIBDataSetECBIll.Open;
-
-      if pFIBDataSetWS.Active then
-         pFIBDataSetWS.Close;
-      if pFIBDataSetWS.Transaction.Active then
-         pFIBDataSetWS.Transaction.Commit;
-      pFIBDataSetWS.Transaction.StartTransaction;
-      pFIBDataSetWS.ParamByName('TABNO').Value := tabno;
-      pFIBDataSetWS.ParamByName('Y').Value     := YearVy;
-      pFIBDataSetWS.ParamByName('M').Value     := MonthVy;
-      pFIBDataSetWS.ParamByName('MODE').Value  := 8;
-      pFIBDataSetWS.Open;
+}
+      if isSVDN then
+         begin
+              if pFIBDataSetWS.Active then
+                 pFIBDataSetWS.Close;
+              if pFIBDataSetWS.Transaction.Active then
+                 pFIBDataSetWS.Transaction.Commit;
+              pFIBDataSetWS.Transaction.StartTransaction;
+              pFIBDataSetWS.ParamByName('TABNO').Value := tabno;
+              pFIBDataSetWS.ParamByName('Y').Value     := YearVy;
+              pFIBDataSetWS.ParamByName('M').Value     := MonthVy;
+              pFIBDataSetWS.ParamByName('MODE').Value  := 8;
+              pFIBDataSetWS.Open;
+              cdsMatHelp.Open;
+              cdsMatHelp.EmptyDataSet;
+              fillMatHelpDataSet;
+         end;
 
     //  CalcPodoh;
 
+ end;
+procedure TFormAnalyzeNalogi.fillMatHelpDataSet;
+ type pRec=^tRec;
+      tRec=record
+            shifrAdd   : integer;
+            summaAdd   : real;
+            monthVyAdd : integer;
+            shifrNal   : integer;
+            summaNal   : real;
+            monthVyNal : integer;
+            shifrWS    : integer;
+            summaWS    : real;
+            monthVyWS  : integer;
+           end;
+ var SQLStmnt : string;
+     summa    : real;
+     shifr    : integer;
+     mvy      : integer;
+     list     : TList;
+     rec      : pRec;
+     i        : integer;
+     matHelpLimitSumma:real;
+     matHelpNalFakt,matHelpNalRas,matHelpNalRazn:real;
+     matHelpWSFakt,matHelpWSRas,matHelpWSRazn:real;
+     matHelpSummaAdd:real;
+     v:variant;
+     ds :string;
+    procedure fillRec(summa:real;mvy:integer;shifr:integer);
+     var i:integer;
+         done:boolean;
+     begin
+          done:=false;
+          if list.Count<0 then
+             begin
+              new(rec);
+              fillChar(rec^,sizeOf(rec^),0);
+              if shifr=podoh_shifr then
+                 begin
+                      rec^.shifrNal   := shifr;
+                      rec^.summaNal   := summa;
+                      rec^.monthVyNal := mvy;
+                      done:=true;
+                 end
+              else
+//              if shifr=war_sbor_shifr then
+                 begin
+                      rec^.shifrWS:=shifr;
+                      rec^.summaWS:=summa;
+                      rec^.monthVyWS:=mvy;
+                      done:=true;
+                 end;
+              list.Add(rec);
+              exit;
+             end;
+          if shifr=podoh_shifr then
+             for i:=0 to list.count-1 do
+                 if ((pRec(list.Items[i]).monthVyAdd=mvy)
+                    and
+                    (pRec(list.Items[i]).monthVyNal=0)) then
+                    begin
+                         pRec(list.Items[i]).monthVyNal:=mvy;
+                         pRec(list.Items[i]).shifrNal:=shifr;
+                         pRec(list.Items[i]).summaNal:=summa;
+                         done:=true;
+                         break;
+                    end;
+          if done then exit;
+          if shifr=war_sbor_shifr then
+             for i:=0 to list.count-1 do
+                 if ((pRec(list.Items[i]).monthVyAdd=mvy)
+                    and
+                    (pRec(list.Items[i]).monthVyWs=0)) then
+                    begin
+                         pRec(list.Items[i]).monthVyWS:=mvy;
+                         pRec(list.Items[i]).shifrWS:=shifr;
+                         pRec(list.Items[i]).summaWS:=summa;
+                         done:=true;
+                         break;
+                    end;
+          if done then exit;
+          new(rec);
+          fillChar(rec^,sizeOf(rec^),0);
+          if shifr=podoh_shifr then
+             begin
+                  rec^.shifrNal:=shifr;
+                  rec^.summaNal:=summa;
+                  rec^.monthVyNal:=mvy;
+                  done:=true;
+             end
+          else
+//              if shifr=war_sbor_shifr then
+             begin
+                  rec^.shifrWS:=shifr;
+                  rec^.summaWS:=summa;
+                  rec^.monthVyWS:=mvy;
+                  done:=true;
+             end;
+          list.Add(rec);
+     end;
+    procedure fillFrom106;
+     var
+         tmpNSRV:integer;
+       procedure fillL;
+        var
+           c_person:person_ptr;
+           c_ud:ud_ptr;
+           c_add:add_ptr;
+           summa : real;
+           mvy,shifr : integer;
+        begin
+             c_person:=head_person;
+             while (c_person<>nil) do
+                begin
+                     if c_person^.tabno<>tabno then
+                        begin
+                             c_person:=c_person^.next;
+                             continue;
+                        end;
+                     c_add:=c_person^.add;
+                     while (c_add<>nil) do
+                       begin
+                            summa   := c_add^.summa;
+                            mvy     := c_add^.PERIOD;
+                            shifr   := c_add^.shifr;
+                            new(rec);
+                            fillChar(rec^,sizeOf(rec^),0);
+                            rec^.shifrAdd:=shifr;
+                            rec^.summaAdd:=summa;
+                            rec^.monthVyAdd:=mvy;
+                            list.Add(rec);
+                            c_add:=c_add^.NEXT;
+                       end;
+                     c_ud:=c_person^.ud;
+                     while (c_ud<>nil) do
+                       begin
+                            if ((c_ud^.shifr=podoh_shifr)
+                                or
+                                (c_ud^.shifr=war_sbor_shifr)) then
+                               begin
+                                     summa   := c_ud^.summa;
+                                     mvy     := c_ud^.PERIOD;
+                                     shifr   := c_ud^.shifr;
+                                     fillrec(summa,mvy,shifr);
+                               end;
+                            c_ud:=c_ud^.NEXT;
+                       end;
+                     c_person:=c_person^.NEXT;
+                end;
+        end;
+     begin
+         if nsrv<>106 then
+            begin
+                 tmpNSRV:=NSRV;
+                 select(2);
+                 NSRV:=106;
+                 mkflnm;
+                 if fileexists(fninf) then
+                    begin
+                         getinf(false);
+                         fillL;
+                         EMPTY_ALL_PERSON;
+                    end;
+                 select(1);
+                 nsrv:=tmpNSRV;
+                 mkflnm
+            end
+         else
+            fillL;
+     end;
+
+
+ begin
+      if pFIBQueryMatHelp.Open then
+         pFIBQueryMatHelp.Close;
+      if pFIBQueryMatHelp.Transaction.Active then
+         pFIBQueryMatHelp.Transaction.Commit;
+       list := TList.Create;
+       if ((monthVy=nmes) and (yearvy=currYear)) then
+              fillFrom106;
+
+       SQLStmnt:='select summa,month_vy,shifrsta from fadd where tabno='+intToStr(tabno)+' and year_vy='+intToStr(yearVy)+' and w_place=106 and month_vy<'+intToStr(monthVy);
+       pFIBQueryMatHelp.SQL.Clear;
+       pFIBQueryMatHelp.SQL.Add(SQLStmnt);
+       pFIBQueryMatHelp.Transaction.StartTransaction;
+       pFIBQueryMatHelp.ExecQuery;
+//       pFIBQueryMatHelp.FFirst;
+       while (not pFIBQueryMatHelp.Eof) do
+         begin
+              summa   := pFIBQueryMatHelp.Fields[0].AsFloat;
+              mvy     := pFIBQueryMatHelp.Fields[1].AsInteger;
+              shifr   := pFIBQueryMatHelp.Fields[2].AsInteger;
+              new(rec);
+              fillChar(rec^,sizeOf(rec^),0);
+              rec^.shifrAdd:=shifr;
+              rec^.summaAdd:=summa;
+              rec^.monthVyAdd:=mvy;
+              list.Add(rec);
+              pFIBQueryMatHelp.Next;
+         end;
+       pFIBQueryMatHelp.close;
+       SQLStmnt:='select summa,month_vy,shifrsta from fud where tabno='+intToStr(tabno)+' and year_vy='+intToStr(yearVy)+' and w_place=106 and month_vy<'+intToStr(monthVy)+' and shifrsta in ('+intToStr(podoh_shifr)+','+intToStr(war_sbor_shifr)+')';
+       pFIBQueryMatHelp.SQL.Clear;
+       pFIBQueryMatHelp.SQL.Add(SQLStmnt);
+       pFIBQueryMatHelp.ExecQuery;
+//       pFIBQueryMatHelp.First;
+       while (not pFIBQueryMatHelp.Eof) do
+         begin
+              summa   := pFIBQueryMatHelp.Fields[0].AsFloat;
+              mvy     := pFIBQueryMatHelp.Fields[1].AsInteger;
+              shifr   := pFIBQueryMatHelp.Fields[2].AsInteger;
+              fillRec(summa,mvy,shifr);
+//              fillChar(rec^,sizeOf(rec^),0);
+//              rec^.shifrAdd:=shifr;
+//              rec^.summaAdd:=summa;
+//              rec^.monthVyAdd:=mvy;
+              pFIBQueryMatHelp.Next;
+         end;
+       pFIBQueryMatHelp.Close;
+       pFIBQueryMatHelp.Transaction.Commit;
+       matHelpNalFakt := 0;
+       matHelpWSFakt  := 0;
+       matHelpSummaAdd := 0;
+       if (list.count>0) then
+          begin
+             for i:=0 to list.count-1 do
+                 begin
+                    cdsMatHelp.Append;
+                    cdsMatHelpid.Value          := i+1;
+                    cdsMatHelpyearVy.Value      := yearVy;
+                    cdsMatHelpshifrAdd.Value    := pRec(list.Items[i]).shifrAdd;
+                    cdsMatHelpmonthVyAdd.Value  := pRec(list.Items[i]).monthVyAdd;;
+                    cdsMatHelpsummaAdd.Value    := pRec(list.Items[i]).summaAdd;
+                    cdsMatHelpshifrNal.Value    := pRec(list.Items[i]).shifrNal;
+                    cdsMatHelpmonthVyNal.Value  := pRec(list.Items[i]).monthVyNal;;
+                    cdsMatHelpsummaNal.Value    := pRec(list.Items[i]).summaNal;
+                    cdsMatHelpshifrWS.Value     := pRec(list.Items[i]).shifrWS;
+                    cdsMatHelpmonthVyWS.Value   := pRec(list.Items[i]).monthVyWS;;
+                    cdsMatHelpsummaWS.Value     := pRec(list.Items[i]).summaWS;
+                    cdsMatHelp.Post;
+                    matHelpSummaAdd := matHelpSummaAdd + pRec(list.Items[i]).summaAdd;
+                    matHelpNalFakt  := matHelpNalFakt  + pRec(list.Items[i]).summaNal;
+                    matHelpWSFakt   := matHelpWSFakt   + pRec(list.Items[i]).summaWS;
+                 end;
+             for i:=0 to list.count-1 do
+                 dispose(pRec(list.items[i]));
+          end;
+       list.Free;
+       ds:=intToStr(monthVy);
+       if monthVy<10 then ds:='0'+ds;
+       ds:=intToStr(yearVy)+'.'+ds+'.01';
+       SQLStmnt:='select first 1 limitlgoty from podohtbl where datefr<='''+ds+''' order by datefr desc';
+       v:=SQLQueryValue(SQLStmnt);
+       matHelpLimitSumma:=0;
+       if VarIsNumeric(v) then
+          matHelpLimitSumma:=v;
+       matHelpSummaAdd:=matHelpSummaAdd-matHelpLimitSumma;
+       if matHelpSummaAdd<0.01 then
+          begin
+               matHelpSummaAdd := 0 ;
+               matHelpNalRas   := 0 ;
+               matHelpWsRas    := 0 ;
+          end
+       else
+          begin
+               matHelpNalRas :=  r10(matHelpSummaAdd*0.18);
+               matHelpWsRas  :=  r10(matHelpSummaAdd*0.015);
+          end;
+     matHelpNalRazn:=matHelpNalRas - matHelpNalFakt;
+     matHelpWSRazn :=matHelpWSRas  - matHelpWSFakt;
+     lblMatHelpLimitSumma.Caption:=format('%10.2f',[matHelpLimitSumma]);
+     lblMatHelpMustObl.Caption := format('%10.2f',[matHelpSummaAdd]);
+     lblMatHelpNalRas.Caption  := format('%10.2f',[matHelpNalRas]);
+     lblMatHelpNalFakt.Caption := format('%10.2f',[matHelpNalFakt]);
+     lblMatHelpNalRazn.Caption := format('%10.2f',[matHelpNalRazn]);
+     lblMatHelpWSRas.Caption  := format('%10.2f',[matHelpWSRas]);
+     lblMatHelpWSFakt.Caption := format('%10.2f',[matHelpWSFakt]);
+     lblMatHelpWSRazn.Caption := format('%10.2f',[matHelpWSRazn]);
  end;
 
 procedure TFormAnalyzeNalogi.FormDestroy(Sender: TObject);
@@ -1482,6 +1817,7 @@ begin
 
       if pFIBDataSetPod.Transaction.Active then
          pFIBDataSetPod.Transaction.Commit;
+{
       if pFIBDataSetECBN.Active then
          pFIBDataSetECBN.Close;
       if pFIBDataSetECBN.Transaction.Active then
@@ -1498,11 +1834,16 @@ begin
          pFIBDataSetECBIll.Close;
       if pFIBDataSetECBIll.Transaction.Active then
          pFIBDataSetECBIll.Transaction.Commit;
-      if pFIBDataSetWS.Active then
-         pFIBDataSetWS.Close;
-      if pFIBDataSetWS.Transaction.Active then
-         pFIBDataSetWS.Transaction.Commit;
-
+}
+      if isSVDN then
+         begin
+              if pFIBDataSetWS.Active then
+                 pFIBDataSetWS.Close;
+              if pFIBDataSetWS.Transaction.Active then
+                 pFIBDataSetWS.Transaction.Commit;
+              if cdsMatHelp.Active then
+                 cdsMatHelp.Close;
+         end;
 
 end;
 
@@ -1552,6 +1893,16 @@ begin
               TabSheetECBI.Enabled     := true;
               lblECB.Show;
 
+        end;
+     if isSVDN then
+        begin
+             TabSheetMatHelp.Enabled := true;
+             TabSheetMatHelp.TabVisible:=true;
+        end
+     else
+        begin
+             TabSheetMatHelp.Enabled := false;
+             TabSheetMatHelp.TabVisible:=false;
         end;
 
 end;

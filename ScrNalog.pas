@@ -5,12 +5,15 @@ unit ScrNalog;
                                                                                        
 interface
    uses ScrDef;
-   type TModeNalog=(PodohNalog,PensNalog,SSNalog,FZNalog,AlimNach,ECBNalog,ECBIllNalog,BolNach,WSNalog);
+   type TModeNalog=(PodohNalog,PensNalog,SSNalog,FZNalog,AlimNach,ECBNalog,ECBIllNalog, BolNach, WSNalog, MatHelpNalog);
+                                                                                                 //  МатHelpNalog - для расчета налога с подоходного
    
 FUNCTION   PODOH(S:REAL;W_NMES:INTEGER;KOL_WO_DETEJ:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
 FUNCTION   PODOH_2004(S,BOL_S,S_PENS,S_S,F_Z,ECB_NALOG,ECB_ILL_NALOG:REAL;W_NMES,W_YEAR:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
 FUNCTION   PODOH_2004_2011(SS,ECB_NALOG,ECB_ILL_NALOG:REAL;W_NMES,W_YEAR:INTEGER;CURR_PERSON:PERSON_PTR):REAL;OVERLOAD;
 FUNCTION   PODOH_2004_2011(SS,ECB_NALOG,ECB_ILL_NALOG:REAL;W_NMES,W_YEAR:INTEGER;isLgotaPN:Integer;kd:integer;p:real):REAL;OVERLOAD;
+FUNCTION   getPodForMatHelpSumma(SummaAddMatHelp:real;M:integer;Y:integer;CurrPerson:Person_Ptr):REAL;
+FUNCTION   getWSForMatHelpSumma(SummaAddMatHelp:real;M:integer;Y:integer;CurrPerson:Person_Ptr):REAL;
 PROCEDURE  UPDATE_PODOH(VAR CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER;START_YEAR:WORD;MODERECALC:INTEGER=2);
 PROCEDURE  UPDATE_PODOH_SQL(VAR CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER;START_YEAR:WORD;MODERECALC:INTEGER);
 PROCEDURE  PROF_PERSON(CURR_PERSON:PERSON_PTR);
@@ -511,7 +514,48 @@ FUNCTION PENS(S:REAL;WANTED_PERIOD:INTEGER;WANTED_YEAR:integer;CURR_PERSON:PERSO
 
  END;
 
-FUNCTION ECB(S:REAL;WANTED_PERIOD:INTEGER;WANTED_YEAR:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
+FUNCTION getPodForMatHelpSumma(SummaAddMatHelp:real;M:integer;Y:integer;CurrPerson:Person_Ptr):REAL;
+ VAR SS : real;
+ BEGIN
+     if (Y>0) and (Y<50) then Y:=Y+1990;
+     IF ((y<1990) or (y>2100)) then Y:=CurrYear;
+     if isLNR then
+         begin
+               getPodForMatHelpSumma:=R10(SummaAddMatHelp*0.13);
+               Exit;
+         end;
+     IF ((y<1990) or (y>2100)) then Y:=CurrYear;
+     IF CURR_PODOH_MONTH_2004<>M THEN INIT_PODOH_2004(M,Y);
+     IF KZ<0 THEN
+        BEGIN
+             ERROR('Нет таблицы подоходного налога за '+getMonthRus(M)+' '+IntToStr(y)+' г.');
+             getPodForMatHelpSumma:=0;
+             EXIT;
+        END;
+     if (SummaAddMatHelp>LIMITPODOHLGOTA) then
+        ss:=SummaAddMatHelp-LIMITPODOHLGOTA;
+     if ss<0.01 then
+        begin
+             getPodForMatHelpSumma:=0;
+             exit;
+        end;
+     getPodForMatHelpSumma:=roundto(ss*0.18,-2);
+ END;
+
+FUNCTION getWSForMatHelpSumma(SummaAddMatHelp:real;M:integer;Y:integer;CurrPerson:Person_ptr):REAL;
+ VAR SS : real;
+     retVal:real;
+ BEGIN
+     retVal:=0.00;
+     SS := getPodForMatHelpSumma(SummaAddMatHelp,M,Y,CurrPerson);
+     if ss>0 then
+//        retVal:=roundto((ss*18.00*1.5 / 100.00 / 100.00),-2);
+        retVal:=roundto((ss*1.5/18.00),-2);
+//        retVal:=roundto((ss*0.0027),-2);
+     getWSForMatHelpSumma:=retVal;
+ END;
+
+ FUNCTION ECB(S:REAL;WANTED_PERIOD:INTEGER;WANTED_YEAR:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
  VAR W_Y,I:INTEGER;
      Y,M,D,DOW:WORD;
      P:REAL;
@@ -3389,6 +3433,7 @@ PROCEDURE WS_PERSON(CURR_PERSON:PERSON_PTR);
  BEGIN
       if not isSVDN then
         Exit;
+      if nsrv=106 then exit;  // Для материальной помощи не считать
       if (NMES<>FLOW_MONTH) then Exit;
       if Curr_Person^.AUTOMATIC<>AUTOMATIC_MODE then Exit;
       if is_All_Blocked(Curr_Person) then Exit;
@@ -5330,7 +5375,8 @@ BEGIN
 //                      DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
                       PODOH_PERSON(CURR_PERSON,2,1);
                       PROF_PERSON(CURR_PERSON);
-                      WS_PERSON(Curr_Person);
+                      if isSVDN then
+                         WS_PERSON(Curr_Person);
 //                      PENS_PERSON(CURR_PERSON);
                //       FOND_PERSON(CURR_PERSON);
                       KOP_PERSON(CURR_PERSON);
@@ -5407,7 +5453,8 @@ BEGIN {НАЧАЛО ГЛАВНОЙ ПРОГРАММЫ CALC_NAUD(CURR_PERSON)}
              end;          
        end;
        PROF_PERSON(CURR_PERSON);
-       WS_PERSON(Curr_Person);
+       if isSVDN then
+          WS_PERSON(Curr_Person);
 
 //    PENS_PERSON(CURR_PERSON);
 //    FOND_PERSON(CURR_PERSON);
@@ -5485,7 +5532,8 @@ BEGIN {НАЧАЛО ГЛАВНОЙ ПРОГРАММЫ CALC_NAUD(CURR_PERSON)}
              end;
        end;
        PROF_PERSON(CURR_PERSON);
-       WS_PERSON(Curr_Person);
+       if isSVDN then
+          WS_PERSON(Curr_Person);
  //   PENS_PERSON(CURR_PERSON);
 //    FOND_PERSON(CURR_PERSON);
        NALOG_S_OBUCH_PERSON(CURR_PERSON);

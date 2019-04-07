@@ -15,7 +15,7 @@ interface
 
 implementation
     uses Classes,Dialogs,ScrUtil,ScrIO,UFIBModule,SysUtils,ScrNalog,
-         ScrLists,Math;
+         ScrLists,Math,UMatHelpCalc;
      procedure PutLogString(Mes:string);forward;
      procedure FirstStringForPerson(Curr_Person:Person_Ptr);forward;
      var Dev:Text;
@@ -1387,6 +1387,12 @@ procedure CreateTestPerson(WantedY:Integer;WantedM:Integer;Curr_Person:Person_Pt
     SummaAbsAlim : Real;
     TOTAL_ABS_ALIM_SUMMA : Real;
  begin
+      if isSVDN then
+         if nsrv=106 then
+            begin
+                 calculatePodAndWSForMatHelp(curr_person,WantedM,WantedY);
+                 exit;
+            end;
       if not Need102(Curr_Person) then Exit;
       if not ShifrList.IsPodoh(7) then
          Del_Current_Nalogi(Curr_Person,WantedM,WantedY);
@@ -1666,6 +1672,7 @@ if ((YY+1990)<2016) then
                END;
 
       RPerson.Free;
+
  end;
 procedure OpenLog;
  var Fname:string;
