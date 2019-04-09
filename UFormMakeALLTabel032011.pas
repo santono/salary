@@ -74,32 +74,33 @@ var savnsrv,i_nsrv : integer;
 
  procedure Fill_Tabel(var need:boolean);
   begin
-
-       if Curr_Person^.Tabel[19]=Jawka  then
+       if not (Curr_Person^.Tabel[20]=VYHODN) then exit;
+       if Curr_Person^.Tabel[27]=Jawka  then
           begin
-               Curr_Person^.Tabel[19]:=VYHODN;
+               Curr_Person^.Tabel[27]:=VYHODN;
                need:=true;
           end;
-       if Curr_Person^.Tabel[26]=VYHODN  then
+       if Curr_Person^.Tabel[30]=VYHODN  then
           begin
-               Curr_Person^.Tabel[26]:=Jawka;
+               Curr_Person^.Tabel[30]:=Jawka;
                need:=true;
           end;
   end;
 begin
-    if not isSVDN then exit;
-    if not YesNo('Внести корректировки в табель всего университета в январе 2019?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then Exit;
-    IF not ((CurrYear=2019) and (nmes=01)) THEN
+    if not isLNR then exit;
+    if not YesNo('Внести корректировки в табель всего университета в апреле 2019?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then Exit;
+    IF not ((CurrYear=2019) and (nmes=04)) THEN
        begin
-            ShowMessage('Внести корректировки можно только в январе 2019');
+            ShowMessage('Внести корректировки можно только в апреле 2019');
             Exit;
        end;
+{
     if NameServList.CountSelected<=0 then
        begin
             ShowMessage('Не выбраны подразделения');
             Exit;
        end;
-
+}
     ProgressBar1.Min      := 0;
     ProgressBar1.Max      := Count_Serv;
     ProgressBar1.Position := 0;
@@ -111,7 +112,7 @@ begin
              nsrv:=i_nsrv;
              ProgressBar1.Position := i_nsrv;
              Application.ProcessMessages;
-             if not NameServList.IsSelected(NSRV) then continue;
+//             if not NameServList.IsSelected(NSRV) then continue;
              mkflnm;
              if not fileexists(fninf) then continue;
              getinf(true);

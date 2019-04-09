@@ -1342,8 +1342,10 @@ procedure TMainForm.FormCreate(Sender: TObject);
           N0620171.Enabled:=false;
           N0620171.Visible:=false;
           ActionRecalcNightFor062017.Enabled:=false;
-          N20112.Visible:=false;  { Корректировка табеля }
-          N20112.Enabled:=false;  { за август 2017 (только для СВДН)}
+//          N20112.Visible:=false;  { Корректировка табеля }
+//          N20112.Enabled:=false;  { за август 2017 (только для СВДН)}
+          N20112.Visible:=true;  { Корректировка табеля }
+          N20112.Enabled:=true;  { за август 2017 (только для СВДН)}
           Excel0420171.Visible:=true;
           Excel0420171.Enabled:=true;
           NDogovora.Visible:=false;

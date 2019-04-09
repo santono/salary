@@ -3111,7 +3111,7 @@ object FormToExcelKomend: TFormToExcelKomend
     PrintOptions.Printer = 'Default'
     PrintOptions.PrintOnSheet = 0
     ReportOptions.CreateDate = 42152.501412581000000000
-    ReportOptions.LastChange = 42744.021709976850000000
+    ReportOptions.LastChange = 43564.878927453700000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       'procedure PageFooter1OnBeforePrint(Sender: TfrxComponent);'
@@ -3452,7 +3452,7 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Name = 'Times New Roman'
           Font.Style = []
           Memo.UTF8 = (
-            '   '#1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'.'#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
         end
         object Memo20: TfrxMemoView
@@ -3548,7 +3548,7 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Name = 'Times New Roman'
           Font.Style = []
           Memo.UTF8 = (
-            '   '#1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'.'#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
         end
         object Memo26: TfrxMemoView
@@ -4066,7 +4066,7 @@ object FormToExcelKomend: TFormToExcelKomend
           HAlign = haCenter
           Memo.UTF8 = (
             #1056#1038#1057#1107#1056#1112#1056#1112#1056#176', '
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'.'#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
@@ -4377,7 +4377,7 @@ object FormToExcelKomend: TFormToExcelKomend
         end
       end
       object ReportSummary1: TfrxReportSummary
-        Height = 302.362204724409000000
+        Height = 302.362204720000000000
         Top = 653.858690000000000000
         Width = 718.110700000000000000
         object Memo164: TfrxMemoView
@@ -4545,7 +4545,7 @@ object FormToExcelKomend: TFormToExcelKomend
         object Memo176: TfrxMemoView
           Left = 275.905690000000000000
           Top = 105.826840000000000000
-          Width = 41.574830000000000000
+          Width = 49.133890000000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -4555,12 +4555,12 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'.'#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo177: TfrxMemoView
-          Left = 317.480520000000000000
+          Left = 325.039370078740200000
           Top = 105.826840000000000000
           Width = 60.472480000000000000
           Height = 18.897650000000000000
@@ -4575,9 +4575,9 @@ object FormToExcelKomend: TFormToExcelKomend
           VAlign = vaCenter
         end
         object Memo178: TfrxMemoView
-          Left = 377.953000000000000000
+          Left = 385.511811020000000000
           Top = 105.826840000000000000
-          Width = 41.574830000000000000
+          Width = 37.795300000000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -4587,12 +4587,12 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1056#1108#1056#1109#1056#1111'.  (')
+            #1056#1108#1056#1109#1056#1111'. (')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo179: TfrxMemoView
-          Left = 419.527830000000000000
+          Left = 423.307360000000000000
           Top = 105.826840000000000000
           Width = 71.811070000000000000
           Height = 18.897650000000000000
@@ -4607,9 +4607,9 @@ object FormToExcelKomend: TFormToExcelKomend
           VAlign = vaCenter
         end
         object Memo180: TfrxMemoView
-          Left = 491.338900000000000000
+          Left = 495.118430000000000000
           Top = 105.826840000000000000
-          Width = 37.795300000000000000
+          Width = 49.133860710000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -4619,12 +4619,12 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'.'#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo181: TfrxMemoView
-          Left = 529.134200000000000000
+          Left = 544.251970940000000000
           Top = 105.826840000000000000
           Width = 49.133890000000000000
           Height = 18.897650000000000000
@@ -4639,7 +4639,7 @@ object FormToExcelKomend: TFormToExcelKomend
           VAlign = vaCenter
         end
         object Memo182: TfrxMemoView
-          Left = 578.268090000000000000
+          Left = 593.385829210000000000
           Top = 105.826840000000000000
           Width = 37.795300000000000000
           Height = 18.897650000000000000
@@ -4737,7 +4737,7 @@ object FormToExcelKomend: TFormToExcelKomend
         object Memo188: TfrxMemoView
           Left = 275.905690000000000000
           Top = 173.858380000000000000
-          Width = 41.574830000000000000
+          Width = 49.133858270000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -4747,12 +4747,12 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'.'#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo189: TfrxMemoView
-          Left = 317.480520000000000000
+          Left = 325.039580000000000000
           Top = 173.858380000000000000
           Width = 60.472480000000000000
           Height = 18.897650000000000000
@@ -4767,9 +4767,9 @@ object FormToExcelKomend: TFormToExcelKomend
           VAlign = vaCenter
         end
         object Memo190: TfrxMemoView
-          Left = 377.953000000000000000
+          Left = 385.512060000000000000
           Top = 173.858380000000000000
-          Width = 41.574830000000000000
+          Width = 37.795300000000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -4779,12 +4779,12 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1056#1108#1056#1109#1056#1111'.  (')
+            #1056#1108#1056#1109#1056#1111'. (')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo191: TfrxMemoView
-          Left = 419.527830000000000000
+          Left = 423.307360000000000000
           Top = 173.858380000000000000
           Width = 71.811070000000000000
           Height = 18.897650000000000000
@@ -4799,9 +4799,9 @@ object FormToExcelKomend: TFormToExcelKomend
           VAlign = vaCenter
         end
         object Memo192: TfrxMemoView
-          Left = 491.338900000000000000
+          Left = 495.118430000000000000
           Top = 173.858380000000000000
-          Width = 37.795300000000000000
+          Width = 49.133860710000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -4811,12 +4811,12 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'.'#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo193: TfrxMemoView
-          Left = 529.134200000000000000
+          Left = 544.251970940000000000
           Top = 173.858380000000000000
           Width = 49.133890000000000000
           Height = 18.897650000000000000
@@ -4831,7 +4831,7 @@ object FormToExcelKomend: TFormToExcelKomend
           VAlign = vaCenter
         end
         object Memo194: TfrxMemoView
-          Left = 578.268090000000000000
+          Left = 593.385829210000000000
           Top = 173.858380000000000000
           Width = 37.795300000000000000
           Height = 18.897650000000000000
@@ -5177,7 +5177,7 @@ object FormToExcelKomend: TFormToExcelKomend
     PrintOptions.Printer = 'Default'
     PrintOptions.PrintOnSheet = 0
     ReportOptions.CreateDate = 42152.501412581000000000
-    ReportOptions.LastChange = 42921.455869664400000000
+    ReportOptions.LastChange = 43564.874326284720000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       'var Y:real;'
@@ -5555,7 +5555,7 @@ object FormToExcelKomend: TFormToExcelKomend
         object Memo18: TfrxMemoView
           Left = 34.015770000000000000
           Top = 177.637910000000000000
-          Width = 287.244280000000000000
+          Width = 275.905690000000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -5567,9 +5567,9 @@ object FormToExcelKomend: TFormToExcelKomend
           ParentFont = False
         end
         object Memo19: TfrxMemoView
-          Left = 321.260050000000000000
+          Left = 309.921460000000000000
           Top = 177.637910000000000000
-          Width = 41.574830000000000000
+          Width = 52.913385830000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -5578,7 +5578,7 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Name = 'Times New Roman'
           Font.Style = []
           Memo.UTF8 = (
-            '   '#1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'. '#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
         end
         object Memo20: TfrxMemoView
@@ -5646,7 +5646,7 @@ object FormToExcelKomend: TFormToExcelKomend
           ParentFont = False
         end
         object Memo24: TfrxMemoView
-          Left = 566.929500000000000000
+          Left = 578.267716535433100000
           Top = 177.637910000000000000
           Width = 30.236240000000000000
           Height = 18.897650000000000000
@@ -5665,7 +5665,7 @@ object FormToExcelKomend: TFormToExcelKomend
         object Memo25: TfrxMemoView
           Left = 525.354670000000000000
           Top = 177.637910000000000000
-          Width = 41.574830000000000000
+          Width = 52.913385830000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -5674,11 +5674,11 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Name = 'Times New Roman'
           Font.Style = []
           Memo.UTF8 = (
-            '   '#1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'. '#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
         end
         object Memo26: TfrxMemoView
-          Left = 597.165740000000000000
+          Left = 608.503937007874000000
           Top = 177.637910000000000000
           Width = 34.015770000000000000
           Height = 18.897650000000000000
@@ -5693,7 +5693,7 @@ object FormToExcelKomend: TFormToExcelKomend
           ParentFont = False
         end
         object Memo27: TfrxMemoView
-          Left = 631.181510000000000000
+          Left = 642.519685039370100000
           Top = 177.637910000000000000
           Width = 7.559060000000000000
           Height = 18.897650000000000000
@@ -6194,7 +6194,7 @@ object FormToExcelKomend: TFormToExcelKomend
           HAlign = haCenter
           Memo.UTF8 = (
             #1056#1038#1057#1107#1056#1112#1056#1112#1056#176', '
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'. '#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
@@ -6507,7 +6507,13 @@ object FormToExcelKomend: TFormToExcelKomend
         end
       end
       object ReportSummary1: TfrxReportSummary
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = []
         Height = 302.362204720000000000
+        ParentFont = False
         Top = 653.858690000000000000
         Width = 718.110700000000000000
         OnAfterCalcHeight = 'ReportSummary1OnAfterCalcHeight'
@@ -6663,7 +6669,7 @@ object FormToExcelKomend: TFormToExcelKomend
         end
         object Memo175: TfrxMemoView
           Top = 105.826840000000000000
-          Width = 275.905690000000000000
+          Width = 268.346471340000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -6677,9 +6683,9 @@ object FormToExcelKomend: TFormToExcelKomend
           VAlign = vaCenter
         end
         object Memo176: TfrxMemoView
-          Left = 275.905690000000000000
+          Left = 268.346456690000000000
           Top = 105.826840000000000000
-          Width = 41.574830000000000000
+          Width = 52.913385830000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -6689,14 +6695,14 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'. '#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo177: TfrxMemoView
-          Left = 317.480520000000000000
+          Left = 321.260050000000000000
           Top = 105.826840000000000000
-          Width = 60.472480000000000000
+          Width = 56.692950000000000000
           Height = 18.897650000000000000
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
@@ -6743,7 +6749,7 @@ object FormToExcelKomend: TFormToExcelKomend
         object Memo180: TfrxMemoView
           Left = 491.338900000000000000
           Top = 105.826840000000000000
-          Width = 37.795300000000000000
+          Width = 52.913385830000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -6753,14 +6759,14 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'. '#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo181: TfrxMemoView
-          Left = 529.134200000000000000
+          Left = 544.252320000000000000
           Top = 105.826840000000000000
-          Width = 49.133890000000000000
+          Width = 34.015770000000000000
           Height = 18.897650000000000000
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
@@ -6855,7 +6861,7 @@ object FormToExcelKomend: TFormToExcelKomend
         end
         object Memo187: TfrxMemoView
           Top = 173.858380000000000000
-          Width = 275.905690000000000000
+          Width = 268.346630000000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -6869,9 +6875,9 @@ object FormToExcelKomend: TFormToExcelKomend
           VAlign = vaCenter
         end
         object Memo188: TfrxMemoView
-          Left = 275.905690000000000000
+          Left = 264.567100000000000000
           Top = 173.858380000000000000
-          Width = 41.574830000000000000
+          Width = 56.692950000000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -6881,14 +6887,14 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'. '#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo189: TfrxMemoView
-          Left = 317.480520000000000000
+          Left = 321.260050000000000000
           Top = 173.858380000000000000
-          Width = 60.472480000000000000
+          Width = 56.692950000000000000
           Height = 18.897650000000000000
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
@@ -6935,7 +6941,7 @@ object FormToExcelKomend: TFormToExcelKomend
         object Memo192: TfrxMemoView
           Left = 491.338900000000000000
           Top = 173.858380000000000000
-          Width = 37.795300000000000000
+          Width = 52.913420000000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -6945,14 +6951,14 @@ object FormToExcelKomend: TFormToExcelKomend
           Font.Style = []
           HAlign = haCenter
           Memo.UTF8 = (
-            #1057#1026#1057#1107#1056#177'.')
+            #1057#1026#1056#1109#1057#1027'. '#1057#1026#1057#1107#1056#177'.')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo193: TfrxMemoView
-          Left = 529.134200000000000000
+          Left = 544.252320000000000000
           Top = 173.858380000000000000
-          Width = 49.133890000000000000
+          Width = 34.015770000000000000
           Height = 18.897650000000000000
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
