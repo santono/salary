@@ -1,4 +1,4 @@
-unit UFormRepClockItogi;
+unit UFormRepNeSovrRazrOklad;
 
 interface
 
@@ -8,8 +8,7 @@ uses
   ComCtrls, frxExportRTF, frxExportXLS, frxExportPDF;
 
 type
-  TFormRepClockItogi = class(TForm)
-    rgPeriodMode: TRadioGroup;
+  TFormRepNeSovrRazrOklad = class(TForm)
     cdsClocks: TClientDataSet;
     dsoClocks: TDataSource;
     frxReportClocks: TfrxReport;
@@ -49,7 +48,7 @@ type
   end;
 
 var
-  FormRepClockItogi: TFormRepClockItogi;
+  FormRepNeSovrRazrOklad: TFormRepNeSovrRazrOklad;
 
 implementation
 
@@ -57,32 +56,35 @@ implementation
 uses scrutil,scrdef,scrio,USqlUnit,dateUtils;
 type PRec=^TRec;
      TRec=record
-           shifrPod        : integer;
-           clockPPSInner   : real;
-           clockOtherInner : real;
-           clockPPSOuter   : real;
-           clockOtherOuter : real;
+           tabno  : integer;
+           fio    : straing;
+           razr   : integer;
+           dolg   : straing;
+           koef   : real;
+           okladFakt : real;
+           okladRas : real;
+           shifrPod : integer;
           end;
 var list:TList;
-procedure TFormRepClockItogi.FormClose(Sender: TObject;
+procedure TFormRepNeSovrRazrOklad.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
      Action:=caFree;
 end;
 
-procedure TFormRepClockItogi.FormCreate(Sender: TObject);
+procedure TFormRepNeSovrRazrOklad.FormCreate(Sender: TObject);
  var minDate,maxDate:TDate;
 begin
      rgPeriodMode.ItemIndex:=0;
      LabelServ.Caption:='';
-     minDate:=encodedate(1992,1,1);
+     minDate:=encodedate(2015,1,1);
      maxDate:=encodedate(currYear,nmes,1);
      dtDate.MinDate:=minDate;
      dtDate.MaxDate:=maxDate;
      dtDate.Date:=maxDate;
 end;
 
-procedure TFormRepClockItogi.frxReportClocksGetValue(const VarName: String;
+procedure TFormRepNeSovrRazrOklad.frxReportClocksGetValue(const VarName: String;
   var Value: Variant);
 begin
      if compareText('namePeriod',varName)=0 then
@@ -104,7 +106,7 @@ begin
         end;
 end;
 
-procedure TFormRepClockItogi.BitBtnStartClick(Sender: TObject);
+procedure TFormRepNeSovrRazrOklad.BitBtnStartClick(Sender: TObject);
 begin
      if ((rgPeriodMode.ItemIndex<0) or (rgPeriodMode.ItemIndex>2)) then
         begin
@@ -114,7 +116,7 @@ begin
      createSwod;
 end;
 
-procedure TFormRepClockItogi.createSwod;
+procedure TFormRepNeSovrRazrOklad.createSwod;
   var rec     : pRec;
       tmpNSRV : integer;
       i_nsrv,i: integer;
@@ -263,7 +265,7 @@ begin
 
 end;
 
-procedure TFormRepClockItogi.cdsClocksCalcFields(DataSet: TDataSet);
+procedure TFormRepNeSovrRazrOklad.cdsClocksCalcFields(DataSet: TDataSet);
 begin
       cdsClocksclockInner.Value:=cdsClocksclockPPSInner.Value   + cdsClocksclockOtherInner.Value;
       cdsClocksclockOuter.Value:=cdsClocksclockPPSOuter.Value   + cdsClocksclockOtherOuter.Value;

@@ -1,4 +1,4 @@
-object FormRepClockItogi: TFormRepClockItogi
+object FormRepNeSovrRazrOklad: TFormRepNeSovrRazrOklad
   Left = 192
   Top = 124
   Width = 479
@@ -22,25 +22,13 @@ object FormRepClockItogi: TFormRepClockItogi
     Height = 13
     Caption = 'LabelServ'
   end
-  object rgPeriodMode: TRadioGroup
-    Left = 8
-    Top = 8
-    Width = 185
-    Height = 105
-    Caption = #1057#1074#1086#1076' '#1079#1072
-    Items.Strings = (
-      #1084#1077#1089#1103#1094
-      #1082#1074#1072#1088#1090#1072#1083
-      #1075#1086#1076)
-    TabOrder = 0
-  end
   object BitBtnStart: TBitBtn
     Left = 200
     Top = 88
     Width = 129
     Height = 25
     Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1089#1074#1086#1076
-    TabOrder = 1
+    TabOrder = 0
     OnClick = BitBtnStartClick
   end
   object BitBtn1: TBitBtn
@@ -49,7 +37,7 @@ object FormRepClockItogi: TFormRepClockItogi
     Width = 75
     Height = 25
     Caption = '&'#1042#1099#1093#1086#1076
-    TabOrder = 2
+    TabOrder = 1
     Kind = bkClose
   end
   object ProgressBar1: TProgressBar
@@ -57,7 +45,7 @@ object FormRepClockItogi: TFormRepClockItogi
     Top = 120
     Width = 401
     Height = 17
-    TabOrder = 3
+    TabOrder = 2
   end
   object dtDate: TDateTimePicker
     Left = 216
@@ -67,7 +55,7 @@ object FormRepClockItogi: TFormRepClockItogi
     Date = 43557.882861030090000000
     Time = 43557.882861030090000000
     DateFormat = dfLong
-    TabOrder = 4
+    TabOrder = 3
   end
   object cdsClocks: TClientDataSet
     Active = True

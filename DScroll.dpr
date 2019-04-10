@@ -347,7 +347,8 @@ uses
   UFormTabelItogoClocks in 'UFormTabelItogoClocks.pas' {FormTabelItogoClocks},
   UFormRepClockItogi in 'UFormRepClockItogi.pas' {FormRepClockItogi},
   UFormRepRazr in 'UFormRepRazr.pas' {FormRepRazr},
-  UMatHelpCalc in 'UMatHelpCalc.pas';
+  UMatHelpCalc in 'UMatHelpCalc.pas',
+  UFormRepNeSovpRazrOklad in 'UFormRepNeSovpRazrOklad.pas' {FormRepNeSovpRazrOklad};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

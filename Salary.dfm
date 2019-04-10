@@ -993,6 +993,9 @@ object MainForm: TMainForm
         object N84: TMenuItem
           Action = ActionTestAwans
         end
+        object N177: TMenuItem
+          Action = ActionRepNeSovpRazrOkl
+        end
       end
     end
     object N16: TMenuItem
@@ -1566,6 +1569,11 @@ object MainForm: TMainForm
     object ActionRepRazr: TAction
       Caption = #1057#1074#1086#1076' '#1087#1086' '#1088#1072#1079#1088#1103#1076#1072#1084
       OnExecute = ActionRepRazrExecute
+    end
+    object ActionRepNeSovpRazrOkl: TAction
+      Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1085#1077#1089#1086#1074#1087#1072#1076#1077#1085#1080#1103' '#1088#1072#1079#1088#1103#1076#1086#1074' '#1080' '#1086#1082#1083#1072#1076#1086#1074
+      ShortCut = 16449
+      OnExecute = ActionRepNeSovpRazrOklExecute
     end
   end
   object ImageList1: TImageList

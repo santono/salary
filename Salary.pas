@@ -394,6 +394,8 @@ type
     N175: TMenuItem;
     ActionRepRazr: TAction;
     N176: TMenuItem;
+    ActionRepNeSovpRazrOkl: TAction;
+    N177: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -651,6 +653,7 @@ type
     procedure ActionRecalcJan2019Execute(Sender: TObject);
     procedure ActionRepClocksExecute(Sender: TObject);
     procedure ActionRepRazrExecute(Sender: TObject);
+    procedure ActionRepNeSovpRazrOklExecute(Sender: TObject);
 
 
   private
@@ -738,7 +741,7 @@ implementation
   UFormFillExcel0417, UFormRepWordkers, UFormGener, UFormMonthForGener,
   UFormBrowseDogovora, UFormRepPomKOtp, UFormTestCrossSaving,
   scrnetwork, UFormSavedAwans, UFormRecalcJan2019, UFormRepClockItogi,
-  UFormRepRazr;
+  UFormRepRazr, UFormRepNeSovpRazrOklad;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -4619,6 +4622,13 @@ procedure TMainForm.ActionRepRazrExecute(Sender: TObject);
 begin
     Application.CreateForm(TFormRepRazr, FormRepRazr);
     FormRepRazr.ShowModal;
+end;
+
+procedure TMainForm.ActionRepNeSovpRazrOklExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormRepNeSovpRazrOklad, FormRepNeSovpRazrOklad);
+    FormRepNeSovpRazrOklad.ShowModal;
+
 end;
 
 end.
