@@ -3286,12 +3286,15 @@ FUNCTION GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR):INTEGER;
      CURR_CN:=CURR_PERSON^.CN;
      FINDED:=FALSE;
      WHILE (CURR_CN<>NIL) DO
-      IF CURR_CN^.SHIFR=DOG_POD_VNESH_SOWM_SHIFR+LIMIT_CN_BASE THEN
-         begin
-              retVal:=curr_cn^.PRIM;
-              FINDED:=TRUE;
-              break;
-         end;
+       begin
+          IF CURR_CN^.SHIFR=DOG_POD_VNESH_SOWM_SHIFR+LIMIT_CN_BASE THEN
+             begin
+                retVal:=curr_cn^.PRIM;
+                FINDED:=TRUE;
+                break;
+              end;
+          curr_cn:=curr_cn^.next;
+       end;
      {$ENDIF}    
      GET_IDDOGPODFORSOWM_PERSON:=retval;
  END;

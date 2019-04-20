@@ -2,7 +2,7 @@ unit UArc;
 
 interface
 function GETFLOWMONTH:string;
-procedure error(mes:string);
+procedure Error(mes:string;mode:integer=0);
 procedure makeArcDir;
 function MakeArchivForData:string;
 
@@ -17,6 +17,7 @@ implementation
       u_month:array[1..12] of string=('СІЧЕНЬ','ЛЮТИЙ','БЕРЕЗЕНЬ','КВІТЕНЬ','ТРАВЕНЬ','ЧЕРВЕНЬ','ЛИПЕНЬ','СЕРПЕНЬ','ВЕРЕСЕНЬ','ЖОВТЕНЬ','ЛИСТОПАД','ГРУДЕНЬ');
       doss:array[1..72] of byte = ($49,$69,$80,$81,$82,$83,$84,$85,$F0,$F2,$F3,$F4,$F5,$86,$87,$88,$89,$8A,$8B,$8C,$8D,$8E,$8F,$90,$91,$92,$93,$94,$95,$96,$97,$98,$99,$9A,$9B,$9C,$9D,$9E,$9F,$A0,$A1,$A2,$A3,$A4,$A5,$F1,$A6,$A7,$A8,$A9,$AA,$AB,$AC,$AD,$AE,$AF,$E0,$E1,$E2,$E3,$E4,$E5,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF);
       wins:array[1..72] of byte = ($B2,$B3,$C0,$C1,$C2,$C3,$C4,$C5,$A8,$AA,$BA,$AF,$BF,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD,$CE,$CF,$D0,$D1,$D2,$D3,$D4,$D5,$D6,$D7,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$E0,$E1,$E2,$E3,$E4,$E5,$B8,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF,$F0,$F1,$F2,$F3,$F4,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$FC,$FD,$FE,$FF);
+      isLNR=true;
  var
      Y,M,D,DOW,H,Se,Sec100 : word;
      C,S,T : string;
@@ -25,6 +26,7 @@ implementation
      FName,DName,Disk : string;
      nmes : integer;
      curryear : integer;
+     needPause:boolean;
 
  function cdw(c:char):char;
   var i,j:integer;
@@ -99,9 +101,15 @@ implementation
    end;
 
 
-procedure Error(mes:string);
+procedure Error(mes:string;mode:integer=0);
+ var s:string;
  begin
      writeln(wintodos(mes));
+     if ((mode>0) and (needPause)) then
+        begin
+            writeln(winToDos('Нажмите Enter'));
+            readln(s);
+        end;    
  end;
 
 function GETFLOWMONTH:string;
@@ -170,7 +178,10 @@ FUNCTION CONV_MONTH(R_MON:STRING):INTEGER;
                  begin
                       cDir:=copy(s,1,i)+'const'+lastChar;
                       dataDir:=copy(s,1,i)+'data'+lastChar;
-                      arcDir:=copy(s,1,i)+'arc'+lastChar;
+                      if isLNR then
+                          arcDir:=copy(s,1,i)+'data'+lastChar+'arc'+lastChar
+                      else
+                          arcDir:=copy(s,1,i)+'arc'+lastChar;
                       break;
                  end;
          end;
@@ -180,21 +191,30 @@ FUNCTION CONV_MONTH(R_MON:STRING):INTEGER;
           dataDir:=s;
           arcDir:=s;
         end;
+    error('arcdir='+arcdir,1);
+    error('datadir='+datadir,1);
+    error('cdir='+cdir,1);
+    error('applicationExePathr='+applicationExePath,1);
 
    end;
 
  BEGIN
      buildDirs;
+     error('buildDirs passed',1);
      ASSIGN(DEV,CDIR+'YEAR.TXT');
      {$I-}
      RESET(DEV);
      {$I+}
-     if ioresult<>0 then Halt(0);
+     if ioresult<>0 then
+        begin
+              error('Ошибка чтения файла YEAR.TXT в каталоге '+cdir,1);
+              Halt(0);
+        end;
      READLN(DEV,S);
      val(s,currYear,iErr);
      if iErr<>0 then
         begin
-             error('Неверно задан год в файле YEAR.TXT');
+             error('Неверно задан год в файле YEAR.TXT',1);
              halt(0);
         end;
 
@@ -225,19 +245,31 @@ FUNCTION CONV_MONTH(R_MON:STRING):INTEGER;
        lastChar:=copy(arcDir,length(arcDir),1);
        if not DirectoryExists(s) then
            if not CreateDir(s) then
-         raise Exception.Create('Не могу создать каталог '+s);
+              begin
+                    error('Не могу создать каталог '+s,1);
+                    halt(0);
+              end;
        s:=arcDir+intToStr(currYear);
        if not DirectoryExists(s) then
            if not CreateDir(s) then
-         raise Exception.Create('Не могу создать каталог '+s);
+              begin
+                    error('Не могу создать каталог '+s,1);
+                    halt(0);
+              end;
        s:=arcDir+intToStr(currYear)+lastChar+a_month[nmes];
        if not DirectoryExists(s) then
            if not CreateDir(s) then
-         raise Exception.Create('Не могу создать каталог '+s);
+              begin
+                    error('Не могу создать каталог '+s,1);
+                    halt(0);
+              end;
        s:=arcDir+intToStr(currYear)+lastChar+a_month[nmes]+lastChar+ds;
        if not DirectoryExists(s) then
            if not CreateDir(s) then
-         raise Exception.Create('Не могу создать каталог '+s);
+              begin
+                    error('Не могу создать каталог '+s,1);
+                    halt(0);
+              end;
        arcDir:=s;
        fileArcName:=arcDir+lastChar+intToStr(hour)+'_'+intToStr(min)+'_'+intToStr(sec);
 
@@ -338,7 +370,7 @@ FUNCTION CONV_MONTH(R_MON:STRING):INTEGER;
 
      if not FileExists(ArchivatorName) then
         begin
-             Error('Отсутствует архиварор '+ArchivatorName);
+             error('Отсутствует архиварор '+ArchivatorName,1);
              MakeArchivForData:='';
              Exit;
         end;
@@ -355,10 +387,14 @@ FUNCTION CONV_MONTH(R_MON:STRING):INTEGER;
     MakeArchivForData:=fileArcName;
     if (Kz>0) and (KZ<32) then
        begin
-          error('Ошибка архивирования данных '+IntToStr(Kz));
+          error('Ошибка архивирования данных '+IntToStr(Kz),1);
           MakeArchivForData:='';
        end;
   end;
 
-
+begin
+     if paramCount>0 then
+        needPause := true
+     else
+        needPause := false;
 end.

@@ -37,12 +37,23 @@ type
     cdsClocksnameDol: TStringField;
     frxReportRazrDol: TfrxReport;
     BitBtn2: TBitBtn;
+    frxReportKoefs: TfrxReport;
+    BitBtn3: TBitBtn;
+    BitBtnStartOsnSown: TBitBtn;
+    frxReportOsnSowm: TfrxReport;
+    cdsClocksprocStep: TStringField;
+    cdsClocksprocZwan: TStringField;
+    cdsClocksprocStag: TStringField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure frxReportNeSovpGetValue(const VarName: String;
       var Value: Variant);
     procedure BitBtnStartClick(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
+    procedure BitBtn3Click(Sender: TObject);
+    procedure BitBtnStartOsnSownClick(Sender: TObject);
+//    procedure BitBtnStartOsnSown(Sender: TObject);
+
   private
     wantedYear,wantedMonth:integer;
     R_O:array[1..25] of real;
@@ -50,6 +61,8 @@ type
     { Private declarations }
     procedure createSwod;
     procedure createSwodForDolgRazr;
+    procedure createSwodForPersonPositions;
+    procedure createSwodForOsnSowmNadbawki;
 
     function FillOkladyForRazr:boolean;
     function FillDolgList:boolean;
@@ -85,8 +98,27 @@ type PRec=^TRec;
                shifrDol:integer;
                Razr:integer;
               end;
+     pPersonRec=^tPersonRec;
+     tPersonRec=record
+              tabno:integer;
+              fio:string;
+              positionList:TList;
+             end;
+     pPositionRec=^TPositionRec;
+     tPositionRec=record
+                shifrDol:integer;
+                koef:real;
+                shifrPod:integer;
+                w_r:integer;
+                dolg:string;
+                procStep : real;
+                procZwan : real;
+                procStag : real;
+               end;
+
 var list:TList;
     listDolg:TList;
+    personList:TList;
 procedure TFormRepNeSovpRazrOklad.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
@@ -271,6 +303,7 @@ begin
                          begin
                               new(Rec);
                               fillChar(rec^,sizeOf(rec^),0);
+
                               rec^.tabno:=curr_person^.TABNO;
                               rec^.fio:=curr_person^.fio;
                               rec^.dolg:=curr_person^.dolg;
@@ -422,6 +455,386 @@ function TFormRepNeSovpRazrOklad.getDolgRazr(shifrDol:integer):integer;
 procedure TFormRepNeSovpRazrOklad.BitBtn2Click(Sender: TObject);
 begin
      createSwodForDolgRazr;
+end;
+procedure TFormRepNeSovpRazrOklad.createSwodForPersonPositions;
+  var
+      tmpNSRV : integer;
+      tmpNMES : integer;
+      i_nsrv,i,j: integer;
+      curr_person : person_ptr;
+      shifrWR : integer;
+      koef : real;
+      shifrDol:integer;
+      SQLStmnt:STring;
+      v:variant;
+      personRec:pPersonRec;
+   procedure addRecToList;
+     var i:integer;
+     procedure addPositionRec;
+      var positionRec:pPositionRec;
+      begin
+          new(positionRec);
+          fillChar(positionRec^,sizeOf(positionRec^),0);
+          positionRec^.shifrDol:=shifrDol;
+          positionRec^.koef:=koef;
+          positionRec^.shifrPod:=nsrv;
+          positionRec^.w_r:=shifrWR;
+          positionRec^.dolg:=curr_person^.DOLG;
+          personRec^.positionList.Add(positionRec);
+
+      end;
+     begin
+          personRec:=nil;
+          if personList.count>0 then
+             for i:=0 to personList.Count-1 do
+                 if pPersonRec(personList.Items[i])^.tabno=curr_person^.TABNO then
+                    begin
+                         personRec:=pPersonRec(personList.Items[i]);
+                         break;
+                    end;
+          if (personRec=nil) then
+             begin
+                  new(personRec);
+                  fillChar(personRec^,sizeOf(personRec^),0);
+                  personRec^.tabno := curr_person^.TABNO;
+                  personRec^.fio   := curr_person^.fio;
+                  personRec^.positionList:=TList.Create;
+                  addPositionRec;
+                  personList.Add(personRec);
+             end
+          else
+             addPositionRec;
+
+     end;
+
+begin
+     tmpNSRV:=NSRV;
+     tmpNMES:=NMES;
+     NSRV:=tmpNSRV;
+     EMPTY_ALL_PERSON;
+     wantedMonth:=nmes;
+     wantedYear:=currYear;
+     ProgressBar1.Max:=count_serv;
+     progressbar1.min:=0;
+     progressBar1.step:=1;
+     personList:=TList.Create;
+     for i_nsrv:=1 to count_serv do
+         begin
+              progressBar1.StepIt;
+              labelserv.Caption:=name_serv(i_nsrv);
+              Application.ProcessMessages;
+              if DOG_POD_PODRAZD(i_nsrv) then continue;
+              if i_nsrv=82  then continue;
+              if i_nsrv=81  then continue;
+              if i_nsrv=82  then continue;
+              if i_nsrv=140 then continue;
+              if ((i_nsrv>150) and (i_nsrv<169)) then continue;
+              nsrv:=i_nsrv;
+              mkflnm;
+              if not fileexists(fninf) then continue;
+              getinf(false);
+              if count_person<1 then continue;
+              curr_person:=head_person;
+              while (curr_person<>nil) do
+                 begin
+                      if curr_person^.oklad>1.00 then
+                         begin
+                          koef     := GET_KOEF_OKLAD_PERSON(curr_person);
+                          shifrDol := GET_DOL_CODE(curr_person);
+                          shifrWR  := curr_person^.wid_raboty;
+                          addRecToList;
+                         end;
+                      curr_person:=curr_person^.NEXT;
+                 end;
+              EMPTY_ALL_PERSON;
+         end;
+
+     if personList.count>0 then
+        begin
+             for i:=0 to personList.count-1 do
+                 begin
+                      koef:=0;
+                      if pPersonRec(personList.Items[i]).positionList.count>0 then
+                         for j:=0 to pPersonRec(personList.Items[i]).positionList.count-1 do
+                         begin
+                              koef:=koef+pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.koef;
+                         end;
+                 end;
+        end;
+     if personList.count>0 then
+        begin
+             cdsClocks.Open;
+             cdsClocks.EmptyDataSet;
+             for i:=0 to personList.count-1 do
+                 begin
+                      cdsClocks.Append;
+                      koef:=0;
+                      if pPersonRec(personList.Items[i]).positionList.count>0 then
+                         for j:=0 to pPersonRec(personList.Items[i]).positionList.count-1 do
+                         begin
+                              koef:=koef+pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.koef;
+                         end;
+                      personRec:=pPersonRec(personList.Items[i]);
+                      cdsClockstabno.Value   := personRec^.tabno;
+                      cdsClocksfio.Value := personRec^.fio;
+                      cdsClockskoef.Value := koef;
+                      if koef>1.50001 then
+                         cdsClocksDolg.Value := '#####'
+                      else
+                         cdsClocksDolg.Value := '';
+
+                      cdsClocks.Insert;
+                 end;
+                 frxReportKoefs.ShowReport;
+                 cdsClocks.Close;
+        end;
+
+     if personList.count>0 then
+        for i:=0 to personList.count-1 do
+            begin
+                 if pPersonRec(personList.Items[i]).positionList.Count>0 then
+                    begin
+                       for j:=0 to pPersonRec(personList.Items[i]).positionList.Count-1 do
+                             dispose(pPersonRec(personList.Items[i]).positionList.Items[j]);
+                       pPersonRec(personList.Items[i]).positionList.Free;
+                    end;
+                 dispose(personList.Items[i]);
+            end;
+     personList.Free;
+     nsrv:=tmpNSRV;
+     nmes:=tmpNMES;
+     mkflnm;
+     getinf(true)
+
+end;
+
+procedure TFormRepNeSovpRazrOklad.BitBtn3Click(Sender: TObject);
+begin
+    createSwodForPersonPositions;
+end;
+
+
+procedure TFormRepNeSovpRazrOklad.createSwodForOsnSowmNadbawki;
+  var
+      tmpNSRV : integer;
+      tmpNMES : integer;
+      i_nsrv,i,j: integer;
+      curr_person : person_ptr;
+      shifrWR : integer;
+      koef : real;
+      shifrDol:integer;
+      SQLStmnt:STring;
+      v:variant;
+      personRec:pPersonRec;
+      procStep : real;
+      procZwan : real;
+      procStag : real;
+   procedure addRecToList;
+     var i:integer;
+     procedure addPositionRec;
+      var positionRec:pPositionRec;
+      begin
+          new(positionRec);
+          fillChar(positionRec^,sizeOf(positionRec^),0);
+          positionRec^.shifrDol := shifrDol;
+          positionRec^.koef     := koef;
+          positionRec^.shifrPod := nsrv;
+          positionRec^.w_r      := shifrWR;
+          positionRec^.dolg     := curr_person^.DOLG;
+          positionRec^.procStep := procStep;
+          positionRec^.procZwan := procZwan;
+          positionRec^.procStag := procStag;
+          personRec^.positionList.Add(positionRec);
+
+      end;
+     begin
+          personRec:=nil;
+          if personList.count>0 then
+             for i:=0 to personList.Count-1 do
+                 if pPersonRec(personList.Items[i])^.tabno=curr_person^.TABNO then
+                    begin
+                         personRec:=pPersonRec(personList.Items[i]);
+                         break;
+                    end;
+          if (personRec=nil) then
+             begin
+                  new(personRec);
+                  fillChar(personRec^,sizeOf(personRec^),0);
+                  personRec^.tabno := curr_person^.TABNO;
+                  personRec^.fio   := curr_person^.fio;
+                  personRec^.positionList:=TList.Create;
+                  addPositionRec;
+                  personList.Add(personRec);
+             end
+          else
+             addPositionRec;
+
+     end;
+    procedure fillProcenty;
+     var curr_cn:cn_ptr;
+     begin
+          procStep:=0;
+          procZwan:=0;
+          procStag:=0;
+          curr_cn:=curr_person^.cn;
+          while (curr_cn<>nil) do
+            begin
+                 if curr_cn^.shifr=ZA_STEP_SHIFR THEN
+                 if Abs(Curr_cn^.SUMMA)>0.01 then
+                    procStep := Curr_cn^.SUMMA
+                 else
+                 else
+                 if curr_cn^.shifr=ZA_ZWAN_SHIFR THEN
+                 if Abs(Curr_cn^.SUMMA)>0.01 then
+                    procZwan := Curr_cn^.SUMMA
+                 else
+                 else
+                 if curr_cn^.shifr=VYSLUGA_SHIFR  THEN
+                 if Abs(Curr_cn^.SUMMA)>0.01 then
+                    procStag := Curr_cn^.SUMMA;
+
+                 curr_cn:=curr_cn^.next;
+            end;
+     end;
+
+begin
+     tmpNSRV:=NSRV;
+     tmpNMES:=NMES;
+     NSRV:=tmpNSRV;
+     EMPTY_ALL_PERSON;
+     wantedMonth:=nmes;
+     wantedYear:=currYear;
+     ProgressBar1.Max:=count_serv;
+     progressbar1.min:=0;
+     progressBar1.step:=1;
+     personList:=TList.Create;
+     for i_nsrv:=1 to count_serv do
+         begin
+              progressBar1.StepIt;
+              labelserv.Caption:=name_serv(i_nsrv);
+              Application.ProcessMessages;
+              if DOG_POD_PODRAZD(i_nsrv) then continue;
+              if i_nsrv=82  then continue;
+              if i_nsrv=81  then continue;
+              if i_nsrv=82  then continue;
+              if i_nsrv=140 then continue;
+              if ((i_nsrv>150) and (i_nsrv<169)) then continue;
+              nsrv:=i_nsrv;
+              mkflnm;
+              if not fileexists(fninf) then continue;
+              getinf(false);
+              if count_person<1 then continue;
+              curr_person:=head_person;
+              while (curr_person<>nil) do
+                 begin
+                      if curr_person^.oklad>1.00 then
+                         begin
+                          koef     := GET_KOEF_OKLAD_PERSON(curr_person);
+                          shifrDol := GET_DOL_CODE(curr_person);
+                          shifrWR  := curr_person^.wid_raboty;
+                          fillProcenty;
+                          addRecToList;
+                         end;
+                      curr_person:=curr_person^.NEXT;
+                 end;
+              EMPTY_ALL_PERSON;
+         end;
+
+     if personList.count>0 then
+        begin
+             for i:=0 to personList.count-1 do
+                 begin
+                      koef:=0;
+                      if pPersonRec(personList.Items[i]).positionList.count>0 then
+                         for j:=0 to pPersonRec(personList.Items[i]).positionList.count-1 do
+                         begin
+                              koef:=koef+pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.koef;
+                         end;
+                 end;
+        end;
+     koef:=0;
+     if personList.count>0 then
+        begin
+             cdsClocks.Open;
+             cdsClocks.EmptyDataSet;
+             for i:=0 to personList.count-1 do
+                 begin
+                      procStep := 0;
+                      procZwan := 0;
+                      procStag := 0;
+                      if pPersonRec(personList.Items[i]).positionList.count>0 then
+                         for j:=0 to pPersonRec(personList.Items[i]).positionList.count-1 do
+                             if j=0 then
+                                begin
+                                     procStep:=pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.procStep;
+                                     procZwan:=pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.procZwan;
+                                     procStag:=pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.procStag;
+                                end
+                             else
+                                begin
+                                     if procStep>-0.1 then
+                                     if abs(abs(procStep)-abs(pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.procStep))>0.1 then
+                                        procStep:=-5.0;
+                                     if procZwan>-0.1 then
+                                     if abs(abs(procZwan)-abs(pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.procZwan))>0.1 then
+                                        procZwan:=-5.0;
+                                     if procStag>-0.1 then
+                                     if abs(abs(procStag)-abs(pPositionRec(pPersonRec(personList.Items[i]).positionList.items[j])^.procStag))>0.1 then
+                                        procStag:=-5.0;
+                                end;
+                      if (procStep<-0.5) or (procZwan<-0.5) or (procStag<-0.5) then
+                         begin
+                            koef:=10;
+                            cdsClocks.Append;
+                            personRec:=pPersonRec(personList.Items[i]);
+                            cdsClockstabno.Value   := personRec^.tabno;
+                            cdsClocksfio.Value := personRec^.fio;
+                            cdsClockskoef.Value := koef;
+                            if procStep < -0.5 then
+                               cdsClocksProcStep.Value := '#####'
+                            else
+                               cdsClocksProcStep.Value := '';
+                            if procZwan < -0.5 then
+                               cdsClocksProcZwan.Value := '#####'
+                            else
+                               cdsClocksProcZwan.Value := '';
+                            if procStag < -0.5 then
+                               cdsClocksProcStag.Value := '#####'
+                            else
+                              cdsClocksProcStag.Value := '';
+                           cdsClocks.Insert;
+                         end;
+                 end;
+                 if koef>5 then
+                    frxReportOsnSowm.ShowReport
+                 else
+                    showMessage('Не нейдено несоотвествий');
+                 cdsClocks.Close;
+        end;
+
+     if personList.count>0 then
+        for i:=0 to personList.count-1 do
+            begin
+                 if pPersonRec(personList.Items[i]).positionList.Count>0 then
+                    begin
+                       for j:=0 to pPersonRec(personList.Items[i]).positionList.Count-1 do
+                           dispose(pPersonRec(personList.Items[i]).positionList.Items[j]);
+                       pPersonRec(personList.Items[i]).positionList.Free;
+                    end;
+                 dispose(personList.Items[i]);
+            end;
+     personList.Free;
+     nsrv:=tmpNSRV;
+     nmes:=tmpNMES;
+     mkflnm;
+     getinf(true)
+
+end;
+
+
+procedure TFormRepNeSovpRazrOklad.BitBtnStartOsnSownClick(Sender: TObject);
+begin
+     createSwodForOsnSowmNadbawki
 end;
 
 end.

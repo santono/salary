@@ -82,13 +82,13 @@ UnsafeCast=0
 [Linker]
 MapFile=0
 OutputObjs=0
-ConsoleApp=1
+ConsoleApp=0
 DebugInfo=0
 RemoteSymbols=0
 MinStackSize=16384
 MaxStackSize=1048576
 ImageBase=4194304
-ExeDescription=
+ExeDescription=Архивирование данных
 [Directories]
 OutputDir=
 UnitOutputDir=

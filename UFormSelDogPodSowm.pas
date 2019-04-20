@@ -45,7 +45,7 @@ type
   public
     selectedId:integer;
     selectedTema:string;
-    constructor init(AOwner:TComponent;Tabno:integer;FIO:String);
+    constructor init(AOwner:TComponent;Tabno:integer;FIO:String;selectedId:integer=0);
     { Public declarations }
   end;
 
@@ -56,7 +56,7 @@ implementation
 //  uses DB,
 
 {$R *.dfm}
-  constructor TFormSelDogPodSowm.init(AOwner:TComponent;Tabno:integer;FIO:String);
+  constructor TFormSelDogPodSowm.init(AOwner:TComponent;Tabno:integer;FIO:String;selectedId:integer=0);
     begin
          self.Create(AOwner);
          Caption:='Укажите договор для работника '+intToStr(Tabno)+' '+trim(fio);
@@ -66,6 +66,10 @@ implementation
 //        DBNavigator1.VisibleButtons.
         dsWorkerDogs.Transaction.StartTransaction;
         dsWorkerDogs.Open;
+        if (selectedId>0) then
+           begin
+             dsWorkerDogs.Locate('ID',selectedId,[]);
+           end;
 
     end;
 

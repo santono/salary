@@ -1652,6 +1652,7 @@ procedure TFormKadry.BitBtnDogPodSowmClick(Sender: TObject);
      cnt:integer;
      selectedId:integer;
      selectedTema:string;
+     wantedId : integer;
 begin
      if not isSVDN then
         Exit;
@@ -1667,8 +1668,8 @@ begin
              ShowMessage('Для этого сотрудника на введена информация по договорам поряда');
              Exit;
         end;
-
-     FormSelDogPodSowm:=TFormSelDogPodSowm.init(Self,Curr_Person^.TABNO,trim(curr_person^.fio));
+     wantedId:=GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON);
+     FormSelDogPodSowm:=TFormSelDogPodSowm.init(Self,Curr_Person^.TABNO,trim(curr_person^.fio),wantedId);
      if (FormSelDogPodSowm.ShowModal=mrOk) then
         begin
              selectedId:=FormSelDogPodSowm.selectedId;
