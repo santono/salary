@@ -87,8 +87,8 @@ object FormGen: TFormGen
     Caption = #1064#1072#1075' 3'
   end
   object ProgressBar1: TProgressBar
-    Left = 48
-    Top = 40
+    Left = 56
+    Top = 8
     Width = 625
     Height = 17
     TabOrder = 0

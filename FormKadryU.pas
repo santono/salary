@@ -70,6 +70,7 @@ type
     ChgTabno: TBitBtn;
     btSearchDolg: TBitBtn;
     BitBtnDogPodSowm: TBitBtn;
+    Label5f: TLabel;
     function Execute: boolean;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -119,6 +120,7 @@ type
     Old_Person  : PERSON;
     Old_Oklad   : real;
     Setted      : boolean;
+    currRowSelected : integer;
     procedure MakeGrid;
     procedure SetUpSowmKadry(Tabno,W_P:integer);
     procedure TestChangePerson;
@@ -365,6 +367,10 @@ begin
 
 
        end;
+     Label5f.Hide;
+     Label5f.Caption:='';
+     if (isSVDN and DOG_POD_PODRAZD(nsrv)) then
+        Label5f.Show;
      if isLNR then
         begin
              LabelTemy.Hide;
@@ -377,6 +383,7 @@ begin
 //             ComboBoxBank.Hide;
 //             ComboBoxBank.Enabled:=False;
         end;
+        currRowSelected:=0;
 
 end;
 
@@ -408,9 +415,12 @@ var i,TABNO:integer;
 begin
      if count_person=0 then exit;
      if not Setted then EXit;
+     if currRowSelected=stringGrid1.Row then exit;
+     currRowSelected:=stringGrid1.Row;
      Curr_Person:=head_person;
      if ARow>1 then
-        for i:=1 to ARow-1 do Curr_Person:=Curr_Person^.NEXT;
+        for i:=1 to ARow-1 do
+           Curr_Person:=Curr_Person^.NEXT;
      NCode:=Curr_Person^.Nal_Code;   
      if (Curr_Person^.Kategorija>0) and (Curr_Person^.Kategorija<=max_kategorija) then
         begin
@@ -450,6 +460,8 @@ begin
         end;
      ComboBoxTemy.Text:=Curr_Person^.N_temy;
      BitBtnDogPodSowm.Hide;
+     Label5f.Caption:='';
+     label5F.Hide;
      if Curr_Person^.Gruppa=1 then
         begin
             ComboBoxTemy.Hide;
@@ -464,7 +476,16 @@ begin
             if (nmes=flow_month) then
             if (curr_person^.WID_RABOTY=2) then
             if (curr_person^.MESTO_OSN_RABOTY=82) then
-                BitBtnDogPodSowm.Show;
+            if DOG_POD_PODRAZD(nsrv) then
+               begin
+                    BitBtnDogPodSowm.Show;
+                    if checkForma5ForVnePerson(curr_person) then
+                       begin
+                            label5f.Show;
+                            label5f.Caption:='â 5-þ ô.';
+//                            showMessage('1-'+label5f.Caption);
+                       end;
+               end;
 
         end;
      ComboBoxMOR.Text:=NAME_SERV(Curr_Person^.MESTO_OSN_RABOTY);
@@ -1676,13 +1697,18 @@ begin
              if selectedId>0 then
              selectedTema:=trim(FormSelDogPodSowm.selectedTema);
              if selectedId>0 then
+                begin
                 MAKE_IDDOGPODFORSOWM_PERSON(curr_person,selectedId);
+                Label5F.Caption:='';
+                if checkForma5ForVnePerson(curr_person) then
+                   Label5F.Caption:='â 5-þ ô.'
 //             if (length(selectedTema)<=10)
 //              and (length(selectedTema)>2) then
 //                begin
 //                     ComboBoxTemy.Text:=selectedtema;
 //                     curr_person^.N_TEMY:=ComboBoxTemy.Text;
 //                end;
+                end;
              Application.ProcessMessages;
 
         end;

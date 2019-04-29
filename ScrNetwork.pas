@@ -139,15 +139,15 @@ function needCopyOriginProgram:boolean;
      nameLocal,nameNetwork:string;
      s:string;
  begin
-     retVal:=false;
-     nameLocal:=Application.ExeName;
-     ageLocal:=FileAge(nameLocal);
-     s:=getMainDataDrive;
-     nameNetwork:=s+copy(nameLocal,2,length(nameLocal)-1);
-     ageNetwork:=FileAge(nameNetwork);
+     retVal      := false;
+     nameLocal   := Application.ExeName;
+     ageLocal    := FileAge(nameLocal);
+     s           := getMainDataDrive;
+     nameNetwork := s+copy(nameLocal,2,length(nameLocal)-1);
+     ageNetwork  := FileAge(nameNetwork);
      if ageNetwork>ageLocal then
-        retVal:=true;
-     needCopyOriginProgram:=retVal;
+        retVal := true;
+     needCopyOriginProgram := retVal;
  end;
 
 end.

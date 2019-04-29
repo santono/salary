@@ -513,6 +513,9 @@ object MainForm: TMainForm
         object N176: TMenuItem
           Action = ActionRepRazr
         end
+        object N178: TMenuItem
+          Action = ActionRepPlanFondy
+        end
       end
       object N88: TMenuItem
         Caption = #1042#1089#1087#1086#1084#1086#1075#1072#1090#1077#1083#1100#1085#1099#1077
@@ -1573,6 +1576,10 @@ object MainForm: TMainForm
     object ActionRepNeSovpRazrOkl: TAction
       Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1085#1077#1089#1086#1074#1087#1072#1076#1077#1085#1080#1103' '#1088#1072#1079#1088#1103#1076#1086#1074' '#1080' '#1086#1082#1083#1072#1076#1086#1074
       OnExecute = ActionRepNeSovpRazrOklExecute
+    end
+    object ActionRepPlanFondy: TAction
+      Caption = #1058#1088#1091#1076#1086#1074#1099#1077' '#1088#1077#1089#1091#1088#1089#1099
+      OnExecute = ActionRepPlanFondyExecute
     end
   end
   object ImageList1: TImageList

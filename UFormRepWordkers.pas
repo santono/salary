@@ -54,10 +54,18 @@ implementation
                 shifrPlanKat:integer;
                 shifrDol:integer;
                end;
+       pDistinctTabnoRec=^TDistinctTabnoRec;
+       TDistinctTabnoRec=record
+                           tabno     : integer;
+                           shifrDol  : integer;
+                           shifrLine : integer;
+                         end;
 
   var list         : TList;
       listInitRecs : TList;
       modeSort     : Integer;
+      listDistinctTabno : TList;
+      E:Variant;
 {$R *.dfm}
 
 procedure TFormRepWordkers.FormClose(Sender: TObject;
@@ -168,13 +176,14 @@ function compare(Item1:Pointer;Item2:pointer):Integer;
 
 procedure TFormRepWordkers.CreateReport;
   var savNMES,savNSRV:integer;
-      iNSRV:Integer;
+      iNSRV,i:Integer;
       curr_person:PERSON_PTR;
   begin
        savNMES:=NMES;
        savNSRV:=NSRV;
        EMPTY_ALL_PERSON;
        list:=TList.Create;
+       listDistinctTabno:=TList.Create;
        ProgressBar1.Min:=0;
        ProgressBar1.Max:=Count_Serv;
        ProgressBar1.Step:=1;
@@ -186,6 +195,7 @@ procedure TFormRepWordkers.CreateReport;
                 Application.ProcessMessages;
                 if IsColedgPodr(NSRV) then continue;
                 if not fileexists(FNINF) then Continue;
+                if not nameservlist.IS_MO_BUD(nsrv) then continue;
                 getinf(false);
                 curr_person:=HEAD_PERSON;
                 while (curr_person<>nil) do
@@ -199,7 +209,16 @@ procedure TFormRepWordkers.CreateReport;
        list.Sort(@Compare);
        moveToExcel;
        swodToExcel;
+       if list.count>0 then
+          for i:=0 to list.count-1 do
+              dispose(pRec(list.Items[i]));
        list.Free;
+       list:=nil;
+       if listDistinctTabno.count>0 then
+          for i:=0 to listDistinctTabno.count-1 do
+              dispose(pDistinctTabnoRec(listDistinctTabno.Items[i]));
+       listDistinctTabno.Free;
+       listDistinctTabno:=nil;
        NMES:=savNMES;
        NSRV:=savNSRV;
        MKFLNM;
@@ -211,6 +230,61 @@ procedure TFormRepWordkers.fillPerson(curr_person:person_ptr);
       shifrKat:integer;
       i:integer;
       summaAdd,summaNal:real;
+    procedure insertIntoDistinct(tabno:integer;shifrLine:integer);
+      var i:integer;
+          finded:boolean;
+          rec:pDistinctTabnoRec;
+      begin
+           finded:=false;
+           if listDistinctTabno.count>0 then
+              for i:=0 to listDistinctTabno.count-1 do
+                  if (
+                      (pDistinctTabnoRec(listDistinctTabno.Items[i])^.tabno=tabno)
+                      and
+                      (pDistinctTabnoRec(listDistinctTabno.Items[i])^.shifrline=shifrline)
+                     ) then
+                       begin
+                            finded:=true;
+                            break;
+                       end;
+           if not finded then
+              begin
+                   new(rec);
+                   fillchar(rec^,sizeof(rec^),0);
+                   rec.tabno:=tabno;
+                   rec.shifrLine:=shifrline;
+                   listDistinctTabno.Add(rec);
+              end;
+      end;
+    function getSummaSummaOsnAddForPerson(curr_person:PERSON_PTR):Real;
+      var retVal:Real;
+          curr_add:ADD_PTR;
+      begin
+          retVal:=0;
+          curr_add:=curr_person.ADD;
+          while (curr_add<>nil) do
+             begin
+                  if not (
+                      (curr_add^.shifr=bol_tek_shifr)
+                      or
+                      (curr_add^.shifr=bol_proshl_shifr)
+                      or
+                      (curr_add^.shifr=bol_future_shifr)
+                      or
+                      (curr_add^.shifr=KASSA_SHIFR)
+                      or
+                      (curr_add^.shifr=31)  // Мат помощь облагаемая
+                      or
+                      (curr_add^.shifr=dekret_shifr)
+                      or
+                      (curr_add^.shifr=141) // Мат помощь не облагаемая
+                      ) then
+                     retVal:=retVal+curr_add^.SUMMA;
+                  curr_add:=curr_add.NEXT;
+             end;
+          getSummaSummaOsnAddForPerson:=retVal;
+      end;
+
   begin
        shifrDol:=GET_DOL_CODE(curr_person);
        shifrKat:=0;
@@ -224,9 +298,10 @@ procedure TFormRepWordkers.fillPerson(curr_person:person_ptr);
                    end;
            end;
        if shifrKat=0 then exit;
-       summaAdd:=getSummaAddForPerson(curr_person);
+       summaAdd:=getSummaSummaOsnAddForPerson(curr_person);
        summaNal:=getSummaNalogiPerson(curr_person);
        if abs(summaAdd)<0.01 then exit;
+       insertIntoDistinct(curr_person^.TABNO,shifrkat);
        New(rec);
        rec.tabno    := curr_person^.tabno;
        rec.fio      := Trim(curr_person^.fio);
@@ -240,117 +315,20 @@ procedure TFormRepWordkers.fillPerson(curr_person:person_ptr);
        list.Add(Rec);
   end;
 procedure TFormRepWordkers.moveToExcel;
-  var E,WC:Variant;
+  var
     ExRow,ExCol:integer;
     i:Integer;
     currPod:Integer;
     lineno:Integer;
     currdol:Integer;
     currGru:Integer;
+    FName:String;
+    wbs:variant;
   begin
      currPod:=0;
      currDol:=0;
      currGru:=0;
-     try
-        E:=CreateOleObject('Excel.Application');
-     except
-       on e:Exception do
-          begin
-               ShowMessage('Ошибка запуска Excel '+E.Message);
-               Exit;
-          end;
-     end;
-     E.WorkBooks.add;
-     E.Visible:=False;
-     FormWait.Show;
-     Application.ProcessMessages;
-     exRow:=5;
-     E.WorkBooks[1].WorkSheets[1].Cells[ExRow-2,1]:='Список работников для свода за '+getMonthRus(NMES)+' '+intToStr(CurrYear)+' г.';
-     for i:=0 to list.Count-1 do
-       begin
-            Inc(exRow);
-            lineno:=0;
-            if modeSort=0 then
-               begin
-                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1]:=i+1;
-                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2]:=pRec(list.Items[i]).fio;
-                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,3]:=pRec(list.Items[i]).dolg;
-                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,4]:=pRec(list.Items[i]).shifrLine;
-                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,5]:=pRec(list.Items[i]).koef;
-                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,6]:=pRec(list.Items[i]).dolg;
-                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,7]:=pRec(list.Items[i]).summaAdd;
-                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,8]:=pRec(list.Items[i]).summaUd;
-               end
-            else
-            if (modeSort=1) then
-               begin
-                    if currPod<>pRec(list.Items[i]).shifrpod then
-                       begin
-                            currPod:=pRec(list.Items[i]).shifrpod;
-                            E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2]:=Name_Serv(currPod);
-                            Inc(ExRow);
-                            lineno:=0;
-                       end;
-                       Inc(lineno);
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1]:=lineno;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2]:=pRec(list.Items[i]).fio;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,3]:=pRec(list.Items[i]).dolg;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,4]:=pRec(list.Items[i]).summaAdd;
-              //         E.WorkBooks[1].WorkSheets[1].Cells[ExRow,5]:=pRec(list.Items[i]).summaUd;
-               end
-            else
-            if (modeSort=2) then
-               begin
-                    if currDol<>pRec(list.Items[i]).shifrDol then
-                       begin
-                            currDol:=pRec(list.Items[i]).shifrDol;
-                            E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2]:=NameDolgList.GetName(currDol);// NAME_DOLG(currDol);
-                            Inc(ExRow);
-                            lineno:=0;
-                       end;
-                       Inc(lineno);
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1]:=lineno;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2]:=pRec(list.Items[i]).fio;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,3]:=pRec(list.Items[i]).dolg;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,4]:=Name_Serv(pRec(list.Items[i]).shifrpod);
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,5]:=pRec(list.Items[i]).summaAdd;
-                //       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,6]:=pRec(list.Items[i]).summaUd;
-               end
-            else
-               begin
-//                    if currGru<>pRec(list.Items[i]).shifrGru then
-//                       begin
-//                            currGru:=pRec(list.Items[i]).shifrGru;
-//                            E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2]:=ist_fin_name[currGru];
-//                            Inc(ExRow);
-//                            lineno:=0;
-//                       end;
-                       Inc(lineno);
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1]:=lineno;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2]:=pRec(list.Items[i]).fio;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,3]:=pRec(list.Items[i]).dolg;
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,4]:=Name_Serv(pRec(list.Items[i]).shifrpod);
-                       E.WorkBooks[1].WorkSheets[1].Cells[ExRow,5]:=pRec(list.Items[i]).summaAdd;
-                  //     E.WorkBooks[1].WorkSheets[1].Cells[ExRow,6]:=pRec(list.Items[i]).summaUd;
-               end
-
-       end;
-     FormWait.Hide;
-     Application.ProcessMessages;
-     E.Visible:=true;
-
-
-  end;
-
-procedure TFormRepWordkers.SwodToExcel;
-var E,WC:Variant;
-    FName,S:String;
-    SummaTot,SummaClear,nmbOfSt:real;
-    k,i:integer;
-    exRow:integer;
-    h:string;
-begin
-     FName:=TemplateDIR+'WorkersPlan.xlt';
+     FName:=TemplateDIR+'WorkersPlan_2019.xlt';
      if not FileExists(FName) then
         begin
              ShowMessage('Отсутствует шаблон '+FName);
@@ -362,16 +340,111 @@ begin
         ShowMessage('Ошибка запуска Excel');
         Exit;
      end;
-     E.Visible:=True;
      E.WorkBooks.Open(FName);
+//     E.WorkBooks.add;
+     E.Visible:=true;
+     FormWait.Show;
+     Application.ProcessMessages;
+     exRow:=5;
+     wbs:=E.WorkBooks[1].WorkSheets[2];
+     wbs.Cells[ExRow-2,1]:='Список работников для свода за '+getMonthRus(NMES)+' '+intToStr(CurrYear)+' г.';
+     for i:=0 to list.Count-1 do
+       begin
+            Inc(exRow);
+            lineno:=0;
+            if modeSort=0 then
+               begin
+                    wbs.Cells[ExRow,1]:=i+1;
+                    wbs.Cells[ExRow,2]:=pRec(list.Items[i]).fio;
+                    wbs.Cells[ExRow,3]:=pRec(list.Items[i]).dolg;
+                    wbs.Cells[ExRow,4]:=pRec(list.Items[i]).shifrLine;
+                    wbs.Cells[ExRow,5]:=pRec(list.Items[i]).koef;
+                    wbs.Cells[ExRow,6]:=pRec(list.Items[i]).dolg;
+                    wbs.Cells[ExRow,7]:=pRec(list.Items[i]).summaAdd;
+                    wbs.Cells[ExRow,8]:=pRec(list.Items[i]).summaUd;
+               end
+            else
+            if (modeSort=1) then
+               begin
+                    if currPod<>pRec(list.Items[i]).shifrpod then
+                       begin
+                            currPod:=pRec(list.Items[i]).shifrpod;
+                            wbs.Cells[ExRow,2]:=Name_Serv(currPod);
+                            Inc(ExRow);
+                            lineno:=0;
+                       end;
+                       Inc(lineno);
+                       wbs.Cells[ExRow,1]:=lineno;
+                       wbs.Cells[ExRow,2]:=pRec(list.Items[i]).fio;
+                       wbs.Cells[ExRow,3]:=pRec(list.Items[i]).dolg;
+                       wbs.Cells[ExRow,4]:=pRec(list.Items[i]).summaAdd;
+              //         wbs.Cells[ExRow,5]:=pRec(list.Items[i]).summaUd;
+               end
+            else
+            if (modeSort=2) then
+               begin
+                    if currDol<>pRec(list.Items[i]).shifrDol then
+                       begin
+                            currDol:=pRec(list.Items[i]).shifrDol;
+                            wbs.Cells[ExRow,2]:=NameDolgList.GetName(currDol);// NAME_DOLG(currDol);
+                            Inc(ExRow);
+                            lineno:=0;
+                       end;
+                       Inc(lineno);
+                       wbs.Cells[ExRow,1]:=lineno;
+                       wbs.Cells[ExRow,2]:=pRec(list.Items[i]).fio;
+                       wbs.Cells[ExRow,3]:=pRec(list.Items[i]).dolg;
+                       wbs.Cells[ExRow,4]:=Name_Serv(pRec(list.Items[i]).shifrpod);
+                       wbs.Cells[ExRow,5]:=pRec(list.Items[i]).summaAdd;
+                //       wbs.Cells[ExRow,6]:=pRec(list.Items[i]).summaUd;
+               end
+            else
+               begin
+//                    if currGru<>pRec(list.Items[i]).shifrGru then
+//                       begin
+//                            currGru:=pRec(list.Items[i]).shifrGru;
+//                            wbs.Cells[ExRow,2]:=ist_fin_name[currGru];
+//                            Inc(ExRow);
+//                            lineno:=0;
+//                       end;
+                       Inc(lineno);
+                       wbs.Cells[ExRow,1]:=lineno;
+                       wbs.Cells[ExRow,2]:=pRec(list.Items[i]).fio;
+                       wbs.Cells[ExRow,3]:=pRec(list.Items[i]).dolg;
+                       wbs.Cells[ExRow,4]:=Name_Serv(pRec(list.Items[i]).shifrpod);
+                       wbs.Cells[ExRow,5]:=pRec(list.Items[i]).summaAdd;
+                  //     wbs.Cells[ExRow,6]:=pRec(list.Items[i]).summaUd;
+               end
+
+       end;
+     FormWait.Hide;
+     Application.ProcessMessages;
+//     E.Visible:=true;
+
+
+  end;
+
+procedure TFormRepWordkers.SwodToExcel;
+var
+    S:String;
+    SummaTot,SummaClear,nmbOfSt,avgChisl:real;
+
+    k,i:integer;
+    exRow:integer;
+    h:string;
+    wbs:variant;
+begin
+//     FName:=TemplateDIR+'WorkersPlan.xlt';
 //     s:='Показатель средней заработной платы бюджетных учреждений за март 2018 года';
      h:='Показатель средней заработной платы бюджетных учреждений за '+GetMonthRus(NMES)+' '+intToStr(CurrYear)+' года';
-     E.WorkBooks[1].WorkSheets[1].Cells[2,1] := h;
+     wbs:=E.WorkBooks[1].WorkSheets[1];
+     wbs.Cells[2,1] := h;
      for k:=1 to 8 do
         begin
              SummaTot   := 0;
              SummaClear := 0;
              nmbOfSt    := 0;
+             avgChisl   := 0;
              for i:=0 to list.Count-1 do
                  begin
                       if pRec(list.Items[i]).shifrLine=k then
@@ -381,10 +454,16 @@ begin
                                nmbOfSt    := nmbOfSt    + pRec(list.Items[i]).koef;
                          end;
                  end;
+             i:=listDistinctTabno.Count;
+             for i:=0 to listDistinctTabno.Count-1 do
+                 begin
+                      if pDistinctTabnoRec(listDistinctTabno.Items[i]).shifrLine=k then
+                         avgChisl   := avgChisl   + 1.0;
+                 end;
              exRow:=6+k;
-             E.WorkBooks[1].WorkSheets[1].Cells[ExRow,3] := nmbOfSt;
-             E.WorkBooks[1].WorkSheets[1].Cells[ExRow,4] := SummaTot;
-             E.WorkBooks[1].WorkSheets[1].Cells[ExRow,6] := SummaClear;
+             wbs.Cells[ExRow,3] := nmbOfSt;
+             wbs.Cells[ExRow,4] := avgChisl;
+             wbs.Cells[ExRow,5] := SummaTot;
         end;
 
 end;

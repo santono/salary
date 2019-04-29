@@ -187,6 +187,13 @@ object FormKadry: TFormKadry
     Height = 20
     Caption = #1056#1072#1079#1088#1103#1076
   end
+  object Label5f: TLabel
+    Left = 312
+    Top = 296
+    Width = 53
+    Height = 20
+    Caption = 'Label5f'
+  end
   object StringGrid1: TStringGrid
     Left = 8
     Top = 8

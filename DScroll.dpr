@@ -330,7 +330,7 @@ uses
   UFormRepWordkers in 'UFormRepWordkers.pas' {FormRepWordkers},
   UFormGener in 'UFormGener.pas' {FormGener},
   UFormMonthForGener in 'UFormMonthForGener.pas' {FormMonthForGener},
-  UFormSearchClassificator in '..\..\..\rating\KFU\pages\Телефонный справочник\UFormSearchClassificator.pas' {FormSearchClassificator},
+  UFormSearchClassificator in 'UFormSearchClassificator.pas' {FormSearchClassificator},
   UFormExportTabelToExcel in 'UFormExportTabelToExcel.pas' {FormExportTabelToExcel},
   UFormBrowseDogovora in 'UFormBrowseDogovora.pas' {FormBrowseDogovora},
   UFormUpdateDogovora in 'UFormUpdateDogovora.pas' {FormUpdateDogovora},
@@ -348,7 +348,8 @@ uses
   UFormRepClockItogi in 'UFormRepClockItogi.pas' {FormRepClockItogi},
   UFormRepRazr in 'UFormRepRazr.pas' {FormRepRazr},
   UMatHelpCalc in 'UMatHelpCalc.pas',
-  UFormRepNeSovpRazrOklad in 'UFormRepNeSovpRazrOklad.pas' {FormRepNeSovpRazrOklad};
+  UFormRepNeSovpRazrOklad in 'UFormRepNeSovpRazrOklad.pas' {FormRepNeSovpRazrOklad},
+  UFormRepFondy in 'UFormRepFondy.pas' {FormRepFondy};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -568,6 +568,7 @@ interface
   function getMORForPutInf:integer;
   function getIniFileName:string;
   function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
+  function checkForma5ForVnePerson(curr_person:person_ptr):boolean;
 
 
 
@@ -575,7 +576,7 @@ implementation
    uses Math,SysUtils,QDialogs,DateUtils,QControls,ScrLists,ScrIo,ScrLini,
         UFIBModule,uFormWait,FORMS,ScrNalog,ShellApi,WinDows,ScrExport,Classes,
         ComObj,ActiveX,IniFiles,uMD5,Variants, FIBDatabase,USQLUnit,UFormDepartmentSeek,
-        scrnetwork;
+        scrnetwork,types;
    const doss:array[1..72] of byte = ($49,$69,$80,$81,$82,$83,$84,$85,$F0,$F2,$F3,$F4,$F5,$86,$87,$88,$89,$8A,$8B,$8C,$8D,$8E,$8F,$90,$91,$92,$93,$94,$95,$96,$97,$98,$99,$9A,$9B,$9C,$9D,$9E,$9F,$A0,$A1,$A2,$A3,$A4,$A5,$F1,$A6,$A7,$A8,$A9,$AA,$AB,$AC,$AD,$AE,$AF,$E0,$E1,$E2,$E3,$E4,$E5,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF);
    const wins:array[1..72] of byte = ($B2,$B3,$C0,$C1,$C2,$C3,$C4,$C5,$A8,$AA,$BA,$AF,$BF,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD,$CE,$CF,$D0,$D1,$D2,$D3,$D4,$D5,$D6,$D7,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$E0,$E1,$E2,$E3,$E4,$E5,$B8,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF,$F0,$F1,$F2,$F3,$F4,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$FC,$FD,$FE,$FF);
  { AA(BA) -win f2(f3) - dos ukr E; AF(BF) - win F4(F5) - dos ukr II}
@@ -11672,18 +11673,18 @@ function getNachPremForPersonInNSRV(Curr_Person:person_ptr):real;
    BEGIN
        RETVAL:=0;
        {$IFNDEF SVDN}
-       CURR_CN:=CURR_PERSON^.CN;
-       WHILE (CURR_CN<>NIL) DO
-        BEGIN
-             IF ((CURR_CN^.SHIFR=NOMER_PODR_SHIFR) OR (CURR_CN^.SHIFR=NOMER_PODR_SHIFR+LIMIT_CN_BASE)) THEN
-                BEGIN
-                     RETVAL:=CURR_CN^.PRIM;
-                     BREAK;
-                END;
-             CURR_CN:=CURR_CN^.NEXT;
-        END;
-       {$ENDIF}
-       GetPodrNomerPerson:=RetVal;
+            CURR_CN:=CURR_PERSON^.CN;
+            WHILE (CURR_CN<>NIL) DO
+              BEGIN
+                 IF ((CURR_CN^.SHIFR=NOMER_PODR_SHIFR) OR (CURR_CN^.SHIFR=NOMER_PODR_SHIFR+LIMIT_CN_BASE)) THEN
+                     BEGIN
+                         RETVAL:=CURR_CN^.PRIM;
+                         BREAK;
+                     END;
+                 CURR_CN:=CURR_CN^.NEXT;
+              END;
+       {$ENDIF} ;
+      GetPodrNomerPerson:=RetVal;
    END;
 
  function isProtectedPodr(shifrPod:integer):boolean;
@@ -12068,5 +12069,51 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
          retVal:=true;
       isCorrectLNRPodoh13Person:=retVal;
  end;
+
+ function checkForma5ForVnePerson(curr_person:person_ptr):boolean;
+    var SQLStmnt:String;
+        retVal:boolean;
+        v,v1:variant;
+        DateFr,DateTo:TDateTime;
+        currDate:TDateTime;
+        shifrId:integer;
+    begin
+        if not isSVDN then
+           begin
+                checkForma5ForVnePerson:=false;
+                exit;
+           end;
+         retVal:=false;
+         shifrId:=GET_IDDOGPODFORSOWM_PERSON(curr_person);
+         if shifrId<1 then
+            begin
+                checkForma5ForVnePerson:=false;
+                exit;
+            end;
+         currDate:=encodedate(curryear,nmes,2);
+         SQLStmnt:='select first 1 datefr,dateto from tb_dogovora_gn_det where id='+IntToStr(shifrId);
+         v:=SQLQueryRecValues(SQlStmnt);
+         if VarIsArray(v) then
+            begin
+                 try
+//                   CheckSqlTimeStamp(v[0]);
+//                   CheckSqlTimeStamp(v[1]);
+//                   dateFr:=SQLTimeStampToDateTime(v[0]);
+//                   dateTo:=SQLTimeStampToDateTime(v[1]);
+                   dateFr:=v[0];
+                   dateTo:=v[1];
+                   if ((CompareDateTime(datefr,currDate)=LessThanValue)
+                      and
+                      (CompareDateTime(currDate,dateto)=LessThanValue)) then
+                      retval:=true;
+                 except
+                   retVal:=false;
+                 end;
+            end;
+
+         checkForma5ForVnePerson:=retVal;
+    end;
+
+
 end.
 
