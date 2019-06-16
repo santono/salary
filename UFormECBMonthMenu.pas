@@ -19,6 +19,7 @@ type
     pFIBQuery1: TpFIBQuery;
     pFIBTransaction1: TpFIBTransaction;
     btnExportExcel: TBitBtn;
+    Button1: TButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
@@ -27,6 +28,7 @@ type
     procedure DateTimePicker1Change(Sender: TObject);
     procedure BitBtn5Click(Sender: TObject);
     procedure btnExportExcelClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
       WantedMonth : integer;
@@ -41,7 +43,7 @@ var
 
 implementation
   uses ScrDef,ScrUtil,UFormGetDRFO,UFormMovECBToDBF, uFormWait, DateUtils,
-  UFormTestE4, UFormMovECBtoExcel;
+  UFormTestE4, UFormMovECBtoExcel, UFormRepF4;
 
 {$R *.dfm}
 
@@ -66,11 +68,15 @@ begin
          begin
               btnExportExcel.Show();
               btnExportExcel.Enabled:=true;
+              Button1.Hide();
+              button1.Enabled:=false;
          end
       else
          begin
               btnExportExcel.Hide();
               btnExportExcel.Enabled:=false;
+              button1.Show;
+              button1.Enabled:=true;
          end;
 
 end;
@@ -146,6 +152,14 @@ begin
      FormMovECBToExcel.WantedMonth := Self.WantedMonth;
      FormMovECBToExcel.ShowModal;
 
+end;
+
+procedure TFormECBMonthMenu.Button1Click(Sender: TObject);
+begin
+     if not isSVDN then exit;
+     if not yesNo('Список, получающих меньше минимальной зарплаты создан?') then Exit;
+     Application.CreateForm(TFormRepF4,FormRepF4);
+     FormRepF4.showModal;
 end;
 
 end.

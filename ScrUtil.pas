@@ -44,6 +44,7 @@ interface
    FUNCTION WORK_CLOCK_LERA(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
    FUNCTION ILL_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
    FUNCTION OTPUSK_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
+   FUNCTION OTPUSK_BEZ_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
    FUNCTION NADBAWKA_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
    FUNCTION THIS_PERSON(CURR_PERSON:PERSON_PTR):BOOLEAN;
    function OK_FREE_MEM(Len:Integer):boolean;
@@ -538,6 +539,7 @@ interface
   function getShortCurrencyName:string;
   function getRazrOkladByDolg(shifrIdDolg:Integer;var razr:Integer;var oklad:real):boolean;
   function getPolRusByNalCode(nalCode:string):string;
+  function getPolForF6(nalCode:string):integer;
   function isForbiddenPodrWrite(N_SERV:integer):Boolean;
   function GetFullPodrNameFromSQL(nserv:integer):string;
   function GetHistoryPodrNameFromSQL(nserv:integer;y,m:integer):string;
@@ -1459,6 +1461,9 @@ function SplitFIO(FIO:STRING;var FAM,NAM,OTC:string):boolean;
  var s1: TArrOfString;
      retVal:boolean;
  begin
+       FAM:='';
+       NAM:='';
+       OTC:='';
        retVal:=True;
        FIO:=Trim(FIO);
        while True do
@@ -1537,6 +1542,13 @@ FUNCTION OTPUSK_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):INTEGER;
       J:=0;
       FOR I:=START_DAY TO 31 DO IF (CURR_PERSON^.TABEL[I]=TARIFN_OTPUSK) THEN J:=J+1;
       OTPUSK_DAY:=J;
+ END;
+FUNCTION OTPUSK_BEZ_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):INTEGER;
+ VAR I,J:INTEGER;
+ BEGIN
+      J:=0;
+      FOR I:=START_DAY TO 31 DO IF (CURR_PERSON^.TABEL[I]=OTPUSK_BEZ_OPLATY) THEN inc(J);
+      OTPUSK_BEZ_DAY:=J;
  END;
 
 FUNCTION WORK_CLOCK(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
@@ -3452,18 +3464,21 @@ FUNCTION GET_SWM_MODE_PERSON(CURR_PERSON:PERSON_PTR):integer;
 
  FUNCTION IS_OSN_WID_RABOTY(CURR_PERSON:PERSON_PTR):BOOLEAN;
   VAR CURR_CN:CN_PTR;
-      DONE:BOOLEAN;
+      retVal:boolean;
   BEGIN
-      DONE:=FALSE;
-      IF CURR_PERSON^.WID_RABOTY=OSN_WID_RABOTY THEN DONE:=TRUE
-                                                ELSE
+      retVal:=FALSE;
+      IF CURR_PERSON^.WID_RABOTY=OSN_WID_RABOTY THEN
+         retVal:=TRUE
+      ELSE
          BEGIN
               CURR_CN:=CURR_PERSON^.CN;
-              WHILE (CURR_CN<>NIL) AND (NOT DONE) DO
-                   IF CURR_CN^.SHIFR=OSN_MESTO_RABOTY_SHIFR+LIMIT_CN_BASE THEN DONE:=TRUE
-                                                                          ELSE CURR_CN:=CURR_CN^.NEXT;
+              WHILE (CURR_CN<>NIL) AND (NOT retVal) DO
+                   IF CURR_CN^.SHIFR=OSN_MESTO_RABOTY_SHIFR+LIMIT_CN_BASE THEN
+                      retVal:=TRUE
+                   ELSE
+                      curr_cn:=curr_cn^.NEXT;
          END;
-      IS_OSN_WID_RABOTY:=DONE;
+      IS_OSN_WID_RABOTY:=retVal;
   END;
 
  FUNCTION IS_OSN_W_R_FOR_NALOG_RECALC(CURR_PERSON:PERSON_PTR):BOOLEAN;
@@ -6312,33 +6327,23 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
    var I:Integer;
        RetVal:string;
        IStartTransaction:boolean;
+       SQLStmnt:string;
+       v:variant;
    begin
         IStartTransaction:=false;
         RetVal := '';
         Result := '';
         if (Tabno<0) or (Tabno>20000) then Exit;
-        if FIB.pFIBQuery.Open then
-           FIB.pFIBQuery.Close;
-        FIB.pFIBQuery.SQL.Clear;
-        FIB.pFIBQuery.SQL.Add('select first 1 nal_code from kadry where tabno='+IntToStr(Tabno));
-        if not FIB.pFIBQuery.Transaction.Active then
+        SQLStmnt := 'select first 1 nal_code from kadry where tabno='+IntToStr(Tabno);
+        v:=SQLQueryValue(SQLStmnt);
+        if VarIsStr(v) then
            begin
-                FIB.pFIBTransactionSAL.StartTransaction;
-                IStartTransaction:=true;
+                 retVal:=v;
+                 retVal:=trim(retVal);
+                 if not ((length(retval)>8) and (length(retval)<12)) then
+                    retVal:='';
            end;
-        try
-               FIB.pFIBQuery.ExecQuery;
-               RetVal:=FIB.pFIBQuery.Fields[0].AsString;
-               FIB.pFIBQuery.Close;
-               Result:=RetVal;
-        except
-               MessageDlg('Îøèáêà GetNalCode ',mtInformation, [mbOk], 0);
-               Result:='';
-        end;
-        if FIB.pFIBQuery.Open then
-           FIB.pFIBQuery.Close;
-        if IStartTransaction then
-           FIB.pFIBTransactionSAL.Commit;
+        GetNal_CodePerson:=retVal;
    end;
 
  function GetFullRusFioPerson(Tabno:integer):string;
@@ -8160,7 +8165,7 @@ function IsSciPed(Curr_Person:Person_Ptr):boolean;
       if ((i1=TEACHER_KATEGORIJA) or (i1=SCIENTIFIC_WORKER_KATEGORIJA)) and
          (not IsColedgPodr(Nsrv)) and {ÓÁÐÀÒÜ ÒÅÕÍÈÊÓÌ}
          (not IS_NotFond5(Curr_Person)) then RetVal:=true
-                                               else
+                                        else
       if Is_Fond5(Curr_Person) then RetVal:=true;
       IsSciPed:=RetVal;
 
@@ -11153,6 +11158,22 @@ function getPolRusByNalCode(nalCode:string):string;
          end;
 
       getPolRusByNalCode:=retVal;
+ end;
+function getPolForF6(nalCode:string):integer;
+ var ch:Char;
+     retVal:integer;
+     s:string;
+ begin
+      retVal:=1;
+      s:=Trim(nalCode);
+      if Length(s)=10 then
+         begin
+              ch:=s[9];
+              if ch in ['0','2','4','6','8'] then
+                 retVal:=0;
+         end;
+
+      getPolForF6:=retVal;
  end;
 
  function isForbiddenPodrWrite(N_SERV:integer):Boolean;

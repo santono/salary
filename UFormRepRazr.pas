@@ -140,7 +140,8 @@ procedure TFormRepRazr.CreateReport;
 //                if iNSRV=82 then continue;
 //                if iNSRV=121 then continue;
                 NSRV:=iNSRV;
-                if not NameServList.IS_MO_BUD(nsrv) then Continue; 
+                if not NameServList.IS_MO_BUD(nsrv) then Continue;
+                if nsrv in [82] then continue;
                 MKFLNM;
                 if not fileexists(FNINF) then Continue;
                 getinf(false);
@@ -149,15 +150,18 @@ procedure TFormRepRazr.CreateReport;
                   begin
                        shifrKat:=curr_person^.kategorija;
                        shifrGru:=curr_person^.gruppa;
-                       if ((modeSowm=0)
-                            or
-                            ((modeSowm=1) and IS_OSN_WID_RABOTY(curr_person))
-                            or
-                            ((modeSowm=2) and not IS_OSN_WID_RABOTY(curr_person)))
-                           then
+                       if shifrGru=1 then
+                          begin
+                               if ((modeSowm=0)
+                                  or
+                                 ((modeSowm=1) and IS_OSN_WID_RABOTY(curr_person))
+                                  or
+                                  ((modeSowm=2) and not IS_OSN_WID_RABOTY(curr_person)))
+                               then
 //                       if GruppyList.IsSelected(shifrGru) then
 //                       if KategList.IsSelected(shifrKat)  then
-                       fillPerson(Curr_person);
+                                fillPerson(Curr_person);
+                          end;
                        curr_person:=curr_person^.NEXT;
                   end;
                 EMPTY_ALL_PERSON;
@@ -235,7 +239,7 @@ procedure TFormRepRazr.fillPerson(curr_person:person_ptr);
        razr:=GetRazrjadPerson(curr_person);
        if razr<1 then exit;
        if razr>25 then exit;
-       if ExistsTabnoIntList(Curr_Person^.tabno) then exit;
+    //   if ExistsTabnoIntList(Curr_Person^.tabno) then exit;
        New(rec);
        rec.razr     := razr;
        rec.tabno    := curr_person^.tabno;

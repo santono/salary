@@ -1,6 +1,6 @@
 object FormECBMonthMenu: TFormECBMonthMenu
-  Left = 381
-  Top = 270
+  Left = 387
+  Top = 209
   Width = 341
   Height = 282
   Caption = #1045#1057#1042' '#1077#1078#1077#1084#1077#1089#1103#1095#1085#1099#1081
@@ -86,6 +86,15 @@ object FormECBMonthMenu: TFormECBMonthMenu
     Caption = #1069#1082#1089#1087#1086#1088#1090' Excel'
     TabOrder = 6
     OnClick = btnExportExcelClick
+  end
+  object Button1: TButton
+    Left = 16
+    Top = 72
+    Width = 145
+    Height = 25
+    Caption = #1043#1077#1085#1077#1088#1072#1094#1080#1103' 2.0'
+    TabOrder = 7
+    OnClick = Button1Click
   end
   object pFIBQuery1: TpFIBQuery
     Transaction = pFIBTransaction1

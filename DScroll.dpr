@@ -349,7 +349,9 @@ uses
   UFormRepRazr in 'UFormRepRazr.pas' {FormRepRazr},
   UMatHelpCalc in 'UMatHelpCalc.pas',
   UFormRepNeSovpRazrOklad in 'UFormRepNeSovpRazrOklad.pas' {FormRepNeSovpRazrOklad},
-  UFormRepFondy in 'UFormRepFondy.pas' {FormRepFondy};
+  UFormRepFondy in 'UFormRepFondy.pas' {FormRepFondy},
+  UFormRepF4 in 'UFormRepF4.pas' {FormRepF4},
+  UFormRepPensionery in 'UFormRepPensionery.pas' {FormRepPensionery};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

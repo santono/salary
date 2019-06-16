@@ -126,6 +126,7 @@ procedure TFormRepFondy.CreateReport;
                 Application.ProcessMessages;
                 if not fileexists(FNINF) then Continue;
                 if not nameservlist.IS_MO_BUD(nsrv) then continue;
+                if nsrv in [82] then continue;
                 getinf(false);
                 curr_person:=HEAD_PERSON;
                 while (curr_person<>nil) do
@@ -158,9 +159,11 @@ procedure TFormRepFondy.fillPerson(curr_person:person_ptr);
   var rec:pRec;
       shifrDol:integer;
       shifrKat:integer;
+      razr:integer;
       i:integer;
       summaAdd,summaNal:real;
       summaAddOsn,summaAddDop:real;
+      koef:real;
     procedure insertIntoDistinct(tabno:integer;shifrLine:integer);
       var i:integer;
           finded:boolean;
@@ -236,6 +239,15 @@ procedure TFormRepFondy.fillPerson(curr_person:person_ptr);
        summaNal:=getSummaNalogiPerson(curr_person);
    //    if abs(summaAdd)<0.01 then exit;
        insertIntoDistinct(curr_person^.TABNO,shifrkat);
+       koef:=GET_KOEF_OKLAD_PERSON(Curr_Person);
+       if ((shifrDol<10)
+            or (shifrDol=1500)) then koef:=0;
+       razr:=GetRazrjadPerson(curr_person);
+       if ((razr<1)
+            or
+            (razr>25)) then koef:=0;
+       if curr_person^.oklad<1.00 then
+          koef:=0;
        New(rec);
        rec.tabno    := curr_person^.tabno;
        rec.fio      := Trim(curr_person^.fio);
@@ -243,7 +255,7 @@ procedure TFormRepFondy.fillPerson(curr_person:person_ptr);
        rec.shifrDol := shifrDol;
        rec.dolg     := Trim(Curr_person^.DOLG);
        rec.shifrLine:= shifrKat;
-       rec.koef     := GET_KOEF_OKLAD_PERSON(Curr_Person);
+       rec.koef     := koef;
        rec.summaAdd := getSummaAddForPerson(curr_person);
        rec.summaAddOsn := summaAddOsn;
        rec.summaAddDop := summaAddDop;
@@ -258,6 +270,7 @@ var E,WC:Variant;
     SummaOsnAdd, SummaDopAdd : real;
     k,i:integer;
     exRow:integer;
+    lastRow1:integer;
     h:string;
 begin
 //     FName:=TemplateDIR+'WorkersPlan.xlt';
@@ -288,7 +301,7 @@ begin
         begin
              SummaOsnAdd   := summaOsnAdd   + pRec(list.Items[i]).summaAddOsn;
              SummaDopAdd   := summaDopAdd   + pRec(list.Items[i]).summaAddDop;
-             nmbOfSt       := nmbOfSt    + pRec(list.Items[i]).koef;
+             nmbOfSt       := nmbOfSt       + pRec(list.Items[i]).koef;
         end;
      i:=listDistinctTabno.Count;
      for i:=0 to listDistinctTabno.Count-1 do
@@ -302,6 +315,28 @@ begin
         E.WorkBooks[1].WorkSheets[1].Cells[ExRow,4] := (SummaOsnAdd+SummaDopAdd) / avgChisl;
      E.WorkBooks[1].WorkSheets[1].Cells[ExRow,5] := SummaOsnAdd;
      E.WorkBooks[1].WorkSheets[1].Cells[ExRow,6] := SummaDopAdd;
+//     exRow:=8;
+//     E.WorkBooks[1].WorkSheets[2].Cells[ExRow-2,1]:='Список работников для свода по разрядам за '+getMonthRus(NMES)+' '+intToStr(CurrYear)+' г.';
+//     ProgressBar1.Min:=0;
+//     ProgressBar1.Max:=list.Count;
+//     ProgressBar1.Position:=ProgressBar1.Min;
+//     ProgressBar1.Step:=1;
+//     lastRow1 := 5;
+//     for i:=0 to list.Count-1 do
+//       begin
+//            ProgressBar1.StepIt;
+//            Application.ProcessMessages;
+//            Inc(exRow);
+//            E.WorkBooks[1].WorkSheets[2].Cells[ExRow,1]:=i+1;
+//            E.WorkBooks[1].WorkSheets[2].Cells[ExRow,3]:=pRec(list.Items[i]).tabno;
+//            E.WorkBooks[1].WorkSheets[2].Cells[ExRow,4]:=pRec(list.Items[i]).fio;
+//            E.WorkBooks[1].WorkSheets[2].Cells[ExRow,5]:=pRec(list.Items[i]).dolg;
+//            E.WorkBooks[1].WorkSheets[2].Cells[ExRow,6]:=pRec(list.Items[i]).koef;
+//            E.WorkBooks[1].WorkSheets[2].Cells[ExRow,7]:=pRec(list.Items[i]).dolg;
+//            E.WorkBooks[1].WorkSheets[2].Cells[ExRow,8]:=pRec(list.Items[i]).shifrpod;
+//            lastRow1:=exRow;
+//       end;
+
 
 end;
 

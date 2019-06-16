@@ -644,6 +644,9 @@ object MainForm: TMainForm
         object N175: TMenuItem
           Action = ActionRepClocks
         end
+        object N179: TMenuItem
+          Action = ActionRepPensionery
+        end
       end
     end
     object N14: TMenuItem
@@ -1580,6 +1583,10 @@ object MainForm: TMainForm
     object ActionRepPlanFondy: TAction
       Caption = #1058#1088#1091#1076#1086#1074#1099#1077' '#1088#1077#1089#1091#1088#1089#1099
       OnExecute = ActionRepPlanFondyExecute
+    end
+    object ActionRepPensionery: TAction
+      Caption = #1057#1087#1080#1089#1086#1082' '#1087#1077#1085#1089#1080#1086#1085#1077#1088#1086#1074
+      OnExecute = ActionRepPensioneryExecute
     end
   end
   object ImageList1: TImageList
