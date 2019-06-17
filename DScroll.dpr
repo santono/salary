@@ -351,7 +351,9 @@ uses
   UFormRepNeSovpRazrOklad in 'UFormRepNeSovpRazrOklad.pas' {FormRepNeSovpRazrOklad},
   UFormRepFondy in 'UFormRepFondy.pas' {FormRepFondy},
   UFormRepF4 in 'UFormRepF4.pas' {FormRepF4},
-  UFormRepPensionery in 'UFormRepPensionery.pas' {FormRepPensionery};
+  UFormRepPensionery in 'UFormRepPensionery.pas' {FormRepPensionery},
+  UFormDekrList in 'UFormDekrList.pas' {FormDekrList},
+  UFormDekrUpd in 'UFormDekrUpd.pas' {FormDekrUpd};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

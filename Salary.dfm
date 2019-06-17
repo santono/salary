@@ -1,7 +1,7 @@
 object MainForm: TMainForm
   Left = 194
   Top = 154
-  Width = 783
+  Width = 782
   Height = 493
   HorzScrollBar.Visible = False
   Caption = 'ion'
@@ -23,14 +23,14 @@ object MainForm: TMainForm
   OnPaint = FormPaint
   OnShow = FormShow
   DesignSize = (
-    767
+    766
     435)
   PixelsPerInch = 96
   TextHeight = 20
   object StringGrid1: TStringGrid
     Left = -8
     Top = 40
-    Width = 761
+    Width = 760
     Height = 309
     Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 8
@@ -58,7 +58,7 @@ object MainForm: TMainForm
   object StringGrid2: TStringGrid
     Left = 8
     Top = 354
-    Width = 761
+    Width = 760
     Height = 35
     Anchors = [akLeft, akRight, akBottom]
     ColCount = 7
@@ -78,7 +78,7 @@ object MainForm: TMainForm
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 767
+    Width = 766
     Height = 26
     ButtonHeight = 21
     ButtonWidth = 30
@@ -254,7 +254,7 @@ object MainForm: TMainForm
   object StatusBar1: TStatusBar
     Left = 0
     Top = 416
-    Width = 767
+    Width = 766
     Height = 19
     Panels = <
       item
@@ -432,6 +432,9 @@ object MainForm: TMainForm
         end
         object N154: TMenuItem
           Action = ActionDepBrowse
+        end
+        object N180: TMenuItem
+          Action = ActionBrowseDekrList
         end
       end
     end
@@ -1587,6 +1590,10 @@ object MainForm: TMainForm
     object ActionRepPensionery: TAction
       Caption = #1057#1087#1080#1089#1086#1082' '#1087#1077#1085#1089#1080#1086#1085#1077#1088#1086#1074
       OnExecute = ActionRepPensioneryExecute
+    end
+    object ActionBrowseDekrList: TAction
+      Caption = #1057#1087#1080#1089#1086#1082' '#1076#1077#1082#1088#1077#1090#1085#1099#1093' '#1086#1090#1087#1091#1089#1082#1086#1074' '#1076#1083#1103' '#1045#1057#1042
+      OnExecute = ActionBrowseDekrListExecute
     end
   end
   object ImageList1: TImageList
