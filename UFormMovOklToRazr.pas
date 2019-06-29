@@ -58,10 +58,11 @@ procedure TFormMoveNewOkladToRazr.BitBtn1Click(Sender: TObject);
  type pRec=^TRec;
       TRec=record
             shifrDol:integer;
+            razr:integer;
             oklad:real;
            end;
- const lDolg=13;
-       shifrDols:array[1..lDolg] of integer=(20,30,40,520,605,1424,80,1531,1532,185,1536,180,302);
+ const lDolg=14;
+       shifrDols:array[1..lDolg] of integer=(20,30,40,520,605,1424,80,1531,1532,185,1536,180,302,1631);
 
  var SaveNMES,SaveNSRV,SC,I_NSRV:integer;
      Curr_Person:Person_Ptr;
@@ -124,11 +125,42 @@ procedure TFormMoveNewOkladToRazr.BitBtn1Click(Sender: TObject);
               if ((oklad<3000) or (oklad>13000)) then
                 continue;
               new(Rec);
+              fillChar(Rec^,sizeOf(rec^),0);
               rec^.shifrDol:=shifrDol;
               rec^.oklad:=oklad;
               list.Add(rec);
          end;
        closeFile(dev);
+       result:=true;
+  end;
+ function fillDolgOkladyFromSQL:boolean;
+  var
+      shifrDol,razr:integer;
+      oklad:real;
+      rec:pRec;
+      SQLStmnt:string;
+  begin
+       SQLStmnt:='select shifrdol,razr,oklad from tb_dolg where razr>0 and oklad>0';
+       pFIBQuery1.SQL.clear;
+       pFIBQuery1.SQL.Add(SQLStmnt);
+       pFIBQuery1.Transaction.StartTransaction;
+       pFibQuery1.ExecQuery;
+       list:=TList.Create;
+       while not pFIBQuery1.Eof do
+         begin
+              shifrDol:=pFIBQuery1.Fields[0].Value;
+              razr:=pFIBQuery1.Fields[1].Value;
+              oklad:=pFIBQuery1.Fields[2].Value;
+              new(Rec);
+              fillChar(Rec^,sizeOf(rec^),0);
+              rec^.shifrDol:=shifrDol;
+              rec^.razr:=razr;
+              rec^.oklad:=oklad;
+              list.Add(rec);
+              pFIBQuery1.Next;
+         end;
+       pFIBQuery1.close;
+       pFIBQuery1.Transaction.Commit;
        result:=true;
   end;
  function getOkladByShifrDol(shifrDol:integer):real;
@@ -257,7 +289,7 @@ begin
         end;
      FillOkladyForRazr;
      if isLNR then
-        fillDolgOklady;
+        fillDolgOkladyFromSQL;
      SaveNMES:=NMES;
      SaveNSRV:=NSRV;
      PutInf;

@@ -69,7 +69,15 @@ object FormRepPensionery: TFormRepPensionery
   end
   object dsPens: TpFIBDataSet
     SelectSQL.Strings = (
-      'select distinct a.tabno, a.nal_code,a.fio from person a'
+      'select a.tabno, a.nal_code,a.fio'
+      
+        ', sum((select sum(d1.summa) from fadd d1 where a.shifrid=d1.shif' +
+        'ridperson)) summaadd'
+      
+        ', sum((select sum(d2.summa) from fud d2 where a.shifrid=d2.shifr' +
+        'idperson and d2.shifrsta in (142,143,144,145,146))) summaecb'
+      ''
+      ' from person a'
       'where a.yearvy=:y'
       '  and a.monthvy=:m'
       
@@ -78,10 +86,10 @@ object FormRepPensionery: TFormRepPensionery
       
         '  and (select sum(d.summa) from fadd d where a.shifrid=d.shifrid' +
         'person)>1.0'
+      'group by 1,2,3'
       '  order by a.fio')
     Transaction = trRead
     Database = FIB.pFIBDatabaseArc
-    UpdateTransaction = FIB.pFIBTransactionArcWrite
     Left = 264
     Top = 80
     object dsPensTABNO: TFIBIntegerField
@@ -96,6 +104,16 @@ object FormRepPensionery: TFormRepPensionery
       FieldName = 'FIO'
       Size = 30
       EmptyStrToNull = True
+    end
+    object dsPensSUMMAADD: TFIBBCDField
+      FieldName = 'SUMMAADD'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsPensSUMMAECB: TFIBBCDField
+      FieldName = 'SUMMAECB'
+      Size = 2
+      RoundByScale = True
     end
   end
   object trRead: TpFIBTransaction

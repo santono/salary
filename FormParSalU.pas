@@ -28,6 +28,7 @@ type
     BtnProtectedPodr: TBitBtn;
     cbRoundNalogi: TCheckBox;
     cxSpinEdit1: TcxSpinEdit;
+    cbCheckMem: TCheckBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -54,6 +55,9 @@ begin
      Must_Show_Podoh:=false;
      if CheckBoxPodoh.Checked then
         Must_Show_Podoh:=true;
+     needTestMem:=false;
+     if cbCheckMem.Checked then
+        needTestMem:=true;
      if CheckBox5.Checked then
         NeedFileBolnMode:=true
      else
@@ -133,6 +137,13 @@ begin
               cxSpinEdit1.Hide;
               cxSpinEdit1.Enabled:=false;
          end;
+
+     if needTestMem then
+        cbCheckMem.Checked:=true
+     else
+        cbCheckMem.Checked:=false;
+
+
 end;
 
 procedure TFormParSal.FormShow(Sender: TObject);

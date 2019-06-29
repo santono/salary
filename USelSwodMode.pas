@@ -103,7 +103,8 @@ var
   FormSwodMode: TFormSwodMode;
 
 implementation
- Uses ScrDef,ScrUtil,ScrSwod,UFibModule, UFormSelPKGSave,ScrLists,UFormSwodSwmMode;
+ Uses ScrDef,ScrUtil,ScrSwod,UFibModule, UFormSelPKGSave,ScrLists,UFormSwodSwmMode,
+      UAddUdList;
 
 {$R *.dfm}
 procedure TFormSwodMode.SetSwodSowmMode(NewMode:integer);
@@ -200,7 +201,14 @@ begin
      dxDBGridSelPkg.Enabled:=false;
      RadioGroupIllSS.ItemIndex:=1;
      RadioGroupChernob.ItemIndex:=0;
-
+     if needTestMem then
+        begin
+             if Assigned(TestListClass) then
+                begin
+                     TestListClass.Done;
+                end;
+             TestListClass:=TTestListClass.init;
+        end;
 
      MakeGrid;
 end;

@@ -177,4 +177,12 @@ object FormParSal: TFormParSal
     TabOrder = 9
     Width = 121
   end
+  object cbCheckMem: TCheckBox
+    Left = 24
+    Top = 344
+    Width = 225
+    Height = 17
+    Caption = #1058#1077#1089#1090#1080#1088#1086#1074#1072#1090#1100' '#1084#1077#1084#1086#1088#1080#1072#1083#1100#1085#1099#1081' '#1086#1088#1076#1077#1088
+    TabOrder = 10
+  end
 end

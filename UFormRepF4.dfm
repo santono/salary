@@ -254,16 +254,27 @@ object FormRepF4: TFormRepF4
   end
   object dsDekr: TpFIBDataSet
     SelectSQL.Strings = (
-      'select b.tabno'
-      '      ,b.f_data'
-      '      ,b.l_data'
-      '      ,coalesce(b.mode_ill,0) modeill'
-      '        from boln b'
-      '            join kadry k on b.tabno=k.tabno'
-      '        where coalesce(b.mode_ill,0) in (1)'
-      '          and not ((b.f_data>:date2) '
-      '                   or'
-      '                   (b.l_data<:date2))')
+      
+        '           select b.tabno tabno,b.fio fio,b.inn inn,b.date_fr f_' +
+        'data,b.date_to l_data,coalesce(b.kind,4) modeill from tb_dekr_ec' +
+        'b b'
+      '                    join kadry k on b.tabno=k.tabno'
+      '    --                where'
+      '    --                    ('
+      
+        '    --                       ((extract(month from b.date_fr)=:m1' +
+        ')'
+      
+        '    --                    and (extract(year from b.date_fr)=:y1)' +
+        ')'
+      '    --                       or'
+      
+        '    --                       ((extract(month from b.date_to)=:m2' +
+        ')'
+      
+        '    --                    and (extract(year from b.date_to)=:y2)' +
+        ')'
+      '    --                    )')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
     Left = 312
@@ -280,5 +291,35 @@ object FormRepF4: TFormRepF4
     object dsDekrMODEILL: TFIBIntegerField
       FieldName = 'MODEILL'
     end
+    object dsDekrFIO: TFIBStringField
+      FieldName = 'FIO'
+      Size = 51
+      EmptyStrToNull = True
+    end
+    object dsDekrINN: TFIBStringField
+      FieldName = 'INN'
+      Size = 10
+      EmptyStrToNull = True
+    end
+  end
+  object dsDekr6: TpFIBDataSet
+    SelectSQL.Strings = (
+      
+        '           select b.tabno,b.fio,b.inn,b.date_fr,b.date_to,coales' +
+        'ce(b.kind,4) from tb_dekr_ecb b'
+      '                    join kadry k on b.tabno=k.tabno'
+      '                    where'
+      
+        '                        not ( b.date_fr > cast((:y1||'#39'-'#39'||:m1||'#39 +
+        '-28'#39') as date)'
+      '                              or'
+      
+        '                              b.date_to < cast((:y2||'#39'-'#39'||:m2||'#39 +
+        '-01'#39') as date)'
+      '                            )')
+    Transaction = FIB.pFIBTransactionSAL
+    Database = FIB.pFIBDatabaseSal
+    Left = 352
+    Top = 56
   end
 end

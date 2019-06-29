@@ -28,7 +28,7 @@ object MainForm: TMainForm
   PixelsPerInch = 96
   TextHeight = 20
   object StringGrid1: TStringGrid
-    Left = -8
+    Left = 8
     Top = 40
     Width = 760
     Height = 309
@@ -518,6 +518,9 @@ object MainForm: TMainForm
         end
         object N178: TMenuItem
           Action = ActionRepPlanFondy
+        end
+        object NFondySVDN: TMenuItem
+          Action = ActionRepFondySVDN
         end
       end
       object N88: TMenuItem
@@ -1594,6 +1597,10 @@ object MainForm: TMainForm
     object ActionBrowseDekrList: TAction
       Caption = #1057#1087#1080#1089#1086#1082' '#1076#1077#1082#1088#1077#1090#1085#1099#1093' '#1086#1090#1087#1091#1089#1082#1086#1074' '#1076#1083#1103' '#1045#1057#1042
       OnExecute = ActionBrowseDekrListExecute
+    end
+    object ActionRepFondySVDN: TAction
+      Caption = #1043#1086#1076#1086#1074#1086#1081' '#1092#1086#1085#1076' '#1086#1087#1083#1072#1090#1099
+      OnExecute = ActionRepFondySVDNExecute
     end
   end
   object ImageList1: TImageList

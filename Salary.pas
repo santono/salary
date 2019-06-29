@@ -402,6 +402,8 @@ type
     N179: TMenuItem;
     ActionBrowseDekrList: TAction;
     N180: TMenuItem;
+    ActionRepFondySVDN: TAction;
+    NFondySVDN: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -663,6 +665,7 @@ type
     procedure ActionRepPlanFondyExecute(Sender: TObject);
     procedure ActionRepPensioneryExecute(Sender: TObject);
     procedure ActionBrowseDekrListExecute(Sender: TObject);
+    procedure ActionRepFondySVDNExecute(Sender: TObject);
 
 
   private
@@ -705,7 +708,7 @@ implementation
   FormTabelU, SQlConnectU,ScrNalog, USelSwodMode,UFormArc,UFibModule,
   uFormBoln, uFormEditIPodr, UFORMEDITIKAT, UFORMEDITPRZB, UFormBolKoe,
   uFormOtp, UFormRecalc, UFormSelLera,uFormBuh,UFormBlnAbo,
-  UFormRecalcPPSSFZ,FormPodrU,UFormEditGru,UFormEditShifr, UFormNemBud,
+  UFormRecalcPPSSFZ,FormPodrU,UFormEditGru,UFormEditShifr, 
   FormKafGruU, FormAlimU,FormRListU,FormIndexU, uFormOtpAbo,ShellApi,IniFiles,
   UFormPlatGen,UFormListVypl,FormSwodAlimU,FormRecalcPersonU,
   UFormSwodGt2660, uFormSwodSS, uFormSwodTemy, FormMovUkrFioU,FormAutoRepU,
@@ -751,7 +754,7 @@ implementation
   UFormBrowseDogovora, UFormRepPomKOtp, UFormTestCrossSaving,
   scrnetwork, UFormSavedAwans, UFormRecalcJan2019, UFormRepClockItogi,
   UFormRepRazr, UFormRepNeSovpRazrOklad, UFormRepFondy, UFormRepPensionery,
-  UFormDekrList;
+  UFormDekrList, UFormRepFondySVDN, UFormMemBud;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1303,6 +1306,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           actionrepclocks.Enabled:=true;
           n175.Enabled:=true;
           n175.Visible:=true;
+          NFondySVDN.Visible:=true;
+          NFondySVDN.Enabled:=true;
+          ActionRepFondySVDN.Enabled:=true;
        {$ELSE}
 
           NLNR2.Visible:=true;
@@ -1369,6 +1375,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           actionrepclocks.Enabled:=false;
           n175.Enabled:=false;
           n175.Visible:=false;
+          NFondySVDN.Visible:=false;
+          NFondySVDN.Enabled:=false;
+          ActionRepFondySVDN.Enabled:=false;
 
           if (CurrRight>3) then
              begin
@@ -4659,6 +4668,12 @@ procedure TMainForm.ActionBrowseDekrListExecute(Sender: TObject);
 begin
     Application.CreateForm(TFormDekrList, FormDekrList);
     FormDekrList.ShowModal;
+end;
+
+procedure TMainForm.ActionRepFondySVDNExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormRepFondySVDN, FormRepFondySVDN);
+    FormRepFondySVDN.ShowModal;
 end;
 
 end.

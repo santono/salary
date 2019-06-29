@@ -1,7 +1,7 @@
 object FormAdd: TFormAdd
-  Left = 158
-  Top = 143
-  Width = 931
+  Left = 194
+  Top = 118
+  Width = 968
   Height = 540
   Caption = #1053#1072#1095#1080#1089#1083#1077#1085#1080#1103' '#1080' '#1091#1076#1077#1088#1078#1072#1085#1080#1103
   Color = clBtnFace
@@ -16,95 +16,14 @@ object FormAdd: TFormAdd
   OnCreate = FormCreate
   OnShow = FormShow
   DesignSize = (
-    915
+    952
     502)
   PixelsPerInch = 96
   TextHeight = 13
-  object StringAdd: TStringGrid
-    Left = 8
-    Top = 32
-    Width = 473
-    Height = 392
-    Anchors = [akLeft, akTop, akBottom]
-    ColCount = 6
-    FixedCols = 0
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goRowSelect]
-    ParentFont = False
-    PopupMenu = PopupMenuAdd
-    TabOrder = 0
-    OnDblClick = StringAddDblClick
-    OnDrawCell = StringAddDrawCell
-    OnKeyDown = StringAddKeyDown
-    OnKeyPress = StringAddKeyPress
-    OnMouseDown = StringAddMouseDown
-  end
-  object StringUd: TStringGrid
-    Left = 472
-    Top = 32
-    Width = 425
-    Height = 392
-    Anchors = [akLeft, akTop, akBottom]
-    FixedCols = 0
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goRowSelect]
-    ParentFont = False
-    PopupMenu = PopupMenuUd
-    TabOrder = 1
-    OnDblClick = StringUdDblClick
-    OnDrawCell = StringUdDrawCell
-    OnKeyDown = StringUdKeyDown
-    OnKeyPress = StringUdKeyPress
-    OnMouseDown = StringUdMouseDown
-  end
-  object StringGridAddTot: TStringGrid
-    Left = 8
-    Top = 430
-    Width = 449
-    Height = 59
-    Anchors = [akLeft, akBottom]
-    ColCount = 6
-    DefaultRowHeight = 18
-    Enabled = False
-    FixedCols = 0
-    RowCount = 2
-    FixedRows = 0
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 2
-    OnDrawCell = StringGridAddTotDrawCell
-  end
-  object StringGridUdTot: TStringGrid
-    Left = 472
-    Top = 430
-    Width = 377
-    Height = 22
-    Anchors = [akLeft, akBottom]
-    DefaultRowHeight = 18
-    Enabled = False
-    FixedCols = 0
-    RowCount = 1
-    FixedRows = 0
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 3
-    OnDrawCell = StringGridUdTotDrawCell
+  object SplitterAddUd: TSplitter
+    Left = 457
+    Top = 29
+    Height = 473
   end
   object BitBtn1: TBitBtn
     Left = 480
@@ -112,7 +31,7 @@ object FormAdd: TFormAdd
     Width = 41
     Height = 41
     Anchors = [akLeft, akBottom]
-    TabOrder = 4
+    TabOrder = 0
     OnClick = BitBtn1Click
     Glyph.Data = {
       4E0A0000424D4E0A000000000000360400002800000028000000270000000100
@@ -205,7 +124,7 @@ object FormAdd: TFormAdd
     Width = 41
     Height = 41
     Anchors = [akLeft, akBottom]
-    TabOrder = 5
+    TabOrder = 1
     OnClick = BitBtn2Click
     Glyph.Data = {
       4E0A0000424D4E0A000000000000360400002800000028000000270000000100
@@ -295,12 +214,12 @@ object FormAdd: TFormAdd
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 915
+    Width = 952
     Height = 29
     ButtonWidth = 29
     Caption = 'ToolBar1'
     Images = ImageList1
-    TabOrder = 6
+    TabOrder = 2
     object ToolAdd: TToolButton
       Left = 0
       Top = 2
@@ -360,6 +279,117 @@ object FormAdd: TFormAdd
       ParentShowHint = False
       ShowHint = True
       OnClick = ToolSaveClick
+    end
+  end
+  object PanelAdd: TPanel
+    Left = 0
+    Top = 29
+    Width = 457
+    Height = 473
+    Align = alLeft
+    Caption = 'PanelAdd'
+    TabOrder = 3
+    DesignSize = (
+      457
+      473)
+    object StringAdd: TStringGrid
+      Left = 2
+      Top = 2
+      Width = 455
+      Height = 407
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      ColCount = 6
+      FixedCols = 0
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goColSizing, goRowSelect]
+      ParentFont = False
+      PopupMenu = PopupMenuAdd
+      TabOrder = 0
+      OnDblClick = StringAddDblClick
+      OnDrawCell = StringAddDrawCell
+      OnKeyDown = StringAddKeyDown
+      OnKeyPress = StringAddKeyPress
+      OnMouseDown = StringAddMouseDown
+    end
+    object StringGridAddTot: TStringGrid
+      Left = 1
+      Top = 410
+      Width = 447
+      Height = 89
+      Anchors = [akLeft, akRight, akBottom]
+      ColCount = 6
+      DefaultRowHeight = 18
+      Enabled = False
+      FixedCols = 0
+      RowCount = 2
+      FixedRows = 0
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      OnDrawCell = StringGridAddTotDrawCell
+    end
+  end
+  object PanelUd: TPanel
+    Left = 460
+    Top = 29
+    Width = 492
+    Height = 473
+    Align = alClient
+    Caption = 'PanelUd'
+    TabOrder = 4
+    DesignSize = (
+      492
+      473)
+    object StringUd: TStringGrid
+      Left = 1
+      Top = 1
+      Width = 455
+      Height = 471
+      Align = alLeft
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      FixedCols = 0
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goRowSelect]
+      ParentFont = False
+      PopupMenu = PopupMenuUd
+      TabOrder = 0
+      OnDblClick = StringUdDblClick
+      OnDrawCell = StringUdDrawCell
+      OnKeyDown = StringUdKeyDown
+      OnKeyPress = StringUdKeyPress
+      OnMouseDown = StringUdMouseDown
+    end
+    object StringGridUdTot: TStringGrid
+      Left = 2
+      Top = 410
+      Width = 455
+      Height = 30
+      Anchors = [akLeft, akRight, akBottom]
+      DefaultRowHeight = 18
+      Enabled = False
+      FixedCols = 0
+      RowCount = 1
+      FixedRows = 0
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      OnDrawCell = StringGridUdTotDrawCell
     end
   end
   object PopupMenuAdd: TPopupMenu

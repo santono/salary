@@ -74,7 +74,7 @@ uses
   UFormEditPodr in 'UFormEditPodr.pas' {FormEditPodr},
   UFormEditGru in 'UFormEditGru.pas' {FormEditGruppy},
   UFormEditShifr in 'UFormEditShifr.pas' {FormEditShifr},
-  UFormNemBud in 'UFormNemBud.pas' {FormMemBud},
+  UFormMemBud in 'UFormMemBud.pas' {FormMemBud},
   FormKafGruU in 'FormKafGruU.pas' {FormSwodKafGru},
   UFormUpdUd in 'UFormUpdUd.pas' {FormUpdUd},
   UFormUpdateCn in 'UFormUpdateCn.pas' {FormUpdateCn},
@@ -353,7 +353,9 @@ uses
   UFormRepF4 in 'UFormRepF4.pas' {FormRepF4},
   UFormRepPensionery in 'UFormRepPensionery.pas' {FormRepPensionery},
   UFormDekrList in 'UFormDekrList.pas' {FormDekrList},
-  UFormDekrUpd in 'UFormDekrUpd.pas' {FormDekrUpd};
+  UFormDekrUpd in 'UFormDekrUpd.pas' {FormDekrUpd},
+  UFormRepFondySVDN in 'UFormRepFondySVDN.pas' {FormRepFondySVDN},
+  UAddUdList in 'UAddUdList.pas';
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

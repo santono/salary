@@ -55,6 +55,9 @@ type
     dsDekrF_DATA: TFIBDateField;
     dsDekrL_DATA: TFIBDateField;
     dsDekrMODEILL: TFIBIntegerField;
+    dsDekr6: TpFIBDataSet;
+    dsDekrFIO: TFIBStringField;
+    dsDekrINN: TFIBStringField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -244,9 +247,9 @@ implementation
                       shifrDogDetId : integer;
                      end;
   var list5,list6,list7 : TList;
-      listIll,listOtp : TList;
-      listCheck       : TList;
-      listCPH         : TList;
+      listIll,listOtp   : TList;
+      listCheck         : TList;
+      listCPH           : TList;
       E:Variant;
 {$R *.dfm}
  function addToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0):pRec6;
@@ -1504,6 +1507,7 @@ procedure TFormRepF4.fillTable5;
       fillTable5PrinjatUwolen;
       fillTable5Perevody;
       fillTable5CPH;
+      fillTable5Dekr;
 
  end;
 procedure TFormRepF4.fillTable5PrinjatUwolen;
@@ -1922,17 +1926,34 @@ procedure TFormRepF4.fillTable5Dekr;
      vzv:string;
      date1, date2 : string;
      lm:integer;
+     pm1,pm2,py1,py2:integer;
+     dateFr,dateTo:tDate;
+     summaAdd : real ;
+     payTp    : integer;
+     payYear  : integer;
+     payMnth  : integer;
+     kdPtv    : integer;
+
  begin
       lm:=lenMonth(encodedate(curryear,nmes,1));
-      date1:=intToStr(currYear)+'-'+intToStr(nmes)+'-01';
-      date2:=intToStr(currYear)+'-'+intToStr(nmes)+'-'+intToStr(lm);
-      dsDekr.Params[0].Value:=date2;
-      dsDekr.Params[1].Value:=date1;
+      pm1:=nmes;
+      py1:=currYear;
+      pm2:=pm1;
+      py2:=py1;
+      dateFr:=encodedate(py1,pm1,1);
+      dateTo:=encodedate(py1,pm1,LenMonth(dateFr));
+
+//      dsDekr.Params[0].Value:=pm1;
+//      dsDekr.Params[1].Value:=py1;
+//      dsDekr.Params[2].Value:=pm2;
+//      dsDekr.Params[3].Value:=py2;
       dsDekr.Transaction.StartTransaction;
       dsDekr.Open;
       while (not dsDekr.Eof) do
         begin
              tabno:=dsDekrTABNO.value;
+             startDt := 0;
+             endDt   := 0;
              if dsDekrF_DATA.IsNull then
                 F_DATA:=encodedate(1990,1,1)
              else
@@ -1941,92 +1962,115 @@ procedure TFormRepF4.fillTable5Dekr;
                 L_Data:=encodedate(1990,1,1)
              else
                 L_Data:=dsDekrL_DATA.value;
+
+
+
              if dsDekrMODEILL.IsNull then
                 modeIll:=0
              else
                 modeIll:=dsDekrMODEILL.Value;
-             idclassificator:=0;
-             kodkp:='';
-             kodzkpptr :='';
-             namedol:='';
-             pid:='';
-             vzv:='';
-             nameProf:='';
-             startDt:=0;
-             endDt:=0;
-             pid:='';
-             if ((yearOf(F_Data)=currYear)
-                 and (monthOf(F_Data)=nmes)) then
-                startdt:=dayOf(F_Data);
-             if ((yearOf(L_Data)=currYear)
-                 and (monthOf(L_Data)=nmes)) then
-                enddt:=monthOf(L_Data);
-             if (StartDt>0) then
-                ZO:=5
-             else
-             if (EndDt>0) then
-                ZO:=6;
-             if not ((StartDt>0) or (enddt>0))  then
+             if (((monthOf(F_Data)=pm1)
+                 and
+                 (yearOf(F_Data)=py1))
+                 or
+                 ((monthOf(L_Data)=pm1)
+                 and
+                 (yearOf(L_Data)=py1))) then
+                 begin
+                      idclassificator:=0;
+                      kodkp:='';
+                      kodzkpptr :='';
+                      namedol:='';
+                      pid:='';
+                      vzv:='';
+                      nameProf:='';
+                      startDt:=0;
+                      endDt:=0;
+                      pid:='';
+                      if ((yearOf(F_Data)=currYear)
+                           and (monthOf(F_Data)=nmes)) then
+                         startdt:=dayOf(F_Data);
+                      if ((yearOf(L_Data)=currYear)
+                           and (monthOf(L_Data)=nmes)) then
+                         enddt:=monthOf(L_Data);
+                      ZO:=modeIll;
+                      if ((ZO<4) or (ZO>6)) then
+                         ZO:=4;
+                      if ((StartDt>0) or (enddt>0))  then
+                         begin
+                              finded:=false;
+                              recPerson:=nil;
+                              if listCheck.Count>0 then
+                                 for i:=0 to listCheck.Count-1 do
+                                    if pRecPerson(listCheck.Items[i]).tabno=tabno then
+                                       begin
+                                            recPerson:=pRecPerson(listCheck.Items[i]);
+                                            finded:=true;
+                                            break;
+                                       end;
+                              finded6:=false;
+                              rec6:=nil;
+         //    zo:=1;       //Трудова книжка на підприэмстві
+                              if list6.Count>0 then
+                                 for i:=0 to list6.Count-1 do
+                                    if pRec6(list6.Items[i]).tabno=tabno then
+                                       if pRec6(list6.Items[i]).zo in [1,2,25,26,32] then
+                                          begin
+   //                                          zo:=pRec6(list6.Items[i]).zo;
+                                               rec6:=pRec6(list6.Items[i]);
+                                               finded6:=true;
+                                               break;
+                                          end;
+                              if recPerson<>nil then
+                                 begin
+//                                    pid      := trim(copy(pid+space(250),1,250));
+//                                    nameDol  := trim(copy(nameDol+space(250),1,250));
+//                                    nameProf := trim(copy(nameProf+space(250),1,250));
+//                                    kodzkpptr:= trim(copy(kodzkpptr+space(5),1,5));
+//                                    kodkp    := trim(copy(kodkp+space(6),1,6));
+//                                    vzv      := '';
+//                                    pid:=trim(copy(pid+space(250),1,250));
+                                      new(rec5);
+                                      fillChar(rec5^,sizeOf(rec5^),0);
+                                      rec5.YEARVY:=currYear;
+                                      rec5.monthVy:=nmes;
+                                      rec5.tabno:=tabno;
+                                      rec5.PERIODM:=rec5.monthVy;
+                                      rec5.PERIODY:=rec5.yearVy;
+                                      rec5.UKRGROMAD:=rec6.ukrGromad;
+                                      rec5.NUMIDENT:=trim(recPerson.numIdent);
+                                      rec5.FIO:=trim(recPerson.fio);
+                                      rec5.NM:=trim(recPerson.nm);
+                                      rec5.FTN:=trim(recPerson.ftn);
+                                      rec5.START_DT:=startDt;
+                                      rec5.END_DT:=endDt;
+                                      rec5.ZO:=zo;
+                                      rec5.PID_ZV:=reasonUwol;
+                                      rec5.PNR:=trim(ReplQto2Q(nameprof));
+                                      rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr));
+                                      rec5.prof:=trim(ReplQto2Q(kodkp));
+                                      rec5.POS:=trim(ReplQto2Q(namedol));
+                                      rec5.PID:=trim(pid);
+                                      rec5.VZV:=trim(vzv);
+                                      list5.Add(rec5);
+                                 end;
+                         end;
+                 end;
+             if not ((F_data>dateTo) or (L_data<datefr)) then
                 begin
-                     dsDekr.next;
-                     continue;
-                end;
+                     zo       := 1;
+                     summaAdd := 0.00;
+                     payTp    := 0;
+                     payYear  := currYear;
+                     payMnth  := nmes;
+                     kdPtv    := LenMonth(dateTo);
+                     kdPtv    := kdPtv - startDt - (lenMonth(dateTo)-endDt);
+                     if kdPtv<0 then
+                        kdPtv:=0;
 
-             finded:=false;
-             recPerson:=nil;
-             if listCheck.Count>0 then
-                for i:=0 to listCheck.Count-1 do
-                    if pRecPerson(listCheck.Items[i]).tabno=tabno then
-                       begin
-                            recPerson:=pRecPerson(listCheck.Items[i]);
-                            finded:=true;
-                            break;
-                       end;
-             finded6:=false;
-             rec6:=nil;
-             zo:=1;       //Трудова книжка на підприэмстві
-             if list6.Count>0 then
-                for i:=0 to list6.Count-1 do
-                    if pRec6(list6.Items[i]).tabno=tabno then
-                    if pRec6(list6.Items[i]).zo in [1,2,25,26,32] then
-                       begin
-   //                         zo:=pRec6(list6.Items[i]).zo;
-                            rec6:=pRec6(list6.Items[i]);
-                            finded6:=true;
-                            break;
-                       end;
-             if recPerson<>nil then
-                begin
-//                     pid      := trim(copy(pid+space(250),1,250));
-//                     nameDol  := trim(copy(nameDol+space(250),1,250));
-//                     nameProf := trim(copy(nameProf+space(250),1,250));
-//                     kodzkpptr:= trim(copy(kodzkpptr+space(5),1,5));
-//                     kodkp    := trim(copy(kodkp+space(6),1,6));
-//                     vzv      := '';
-//                     pid:=trim(copy(pid+space(250),1,250));
-                     new(rec5);
-                     fillChar(rec5^,sizeOf(rec5^),0);
-                     rec5.YEARVY:=currYear;
-                     rec5.monthVy:=nmes;
-                     rec5.tabno:=tabno;
-                     rec5.PERIODM:=rec5.monthVy;
-                     rec5.PERIODY:=rec5.yearVy;
-                     rec5.UKRGROMAD:=rec6.ukrGromad;
-                     rec5.NUMIDENT:=trim(recPerson.numIdent);
-                     rec5.FIO:=trim(recPerson.fio);
-                     rec5.NM:=trim(recPerson.nm);
-                     rec5.FTN:=trim(recPerson.ftn);
-                     rec5.START_DT:=startDt;
-                     rec5.END_DT:=endDt;
-                     rec5.ZO:=zo;
-                     rec5.PID_ZV:=reasonUwol;
-                     rec5.PNR:=trim(ReplQto2Q(nameprof));
-                     rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr));
-                     rec5.prof:=trim(ReplQto2Q(kodkp));
-                     rec5.POS:=trim(ReplQto2Q(namedol));
-                     rec5.PID:=trim(pid);
-                     rec5.VZV:=trim(vzv);
-                     list5.Add(rec5);
+//                      TABNO,zo,payTp,payMnth,payYear,summaAdd;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0):pRec6;
+
+                     rec6:=addToF6(dsDekrTABNO.Value,zo,payTp,payMnth,payYear,summaAdd,true,1,kdPtv);
                 end;
              dsDekr.Next;
         end;
@@ -2042,11 +2086,31 @@ procedure TFormRepF4.fillTable7;
      rec7:pRec7;
      startDt,endDt:integer;
 
+   function existsExpNe1OsnWr(tabno:integer):boolean;
+    var i:integer;
+        finded:boolean;
+    begin
+         finded:=false;
+         for i:=0 to list6.Count-1 do
+              begin
+                   if (pRec6(list6.Items[i]).tabno=tabno) then
+                   if (pRec6(list6.Items[i]).exp<>1) then
+                   if (pRec6(list6.Items[i]).w_r=1) then
+                      begin
+                           finded:=true;
+                           break;
+                      end;
+              end;
+         existsExpNe1OsnWr:=finded;
+    end;
+
  begin
       if list6.Count<1 then exit;
       for i:=0 to list6.Count-1 do
           begin
                if pRec6(list6.Items[i]).exp<>1 then continue;
+               if existsExpNe1OsnWR(pRec6(list6.Items[i]).tabno) then continue;
+//               if notOsnWR(pRec6(list6.Items[i]).tabno) then continue;
                finded:=false;
                if list7.count>0 then
                   for j:=0 to list7.Count-1 do

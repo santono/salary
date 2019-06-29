@@ -21,6 +21,8 @@ type
     dsPensTABNO: TFIBIntegerField;
     dsPensNAL_CODE: TFIBStringField;
     dsPensFIO: TFIBStringField;
+    dsPensSUMMAADD: TFIBBCDField;
+    dsPensSUMMAECB: TFIBBCDField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -65,6 +67,8 @@ procedure TFormRepPensionery.CreateReport;
       exRow:integer;
       E,WC:Variant;
       s:string;
+      summaAdd,summaECB:real;
+      summaAddS,summaECBS:string;
   begin
        FormWait.Show;
        Application.ProcessMessages;
@@ -99,11 +103,22 @@ procedure TFormRepPensionery.CreateReport;
                      s:=s+' '+getMonthRus(monthOf(dtIn.Date))+' '+intToStr(yearOf(dtIn.Date))+' ã.';
 
                      E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1] := s;
+                     inc(exRow);
+                     E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1] := '¹';
+                     E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2] := 'ÈÍÍ';
+                     E.WorkBooks[1].WorkSheets[1].Cells[ExRow,3] := 'ÔÈÎ';
+                     E.WorkBooks[1].WorkSheets[1].Cells[ExRow,4] := 'Íà÷èñëåíî';
+                     E.WorkBooks[1].WorkSheets[1].Cells[ExRow,5] := 'ÅÑÍ';
 
                 end;
+             summaAdd:=dsPensSUMMAADD.Value;
+             summaECB:=dsPensSUMMAECB.Value;
              inc(exRow);
              E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1] := i;
-             E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2] := trim(dsPensFIO.Value);
+             E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2] := trim(dsPensNAL_CODE.Value);
+             E.WorkBooks[1].WorkSheets[1].Cells[ExRow,3] := trim(dsPensFIO.Value);
+             E.WorkBooks[1].WorkSheets[1].Cells[ExRow,4] := summaAdd;
+             E.WorkBooks[1].WorkSheets[1].Cells[ExRow,5] := summaECB;
              dsPens.Next;
         end;
        dsPens.Close;

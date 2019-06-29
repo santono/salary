@@ -30,6 +30,9 @@
 MyCtrls.*
 MyDBCtrls.*
 CHILDWIN.*
+*.7z
+*.ini
+
 
 
 artem/

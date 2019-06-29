@@ -470,7 +470,7 @@ implementation
   FormTabelU, SQlConnectU,ScrNalog, USelSwodMode,UFormArc,UFibModule,
   uFormBoln, uFormEditIPodr, UFORMEDITIKAT, UFORMEDITPRZB, UFormBolKoe,
   uFormOtp, UFormRecalc, UFormSelLera,uFormBuh,UFormBlnAbo,
-  UFormRecalcPPSSFZ,FormPodrU,UFormEditGru,UFormEditShifr, UFormNemBud,
+  UFormRecalcPPSSFZ,FormPodrU,UFormEditGru,UFormEditShifr, UFormMemBud,
   FormKafGruU, FormAlimU,FormRListU,FormIndexU, uFormOtpAbo,ShellApi,IniFiles,
   UFormPlatGen,UFormListVypl,FormSwodAlimU,FormRecalcPersonU,
   UFormSwodGt2660, uFormSwodSS, uFormSwodTemy, FormMovUkrFioU,FormAutoRepU,

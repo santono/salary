@@ -530,6 +530,7 @@ var
     modeKadrySQL : Boolean;
     Block_Program : Boolean;
     NeedTestGetPutInf : Boolean;
+    needTestMem : boolean;
     DebugMemoryCorruption:Boolean;
     needIOSQL:Boolean;
     Data_Pri_Mem : TDateTime; // Дата приказа для ввода отпускных
@@ -664,6 +665,7 @@ begin
     modeKadrySQL          := True;
     Block_Program         := false;
     NeedTestGetPutInf     := false;
+    needTestMem           := false;
     DebugMemoryCorruption := false;
     needIOSQL             := false;
     Data_Pri_Mem          := Date;

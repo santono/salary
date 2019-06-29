@@ -1,4 +1,4 @@
-unit UFormNemBud;
+unit UFormMemBud;
                                 
 interface
 
@@ -58,8 +58,8 @@ var
   memmode    : (memBudMode,memLeramode,memColBudMode,memColVneMode,memMag802Mode,memMag811Mode,memGNMode,memNISMode,memMatHelpMode,memIskraMode);
 
 implementation
-uses ComObj,ScrDef,ScrIo,ScrLists,ScrUtil,IniFiles,UFibModule,uFormMkPensList,
-     ScrSwod,uFormWait;
+uses ComObj,ScrDef,ScrIo,ScrLists,ScrUtil,IniFiles,uFormMkPensList,
+     ScrSwod,uFormWait,USQLUnit,UAddUdList;
   var    SQLSwodClass:TSQLSwodClass;
 
 procedure InsertIntoSQL(Shifr:integer;Summa:real;Tabno:integer;NSRV:integer;ShifrGru:integer;ShifrKat:integer;ShifrRow:integer;ShifrCol:integer);
@@ -75,15 +75,7 @@ procedure InsertIntoSQL(Shifr:integer;Summa:real;Tabno:integer;NSRV:integer;Shif
        S:=S+IntToStr(ShifrKat)+',';
        S:=S+IntToStr(ShifrRow)+',';
        S:=S+IntToStr(ShifrCol)+')';
-       FIB.pFIBQuery.SQL.Clear;
-       FIB.pFIBQuery.SQL.Add(S);
-       FIB.pFIBTransactionSAL.StartTransAction;
-       try
-          FIB.pFIBQuery.ExecQuery;
-       except
-          ShowMessage('Ошибка вставки записи в FireBird');
-       end;
-       FIB.pFIBTransactionSAL.Commit;
+       SQLExecute(S);
  end;
 
  procedure EmptyInSQL;
@@ -91,15 +83,7 @@ procedure InsertIntoSQL(Shifr:integer;Summa:real;Tabno:integer;NSRV:integer;Shif
  begin
   //     Exit;
        S:='delete from test_addm';
-       FIB.pFIBQuery.SQL.Clear;
-       FIB.pFIBQuery.SQL.Add(S);
-       FIB.pFIBTransactionSAL.StartTransAction;
-       try
-          FIB.pFIBQuery.ExecQuery;
-       except
-          ShowMessage('Ошибка чистки таблицы в FireBird');
-       end;
-       FIB.pFIBTransactionSAL.Commit;
+       SQLExecute(S);
  end;
 
 procedure TExcelList.AddItem(Row,Col:integer;Summa:real;Inv:boolean);
@@ -964,8 +948,8 @@ procedure TFormMemBud.MakeOrder;
             end
          else if MemMode=memColBudMode then
             begin
-                FName := Ini.ReadString( 'Parameters', 'MEMCOLBUDNAME', '' );
-                nameSQL:='Бюджет колледж';
+                FName   := Ini.ReadString( 'Parameters', 'MEMCOLBUDNAME', '' );
+                nameSQL := 'Бюджет колледж';
             end
          else if MemMode=memColVneMode then
             begin
@@ -974,17 +958,17 @@ procedure TFormMemBud.MakeOrder;
             end
          else if MemMode=memMag802Mode then
             begin
-                FName := Ini.ReadString( 'Parameters', 'MEMMAG802NAME', '' );
+                FName   := Ini.ReadString( 'Parameters', 'MEMMAG802NAME', '' );
                 nameSQL := 'Магистратура бюджет';
             end
          else if MemMode=memMag811Mode then
             begin
-                FName := Ini.ReadString( 'Parameters', 'MEMMAG811NAME', '' );
+                FName   := Ini.ReadString( 'Parameters', 'MEMMAG811NAME', '' );
                 nameSQL := 'Магистратура внебюджет';
             end
          else if MemMode=memGNMode then
             begin
-                FName := Ini.ReadString( 'Parameters', 'MEMGNNAME', '' );
+                FName   := Ini.ReadString( 'Parameters', 'MEMGNNAME', '' );
                 nameSQL := 'Г Н';
             end
          else if MemMode=memNISMode then
@@ -998,7 +982,7 @@ procedure TFormMemBud.MakeOrder;
             end
          else if MemMode=memMatHelpMode then
             begin
-                FName := Ini.ReadString( 'Parameters', 'MEMMPNAME', '' );
+                FName   := Ini.ReadString( 'Parameters', 'MEMMPNAME', '' );
                 nameSQL := 'Материальная помощь';
             end
          else if MemMode=memIskraMode then
@@ -1017,6 +1001,7 @@ procedure TFormMemBud.MakeOrder;
          end;
          NSRVT:=NSRV;
          MAKEPENSLIST(2);
+//         showMessage(intToStr(TestListClass.getListCount));
          PutInf;
          EMPTY_ALL_PERSON;;
          GaugeMem.MinValue:=1;
@@ -1115,6 +1100,12 @@ procedure TFormMemBud.MakeOrder;
                                                        if (ShifrRow>0) and (ShifrCol>0) then
                                                            begin
                                                               SQLSwodClass.AddItemAdd(CURR_ADD,NSRV);
+
+                                                              if needTestMem then
+                                                                 TestListClass.findAddRec(curr_add,curr_person);
+
+
+
                                                               InsertIntoSQL(Curr_Add^.Shifr,
                                                                             Curr_Add^.Summa,
                                                                             Curr_Person^.Tabno,
@@ -1207,6 +1198,10 @@ procedure TFormMemBud.MakeOrder;
                                                          if ((ShifrRow>0) and (ShifrCol>0)) then
                                                             begin
                                                                  SQLSwodClass.AddItemUd(CURR_Ud,NSRV,CURR_PERSON);
+
+                                                                 if needTestMem then
+                                                                    TestListClass.findUdRec(curr_ud,curr_person);
+
                                                                  ExcelList.AddItem(ShifrRow,ShifrCol,Curr_Ud^.Summa,false);
                                                                  if Is_Invalid(Curr_Person) then
                                                                     ExcelList.AddItem(ShifrRow,ShifrCol,Curr_Ud^.Summa,true);
@@ -1277,6 +1272,9 @@ procedure TFormMemBud.MakeOrder;
       NSRV:=NSRVT;
       MKFLNM;
       GETINF(TRUE);
+      if needTestMem then
+        if assigned(TestListClass) then
+           TestListClass.Done;
       try
          if ExcelList.Count=0 then
             begin

@@ -51,6 +51,16 @@ type PSwodDetRec=^TSwodDetRec;
                       constructor init(Y,M:Integer);
                       destructor Done;
                   //    procedure PutToSQL(name:string;NameSQL:WideString);
+                      procedure PutToSQLBad(NameSwod   : string       ;
+                                         NameSQL    : WideString   ;
+                                         Select_key : Integer      ;
+                                         Select_Bay_Mode : Integer ;
+                                         SelectedBay     : Integer ;
+                                         NeedDogPod   : Boolean    ;
+                                         TotalMode    : boolean    ;
+                                         ModeIllSS    : Integer    ;
+                                         SwodSowmMode : Integer    ;
+                                         ChernobMode  : integer);
                       procedure PutToSQL(NameSwod   : string       ;
                                          NameSQL    : WideString   ;
                                          Select_key : Integer      ;
@@ -73,7 +83,7 @@ var
 implementation
   uses Forms,SysUtils,ScrUtil,uFormMkPensList,ScrLists,ScrIo,
        UFormView,UFormProgress,Dialogs,UFibModule,UFormWait,ComObj,
-       UFormSwodMNFR, frxClass, DateUtils;
+       UFormSwodMNFR, frxClass, DateUtils,USQLUnit,UAddUdList;
 TYPE
        PNeedPodrRec=^TNeedPodrRec;
        TNeedPodrRec=record
@@ -104,7 +114,7 @@ TYPE
            List:=nil;
       end;
 //    procedure TSQLSwodClass.PutToSQL(name:string;NameSQL:WideString);
-      procedure TSQLSwodClass.PutToSQL(NameSwod     : String;
+      procedure TSQLSwodClass.PutToSQLBad(NameSwod     : String;
                                        NameSQL      : WideString;
                                        Select_key   : Integer;
                                        Select_Bay_Mode : Integer;
@@ -176,6 +186,54 @@ TYPE
                   end;
 
            FIB.pFIBQuery.Transaction.Commit;
+
+
+      end;
+      procedure TSQLSwodClass.PutToSQL(NameSwod     : String;
+                                       NameSQL      : WideString;
+                                       Select_key   : Integer;
+                                       Select_Bay_Mode : Integer;
+                                       SelectedBay  : Integer;
+                                       NeedDogPod   : Boolean;
+                                       TotalMode    : Boolean;
+                                       ModeIllSS    : Integer;
+                                       SwodSowmMode : Integer;
+                                       ChernobMode  : Integer);
+      var SQLStmnt:string;
+          ShifrId:Integer;
+          i,j:Integer;
+          v:variant;
+      begin
+           i:=0;
+           j:=0;
+           if NeedDogPod then i:=1;
+           if TotalMode  then j:=1;
+
+           SQLStmnt:='insert into tb_swody_hat(name,yearvy,monthvy,namedet,select_key,select_bay_mode,selectedbay,ModeIllSS,SwodSowmMode,ModeChernob,NeedDogPod,TotalMode) values('+
+                      ''''+trim(ReplSToDQuote(NameSwod))+''','+IntToStr(Y)+','+IntToStr(M)+','''+trim(ReplSToDQuote(NameSQL))+''','+
+                      IntToStr(Select_Key)+','+IntToStr(Select_Bay_Mode)+','+IntToStr(SelectedBay)+','+IntToStr(ModeIllSS)+','+IntToStr(SwodSowmMode)+
+                      ','+IntToStr(ChernobMode)+','+IntToStr(i)+','+IntToStr(j)+')';
+           SQLExecute(SQLStmnt);
+           SQLStmnt:='select first 1 shifrid from tb_swody_hat order by shifrid desc';
+           v:=SQLQueryValue(SQLStmnt);
+           shifrid:=v;
+           if list.Count>0 then
+              for i:=0 to list.count-1 do
+                  begin
+                       SQLStmnt:='insert into tb_swody_det(shifridswod,shifrpod,shifrsta,period,nmbofrec,';
+                       SQLStmnt:=Trim(SQLStmnt)+'summa,summafzp,summafmp,summaoth) values(';
+                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(Shifrid)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(PSwodDetRec(list.Items[i]).ShifrPod)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(PSwodDetRec(list.Items[i]).ShifrSta)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(PSwodDetRec(list.Items[i]).Period)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(PSwodDetRec(list.Items[i]).nmbofrec)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetRec(list.Items[i]).Summa)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetRec(list.Items[i]).Summafzp)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetRec(list.Items[i]).Summafmp)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetRec(list.Items[i]).SummaOth)+')';
+                       SQLExecute(SQLStmnt);
+                  end;
+
 
 
       end;
@@ -812,6 +870,9 @@ BEGIN
                            ItemAddList.AddItem(Kod,Curr_Add^.PERIOD,Curr_Add^.Summa,Curr_Add^.FZP,Curr_Add^.FMP,Curr_Add^.Other,0);
                            SQLSwodClass.AddItemAdd(CURR_ADD,NSRV);
 
+                           if needTestMem then
+                              TestListClass.addaddrec(curr_add,curr_person);
+
                            SummaPodr:=ItemAddList.SummaItema;
                            if abs(SummaTot-SummaPodr)>0.01 then
                               SummaTot:=SummaTot;
@@ -835,6 +896,10 @@ BEGIN
                             if not Detail_Swod then Curr_Ud^.Period:=nmes;
                             ItemUdList.AddItem(Kod,Curr_Ud^.Period,Curr_Ud^.Summa,0,0,0,Curr_Person^.Bank);
                             SQLSwodClass.AddItemUd(CURR_Ud,NSRV,CURR_PERSON);
+
+                            if needTestMem then
+                               TestListClass.addudrec(curr_ud,curr_person);
+
 
                             Curr_Ud:=Curr_Ud^.NEXT;
                        END;

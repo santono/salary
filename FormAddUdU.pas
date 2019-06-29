@@ -7,7 +7,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids,ScrDef, StdCtrls, Buttons, Menus, ImgList, ComCtrls,
-  ToolWin, ActnList,UFormWaitMess;
+  ToolWin, ActnList,UFormWaitMess, ExtCtrls;
 
 type
   TFormAdd = class(TForm)
@@ -48,6 +48,9 @@ type
     N13: TMenuItem;
     N14: TMenuItem;
     N15: TMenuItem;
+    PanelAdd: TPanel;
+    PanelUd: TPanel;
+    SplitterAddUd: TSplitter;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure StringAddDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
@@ -725,6 +728,22 @@ end;
 procedure TFormAdd.FormCreate(Sender: TObject);
 begin
      RetCode:=0;
+     StringAdd.Top:=2;
+     StringAdd.left:=2;
+     StringAdd.height:=410;
+     StringAdd.width:=PanelAdd.Width-4;;
+     stringGridAddTot.top:=StringAdd.top+StringAdd.height+2;
+     stringGridAddTot.left:=StringAdd.left;
+     stringGridAddTot.width:=StringAdd.width;
+     stringGridAddTot.height:=90;
+     StringUd.Top:=2;
+     StringUd.left:=2;
+     StringUd.height:=410;
+     StringUd.width:=PanelUd.Width-4;;
+     stringGridUdTot.top:=StringUd.top+StringUd.height+2;
+     stringGridUdTot.left:=StringUd.left;
+     stringGridUdTot.width:=StringUd.width;
+     stringGridUdTot.height:=90;
 end;
 
 procedure TFormAdd.N1Click(Sender: TObject);
