@@ -13,11 +13,47 @@ CONST LOW_IO_BUF_PTR = 2;
 //                  lenBuf:Integer;
 //                  buf :pByteArray;
 //               end;
+TYPE tVersionRec=record
+                  fraza:string[7];
+                  versionNo:string[2];
+                  crc32:cardinal;
+                 end;
 VAR  IO_BUF_PTR,IO_BUF_PTR_OLD:INTEGER;
      VERSION      : CHAR;
      INF          : FILE;
      IO_BUF_LEN   : WORD;
      RESULTIO     : INTEGER;
+
+function getVersion(var crc32:cardinal):string;
+   var versionRec:tVersionRec;
+       resultV:integer;
+       s:char;
+   begin
+        crc32:=0;
+        reset(inf,1);
+        blockRead(inf,versionRec,sizeOf(versionRec),resultV);
+        if resultV<>sizeOf(versionRec) then
+           begin
+                getVersion:='A';
+                exit;
+           end;
+       if versionRec.fraza='Version ' then
+          begin
+               getVersion:=versionRec.versionNo;
+               crc32:=versionRec.crc32;
+               exit;
+          end;
+       reset(inf,1);
+       blockRead(inf,s,1,resultV);
+       if resultV<>1 then
+          begin
+               getVersion:='';
+               exit;
+          end;
+       if not (s in ['B','C','D','E']) then
+          s:='A';
+       getVersion:=s;
+   end;
 
 PROCEDURE BLOCKWRITE_NET(VAR F:FILE ;VAR BUF;COUNT:INTEGER;VAR RESULTIO:INTEGER);FORWARD;
 PROCEDURE RENAME_NET(VAR F:FILE;FNINF_BAK:STRING);FORWARD;
@@ -27,6 +63,8 @@ function DeleteFile_NET(FileNameA:string):boolean;forward;
 function CopyFile(FileNameSrc:string;FileNameDst:string):Boolean;forward;
 function getFileSize(fileName:string):longword;forward;
 function copyFileByWindows(AFileName, ANewFileName: string):Boolean;forward;
+
+
 
 
 
@@ -41,7 +79,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
      NEED_UNLOCK : BOOLEAN;
      SErr        : String;
      ResultG     : Integer;
-
+     CRC32ReadedFromFile:cardinal;
   PROCEDURE GET_FROM_BUF(VAR P;SIZE:WORD);
    VAR PP:ARRAY[1..PERSON_SIZE] OF BYTE ABSOLUTE P;
        PPP:ARRAY[1..PERSON_SIZE] OF BYTE;
@@ -196,6 +234,45 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                        UD               : UD_PTR;
                        CN               : CN_PTR;
                   END;
+       PERSON_E    = RECORD
+                       TABNO            : WORD;
+                       FIO              : STRING[20];
+                       GRUPPA           : word; {NIS BJDGET,GN,FR}
+                       KATEGORIJA       : WORD; {NIS,UWP,PREPOD}
+                       DOLG             : STRING[10];
+                       OKLAD            : REAL48;
+                       WID_RABOTY       : word; {SOWM,OSN}
+                       N_TEMY           : STRING[10];
+                       MESTO_OSN_RABOTY : WORD;
+                       WID_OPLATY       : WORD; {STAWKA,SDELNO,POCHASOWO}
+                       MODE             : WORD; {5-,6- DAY}
+                       FROM             : WORD; {OTKUDA PRIBYL}
+                       PODOH            : BYTE;
+                       MALO             : BYTE;
+                       PROFSOJUZ        : BYTE;
+                       DAY              : REAL48;
+                       MAIN             : WORD; {1 - ДЛЯ НАСТОЯЩЕГО ОСНОВНОГО МЕСТА РАБОТЫ}
+                                                   {0 - ДЛЯ ПРОШЛОГО ОСНОВНОГО МНСТА РАБОТЫ}
+                       TABEL            : TABEL_TYPE;
+                       HOLIDAY          : HOLIDAY_TYPE;
+                       STATE            : BYTE;             {Работа отпуск декрет}
+                       AUTOMATIC        : BYTE;              {Считать или не считать}
+                       START_DAY        : BYTE;              {С этого дня начинать считать табель}
+                       PENS             : BYTE;
+                       BANK             : BYTE;
+                       ID               : LongWord;
+                       Reserved         : LongWord;
+          //             RESERVED         : ARRAY[1..8] OF BYTE;
+                       NAL_CODE         : STRING[10];
+
+                       NEXT             : PERSON_PTR;
+                       SOWM             : SOWM_PTR;
+                       ADD              : ADD_PTR;
+                       UD               : UD_PTR;
+                       CN               : CN_PTR;
+
+                  END;
+
 
        ADD_C     =RECORD
                        SHIFR      : WORD;
@@ -209,29 +286,6 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                        WHO        : WORD;    {Получена автоматически или вручную}
                        NEXT       : ADD_PTR;
                   END;
-       UD_C      =RECORD
-                       SHIFR      : WORD;
-                       PERIOD     : BYTE   ;
-                       YEAR       : BYTE   ;
-                       SUMMA      : REAL48;
-                       VYPLACHENO : WORD;
-                       WHO        : WORD;   {Получена автоматически или вручную}
-                       NEXT       : UD_PTR;
-                  END;
-       CN_C      =RECORD
-                       SHIFR        : WORD;
-                       KOD          : WORD;
-                       SUMMA        : REAL48;
-                       PRIM         : WORD;
-                       PRIM_1       : STRING [8];
-                       DEJA_COUNTED : BYTE;       {Флаг "Уже прибавлена сумма для кредита}
-                       FLOW_SUMMA   : REAL48;       {Текущая выплаченная сумма кредита}
-                       LIMIT_SUMMA  : REAL48;       {Требуемая сумма кредита }
-                       AUTOMATIC    : BYTE;
-                       ID           : WORD;
-                       NEXT         : CN_PTR;
-                  END;
-
        ADD_D     =RECORD
                        SHIFR      : WORD;
                        PERIOD     : BYTE   ;
@@ -245,6 +299,74 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                        COUNT      : STRING[8];
                        NEXT       : ADD_PTR;
                   END;
+       Add_E      =RECORD
+                       SHIFR      : WORD   ;
+                       PERIOD     : BYTE   ;
+                       YEAR       : BYTE   ;   {1991 - 1 и т д}
+                       SUMMA      : REAL48   ;
+                       FMP        : REAL48   ;
+                       FZP        : REAL48   ;
+                       OTHER      : REAL48   ;
+                       VYPLACHENO : WORD   ;
+                       WHO        : WORD   ;    {Получена автоматически или вручную}
+                       WORK_DAY   : WORD   ;
+                       WORK_CLOCK : REAL48   ;
+                       SHIFR_KAT  : BYTE   ;
+                       SHIFR_GRU  : BYTE   ;
+                       COUNT      : STRING[8];
+                       NEXT       : ADD_PTR;
+                  END;
+
+
+       UD_C      =RECORD
+                       SHIFR      : WORD;
+                       PERIOD     : BYTE   ;
+                       YEAR       : BYTE   ;
+                       SUMMA      : REAL48;
+                       VYPLACHENO : WORD;
+                       WHO        : WORD;   {Получена автоматически или вручную}
+                       NEXT       : UD_PTR;
+                  END;
+       UD_E      =RECORD
+                       SHIFR      : WORD   ;
+                       PERIOD     : BYTE   ;
+                       YEAR       : BYTE   ;   {1991 - 1 и т д}
+                       SUMMA      : REAL48 ;
+                       VYPLACHENO : WORD   ;
+                       WHO        : WORD   ;   {Получена автоматически или вручную}
+                       COUNT      : STRING[8];
+                       NEXT       : UD_PTR;
+                  END;
+
+
+       CN_C      =RECORD
+                       SHIFR        : WORD;
+                       KOD          : WORD;
+                       SUMMA        : REAL48;
+                       PRIM         : WORD;
+                       PRIM_1       : STRING [8];
+                       DEJA_COUNTED : BYTE;       {Флаг "Уже прибавлена сумма для кредита}
+                       FLOW_SUMMA   : REAL48;       {Текущая выплаченная сумма кредита}
+                       LIMIT_SUMMA  : REAL48;       {Требуемая сумма кредита }
+                       AUTOMATIC    : BYTE;
+                       ID           : WORD;
+                       NEXT         : CN_PTR;
+                  END;
+      CN_E       =RECORD
+                       SHIFR        : WORD;
+                       KOD          : WORD;
+                       SUMMA        : REAL48;
+                       PRIM         : word;
+                       PRIM_1       : STRING [8];
+                       DEJA_COUNTED : BYTE;       {Флаг "Уже прибавлена сумма для кредита}
+                       FLOW_SUMMA   : REAL48;       {Текущая выплаченная сумма кредита}
+                       LIMIT_SUMMA  : REAL48;       {Требуемая сумма кредита }
+                       AUTOMATIC    : BYTE;
+                       ID           : WORD;
+                       COUNT        : STRING[8];
+                       Next         : CN_PTR;
+                  END;
+
 
 
     VAR WORK_PERSON : PERSON;
@@ -252,14 +374,18 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
 {        wwwf        : array[1..sizeof(Work_Person.Fio)] of byte absolute Work_person.Fio;}
         WORK_PERSON_B : PERSON_B;
         WORK_PERSON_C : PERSON_C;
+        WORK_PERSON_E : PERSON_E;
         WORK_SOWM   : SOWM;
         WORK_ADD    : ADD;
         WORK_UD     : UD;
         WORK_CN     : CN;
         WORK_ADD_C  : ADD_C;
-        WORK_UD_C   : UD_C;
-        WORK_CN_C   : CN_C;
         WORK_ADD_D  : ADD_D;
+        WORK_ADD_E  : ADD_E;
+        WORK_UD_C   : UD_C;
+        WORK_UD_E   : UD_E;
+        WORK_CN_C   : CN_C;
+        WORK_CN_E   : CN_E;
         P:ARRAY[1..PERSON_SIZE] OF BYTE ABSOLUTE WORK_PERSON;
         I,IIII,I_C   : INTEGER;
         CURR_PERSON  : PERSON_PTR;
@@ -269,7 +395,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
         CURR_SOWM    : SOWM_PTR;
         NEED_PERSON  : BOOLEAN;
         NEED_UNLOCK  : BOOLEAN;
-
+        calc_l       : INTEGER;
  PROCEDURE TEST_PERSON(var WORK_PERSON:PERSON;NUMBER:INTEGER;VERS:STRING);
   VAR I,l  : INTEGER;
       CH : STRING[1];
@@ -278,6 +404,8 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
       gggg,kkkk : word;
       testfio,testdolg : string;
   BEGIN
+        IF NUMBER=14 then
+           gggg:=1;
         IF (WORK_PERSON.TABNO<1) OR (WORK_PERSON.TABNO>25000) THEN
            BEGIN
                 ShowMessage('Неверный табельный номер у работника номер '+INTtoStr(NUMBER)+'. Версия '+VERS);
@@ -298,7 +426,10 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
         I:=0;
         l:=ORD(WORK_PERSON.FIO[0]);
         if ((l<0) or (l>20)) then l:=20;
-        WHILE (I<L) DO
+        calc_l:=ord(WORK_PERSON.FIO[0]);
+        if (calc_l>sizeOf(WORK_PERSON.FIO)) then
+            calc_l:=sizeOf(WORK_PERSON.FIO);
+        WHILE (I<calc_l) DO
          BEGIN
               INC(I);
               CH:=DOSTOWIN(WORK_PERSON.FIO[I]);
@@ -312,8 +443,10 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
          END;
         I:=0;
         testdolg:=DOSTOWIN(WORK_PERSON.dolg);
-
-        WHILE (I<10) DO
+        calc_l:=ord(WORK_PERSON.dolg[0]);
+        if (calc_l>sizeOf(WORK_PERSON.dolg)) then
+            calc_l:=sizeOf(WORK_PERSON.dolg);
+        WHILE (I<calc_l) DO
          BEGIN
               INC(I);
               CH:=DOSTOWIN(WORK_PERSON.DOLG[I]);
@@ -326,7 +459,10 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                  END;
          END;
         I:=0;
-        WHILE (I<10) DO
+        calc_l:=ord(WORK_PERSON.NAL_CODE[0]);
+        if (calc_l>sizeOf(WORK_PERSON.NAL_CODE)) then
+            calc_l:=sizeOf(WORK_PERSON.NAL_CODE);
+        WHILE (I<calc_l) DO
          BEGIN
               INC(I);
               CH:=DOSTOWIN(WORK_PERSON.NAL_CODE[I]);
@@ -369,7 +505,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
         IF (WORK_PERSON.MESTO_OSN_RABOTY<0) OR
            (I>MAX_COUNT_PODRAZD) THEN
            BEGIN
-                ShowMessage('Неверное место основной работы у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION);
+                ShowMessage('Неверное место основной работы у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION+' Место осн работы='+intToStr(I));
                 ShowMessage('Ошибка с адреса '+INTTOSTR(IO_BUF_PTR_OLD));
 {               PRINT_BUF_HEX(WORK_PERSON,SIZEOF(WORK_PERSON));}
                 EXIT;
@@ -457,6 +593,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
  PROCEDURE MAKE_PERSON_FROM_PERSON_C(VAR WORK_PERSON:PERSON;WORK_PERSON_B:PERSON_C);
   VAR I:INTEGER;
   BEGIN
+            FillChar(work_person,sizeOf(work_person),0);
             WORK_PERSON.TABNO           := WORK_PERSON_B.TABNO;
             WORK_PERSON.FIO             := WORK_PERSON_B.FIO;
             WORK_PERSON.GRUPPA          := WORK_PERSON_B.GRUPPA;
@@ -489,19 +626,70 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
 //            FOR I:=1 TO 8 DO WORK_PERSON.RESERVED[I]:=0;
   END;
 
+ PROCEDURE MAKE_PERSON_FROM_PERSON_E(VAR WORK_PERSON:PERSON;WORK_PERSON_E:PERSON_E);
+  VAR I:INTEGER;
+  BEGIN
+            FillChar(work_person,sizeOf(work_person),0);
+            WORK_PERSON.TABNO           := WORK_PERSON_E.TABNO;
+            WORK_PERSON.FIO             := WORK_PERSON_E.FIO;
+            WORK_PERSON.GRUPPA          := WORK_PERSON_E.GRUPPA;
+            WORK_PERSON.KATEGORIJA      := WORK_PERSON_E.KATEGORIJA;
+            WORK_PERSON.DOLG            := WORK_PERSON_E.DOLG;
+            WORK_PERSON.OKLAD           := WORK_PERSON_E.OKLAD;
+            WORK_PERSON.WID_RABOTY      := WORK_PERSON_E.WID_RABOTY;
+            WORK_PERSON.N_TEMY          := WORK_PERSON_E.N_TEMY;
+            WORK_PERSON.MESTO_OSN_RABOTY:= WORK_PERSON_E.MESTO_OSN_RABOTY;
+            WORK_PERSON.WID_OPLATY      := WORK_PERSON_E.WID_OPLATY;
+            WORK_PERSON.MODE            := WORK_PERSON_E.MODE;
+            WORK_PERSON.FROM            := WORK_PERSON_E.FROM;
+            WORK_PERSON.PODOH           := WORK_PERSON_E.PODOH;
+            WORK_PERSON.MALO            := WORK_PERSON_E.MALO;
+            WORK_PERSON.PROFSOJUZ       := WORK_PERSON_E.PROFSOJUZ;
+            WORK_PERSON.DAY             := WORK_PERSON_E.DAY;
+            WORK_PERSON.MAIN            := WORK_PERSON_E.MAIN;
+            WORK_PERSON.TABEL           := WORK_PERSON_E.TABEL;
+            WORK_PERSON.HOLIDAY         := WORK_PERSON_E.HOLIDAY;
+            WORK_PERSON.STATE           := WORK_PERSON_E.STATE;
+            WORK_PERSON.AUTOMATIC       := WORK_PERSON_E.AUTOMATIC;
+            WORK_PERSON.START_DAY       := WORK_PERSON_E.START_DAY;
+            WORK_PERSON.PENS            := WORK_PERSON_E.PENS;
+{            WORK_PERSON.RECALC          := 0;}
+            WORK_PERSON.BANK            := WORK_PERSON_E.BANK;
+            WORK_PERSON.NAL_CODE        := WORK_PERSON_E.NAL_CODE;
+            WORK_PERSON.ID              := WORK_PERSON_E.ID;
+            WORK_PERSON.Reserved        := WORK_PERSON_E.Reserved;
+
+//            FOR I:=1 TO 8 DO WORK_PERSON.RESERVED[I]:=0;
+  END;
+
+
   PROCEDURE MAKE_CN_FROM_CN_C(VAR WORK_CN:CN;WORK_CN_C:CN_C;CURR_PERSON:PERSON_PTR);
      BEGIN
           WORK_CN.SHIFR        := WORK_CN_C.SHIFR;
           WORK_CN.KOD          := WORK_CN_C.KOD;
           WORK_CN.SUMMA        := WORK_CN_C.SUMMA;
           WORK_CN.PRIM         := WORK_CN_C.PRIM;
-          WORK_CN.PRIM_1       := WORK_CN.PRIM_1;
-          WORK_CN.DEJA_COUNTED := WORK_CN.DEJA_COUNTED;
-          WORK_CN.FLOW_SUMMA   := WORK_CN.FLOW_SUMMA;
-          WORK_CN.LIMIT_SUMMA  := WORK_CN.LIMIT_SUMMA;
-          WORK_CN.AUTOMATIC    := WORK_CN.AUTOMATIC;
-          WORK_CN.ID           := WORK_CN.ID;
+          WORK_CN.PRIM_1       := WORK_CN_C.PRIM_1;
+          WORK_CN.DEJA_COUNTED := WORK_CN_C.DEJA_COUNTED;
+          WORK_CN.FLOW_SUMMA   := WORK_CN_C.FLOW_SUMMA;
+          WORK_CN.LIMIT_SUMMA  := WORK_CN_C.LIMIT_SUMMA;
+          WORK_CN.AUTOMATIC    := WORK_CN_C.AUTOMATIC;
+          WORK_CN.ID           := WORK_CN_C.ID;
           WORK_CN.COUNT        := GET_IST_NAME(CURR_PERSON^.GRUPPA);
+     END;
+  PROCEDURE MAKE_CN_FROM_CN_E(VAR WORK_CN:CN;WORK_CN_E:CN_E;CURR_PERSON:PERSON_PTR);
+     BEGIN
+          WORK_CN.SHIFR        := WORK_CN_E.SHIFR;
+          WORK_CN.KOD          := WORK_CN_E.KOD;
+          WORK_CN.SUMMA        := WORK_CN_E.SUMMA;
+          WORK_CN.PRIM         := WORK_CN_E.PRIM;
+          WORK_CN.PRIM_1       := WORK_CN_E.PRIM_1;
+          WORK_CN.DEJA_COUNTED := WORK_CN_E.DEJA_COUNTED;
+          WORK_CN.FLOW_SUMMA   := WORK_CN_E.FLOW_SUMMA;
+          WORK_CN.LIMIT_SUMMA  := WORK_CN_E.LIMIT_SUMMA;
+          WORK_CN.AUTOMATIC    := WORK_CN_E.AUTOMATIC;
+          WORK_CN.ID           := WORK_CN_E.ID;
+          WORK_CN.COUNT        := WORK_CN_E.COUNT;
      END;
 
   PROCEDURE MAKE_ADD_FROM_ADD_C(VAR WORK_ADD:ADD;WORK_ADD_C:ADD_C;CURR_PERSON:PERSON_PTR);
@@ -527,6 +715,16 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
         WORK_UD.WHO        := WORK_UD_C.WHO;
         WORK_UD.COUNT      := GET_IST_NAME(CURR_PERSON^.GRUPPA);
    END;
+  PROCEDURE MAKE_UD_FROM_UD_E(VAR WORK_UD:UD;WORK_UD_E:UD_E;CURR_PERSON:PERSON_PTR);
+   BEGIN
+        WORK_UD.SHIFR      := WORK_UD_E.SHIFR;
+        WORK_UD.PERIOD     := WORK_UD_E.PERIOD;
+        WORK_UD.YEAR       := WORK_UD_E.YEAR;
+        WORK_UD.SUMMA      := WORK_UD_E.SUMMA;
+        WORK_UD.VYPLACHENO := WORK_UD_E.VYPLACHENO;
+        WORK_UD.WHO        := WORK_UD_E.WHO;
+        WORK_UD.COUNT      := WORK_UD_E.COUNT;
+   END;
 
   PROCEDURE MAKE_ADD_FROM_ADD_D(VAR WORK_ADD:ADD;WORK_ADD_D:ADD_D;CURR_PERSON:PERSON_PTR);
    BEGIN
@@ -544,6 +742,24 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
          WORK_ADD.SHIFR_KAT  := CURR_PERSON^.KATEGORIJA;
          WORK_ADD.SHIFR_GRU  := CURR_PERSON^.GRUPPA   ;
          WORK_ADD.COUNT      := GET_IST_NAME(CURR_PERSON^.GRUPPA);
+   END;
+  PROCEDURE MAKE_ADD_FROM_ADD_E(VAR WORK_ADD:ADD;WORK_ADD_E:ADD_E;CURR_PERSON:PERSON_PTR);
+   BEGIN
+         
+         WORK_ADD.SHIFR      := WORK_ADD_E.SHIFR      ;
+         WORK_ADD.PERIOD     := WORK_ADD_E.PERIOD     ;
+         WORK_ADD.YEAR       := WORK_ADD_E.YEAR       ;
+         WORK_ADD.SUMMA      := WORK_ADD_E.SUMMA      ;
+         WORK_ADD.FMP        := WORK_ADD_E.FMP        ;
+         WORK_ADD.FZP        := WORK_ADD_E.FZP        ;
+         WORK_ADD.OTHER      := WORK_ADD_E.OTHER      ;
+         WORK_ADD.VYPLACHENO := WORK_ADD_E.VYPLACHENO ;
+         WORK_ADD.WHO        := WORK_ADD_E.WHO        ;
+         WORK_ADD.WORK_DAY   := ROUND(WORK_DAY(1,31,CURR_PERSON));
+         WORK_ADD.WORK_CLOCK := WORK_ADD_E.WORK_CLOCK;
+         WORK_ADD.SHIFR_KAT  := WORK_ADD_E.SHIFR_KAT;
+         WORK_ADD.SHIFR_GRU  := WORK_ADD_E.SHIFR_GRU;
+         WORK_ADD.COUNT      := WORK_ADD_E.COUNT;
    END;
 
 
@@ -571,6 +787,16 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                   MAKE_PERSON_FROM_PERSON_C(WORK_PERSON,WORK_PERSON_C);
                   TEST_PERSON(WORK_PERSON,NUMBER,'C');
              END;
+        'D','E':BEGIN
+                  GET_FROM_BUF(WORK_PERSON_E,SIZEOF(WORK_PERSON_E)-20);
+                  IF KZ<0 THEN
+                     BEGIN
+                           ShowMessage(' При чтении PERSON_E номер '+INTTOSTR(NUMBER));
+                           EXIT;
+                     END;
+                  MAKE_PERSON_FROM_PERSON_E(WORK_PERSON,WORK_PERSON_E);
+                  TEST_PERSON(WORK_PERSON,NUMBER,'E');
+                END;
          ELSE
              BEGIN
                  GET_FROM_BUF(WORK_PERSON,SIZEOF(WORK_PERSON)-20);
@@ -581,7 +807,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                           ShowMessage('При чтении PERSON номер '+INTTOSTR(NUMBER));
                           EXIT;
                     END;
-                 TEST_PERSON(WORK_PERSON,NUMBER,'A');
+                 TEST_PERSON(WORK_PERSON,NUMBER,'F');
              END;
         END;
         IF ((MUST_FIND_PERSON) AND THIS_PERSON(@WORK_PERSON)) OR
@@ -618,15 +844,16 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
         IF (I_C<0) OR (I_C>35) THEN
            BEGIN
                 ShowMessage('Неверное число совмещений '+INTTOSTR(I_C)+'. У '+ALLTRIM(CURR_PERSON^.FIO));
+                exit;
            END;
         IF I_C>0 THEN FOR I:=1 TO I_C DO
            BEGIN
                 GET_FROM_BUF(WORK_SOWM,SIZEOF(WORK_SOWM)-4);
-                IF KZ<0 THEN
-                   BEGIN
-                        ShowMessage('При чтении '+INTTOSTR(I)+'-го совмещения для '+ALLTRIM(CURR_PERSON^.FIO));
-                        EXIT;
-                   END;
+                    IF KZ<0 THEN
+                       BEGIN
+                            ShowMessage('При чтении '+INTTOSTR(I)+'-го совмещения для '+ALLTRIM(CURR_PERSON^.FIO));
+                            EXIT;
+                       END;
                 IF NEED_PERSON THEN
                    BEGIN
                         MAKE_SOWM(CURR_SOWM,CURR_PERSON);
@@ -664,6 +891,15 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                          EXIT;
                    END;
                   MAKE_ADD_FROM_ADD_D(WORK_ADD,WORK_ADD_D,@WORK_PERSON);
+             END;
+         'E':BEGIN
+                GET_FROM_BUF(WORK_ADD_E,SIZEOF(WORK_ADD_E)-4);
+                IF KZ<0 THEN
+                   BEGIN
+                         ShowMessage('При чтении '+INTTOSTR(I)+'-го начисления для '+ALLTRIM(CURR_PERSON^.FIO));
+                         EXIT;
+                   END;
+                  MAKE_ADD_FROM_ADD_E(WORK_ADD,WORK_ADD_E,@WORK_PERSON);
              END;
          ELSE
              BEGIN
@@ -707,6 +943,15 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                    END;
                   MAKE_UD_FROM_UD_C(WORK_UD,WORK_UD_C,CURR_PERSON);
              END;
+         'C'..'E': BEGIN
+                GET_FROM_BUF(WORK_UD_E,SIZEOF(WORK_UD_E)-4);
+                IF KZ<0 THEN
+                   BEGIN
+                         ShowMessage('При чтении '+INTTOSTR(I)+'-го удержания для '+ALLTRIM(CURR_PERSON^.FIO));
+                         EXIT;
+                   END;
+                  MAKE_UD_FROM_UD_E(WORK_UD,WORK_UD_E,CURR_PERSON);
+             END;
          ELSE
              BEGIN
                 GET_FROM_BUF(WORK_UD,SIZEOF(WORK_UD)-4);
@@ -746,6 +991,15 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                          EXIT;
                    END;
                   MAKE_CN_FROM_CN_C(WORK_CN,WORK_CN_C,CURR_PERSON);
+             END;
+         'C'..'E':BEGIN
+                GET_FROM_BUF(WORK_CN_E,SIZEOF(WORK_CN_E)-4);
+                IF KZ<0 THEN
+                   BEGIN
+                         ShowMessage('При чтении '+INTTOSTR(I)+'-го CN для '+ALLTRIM(CURR_PERSON^.FIO));
+                         EXIT;
+                   END;
+                  MAKE_CN_FROM_CN_E(WORK_CN,WORK_CN_E,CURR_PERSON);
              END;
          ELSE
              BEGIN
@@ -800,7 +1054,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
      IF NEED_NET THEN LOCK_NET_CORE;
 }
 
-     ASSIGN(INF,FNINF);
+     AssignFile(INF,FNINF);
 {     IF NOT NET_MODE  THEN}
         BEGIN
              FileMode:=fmShareDenyWrite;;
@@ -842,6 +1096,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
 *)
      TOTAL_BLOCK_COUNT_PERSON:=0;
 {     BLOCKREAD_NET(INF,S,1,RESULT); }
+{
      BLOCKREAD(INF,S,1,RESULTG);
      IF S='B' THEN VERSION:='B'
               ELSE
@@ -851,6 +1106,8 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
               ELSE
      IF S='E' THEN VERSION:='E'
               ELSE VERSION:='A';
+}
+     version:=getVersion(CRC32ReadedFromFile)[1];
      UNPACK_ALL_PERSON;
      IF (TOTAL_BLOCK_COUNT_PERSON<>COUNT_PERSON) AND (NOT MUST_FIND_PERSON) THEN
         BEGIN
@@ -868,7 +1125,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
               HALT;
          END;
 }
-     CLOSE(INF);
+     CloseFile(INF);
 {     IF NEED_UNLOCK THEN UNLOCK_FLAG(DEV_FLAG);}
 {     IF NEED_NET THEN MARK_GETINF; }
  END;
