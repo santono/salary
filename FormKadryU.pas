@@ -8,7 +8,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Grids,ScrDef, ComCtrls, Buttons, Mask, ActnList, Menus,
   cxControls, cxContainer, cxEdit, cxTextEdit, cxMaskEdit, cxDropDownEdit,
-  cxCalendar;
+  cxCalendar, ExtCtrls;
 
 type
   TFormKadry = class(TForm)
@@ -71,6 +71,9 @@ type
     btSearchDolg: TBitBtn;
     BitBtnDogPodSowm: TBitBtn;
     Label5f: TLabel;
+    PanelList: TPanel;
+    Splitter1: TSplitter;
+    PanelForm: TPanel;
     function Execute: boolean;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -384,6 +387,11 @@ begin
 //             ComboBoxBank.Enabled:=False;
         end;
         currRowSelected:=0;
+     PanelList.Width:=220;
+     StringGrid1.Left:=1;
+     StringGrid1.Top:=1;
+     StringGrid1.width:=PanelList.Width-2;
+     StringGrid1.height:=PanelList.Height-2;
 
 end;
 

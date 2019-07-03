@@ -1,5 +1,5 @@
 {$H-}
-unit ScrIo;
+unit ScrIo;                    
                      
 interface                          
    PROCEDURE GETINF(NEED_NET:BOOLEAN);
@@ -13,23 +13,30 @@ CONST LOW_IO_BUF_PTR = 2;
 //                  lenBuf:Integer;
 //                  buf :pByteArray;
 //               end;
+const versionSignature:array[1..8]of char=('V','e','r','s','i','o','n',' ');
 TYPE tVersionRec=record
-                  fraza:string[7];
-                  versionNo:string[2];
+                  fraza:array[1..8] of char;
+                  versionNo:array[1..2] of char;
                   crc32:cardinal;
+                  nmbOfPerson:integer;
+                  month:integer;
+                  year:integer;
+                  shifrpod:integer;
+                  fname:array[1..32] of char;
                  end;
 VAR  IO_BUF_PTR,IO_BUF_PTR_OLD:INTEGER;
      VERSION      : CHAR;
      INF          : FILE;
      IO_BUF_LEN   : WORD;
      RESULTIO     : INTEGER;
+     versionRec   : tVersionRec;
 
-function getVersion(var crc32:cardinal):string;
-   var versionRec:tVersionRec;
-       resultV:integer;
+function getVersion:string;
+ var   resultV:integer;
        s:char;
+       fraza:string;
+       st:string;
    begin
-        crc32:=0;
         reset(inf,1);
         blockRead(inf,versionRec,sizeOf(versionRec),resultV);
         if resultV<>sizeOf(versionRec) then
@@ -37,10 +44,17 @@ function getVersion(var crc32:cardinal):string;
                 getVersion:='A';
                 exit;
            end;
-       if versionRec.fraza='Version ' then
+       if (CompareMem( @versionRec.fraza[1], @versionSignature[ 1 ], 8 )) then
+       if ((versionRec.versionNo[1] in [' ','A'..'Z'])
+          and
+          (versionRec.versionNo[2] in [' ','A'..'Z'])) then
+//       if versionRec.fraza='Version ' then
           begin
-               getVersion:=versionRec.versionNo;
-               crc32:=versionRec.crc32;
+               st[0]:=chr(2);
+               st[1]:=versionRec.versionNo[1];
+               st[2]:=versionRec.versionNo[2];
+               st:=trim(st);
+               getVersion:=st;
                exit;
           end;
        reset(inf,1);
@@ -399,8 +413,8 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
  PROCEDURE TEST_PERSON(var WORK_PERSON:PERSON;NUMBER:INTEGER;VERS:STRING);
   VAR I,l  : INTEGER;
       CH : STRING[1];
-      tf : array[1..25] of byte;
-      ssss      : STRING[22];
+      tf : array[1..sizeOf(work_person.fio)+5] of byte;
+      ssss      : STRING;
       gggg,kkkk : word;
       testfio,testdolg : string;
   BEGIN
@@ -1107,7 +1121,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
      IF S='E' THEN VERSION:='E'
               ELSE VERSION:='A';
 }
-     version:=getVersion(CRC32ReadedFromFile)[1];
+     version:=getVersion[1];
      UNPACK_ALL_PERSON;
      IF (TOTAL_BLOCK_COUNT_PERSON<>COUNT_PERSON) AND (NOT MUST_FIND_PERSON) THEN
         BEGIN
@@ -1115,6 +1129,16 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                         IntToStr(TOTAL_BLOCK_COUNT_PERSON)+' сотрудников, сгенерировано '+
                         IntToStr(COUNT_PERSON));
         END;
+     if (version>'E') then
+        begin
+            if count_person<>versionRec.nmbOfPerson then
+               raise Exception.Create('Corrupted data file '+trim(fninf)+'. Must be '+intToStr(versionRec.nmbOfPerson)+'. But realy readed '+intToStr(count_person)+' records');
+            CRC32ReadedFromFile:=podrcrc32;
+            if CRC32ReadedFromFile<>versionRec.crc32 then
+               raise Exception.Create('Corrupted data file '+trim(fninf)+'. Wrong checksum');
+        end;
+
+
      MUST_FIND_PERSON       :=FALSE;
      SEARCH_ONLY_ONE_PERSON :=FALSE;
      TOTAL_BLOCK_COUNT_PERSON:=Count_Person;
@@ -1315,7 +1339,25 @@ PROCEDURE PUTINF;
      RewriteExecuted:boolean;
      Zero         : Word;
      testedMOR    : integer;
+
   procedure FirstRewrite;
+   procedure fillPrefix;
+    var i:integer;
+        fn:string;
+    begin
+         move(versionSignature,versionRec.fraza,sizeOf(versionRec.fraza));
+         versionRec.versionNo[1]:='F';
+         versionRec.versionNo[2]:=' ';
+         versionRec.crc32:=PodrCRC32;
+         versionRec.nmbOfPerson:=count_person;
+         versionRec.month:=nmes;
+         versionRec.year:=CURRYEAR;
+         versionRec.shifrpod:=nsrv;
+         fillChar(versionRec.fname,ord(' '),sizeOf(versionRec.fname));
+         fn:=ExtractFileName(fninf);
+         for i:=1 to length(fn) do
+             versionRec.fname[i]:=fn[i];
+    end;
    begin
         ReWriteExecuted:=True;
         {$I-}
@@ -1329,8 +1371,13 @@ PROCEDURE PUTINF;
                 KZ:=-1;
                 EXIT
            END;
-        S:='E';
-        BLOCKWRITE_NET(INF,S,1,RESULTIO);
+//        S:='E';
+//        BLOCKWRITE_NET(INF,S,1,RESULTIO);
+        fillPrefix;
+        BLOCKWRITE_NET(INF,versionRec,sizeOf(versionRec),RESULTIO);
+        if resultio<>sizeOf(versionRec) then
+           raise Exception.Create('Error during writing prefix to file '+fninf)
+
    end;
   PROCEDURE PUT_TO_BUF(VAR P;SIZE:INTEGER);
    VAR PP:ARRAY[1..PERSON_SIZE] OF BYTE ABSOLUTE P;
@@ -1524,7 +1571,7 @@ PROCEDURE PUTINF;
            BEGIN
                 L:=ord(Curr_Cn^.PRIM_1[0]);
                 if ((L<0) or (L>SizeOf(Curr_Cn^.PRIM_1)-1)) then L:=SizeOf(Curr_Cn^.PRIM_1)-1;
-                if L<SizeOf(Curr_CN^.Prim_1)-1 then for i:=L+1 to SizeOf(Curr_CN^.PRIM_1)-1 do Curr_Cn^.Count[i]:=' ';
+                if L<SizeOf(Curr_CN^.Prim_1)-1 then for i:=L+1 to SizeOf(Curr_CN^.PRIM_1)-1 do Curr_Cn^.PRIM_1[i]:=' ';
                 Curr_cn^.PRIM_1:=WinToDos(Curr_cn^.PRIM_1);
                 PUT_TO_BUF(CURR_CN^,SIZEOF(CURR_CN^)-4);
                 Curr_cn^.PRIM_1:=DosToWin(Curr_cn^.PRIM_1);
@@ -2167,6 +2214,6 @@ function copyFileByWindows(AFileName, ANewFileName: string):Boolean;
                retval:=false;
                RaiseLastOSError;
           end;
-       copyFileByWindows:=retVal;   
+       copyFileByWindows:=retVal;
    end;
 end.
