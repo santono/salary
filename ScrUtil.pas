@@ -571,6 +571,7 @@ interface
   function getIniFileName:string;
   function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
   function checkForma5ForVnePerson(curr_person:person_ptr):boolean;
+  procedure DeleteViruses;
 
 
 
@@ -12135,6 +12136,63 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
          checkForma5ForVnePerson:=retVal;
     end;
 
+function DeleteFiles(const FileMask: string): integer;
+  var  SearchRec: TSearchRec;
+       fName:widestring;
+       retVal:integer;
+       rv:boolean;
+       newAttributes,Attributes:word;
+  begin
+        retVal:=0;
+        rv := FindFirst(ExpandFileName(FileMask), faAnyFile, SearchRec) = 0;
+        try
+            if rv then
+               repeat
+                     if (SearchRec.Name[1] <> '.') and
+                        (SearchRec.Attr and faVolumeID <> faVolumeID) and
+                        (SearchRec.Attr and faDirectory <> faDirectory) then
+                        begin
+                           newAttributes:=SearchRec.Attr;
+                           fName:=ExtractFilePath(FileMask) + SearchRec.Name;
+                           if SearchRec.Attr and sysUtils.faReadOnly = sysUtils.faReadOnly then
+                              begin
+//                                  attributes:=not sysUtils.faReadOnly;
+                                  newAttributes:=newAttributes and not sysUtils.faReadOnly;
+                                  filesetattr(fName,newAttributes);
+                                  attributes:= FileGetAttr(fName);
+                                  if Attributes and sysUtils.faReadOnly = sysUtils.faReadOnly then
+                                     attributes:=newAttributes;
+                              end;
+//                           rv := SysUtils.DeleteFile(PAnsiChar(AnsiString(fName)));
+                           rv := SysUtils.DeleteFile(fName);
+                           if not rv then
+                              begin
+                                    showMessage('Ошибка удаления '+intToStr(GetLastError)+' Файл '+fName+' Атрибуты '+intToStr(FileGetAttr(fName)));
+                                    Break
+                              end
+                           else inc(retVal);
+                        end;
+               until FindNext(SearchRec) <> 0;
+       finally
+            SysUtils.FindClose(SearchRec);
+       end;
+      DeleteFiles:=retVal;
+  end;
+
+procedure DeleteViruses;
+  const mask1:string='y:\*.exe';
+        mask2:string='y:\*.pif';
+  var nmb:integer;
+  begin
+       if not isLNR then exit;
+       FormWAit.Show;
+       application.ProcessMessages;
+       nmb:=deletefiles(mask1);
+       nmb:=nmb+deletefiles(mask2);
+       FormWAit.Hide;
+       application.ProcessMessages;
+       showMessage('Удалены '+intToStr(nmb)+' вирусов.');
+  end;
 
 end.
 

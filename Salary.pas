@@ -404,6 +404,8 @@ type
     N180: TMenuItem;
     ActionRepFondySVDN: TAction;
     NFondySVDN: TMenuItem;
+    ActionDeleteViruses: TAction;
+    nViruses: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -666,6 +668,7 @@ type
     procedure ActionRepPensioneryExecute(Sender: TObject);
     procedure ActionBrowseDekrListExecute(Sender: TObject);
     procedure ActionRepFondySVDNExecute(Sender: TObject);
+    procedure ActionDeleteVirusesExecute(Sender: TObject);
 
 
   private
@@ -1309,6 +1312,10 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NFondySVDN.Visible:=true;
           NFondySVDN.Enabled:=true;
           ActionRepFondySVDN.Enabled:=true;
+          ActionDeleteViruses.Enabled:=false;
+          nViruses.Visible:=false
+          nViruses.Enabled:=false
+
        {$ELSE}
 
           NLNR2.Visible:=true;
@@ -1378,6 +1385,18 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NFondySVDN.Visible:=false;
           NFondySVDN.Enabled:=false;
           ActionRepFondySVDN.Enabled:=false;
+          if DirectoryExists('Y:') then
+             begin
+                  ActionDeleteViruses.Enabled:=true;
+                  nViruses.Visible:=true;
+                  nViruses.Enabled:=true;
+             end
+          else
+             begin
+                  ActionDeleteViruses.Enabled:=false;
+                  nViruses.Visible:=false;
+                  nViruses.Enabled:=false;
+             end;
 
           if (CurrRight>3) then
              begin
@@ -4676,5 +4695,12 @@ begin
     FormRepFondySVDN.ShowModal;
 end;
 
-end.
+procedure TMainForm.ActionDeleteVirusesExecute(Sender: TObject);
+begin
+     if not isLNR then exit;
+     if yesNo('Удалить вирусы с диска y:?') then
+        DeleteViruses;
+end;
 
+end.
+                    
