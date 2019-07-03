@@ -1,6 +1,6 @@
 object FormKadry: TFormKadry
-  Left = 196
-  Top = 149
+  Left = 193
+  Top = 139
   Width = 955
   Height = 618
   Caption = #1057#1087#1080#1089#1086#1082' '#1082#1072#1092#1077#1076#1088#1099
@@ -11,6 +11,7 @@ object FormKadry: TFormKadry
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
   Visible = True
   OnClose = FormClose
   OnCreate = FormCreate
@@ -65,7 +66,6 @@ object FormKadry: TFormKadry
     Width = 736
     Height = 580
     Align = alClient
-    Caption = 'PanelForm'
     TabOrder = 1
     object LabelUw: TLabel
       Left = 99
@@ -149,7 +149,7 @@ object FormKadry: TFormKadry
     end
     object Label5f: TLabel
       Left = 16
-      Top = 296
+      Top = 280
       Width = 53
       Height = 20
       Caption = 'Label5f'
@@ -559,6 +559,7 @@ object FormKadry: TFormKadry
       Min = -15
       Max = 15
       TabOrder = 28
+      Visible = False
     end
   end
   object ActionList1: TActionList
