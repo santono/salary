@@ -355,7 +355,11 @@ uses
   UFormDekrList in 'UFormDekrList.pas' {FormDekrList},
   UFormDekrUpd in 'UFormDekrUpd.pas' {FormDekrUpd},
   UFormRepFondySVDN in 'UFormRepFondySVDN.pas' {FormRepFondySVDN},
-  UAddUdList in 'UAddUdList.pas';
+  UAddUdList in 'UAddUdList.pas',
+  UUdEntity in 'UUdEntity.pas',
+  UAddEntity in 'UAddEntity.pas',
+  UCnEntity in 'UCnEntity.pas',
+  UPersonEntity in 'UPersonEntity.pas';
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

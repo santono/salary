@@ -1557,8 +1557,12 @@ PROCEDURE PUTINF;
                       if L<SizeOf(Curr_PERSON^.DOLG)-1 then for i:=L+1 to SizeOf(Curr_PERSON^.DOLG)-1 do Curr_Person^.Dolg[i]:=' ';
                       L:=ord(Curr_PERSON^.N_Temy[0]);
                       if ((L<0) or (L>SizeOf(Curr_PERSON^.N_Temy)-1)) then L:=SizeOf(Curr_PERSON^.N_Temy)-1;
-                      if L<SizeOf(Curr_PERSON^.N_Temy)-1 then for i:=L+1 to SizeOf(Curr_PERSON^.N_Temy)-1 do Curr_Person^.N_Temy[i]:=' ';
+                      if L<SizeOf(Curr_PERSON^.N_TEMY)-1 then for i:=L+1 to SizeOf(Curr_PERSON^.N_Temy)-1 do Curr_Person^.N_Temy[i]:=' ';
+                      L:=ord(Curr_PERSON^.Fio[0]);
+                      if (l>sizeOf(Curr_PERSON^.FIO)) then
+                         l:=sizeOf(Curr_PERSON^.FIO);
 
+                      i:=0;
                       WHILE (I<l) DO
                        BEGIN
                             INC(I);

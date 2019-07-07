@@ -25,7 +25,7 @@ type
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
-    RadioGroupKod: TRadioGroup;
+    rgKod: TRadioGroup;
     EditAdres: TEdit;
     Label9: TLabel;
     RadioGroupModePST: TRadioGroup;
@@ -63,7 +63,7 @@ var
   FormUpdAlim: TFormUpdAlim;
 
 implementation
- uses UFibModule,uFrmFindKadryFB,ScrUtil;
+ uses UFibModule,uFrmFindKadryFB,ScrUtil,USQLUnit;
 
 {$R *.dfm}
 
@@ -103,12 +103,15 @@ begin
      DateTimePickerTo.Date    := WantedDataTo    ;
      dxCalcEditProcent.Text   := FloatToStr(WantedProcent);
      dxCalcEditProcPst.Text   := FloatToStr(WantedProcentPST);
-     RadioGroupKod.ItemIndex  := WantedKod;
+     rgKod.ItemIndex          := WantedKod;
      RadioGroupModePst.ItemIndex := WantedMode;
 end;
 
 function TFormUpdAlim.Execute: boolean;
 var ks,gs:string;
+    v:variant;
+    shifrid:integer;
+    sqlStmnt:string;
 begin
   if ActionClarion=1 then
      begin
@@ -124,52 +127,35 @@ begin
           WantedKod       := 0;
           WantedMode      := 0;
           WantedCode      := 0;
-          if not FIB.pFIBQuery.Transaction.Active then
-             FIB.pFIBQuery.Transaction.StartTransaction;
-          FIB.pFIBQuery.SQL.Clear;
-          FIB.pFIBQuery.SQL.Add('SELECT MAX(SHIFR) FROM ALIMENTY');
-          try
-             FIB.pFIBQuery.ExecQuery;
-             WantedNomerAlim:=FIB.pFIBQuery.Fields[0].AsInteger;
-             Inc(WantedNomerAlim);
-          except
-              WantedNomerAlim:=1;
-          end;
-          FIB.pFIBQuery.Close;
-          if FIB.pFIBQuery.Transaction.Active then
-             FIB.pFIBQuery.Transaction.Commit;
-         // SpinEditNomer.ReadOnly:=true;
+          SQLStmnt:='SELECT MAX(SHIFR) FROM ALIMENTY';
+          v:=SQLQueryValue(SQLStmnt);
+          shifrid:=0;
+          if VarIsNumeric(v) then
+             shifrid:=v;
+          WantedNomerAlim:=shifrId;
+          Inc(WantedNomerAlim);
 
      end
   else
   if ActionClarion>1 then
      begin
           SpinEditNomer.ReadOnly:=false;
-          if not FIB.pFIBQuery.Transaction.Active then
-             FIB.pFIBQuery.Transaction.StartTransaction;
-          FIB.pFIBQuery.SQL.Clear;
-          FIB.pFIBQuery.SQL.Add('SELECT FIO_WOMEN,ADRES');
-          FIB.pFIBQuery.SQL.Add(',DATAFR,DATATO,TABNO,FIO_WORKER');
-          FIB.pFIBQuery.SQL.Add(',PROCENT,PROCENTPST,MODE,CODE,KOD');
-          FIB.pFIBQuery.SQL.Add(' FROM ALIMENTY WHERE SHIFR='+IntToStr(WantedNomerAlim));
-          try
-             FIB.pFIBQuery.ExecQuery;
-             WantedWomen  := FIB.pFIBQuery.Fields[0].AsString;
-             WantedAdres  := FIB.pFIBQuery.Fields[1].AsString;
-             WantedDataFr := FIB.pFIBQuery.Fields[2].AsDateTime;
-             WantedDataTo := FIB.pFIBQuery.Fields[3].AsDateTime;
-             WantedTabno  := FIB.pFIBQuery.Fields[4].AsInteger;
-             WantedFIOWorker := FIB.pFIBQuery.Fields[5].AsString;
-             WantedProcent   := FIB.pFIBQuery.Fields[6].AsFloat;
-             WantedProcentPST   := FIB.pFIBQuery.Fields[7].AsFloat;
-             WantedMode       := FIB.pFIBQuery.Fields[8].AsInteger-1;
-             WantedCode       := FIB.pFIBQuery.Fields[9].AsInteger;
-             WantedKod        := FIB.pFIBQuery.Fields[10].AsInteger-1;
-          except
-          end;
-          FIB.pFIBQuery.Close;
-          if FIB.pFIBQuery.Transaction.Active then
-             FIB.pFIBQuery.Transaction.Commit;
+          SQLStmnt:='SELECT FIO_WOMEN,ADRES' +
+                    ',DATAFR,DATATO,TABNO,FIO_WORKER'+
+                    ',PROCENT,PROCENTPST,MODE,CODE,KOD'+
+                    ' FROM ALIMENTY WHERE SHIFR='+IntToStr(WantedNomerAlim);
+          v:=SQLQueryRecValues(SQLStmnt);
+          WantedWomen     := v[0];
+          WantedAdres     := v[1];
+          WantedDataFr    := v[2];
+          WantedDataTo    := v[3];
+          WantedTabno     := v[4];
+          WantedFIOWorker := v[5];
+          WantedProcent   := v[6];
+          WantedProcentPST:= v[7];
+          WantedMode      := v[8]-1;
+          WantedCode      := v[9];
+          WantedKod       := v[10]-1;
      end;
   if ShowModal = mrOk then result := true
                       else result := false;
@@ -218,7 +204,7 @@ function TFormUpdAlim.TestRecord:boolean;
      if i<>0 then retval:=false
              else WantedProcentPST:=A;
 }             
-     WantedKod  := RadioGroupKod.ItemIndex+1;
+     WantedKod  := rgKod.ItemIndex+1;
      WantedMode := RadioGroupModePst.ItemIndex+1;
      if Length(Trim(WantedWomen))<1 then
         begin
@@ -248,86 +234,138 @@ procedure TFormUpdAlim.BitBtn1Click(Sender: TObject);
 
 var SQL:String;
     S:String;
+    SQLStmnt:string;
 begin
      if not TestRecord then Exit;
      if ActionClarion=1 then
         begin
-             if not FIB.pFIBQuery.Transaction.Active then
-                FIB.pFIBQuery.Transaction.StartTransaction;
-             FIB.pFIBQuery.SQL.Clear;
+//             if not FIB.pFIBQuery.Transaction.Active then
+//                FIB.pFIBQuery.Transaction.StartTransaction;
+//             FIB.pFIBQuery.SQL.Clear;
              SQL:='INSERT INTO ALIMENTY (SHIFR,FIO_WOMEN,ADRES,DATATO,DATAFR,';
              S:=SQL;
-             FIB.pFIBQuery.SQL.Add(SQL);
+//             FIB.pFIBQuery.SQL.Add(SQL);
              SQL:='TABNO,PROCENT,PROCENTPST,FIO_WORKER,MODE,CODE,KOD) VALUES(';
              S:=S+SQL;
-             FIB.pFIBQuery.SQL.Add(SQL);
+//             FIB.pFIBQuery.SQL.Add(SQL);
              WantedWomen:=ReplQuot(WantedWomen);
              WantedAdres:=ReplQuot(WantedAdres);
              SQL:=IntToStr(WantedNomerAlim)+','''+Trim(WantedWomen)+''','''+Trim(WantedAdres)+'''';
              S:=S+SQL;
-             FIB.pFIBQuery.SQL.Add(SQL);
+//             FIB.pFIBQuery.SQL.Add(SQL);
              SQL:=','''+DateToStr(WantedDataTo)+''','''+DateToStr(WantedDataFr)+'''';
              S:=S+SQL;
-             FIB.pFIBQuery.SQL.Add(SQL);
+//             FIB.pFIBQuery.SQL.Add(SQL);
              SQL:=','+IntToStr(WantedTabno)+','+ReplCommaOnPoint(Trim(FormatFloat(F,WantedProcent)))+','+ReplCommaOnPoint(Trim(FormatFloat(F,WantedProcentPst)));
              S:=S+SQL;
-             FIB.pFIBQuery.SQL.Add(SQL);
+//             FIB.pFIBQuery.SQL.Add(SQL);
              WantedFioWorker:=ConvertUkrStrToSql(WantedFioWorker);
              SQL:=','''+Trim(WantedFioWorker)+''','+IntToStr(WantedMode+1);
              S:=S+SQL;
-             FIB.pFIBQuery.SQL.Add(SQL);
+//             FIB.pFIBQuery.SQL.Add(SQL);
              SQL:=','+IntToStr(WantedCode)+','+IntToStr(WantedKod+1)+')';
              S:=S+SQL;
-             FIB.pFIBQuery.SQL.Add(SQL);
-             try
-                FIB.pFIBQuery.ExecQuery;
-             except
-                   ShowMessage('Ошибка добавления записи');
-             end;
-             FIB.pFIBQuery.Close;
-             if FIB.pFIBQuery.Transaction.Active then
-                FIB.pFIBQuery.Transaction.Commit;
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             try
+//                FIB.pFIBQuery.ExecQuery;
+//             except
+//                   ShowMessage('Ошибка добавления записи');
+//             end;
+//             FIB.pFIBQuery.Close;
+//             if FIB.pFIBQuery.Transaction.Active then
+//                FIB.pFIBQuery.Transaction.Commit;
+
+             SQL:='INSERT INTO ALIMENTY (SHIFR,FIO_WOMEN,ADRES,DATATO,DATAFR,';
+             S:=SQL;
+             SQL:='TABNO,PROCENT,PROCENTPST,FIO_WORKER,MODE,CODE,KOD) VALUES(';
+             S:=S+SQL;
+             WantedWomen:=ReplQuot(WantedWomen);
+             WantedAdres:=ReplQuot(WantedAdres);
+             SQL:=IntToStr(WantedNomerAlim)+','''+Trim(WantedWomen)+''','''+Trim(WantedAdres)+'''';
+             S:=S+SQL;
+             SQL:=','''+DateToStr(WantedDataTo)+''','''+DateToStr(WantedDataFr)+'''';
+             S:=S+SQL;
+             SQL:=','+IntToStr(WantedTabno)+','+ReplCommaOnPoint(Trim(FormatFloat(F,WantedProcent)))+','+ReplCommaOnPoint(Trim(FormatFloat(F,WantedProcentPst)));
+             S:=S+SQL;
+             WantedFioWorker:=ConvertUkrStrToSql(WantedFioWorker);
+             SQL:=','''+Trim(WantedFioWorker)+''','+IntToStr(WantedMode+1);
+             S:=S+SQL;
+             SQL:=','+IntToStr(WantedCode)+','+IntToStr(WantedKod+1)+')';
+             S:=S+SQL;
+             SQLStmnt:=s;
+             SQLExecute(SQLStmnt);
 
         end
      else
         begin
-             if not FIB.pFIBQuery.Transaction.Active then
-                FIB.pFIBQuery.Transaction.StartTransaction;
-             FIB.pFIBQuery.SQL.Clear;
+//             if not FIB.pFIBQuery.Transaction.Active then
+//                FIB.pFIBQuery.Transaction.StartTransaction;
+//             FIB.pFIBQuery.SQL.Clear;
+//             WantedWomen:=ReplQuot(WantedWomen);
+//             WantedAdres:=ReplQuot(WantedAdres);
+//             sql:='UPDATE ALIMENTY SET ';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             sql:='FIO_WOMEN='''+Trim(WantedWomen)+''',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             sql:='ADRES='''+Trim(WantedAdres)+''',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='DATATO='''+DateToStr(WantedDataTo)+''',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='DATAFR='''+DateToStr(WantedDataFr)+''',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='TABNO='+IntToStr(WantedTabno)+',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='PROCENT='+FormatFloatPoint(WantedProcent)+',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='PROCENTPST='+FormatFloatPoint(WantedProcentPST)+',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='FIO_WORKER='''+Trim(WantedFioWorker)+''',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='MODE='+IntToStr(WantedMode)+',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='CODE='+IntToStr(WantedCode)+',';
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             SQL:='KOD='+IntToStr(WantedKod)+'WHERE SHIFR='+IntToStr(WantedNomerAlim);
+//             FIB.pFIBQuery.SQL.Add(SQL);
+//             try
+//                FIB.pFIBQuery.ExecQuery;
+//             except
+//                   ShowMessage('Ошибка обновления записи записи');
+//             end;
+//             FIB.pFIBQuery.Close;
+//             if FIB.pFIBQuery.Transaction.Active then
+//                FIB.pFIBQuery.Transaction.Commit;
+
+
+
              WantedWomen:=ReplQuot(WantedWomen);
              WantedAdres:=ReplQuot(WantedAdres);
              sql:='UPDATE ALIMENTY SET ';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=SQL;
              sql:='FIO_WOMEN='''+Trim(WantedWomen)+''',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              sql:='ADRES='''+Trim(WantedAdres)+''',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='DATATO='''+DateToStr(WantedDataTo)+''',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='DATAFR='''+DateToStr(WantedDataFr)+''',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='TABNO='+IntToStr(WantedTabno)+',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='PROCENT='+FormatFloatPoint(WantedProcent)+',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='PROCENTPST='+FormatFloatPoint(WantedProcentPST)+',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='FIO_WORKER='''+Trim(WantedFioWorker)+''',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='MODE='+IntToStr(WantedMode)+',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='CODE='+IntToStr(WantedCode)+',';
-             FIB.pFIBQuery.SQL.Add(SQL);
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
              SQL:='KOD='+IntToStr(WantedKod)+'WHERE SHIFR='+IntToStr(WantedNomerAlim);
-             FIB.pFIBQuery.SQL.Add(SQL);
-             try
-                FIB.pFIBQuery.ExecQuery;
-             except
-                   ShowMessage('Ошибка обновления записи записи');
-             end;
-             FIB.pFIBQuery.Close;
-             if FIB.pFIBQuery.Transaction.Active then
-                FIB.pFIBQuery.Transaction.Commit;
+             SQLStmnt:=trim(SQLStmnt)+' '+SQL;
+
+             SQLExecute(SQLStmnt);
         end;
 end;
 

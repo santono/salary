@@ -101,7 +101,7 @@ object FormUpdAlim: TFormUpdAlim
     Top = 104
     Width = 121
     Height = 30
-    MaxValue = 10000
+    MaxValue = 25000
     MinValue = 0
     TabOrder = 2
     Value = 0
@@ -134,17 +134,17 @@ object FormUpdAlim: TFormUpdAlim
     DateFormat = dfLong
     TabOrder = 5
   end
-  object RadioGroupKod: TRadioGroup
-    Left = 328
+  object rgKod: TRadioGroup
+    Left = 320
     Top = 216
-    Width = 225
-    Height = 49
+    Width = 249
+    Height = 145
     Caption = #1056#1077#1078#1080#1084' '#1085#1072#1095#1080#1089#1083#1077#1085#1080#1081
-    Columns = 2
     ItemIndex = 0
     Items.Strings = (
       #1055#1088#1086#1094#1077#1085#1090
-      #1057#1091#1084#1084#1072)
+      #1057#1091#1084#1084#1072
+      #1055#1088#1086#1094'. '#1079#1072' '#1074#1095#1077#1090#1086#1084' '#1085#1072#1083#1086#1075#1086#1074)
     TabOrder = 6
   end
   object EditAdres: TEdit

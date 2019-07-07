@@ -464,6 +464,7 @@ begin
              wbs.Cells[ExRow,3] := nmbOfSt;
              wbs.Cells[ExRow,4] := avgChisl;
              wbs.Cells[ExRow,5] := SummaTot;
+             wbs.Cells[ExRow,7] := SummaClear;
         end;
 
 end;
