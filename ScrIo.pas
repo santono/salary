@@ -6,7 +6,7 @@ interface
    PROCEDURE PUTINF;
 implementation
      Uses SysUtils,QDialogs,ScrDef,ScrUtil,UCrc32,UDuplTest,
-          ScrIOSQL,scrLists,Windows,UIOMonitor;
+          ScrIOSQL,scrLists,Windows,UIOMonitor,uPersonService;
 CONST LOW_IO_BUF_PTR = 2;
       PERSON_SIZE    = SIZEOF(PERSON);
 //type TBufClass=class
@@ -1142,6 +1142,8 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
      MUST_FIND_PERSON       :=FALSE;
      SEARCH_ONLY_ONE_PERSON :=FALSE;
      TOTAL_BLOCK_COUNT_PERSON:=Count_Person;
+  //   moveAllPersonToList;
+
 {
      IF (BUH^.SHIFR<0) OR (BUH^.SHIFR>15) THEN
          BEGIN
@@ -1604,8 +1606,12 @@ PROCEDURE PUTINF;
                       if L<SizeOf(Curr_PERSON^.DOLG)-1 then for i:=L+1 to SizeOf(Curr_PERSON^.DOLG)-1 do Curr_Person^.Dolg[i]:=' ';
                       L:=ord(Curr_PERSON^.N_Temy[0]);
                       if ((L<0) or (L>SizeOf(Curr_PERSON^.N_Temy)-1)) then L:=SizeOf(Curr_PERSON^.N_Temy)-1;
-                      if L<SizeOf(Curr_PERSON^.N_Temy)-1 then for i:=L+1 to SizeOf(Curr_PERSON^.N_Temy)-1 do Curr_Person^.N_Temy[i]:=' ';
+                      if L<SizeOf(Curr_PERSON^.N_TEMY)-1 then for i:=L+1 to SizeOf(Curr_PERSON^.N_Temy)-1 do Curr_Person^.N_Temy[i]:=' ';
+                      L:=ord(Curr_PERSON^.Fio[0]);
+                      if (l>sizeOf(Curr_PERSON^.FIO)) then
+                         l:=sizeOf(Curr_PERSON^.FIO);
 
+                      i:=0;
                       WHILE (I<l) DO
                        BEGIN
                             INC(I);

@@ -80,23 +80,28 @@ end;
 procedure TFormRazr.FillComboBox;
  var S : string;
      i : integer;
+     cDate:TDateTime;
  begin
       ComboBoxData.Items.Clear;
       pFIBDataSetData.First;
       i := 0;
+      currentDate:=encodedate(2000,1,1);
       while not pFIBDataSetData.Eof do
         begin
              Inc(I);
-             S:=DateTimeToStr(pFIBDataSetData.Fields[0].AsVariant);
-             if i=1 then
-                ComboBoxData.Text := Trim(S);
+             cdate:=pFIBDataSetData.Fields[0].AsDateTime;
+             S:=DateTimeToStr(cdate);
+             if cDate>currentDate then
+                currentDate:=cDate;
+//             if i=1 then
+//                ComboBoxData.Text := Trim(S);
              ComboBoxData.Items.Add(Trim(S));
              pFIBDataSetData.Next;
         end;
       if ComboBoxData.Items.Count>0 then
          begin
-              CurrentDate:=StrToDate(ComboBoxData.Items[0]);
-              ComboBoxData.ItemIndex:=0;
+              CurrentDate:=StrToDate(ComboBoxData.Items[ComboBoxData.Items.Count-1]);
+              ComboBoxData.ItemIndex:=ComboBoxData.Items.Count-1;
          end
       else
          CurrentDate:=Now;
@@ -109,6 +114,7 @@ begin
         pFIBDataSetR.Transaction.StartTransaction;
      if not pFIBDataSetData.Active then
         pFIBDataSetData.Active:=true;
+
      FillComboBox;
      OpenDataSetR;
 end;

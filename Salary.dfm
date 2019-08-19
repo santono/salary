@@ -283,6 +283,8 @@ object MainForm: TMainForm
       end
       object DBF1: TMenuItem
         Caption = #1055#1077#1088#1077#1085#1086#1089' '#1076#1072#1085#1085#1099#1093' '#1074' DBF'
+        Enabled = False
+        Visible = False
         OnClick = DBF1Click
       end
       object N7: TMenuItem
@@ -291,6 +293,7 @@ object MainForm: TMainForm
       end
       object FireBird: TMenuItem
         Caption = 'FireBird'
+        Visible = False
         OnClick = FireBirdClick
       end
       object N19: TMenuItem
@@ -935,6 +938,9 @@ object MainForm: TMainForm
         object N157: TMenuItem
           Caption = #1057#1073#1088#1086#1089' '#1075#1077#1085#1077#1088#1072#1090#1086#1088#1086#1074' '#1074#1088#1077#1084#1077#1085#1085#1099#1093' '#1090#1072#1073#1083#1080#1094' ('#1074#1089#1077#1093')'
           OnClick = N157Click
+        end
+        object nViruses: TMenuItem
+          Action = ActionDeleteViruses
         end
       end
       object N98: TMenuItem
@@ -1601,6 +1607,10 @@ object MainForm: TMainForm
     object ActionRepFondySVDN: TAction
       Caption = #1043#1086#1076#1086#1074#1086#1081' '#1092#1086#1085#1076' '#1086#1087#1083#1072#1090#1099
       OnExecute = ActionRepFondySVDNExecute
+    end
+    object ActionDeleteViruses: TAction
+      Caption = #1063#1080#1089#1090#1082#1072' '#1074#1080#1088#1091#1089#1086#1074' '#1085#1072' '#1076#1080#1089#1082#1077' Y'
+      OnExecute = ActionDeleteVirusesExecute
     end
   end
   object ImageList1: TImageList

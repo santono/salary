@@ -571,6 +571,7 @@ var
                        dtsumma_kompens_1  : tdateTime;
                   end;
 
+    personList:TList;
 {$IFDEF SVDN}
 const LenBlSta=35;
 {$ELSE}
@@ -597,6 +598,7 @@ const ProtectedPodrList:array[1..LenProtectedPodr] of integer = (76,102);
 const LenProtectedPodr=1;
 const ProtectedPodrList:array[1..LenProtectedPodr] of integer = (81);
 {$ENDIF}
+
 
 
 
@@ -696,5 +698,5 @@ begin
     isSVDN := false;
     isLNR  := true;
 {$ENDIF}
-
+    personList:=TList.Create;
 end.
