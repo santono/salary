@@ -178,57 +178,80 @@ function PodrCRC32: Cardinal;
   UdRec       : Ud;
   CnRec       : Cn;
   SowmRec     : Sowm;
+  i:integer;
  begin
       crc32 := $FFFFFFFF;
       Curr_Person:=Head_Person;
       while (Curr_Person<>Nil) do
        begin
-            Move(Curr_Person^,PersonRec,SizeOf(Curr_Person^));
-            PersonRec.NEXT := nil;
-            PersonRec.Add  := nil;
-            PersonRec.Ud   := nil;
-            PersonRec.Cn   := nil;
-            PersonRec.Sowm := nil;
+            i:=sizeOf(PersonRec.NEXT);
+            fillChar(PersonRec,SizeOf(personRec),0);
+            Move(Curr_Person^,PersonRec,SizeOf(Curr_Person^)-5*sizeOf(curr_Person^.NAL_CODE));
+            FillChar(PersonRec.FIO,sizeOf(PersonRec.FIO),0);
+            move(Curr_Person.fio,PersonRec.FIO,length(trim(Curr_person^.fio))+1);
+            FillChar(PersonRec.Dolg,sizeOf(PersonRec.Dolg),0);
+            move(Curr_Person.Dolg,PersonRec.Dolg,length(trim(Curr_person^.Dolg))+1);
+            FillChar(PersonRec.N_Temy,sizeOf(PersonRec.N_Temy),0);
+            move(Curr_Person.N_Temy,PersonRec.N_Temy,length(trim(Curr_person^.N_Temy))+1);
+            FillChar(PersonRec.NAL_CODE,sizeOf(PersonRec.NAL_CODE),0);
+            move(Curr_Person.NAL_CODE,PersonRec.NAL_CODE,length(trim(Curr_person^.NAL_CODE))+1);
+//            PersonRec.NEXT := nil;
+//            PersonRec.Add  := nil;
+//            PersonRec.Ud   := nil;
+//            PersonRec.Cn   := nil;
+//            PersonRec.Sowm := nil;
             BufPtr := @PersonRec;
-            LenBuf := SizeOf(PersonRec);
+            LenBuf := SizeOf(PersonRec)-5*sizeOf(personRec.NEXT);
             crc32  := UpdateCrc32(crc32, BufPtr, LenBuf);
             Curr_Add:=Curr_Person^.ADD;
             while (Curr_Add<>nil) do
               begin
-                   Move(Curr_Add^,AddRec,SizeOf(Curr_Add^));
-                   AddRec.NEXT := nil;
+                   fillChar(AddRec,sizeOf(AddRec),0);
+                   Move(Curr_Add^,AddRec,SizeOf(Curr_Add^)-sizeOf(curr_Add^.NEXT));
+                   FillChar(AddRec.Count,sizeOf(AddRec.Count),0);
+                   move(Curr_Add.Count,AddRec.Count,length(trim(Curr_Add^.Count))+1);
+//                   AddRec.NEXT := nil;
                    BufPtr := @AddRec;
-                   LenBuf := SizeOf(AddRec);
+                   LenBuf := SizeOf(AddRec)-sizeOf(addRec.NEXT);
                    crc32  := UpdateCrc32(crc32, BufPtr, LenBuf);
                    Curr_Add:=Curr_Add^.NEXT;
               end;
             Curr_Ud:=Curr_Person^.Ud;
             while (Curr_Ud<>nil) do
               begin
-                   Move(Curr_Ud^,UdRec,SizeOf(Curr_Ud^));
-                   UdRec.NEXT := nil;
+                   fillChar(UdRec,sizeOf(UdRec),0);
+                   Move(Curr_Ud^,UdRec,SizeOf(Curr_Ud^)-SizeOf(Curr_Ud^.NEXT));
+                   FillChar(UdRec.Count,sizeOf(UdRec.Count),0);
+                   move(Curr_Ud.Count,UdRec.Count,length(trim(Curr_Ud^.Count))+1);
+//                   UdRec.NEXT := nil;
                    BufPtr := @UdRec;
-                   LenBuf := SizeOf(UdRec);
+                   LenBuf := SizeOf(UdRec)-sizeOf(UdRec.NEXT);
                    crc32  := UpdateCrc32(crc32, BufPtr, LenBuf);
                    Curr_Ud:=Curr_Ud^.NEXT;
               end;
             Curr_Cn:=Curr_Person^.Cn;
             while (Curr_Cn<>nil) do
               begin
-                   Move(Curr_Cn^,CnRec,SizeOf(Curr_Cn^));
-                   CnRec.NEXT := nil;
+                   fillChar(CnRec,sizeOf(CnRec),0);
+                   Move(Curr_Cn^,CnRec,SizeOf(Curr_Cn^)-sizeOf(Curr_Cn^.Next));
+                   FillChar(CnRec.Count,sizeOf(CnRec.Count),0);
+                   move(Curr_Cn.Count,CnRec.Count,length(trim(Curr_Cn^.Count))+1);
+                   FillChar(CnRec.PRIM_1,sizeOf(CnRec.PRIM_1),0);
+                   move(Curr_Cn.PRIM_1,CnRec.PRIM_1,length(trim(Curr_Cn^.PRIM_1))+1);
+//                   CnRec.NEXT := nil;
                    BufPtr := @CnRec;
-                   LenBuf := SizeOf(CnRec);
+                   LenBuf := SizeOf(CnRec)-sizeOf(cnRec.Next);
                    crc32  := UpdateCrc32(crc32, BufPtr, LenBuf);
                    Curr_Cn:=Curr_Cn^.NEXT;
               end;
             Curr_Sowm:=Curr_Person^.Sowm;
             while (Curr_Sowm<>nil) do
               begin
-                   Move(Curr_Sowm^,SowmRec,SizeOf(Curr_Sowm^));
+                   fillChar(SowmRec,sizeOf(SowmRec),0);
+                   Move(Curr_Sowm^,SowmRec,SizeOf(Curr_Sowm^)-sizeOf(curr_sowm^.NEXT));
                    SowmRec.NEXT := nil;
                    BufPtr    := @SowmRec;
-                   LenBuf    := SizeOf(SowmRec);
+                   LenBuf    := SizeOf(SowmRec)-sizeOf(sowmRec.NEXT);
                    crc32     := UpdateCrc32(crc32, BufPtr, LenBuf);
                    Curr_Sowm := Curr_Sowm^.NEXT;
               end;

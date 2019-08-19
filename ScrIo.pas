@@ -782,7 +782,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
         NEED_PERSON:=FALSE;
         CASE VERSION OF
          'B':BEGIN
-                  GET_FROM_BUF(WORK_PERSON_B,SIZEOF(WORK_PERSON_B)-20);
+                  GET_FROM_BUF(WORK_PERSON_B,SIZEOF(WORK_PERSON_B)-5*sizeOf(work_person_b.NEXT));
                   IF KZ<0 THEN
                      BEGIN
                            ShowMessage(' При чтении PERSON_B номер '+INTTOSTR(NUMBER));
@@ -792,7 +792,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                   TEST_PERSON(WORK_PERSON,NUMBER,'B');
              END;
         'A','C':BEGIN
-                  GET_FROM_BUF(WORK_PERSON_C,SIZEOF(WORK_PERSON_C)-20);
+                  GET_FROM_BUF(WORK_PERSON_C,SIZEOF(WORK_PERSON_C)-5*sizeof(work_person_c.NEXT));
                   IF KZ<0 THEN
                      BEGIN
                            ShowMessage(' При чтении PERSON_B номер '+INTTOSTR(NUMBER));
@@ -802,7 +802,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                   TEST_PERSON(WORK_PERSON,NUMBER,'C');
              END;
         'D','E':BEGIN
-                  GET_FROM_BUF(WORK_PERSON_E,SIZEOF(WORK_PERSON_E)-20);
+                  GET_FROM_BUF(WORK_PERSON_E,SIZEOF(WORK_PERSON_E)-5*sizeOf(work_person_e.NEXT));
                   IF KZ<0 THEN
                      BEGIN
                            ShowMessage(' При чтении PERSON_E номер '+INTTOSTR(NUMBER));
@@ -813,7 +813,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                 END;
          ELSE
              BEGIN
-                 GET_FROM_BUF(WORK_PERSON,SIZEOF(WORK_PERSON)-20);
+                 GET_FROM_BUF(WORK_PERSON,SIZEOF(WORK_PERSON)-5*sizeOf(work_person.NEXT));
                  www:=www;
 
                  IF KZ<0 THEN
@@ -862,7 +862,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
            END;
         IF I_C>0 THEN FOR I:=1 TO I_C DO
            BEGIN
-                GET_FROM_BUF(WORK_SOWM,SIZEOF(WORK_SOWM)-4);
+                GET_FROM_BUF(WORK_SOWM,SIZEOF(WORK_SOWM)-sizeOf(work_sowm.next));
                     IF KZ<0 THEN
                        BEGIN
                             ShowMessage('При чтении '+INTTOSTR(I)+'-го совмещения для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -889,7 +889,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
            BEGIN
         CASE VERSION OF
          'A'..'B':BEGIN
-                GET_FROM_BUF(WORK_ADD_C,SIZEOF(WORK_ADD_C)-4);
+                GET_FROM_BUF(WORK_ADD_C,SIZEOF(WORK_ADD_C)-sizeOf(work_add_c.next));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го начисления для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -898,7 +898,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                   MAKE_ADD_FROM_ADD_C(WORK_ADD,WORK_ADD_C,@WORK_PERSON);
              END;
          'C'..'D':BEGIN
-                GET_FROM_BUF(WORK_ADD_D,SIZEOF(WORK_ADD_D)-4);
+                GET_FROM_BUF(WORK_ADD_D,SIZEOF(WORK_ADD_D)-sizeOf(work_add_d.next));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го начисления для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -907,7 +907,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                   MAKE_ADD_FROM_ADD_D(WORK_ADD,WORK_ADD_D,@WORK_PERSON);
              END;
          'E':BEGIN
-                GET_FROM_BUF(WORK_ADD_E,SIZEOF(WORK_ADD_E)-4);
+                GET_FROM_BUF(WORK_ADD_E,SIZEOF(WORK_ADD_E)-sizeOf(work_add_e.NEXT));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го начисления для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -917,7 +917,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
              END;
          ELSE
              BEGIN
-                GET_FROM_BUF(WORK_ADD,SIZEOF(WORK_ADD)-4);
+                GET_FROM_BUF(WORK_ADD,SIZEOF(WORK_ADD)-sizeOf(work_add.next));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го начисления для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -949,7 +949,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
            BEGIN
         CASE VERSION OF
          'A'..'B': BEGIN
-                GET_FROM_BUF(WORK_UD_C,SIZEOF(WORK_UD_C)-4);
+                GET_FROM_BUF(WORK_UD_C,SIZEOF(WORK_UD_C)-sizeof(work_ud_c.next));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го удержания для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -958,7 +958,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                   MAKE_UD_FROM_UD_C(WORK_UD,WORK_UD_C,CURR_PERSON);
              END;
          'C'..'E': BEGIN
-                GET_FROM_BUF(WORK_UD_E,SIZEOF(WORK_UD_E)-4);
+                GET_FROM_BUF(WORK_UD_E,SIZEOF(WORK_UD_E)-sizeof(work_ud_e.NEXT));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го удержания для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -968,7 +968,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
              END;
          ELSE
              BEGIN
-                GET_FROM_BUF(WORK_UD,SIZEOF(WORK_UD)-4);
+                GET_FROM_BUF(WORK_UD,SIZEOF(WORK_UD)-sizeOf(work_ud.NEXT));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го удержания для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -998,7 +998,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
            BEGIN
         CASE VERSION OF
          'A'..'B':BEGIN
-                GET_FROM_BUF(WORK_CN_C,SIZEOF(WORK_CN_C)-4);
+                GET_FROM_BUF(WORK_CN_C,SIZEOF(WORK_CN_C)-sizeOf(work_cn_c.NEXT));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го CN для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -1007,7 +1007,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                   MAKE_CN_FROM_CN_C(WORK_CN,WORK_CN_C,CURR_PERSON);
              END;
          'C'..'E':BEGIN
-                GET_FROM_BUF(WORK_CN_E,SIZEOF(WORK_CN_E)-4);
+                GET_FROM_BUF(WORK_CN_E,SIZEOF(WORK_CN_E)-sizeOf(work_cn_e.Next));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го CN для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -1017,7 +1017,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
              END;
          ELSE
              BEGIN
-                GET_FROM_BUF(WORK_CN,SIZEOF(WORK_CN)-4);
+                GET_FROM_BUF(WORK_CN,SIZEOF(WORK_CN)-sizeOf(work_cn.Next));
                 IF KZ<0 THEN
                    BEGIN
                          ShowMessage('При чтении '+INTTOSTR(I)+'-го CN для '+ALLTRIM(CURR_PERSON^.FIO));
@@ -1134,8 +1134,8 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
             if count_person<>versionRec.nmbOfPerson then
                raise Exception.Create('Corrupted data file '+trim(fninf)+'. Must be '+intToStr(versionRec.nmbOfPerson)+'. But realy readed '+intToStr(count_person)+' records');
             CRC32ReadedFromFile:=podrcrc32;
-            if CRC32ReadedFromFile<>versionRec.crc32 then
-               raise Exception.Create('Corrupted data file '+trim(fninf)+'. Wrong checksum');
+//            if CRC32ReadedFromFile<>versionRec.crc32 then
+//               raise Exception.Create('Corrupted data file '+trim(fninf)+'. Wrong checksum');
         end;
 
 
@@ -1472,7 +1472,7 @@ PROCEDURE PUTINF;
         RETVAL    : WORD;
   BEGIN
         RetVal := 0;
-        RetVal := RetVal+SIZEOF(CURR_PERSON^)-20;
+        RetVal := RetVal+SIZEOF(CURR_PERSON^)-5*sizeOf(curr_person^.NEXT);
         RetVal := RetVal+2;
         I_C:=COUNT_SOWM(CURR_PERSON);
         IF I_C<=0 THEN I_C:=0;
@@ -1480,7 +1480,7 @@ PROCEDURE PUTINF;
         CURR_SOWM:=CURR_PERSON^.SOWM;
         WHILE CURR_SOWM<>NIL DO
            BEGIN
-                 RetVal:=RetVal+SIZEOF(CURR_SOWM^)-4;
+                 RetVal:=RetVal+SIZEOF(CURR_SOWM^)-sizeOf(curr_sowm^.NEXT);
                  CURR_SOWM:=CURR_SOWM^.NEXT;
            END;
         TEST_AND_DEL_ADD(CURR_PERSON);
@@ -1490,7 +1490,7 @@ PROCEDURE PUTINF;
         CURR_ADD:=CURR_PERSON^.ADD;
         WHILE CURR_ADD<>NIL DO
            BEGIN
-                RetVal:=RetVal+SIZEOF(CURR_ADD^)-4;
+                RetVal:=RetVal+SIZEOF(CURR_ADD^)-sizeOf(curr_add^.NEXT);
                 CURR_ADD:=CURR_ADD^.NEXT;
            END;
         TEST_AND_DEL_UD(CURR_PERSON);
@@ -1500,7 +1500,7 @@ PROCEDURE PUTINF;
         CURR_UD:=CURR_PERSON^.UD;
         WHILE CURR_UD<>NIL DO
            BEGIN
-                RetVal:=RetVal+SIZEOF(CURR_UD^)-4;
+                RetVal:=RetVal+SIZEOF(CURR_UD^)-sizeOf(curr_ud^.next);
                 CURR_UD:=CURR_UD^.NEXT;
            END;
         TEST_AND_DEL_CN(CURR_PERSON);
@@ -1510,7 +1510,7 @@ PROCEDURE PUTINF;
         CURR_CN:=CURR_PERSON^.CN;
         WHILE CURR_CN<>NIL DO
            BEGIN
-                RetVal:=RetVal+SIZEOF(CURR_CN^)-4;
+                RetVal:=RetVal+SIZEOF(CURR_CN^)-sizeOf(curr_cn^.next);
                 CURR_CN:=CURR_CN^.NEXT;
            END;
         GET_SIZE_PERSON:=RETVAL;
@@ -1523,7 +1523,7 @@ PROCEDURE PUTINF;
         CURR_CN :CN_PTR;
         CURR_SOWM:SOWM_PTR;
   BEGIN
-        PUT_TO_BUF(CURR_PERSON^,SIZEOF(CURR_PERSON^)-20);
+        PUT_TO_BUF(CURR_PERSON^,SIZEOF(CURR_PERSON^)-5*sizeOf(curr_person^.NEXT));
         TEST_AND_DEL_SOWM(CURR_PERSON);
         I_C:=COUNT_SOWM(CURR_PERSON);
         IF I_C<=0 THEN I_C:=0;
@@ -1531,7 +1531,7 @@ PROCEDURE PUTINF;
         CURR_SOWM:=CURR_PERSON^.SOWM;
         WHILE CURR_SOWM<>NIL DO
            BEGIN
-                 PUT_TO_BUF(CURR_SOWM^,SIZEOF(CURR_SOWM^)-4);
+                 PUT_TO_BUF(CURR_SOWM^,SIZEOF(CURR_SOWM^)-sizeOf(curr_sowm^.next));
                  CURR_SOWM:=CURR_SOWM^.NEXT;
            END;
         TEST_AND_DEL_ADD(CURR_PERSON);
@@ -1545,7 +1545,7 @@ PROCEDURE PUTINF;
                 if ((L<0) or (L>SizeOf(Curr_Add^.Count)-1)) then L:=SizeOf(Curr_Add^.Count)-1;
                 if L<SizeOf(Curr_Add^.Count)-1 then for i:=L+1 to SizeOf(Curr_Add^.Count)-1 do Curr_add^.Count[i]:=' ';
                 Curr_Add^.Count:=WinToDos(Curr_Add^.Count);
-                PUT_TO_BUF(CURR_ADD^,SIZEOF(CURR_ADD^)-4);
+                PUT_TO_BUF(CURR_ADD^,SIZEOF(CURR_ADD^)-sizeOf(curr_add^.next));
                 Curr_Add^.Count:=DosToWin(Curr_Add^.Count);
                 CURR_ADD:=CURR_ADD^.NEXT;
            END;
@@ -1560,7 +1560,7 @@ PROCEDURE PUTINF;
                 if ((L<0) or (L>SizeOf(Curr_Ud^.Count)-1)) then L:=SizeOf(Curr_Ud^.Count)-1;
                 if L<SizeOf(Curr_Ud^.Count)-1 then for i:=L+1 to SizeOf(Curr_Ud^.Count)-1 do Curr_Ud^.Count[i]:=' ';
                 Curr_Ud^.Count:=WinToDos(Curr_Ud^.Count);
-                PUT_TO_BUF(CURR_UD^,SIZEOF(CURR_UD^)-4);
+                PUT_TO_BUF(CURR_UD^,SIZEOF(CURR_UD^)-sizeOf(curr_ud^.next));
                 Curr_Ud^.Count:=DosToWin(Curr_Ud^.Count);
                 CURR_UD:=CURR_UD^.NEXT;
            END;
@@ -1575,7 +1575,7 @@ PROCEDURE PUTINF;
                 if ((L<0) or (L>SizeOf(Curr_Cn^.PRIM_1)-1)) then L:=SizeOf(Curr_Cn^.PRIM_1)-1;
                 if L<SizeOf(Curr_CN^.Prim_1)-1 then for i:=L+1 to SizeOf(Curr_CN^.PRIM_1)-1 do Curr_Cn^.PRIM_1[i]:=' ';
                 Curr_cn^.PRIM_1:=WinToDos(Curr_cn^.PRIM_1);
-                PUT_TO_BUF(CURR_CN^,SIZEOF(CURR_CN^)-4);
+                PUT_TO_BUF(CURR_CN^,SIZEOF(CURR_CN^)-sizeof(curr_cn^.next));
                 Curr_cn^.PRIM_1:=DosToWin(Curr_cn^.PRIM_1);
                 CURR_CN:=CURR_CN^.NEXT;
            END;
