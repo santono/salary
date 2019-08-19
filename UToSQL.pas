@@ -139,7 +139,7 @@ begin
      if (ModeArc and not ModeIskra) or (not ModeArc) then
         begin
              Label2.Caption:='Чистка базы данных с '+DateToStr(DateFr)+' по '+DateToStr(DateTo);
-             FormWaitMess.SetMessage('Чиста БД. Ждите.');
+             FormWaitMess.SetMessage('Чистка БД. Ждите.');
              FormWaitMess.Show;
              Application.ProcessMessages;
              Delete_All_Podr(DateFr,DateTo,ModeArc);
