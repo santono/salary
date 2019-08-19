@@ -359,7 +359,8 @@ uses
   UUdEntity in 'UUdEntity.pas',
   UAddEntity in 'UAddEntity.pas',
   UCnEntity in 'UCnEntity.pas',
-  UPersonEntity in 'UPersonEntity.pas';
+  UPersonEntity in 'UPersonEntity.pas',
+  UPersonService in 'UPersonService.pas';
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

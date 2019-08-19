@@ -3,8 +3,20 @@ unit UAddEntity;
 interface
  type TAddEntity=class
              public
+              shifr      : word;
+              period     : byte;
+              year       : word;     {1991 - 1 и т д}
+              summa      : real;
+              FMP        : real;
+              FZP        : real;
+              OTHER      : real;
+              vyplacheno : word;
+              who        : word;     {ѕолучена автоматически или вручную}
+              workDay    : word;
+              workClock  : real;
+              count      : string;
                 constructor Create;
-                destructor Free;
+                destructor destroy;
                 function getShifr:word;
                 function getPeriod:byte;
                 function getYear:word;
@@ -29,18 +41,6 @@ interface
                 procedure setWorkDay(workDay:word);
                 procedure setWorkClock(workClock:real);
                 procedure setCount(count:string);
-             property shifr      : word read getShifr write setShifr;
-             property period     : byte read getPeriod write setPeriod;
-             property year       : word read getYear write setYear;     {1991 - 1 и т д}
-             property summa      : real read getSumma write setSumma;
-             property FMP        : real read getFMP write setFMP;
-             property FZP        : real read getFZP write setFZP;
-             property OTHER      : real read getOther write setOther;
-             property vyplacheno : word read getVyplacheno write setVyplacheno;
-             property who        : word read getWho write setWho;     {ѕолучена автоматически или вручную}
-             property workDay    : word read getWorkDay write setWorkDay  ;
-             property workClock  : real read getWorkClock write setWorkClock ;
-             property count      : string read getCount write setCount;
                end;
 
 implementation
@@ -60,7 +60,7 @@ implementation
         workClock  := 0.00;
         count      :='';
    end;
-  destructor TAddEntity.Free;
+  destructor TAddEntity.Destroy;
    begin
    
    end;

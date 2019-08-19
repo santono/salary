@@ -2,7 +2,7 @@ unit ScrExport;
 
 interface
     uses ScrDef;
-   type TDstMode=(salDstMode,salarcDstMode,tmpDstMode,currDstMode); 
+   type TDstMode=(salDstMode,salarcDstMode,tmpDstMode,currDstMode);
   procedure ExportPodr;
   procedure ExportShifr;
   procedure ExportKadry;
@@ -36,7 +36,7 @@ interface
   procedure putPersonToSqlForCurrMonth(WantedTabno:integer;WantedPodr:integer);
 
 
-                             
+
 implementation
   uses Dialogs,SysUtils,DbUnit,ScrLists,DBLogDlg,ScrUtil,UFIBModule,
        KadClU,UToSQL,Clarion,Forms,DateUtils,Math,Classes,ScrIO,UFormWait,
@@ -197,7 +197,6 @@ implementation
           end;
 
         FIB.pFIBTransactionArc.Commit;
-        ShowMessage('Справочник подразделений в архиве успешно обновлен');
         MovePodrToArc  := true;
      END;
 
@@ -903,9 +902,12 @@ implementation
                             writeln(Dev,SS);
                             Close(Dev);
                       end;
-                   SQLStmt:='SELECT count(*) from tb_tmp_person';
-                   v:=SQLQueryValue(SQLStmt);
-                   i1:=getVariantInteger(v);
+                   if dstMode=tmpDstMode then
+                      begin
+                           SQLStmt:='SELECT count(*) from tb_tmp_person';
+                           v:=SQLQueryValue(SQLStmt);
+                           i1:=getVariantInteger(v);
+                      end;
 
                    try
                //        ss:=FIB.pFIBQuery.Database.DBFileName;
@@ -913,14 +915,17 @@ implementation
                        FIB.pFIBQuery.ExecQuery;
                    except
                        FIB.pFIBQuery.Transaction.Rollback;
-                       MessageDlg('Ошибка вставки в таблицу PERSON',
+                       MessageDlg('Ошибка вставки в таблицу PERSON '+trim(intToStr(curr_person^.tabno))+' '+trim(curr_person^.FIO)+' '+trim(curr_person^.dolg),
                         mtInformation, [mbOk], 0);
                        Exit;
                    end;
 
-                   SQLStmt:='SELECT count(*) from tb_tmp_person';
-                   v:=SQLQueryValue(SQLStmt);
-                   i1:=getVariantInteger(v);
+                   if dstMode=tmpDstMode then
+                      begin
+                           SQLStmt:='SELECT count(*) from tb_tmp_person';
+                           v:=SQLQueryValue(SQLStmt);
+                           i1:=getVariantInteger(v);
+                      end;
 
 
                    { 1 - начисления }
@@ -1286,6 +1291,9 @@ implementation
                   PersonId:=0;
 {                  if I>0 then    }
                      begin
+                          FormWaitMess.SetMessage('Установка счетчика. Ждите.');
+                          FormWaitMess.Show;
+                          application.ProcessMessages;
                           FIB.pFIBQuery.SQL.Clear;
                           FIB.pFIBQuery.SQL.Add('SELECT MAX(SHIFRID) FROM PERSON');
                           try
@@ -1299,6 +1307,9 @@ implementation
                                          mtInformation, [mbOk], 0);
                              Exit;
                           end;
+                          FormWaitMess.hide;
+                          Application.ProcessMessages;
+
                      end;
              end;
           FormToSQL.Gauge3.MaxValue:=Count_Person;
@@ -1309,16 +1320,16 @@ implementation
                   { 0 - сотрудник }
             //      if Curr_Person^.tabno=5814 then
                      begin
-                  Inc(I_COUNT);
-                  FormToSQL.Gauge3.Progress:=I_COUNT;
-                  FormToSQL.Label3.Caption:=Trim(CURR_Person^.FIO)+' '+Trim(Curr_Person^.Dolg);
-                  FormToSQL.Label3.ReFresh;
-                  FormToSQL.Label3.RePaint;
-                  Application.ProcessMessages;
-                  PERSONID:=PERSONID+1;
-                  MAX_PERSON_ID:=PERSONID;
-                  putPersonToSQL(Personid,Curr_Person,DstMode,0,0);
-                    end;
+                        Inc(I_COUNT);
+                        FormToSQL.Gauge3.Progress:=I_COUNT;
+                        FormToSQL.Label3.Caption:=Trim(CURR_Person^.FIO)+' '+Trim(Curr_Person^.Dolg);
+                        FormToSQL.Label3.ReFresh;
+                        FormToSQL.Label3.RePaint;
+                        Application.ProcessMessages;
+                        PERSONID:=PERSONID+1;
+                        MAX_PERSON_ID:=PERSONID;
+                        putPersonToSQL(Personid,Curr_Person,DstMode,0,0);
+                     end;
                 CURR_PERSON:=CURR_PERSON^.NEXT;
              END;
 {        FIB.pFIBTransactionSAL.CommitRetaining;}
@@ -2429,6 +2440,7 @@ procedure Recalc_Person_Sql(Curr_Person:Person_ptr;YearZa:integer;MonthZa:intege
      i1,i2       : Integer;
 begin
      FormWait.Show;
+     Application.ProcessMessages;
      SavPersonId := 0;
      SQLStmnt:='EXECUTE PROCEDURE PR_DELETE_TMP_PERSON_TABLES('+IntToStr(Curr_Person^.TABNO)+')';
      SQLExecute(SQLStmnt);
@@ -2736,6 +2748,8 @@ begin
      if FIB.pFIBQuery.Transaction.Active then
         FIB.pFIBQuery.Transaction.COMMIT;
      FormWait.Hide;
+     Application.ProcessMessages;
+     
 
 end;
 
@@ -2785,6 +2799,7 @@ begin
      SummaECBDpAdd  := 0;
      SummaECBDpUd   := 0;
      FormWait.Show;
+     Application.ProcessMessages;
      SavPersonId := 0;
      if not FIB.pFIBQuery.Transaction.Active then
         FIB.pFIBQuery.Transaction.StartTransaction;
@@ -2976,6 +2991,8 @@ begin
      if FIB.pFIBQuery.Transaction.Active then
         FIB.pFIBQuery.Transaction.COMMIT;
      FormWait.Hide;
+     Application.ProcessMessages;
+     
      RetVal:=true;
      Get_Summy_From_Sql:=true;
 
@@ -3238,6 +3255,7 @@ begin
      SummaECBDpAdd  := 0;
      SummaECBDpUd   := 0;
      FormWait.Show;
+     Application.ProcessMessages;
      PutSummyToTmpTables(Curr_Person,YearZa,MonthZa);
      if NOT FIB.pFIBQuery.Transaction.Active then
         FIB.pFIBQuery.Transaction.StartTransaction;
@@ -3273,6 +3291,7 @@ begin
         FIB.pFIBQuery.Transaction.COMMIT;
      ClearTmpFiles(Curr_Person^.tabno);
      FormWait.Hide;
+     Application.ProcessMessages;
      RetVal:=true;
      Get_Summy_From_Sql_2011:=true;
 
@@ -3400,13 +3419,12 @@ begin
      if FIB.pFIBQuery.Transaction.Active then
         FIB.pFIBQuery.Transaction.COMMIT;
      FormWait.Hide;
+     application.ProcessMessages;
 
 end;
 
 
 
-
-
 end.
 
-
+                                      

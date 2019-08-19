@@ -66,7 +66,7 @@ var
   FormToSQL: TFormToSQL;
 
 implementation
-  USES DateUtils,SCRDEF,SCRUTIL,SCRIO,DBUnit,SCRExport, UFibModule,uFormWait;
+  USES DateUtils,SCRDEF,SCRUTIL,SCRIO,DBUnit,SCRExport, UFibModule,uFormWait,uFormWaitMess;
 
 {$R *.dfm}
 
@@ -99,6 +99,10 @@ begin
                                  else ModeArc   := false;
      if CheckBoxNeedIB.Checked   then NeedLogIb := true
                                  else NeedLogIb := false;
+     if (modeArc and not ModeIskra) then
+        begin
+             movePodrToArc;
+        end;
 
      DstMode:=salDstMode;
      if ModeArc then
@@ -135,10 +139,11 @@ begin
      if (ModeArc and not ModeIskra) or (not ModeArc) then
         begin
              Label2.Caption:='Чистка базы данных с '+DateToStr(DateFr)+' по '+DateToStr(DateTo);
-             FormWait.Show;
+             FormWaitMess.SetMessage('Чиста БД. Ждите.');
+             FormWaitMess.Show;
              Application.ProcessMessages;
              Delete_All_Podr(DateFr,DateTo,ModeArc);
-             FormWait.Hide;
+             FormWaitMess.Hide;
              Label2.Caption:='Чистка закончена';
              Application.ProcessMessages;
         end;
@@ -208,7 +213,7 @@ begin
                                   ShowMessage('Транзакций '+IntToStr(FIB.pFIBDatabaseArc.ActiveTransactionCount)+
                                               ' nmes='+IntToStr(nmes)+' nsrv='+IntToStr(NSRV))
                              end
-                       else
+                          else
                        else
                           if FIB.pFIBDatabaseSal.ActiveTransactionCount>1 then
                              begin
@@ -265,27 +270,30 @@ procedure TFormToSQL.AnalyzeIskra(ShowMode:boolean=true);
      MoveAllPodrToSQL;
      if CheckBoxArc.Checked      then IsArc   := true
                                  else IsArc   := false;
-     Caption:='Перенос данных - Искра';
-     if not IsArc then
+     if isSVDN then
         begin
-             SavDataPath:=DDIR;
-             Ddir:=StringReplace(DDIR,'DATA','DATAISKR',[rfReplaceAll, rfIgnoreCase]);
-             FIB.changeSALtoSALISKRA;
-             modeIskra:=True;
-             MoveAllPodrToSQL;
-             modeIskra:=false;
-             FIB.changeSALISKRAtoSAL;
-             DDir:=SavDataPath;
-        end
-     else
-        begin
-             SavDataPath:=DDIR;
-             DDIR:=StringReplace(DDIR,'DATA','DATAISKR',[rfReplaceAll, rfIgnoreCase]);
+          Caption:='Перенос данных - Искра';
+          if not IsArc then
+             begin
+                  SavDataPath:=DDIR;
+                  Ddir:=StringReplace(DDIR,'DATA','DATAISKR',[rfReplaceAll, rfIgnoreCase]);
+                  FIB.changeSALtoSALISKRA;
+                  modeIskra:=True;
+                  MoveAllPodrToSQL;
+                  modeIskra:=false;
+                  FIB.changeSALISKRAtoSAL;
+                  DDir:=SavDataPath;
+             end
+          else
+             begin
+                  SavDataPath:=DDIR;
+                  DDIR:=StringReplace(DDIR,'DATA','DATAISKR',[rfReplaceAll, rfIgnoreCase]);
         //     FIB.changeSALtoSALISKRA;
-             modeIskra:=True;
-             MoveAllPodrToSQL;
-             modeIskra:=false;
-             DDir:=SavDataPath;
+                  modeIskra:=True;
+                  MoveAllPodrToSQL;
+                  modeIskra:=false;
+                  DDir:=SavDataPath;
+             end;
         end;
      NMES:=SavNMES;
      NSRV:=SavNSRV;
@@ -307,6 +315,8 @@ begin
 {     ExportPodr;}
  //    UpdatePodr;
      MovePodrToArc;
+     ShowMessage('Справочник подразделений в архиве успешно обновлен');
+
 end;
 
 procedure TFormToSQL.BitBtn4Click(Sender: TObject);

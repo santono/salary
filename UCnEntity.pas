@@ -3,8 +3,18 @@ unit UCnEntity;
 interface
  type TCnEntity=class
              public
+              shifr      : word;
+              kod        : word;
+              summa      : real;
+              prim       : integer;
+              prim_1     : string;
+              dejaCounted: real;
+              limitSumma : real;
+              automatic  : word;
+              id         : word;
+              count      : string;
                 constructor Create;
-                destructor Free;
+                destructor destroy;
                 function getShifr:word;
                 function getKod:word;
                 function getSumma:real;
@@ -25,16 +35,6 @@ interface
                 procedure setAutomatic(automatic:word);
                 procedure setId(id:word);
                 procedure setCount(count:string);
-             property shifr      : word read getShifr write setShifr;
-             property kod        : word read getKod write setKod;
-             property summa      : real read getSumma write setSumma;
-             property prim       : integer read getPrim write setPrim;
-             property prim_1     : string read getPrim_1 write setPrim_1;
-             property dejaCounted: real read getDejaCounted write setDejaCounted;
-             property limitSumma : real read getLimitSumma write setLimitSumma;
-             property automatic  : word read getAutomatic write setAutomatic;
-             property id         : word read getId write setId;
-             property count      : string read getCount write setCount;
                end;
 
 implementation
@@ -51,7 +51,7 @@ implementation
         id          := 0;
         count      :='';
    end;
-  destructor TCnEntity.Free;
+  destructor TCnEntity.Destroy;
    begin
 
    end;

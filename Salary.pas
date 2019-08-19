@@ -1385,7 +1385,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NFondySVDN.Visible:=false;
           NFondySVDN.Enabled:=false;
           ActionRepFondySVDN.Enabled:=false;
-          if DirectoryExists('Y:') then
+   //       if DirectoryExists('Y:') then
+          if true then
              begin
                   ActionDeleteViruses.Enabled:=true;
                   nViruses.Visible:=true;

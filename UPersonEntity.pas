@@ -4,10 +4,42 @@ interface
  uses Classes;
  type
      TTabel=array[1..31] of byte;
+     PPersonEntity=^TPersonEntity;
      TPersonEntity=class
              public
+                tabno      : integer;
+                FIO        : string;
+                shifrGru   : word;     {1991 - 1 è ò ä}
+                shifrKat   : word;
+                dolg       : string;
+                oklad      : real;
+                widRaboty  : word;
+                nTemy      : string;
+                mestoOsnRaboty : integer;
+                widOplaty  : integer;
+                mode       : integer;
+                from       : integer;
+                podoh      : integer;
+                malo       : integer;
+                profsojuz  : integer;
+                day        : real;
+                main       : integer;
+                state      : integer;
+                automatic  : integer;
+                startDay   : integer;
+                pens       : integer;
+                bank       : integer;
+                id         : longword;
+                nalCode    : string;
+                 count      : string;
+//              tabel      : ttabel read getTabel write setTabel;
+                addList    : TList;
+                udList     : TList;
+                cnList     : TList;
+                sowmList   : TList;
+                tabel:TTabel;
                 constructor Create;
-                destructor Free;
+                destructor Destroy;
                 function getTabno:integer;
                 function getFIO:string;
                 function getShifrGru:word;
@@ -68,42 +100,12 @@ interface
                 procedure setUdList(udList:TList);
                 procedure setCnList(cnList:TList);
                 procedure setSowmList(sowmList:TList);
-             property tabno      : integer read getTabno write setTabno;
-             property FIO        : string  read getFIO write setFIO;
-             property shifrGru   : word read getShifrGru write setShifrGru;     {1991 - 1 è ò ä}
-             property shifrKat   : word read getShifrKat write setShifrKat;
-             property dolg       : string read getDolg write setDolg;
-             property oklad      : real read getOklad write setOklad;
-             property widRaboty  : word read getWidRaboty write setWidRaboty;
-             property nTemy      : string  read getNTemy write setNTemy;
-             property mestoOsnRaboty : integer read getMestoOsnRaboty write setMestoOsnRaboty;
-             property widOplaty  : integer read getWidOplaty write setWidOplaty;
-             property mode       : integer read getMode write setMode;
-             property from       : integer read getFrom write setFrom;
-             property podoh      : integer read getPodoh write setPodoh;
-             property malo       : integer read getMalo write setMalo;
-             property profsojuz  : integer read getProfsojuz write setProfsojuz;
-             property day        : real read getDay write setDay;
-             property main       : integer read getMain write setMain;
-             property state      : integer read getState write setState;
-             property automatic  : integer read getAutomatic write setAutomatic;
-             property startDay   : integer read getStartDay write setStartDay;
-             property pens       : integer read getPens write setPens;
-             property bank       : integer read getBank write setBank;
-             property id         : longword read getId write setId;
-             property nalCode    : string read getNalCode write setNalCode;
-             property count      : string read getCount write setCount;
-             property tabel      : ttabel read getTabel write setTabel;
-             property addList    : TList  read getAddList write setAddList;
-             property udList     : TList  read getUdList write setUdList;
-             property cnList     : TList  read getCnList write setCnList;
-             property sowmList   : TList  read getSowmList write setSowmList;
 //                       HOLIDAY          : HOLIDAY_TYPE;
 
                end;
 
 implementation
-  uses scrdef;
+  uses ScrDef;
   constructor TPersonEntity.Create;
    var tabel0:TTabel;
    begin
@@ -118,11 +120,14 @@ implementation
         nTemy      := '';
         mestoOsnRaboty :=NSRV;
         widOplaty  := 1;
-        mode       := 5;
+        mode       := FIVE_DAY;
         from       := mestoOsnRaboty;
         podoh      := 0;
         malo       := 0;
-        profsojuz  := 0;
+        if isLNR then
+           profsojuz  := 1
+        else
+           profsojuz  := 0;
         day        := 0.00;
         main       := 1;
         state      := 0;
@@ -139,7 +144,7 @@ implementation
         cnList     := TList.Create;
         sowmList   := TList.Create;
    end;
-  destructor TPersonEntity.Free;
+  destructor TPersonEntity.Destroy;
    begin
         addList.Free;
         udList.Free;

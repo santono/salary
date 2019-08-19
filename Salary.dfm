@@ -283,6 +283,8 @@ object MainForm: TMainForm
       end
       object DBF1: TMenuItem
         Caption = #1055#1077#1088#1077#1085#1086#1089' '#1076#1072#1085#1085#1099#1093' '#1074' DBF'
+        Enabled = False
+        Visible = False
         OnClick = DBF1Click
       end
       object N7: TMenuItem
@@ -291,6 +293,7 @@ object MainForm: TMainForm
       end
       object FireBird: TMenuItem
         Caption = 'FireBird'
+        Visible = False
         OnClick = FireBirdClick
       end
       object N19: TMenuItem

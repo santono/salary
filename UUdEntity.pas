@@ -4,8 +4,15 @@ interface
  type PUdEntity=^TUdEntity;
       TUdEntity=class
              public
+              shifr      : word;
+              period     : byte;
+              year       : word;     {1991 - 1 и т д}
+              summa      : real;
+              vyplacheno : word;
+              who        : word;     {ѕолучена автоматически или вручную}
+              count      : string;
                 constructor Create;
-                destructor Free;
+                destructor Destroy;
                 function getShifr:word;
                 function getPeriod:byte;
                 function getYear:word;
@@ -20,13 +27,6 @@ interface
                 procedure setVyplacheno(vyplacheno:word);
                 procedure setWho(who:word);
                 procedure setCount(count:string);
-             property shifr      : word read getShifr write setShifr;
-             property period     : byte read getPeriod write setPeriod;
-             property year       : word read getYear write setYear;     {1991 - 1 и т д}
-             property summa      : real read getSumma write setSumma;
-             property vyplacheno : word read getVyplacheno write setVyplacheno;
-             property who        : word read getWho write setWho;     {ѕолучена автоматически или вручную}
-             property count      : string read getCount write setCount;
                end;
 
 implementation
@@ -41,7 +41,7 @@ implementation
         who        := 0;
         count      :='';
    end;
-  destructor TUdEntity.Free;
+  destructor TUdEntity.Destroy;
    begin
 
    end;
