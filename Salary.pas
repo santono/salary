@@ -406,6 +406,8 @@ type
     NFondySVDN: TMenuItem;
     ActionDeleteViruses: TAction;
     nViruses: TMenuItem;
+    ActionCorrectVyplaty: TAction;
+    N181: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -669,6 +671,7 @@ type
     procedure ActionBrowseDekrListExecute(Sender: TObject);
     procedure ActionRepFondySVDNExecute(Sender: TObject);
     procedure ActionDeleteVirusesExecute(Sender: TObject);
+    procedure ActionCorrectVyplatyExecute(Sender: TObject);
 
 
   private
@@ -757,7 +760,8 @@ implementation
   UFormBrowseDogovora, UFormRepPomKOtp, UFormTestCrossSaving,
   scrnetwork, UFormSavedAwans, UFormRecalcJan2019, UFormRepClockItogi,
   UFormRepRazr, UFormRepNeSovpRazrOklad, UFormRepFondy, UFormRepPensionery,
-  UFormDekrList, UFormRepFondySVDN, UFormMemBud;
+  UFormDekrList, UFormRepFondySVDN, UFormMemBud,
+  UFormMakeCorrectNagativeVypl;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -4703,5 +4707,12 @@ begin
         DeleteViruses;
 end;
 
+procedure TMainForm.ActionCorrectVyplatyExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormMakeCorrectNagativeVypl, FormMakeCorrectNagativeVypl);
+    FormMakeCorrectNagativeVypl.ShowModal;
+
+end;
+
 end.
-                    
+

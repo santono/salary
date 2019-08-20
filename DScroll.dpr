@@ -360,7 +360,8 @@ uses
   UAddEntity in 'UAddEntity.pas',
   UCnEntity in 'UCnEntity.pas',
   UPersonEntity in 'UPersonEntity.pas',
-  UPersonService in 'UPersonService.pas';
+  UPersonService in 'UPersonService.pas',
+  UFormMakeCorrectNagativeVypl in 'UFormMakeCorrectNagativeVypl.pas' {FormMakeCorrectNagativeVypl};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

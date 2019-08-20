@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ComCtrls, StdCtrls, Buttons;
+  Dialogs, ComCtrls, StdCtrls, Buttons, cxControls, cxContainer, cxEdit,
+  cxTextEdit, cxMaskEdit, cxSpinEdit;
 
 type
   TFormMakeALLTabel032011 = class(TForm)
@@ -12,9 +13,12 @@ type
     BitBtn2: TBitBtn;
     ProgressBar1: TProgressBar;
     BitBtn3: TBitBtn;
+    cxSpinEditAmntOfDay: TcxSpinEdit;
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
+    amntOfDay:integer;
     { Private declarations }
   public
     { Public declarations }
@@ -74,33 +78,85 @@ var savnsrv,i_nsrv : integer;
 
  procedure Fill_Tabel(var need:boolean);
   begin
-       if not (Curr_Person^.Tabel[20]=VYHODN) then exit;
-       if Curr_Person^.Tabel[27]=Jawka  then
+       if not((Curr_Person^.Tabel[31]=JAWKA)
+       or (Curr_Person^.Tabel[30]=JAWKA)
+       or (Curr_Person^.Tabel[29]=JAWKA)) then exit;
+       if Curr_Person^.Tabel[31]=Jawka  then
           begin
-               Curr_Person^.Tabel[27]:=VYHODN;
+               Curr_Person^.Tabel[31]:=PROGUL;
                need:=true;
           end;
-       if Curr_Person^.Tabel[30]=VYHODN  then
+       if Curr_Person^.Tabel[30]=JAWKA  then
           begin
-               Curr_Person^.Tabel[30]:=Jawka;
+               Curr_Person^.Tabel[30]:=PROGUL;
+               need:=true;
+          end;
+       if Curr_Person^.Tabel[29]=JAWKA  then
+          begin
+               Curr_Person^.Tabel[29]:=PROGUL;
+               need:=true;
+          end;
+  end;
+ procedure Fill_Tabel_For_Amnt_Of_Day(var need:boolean);
+  var i:integer;
+      finded:boolean;
+  begin
+       finded:=false;
+       for i:=31 downto 31-amntOfDay+1 do
+       if (Curr_Person^.Tabel[i]=JAWKA) then
+           begin
+                finded:=true;
+                break;
+           end;
+       if not finded  then exit;
+       for i:=31 downto 31-amntOfDay+1 do
+       if Curr_Person^.Tabel[i]=Jawka  then
+          begin
+               Curr_Person^.Tabel[i]:=PROGUL;
                need:=true;
           end;
   end;
 begin
     if not isLNR then exit;
-    if not YesNo('Внести корректировки в табель всего университета в апреле 2019?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then Exit;
-    IF not ((CurrYear=2019) and (nmes=04)) THEN
+    BitBtn1.Enabled:=false;
+    if not YesNo('Внести корректировки в табель ППС университета в августе 2019?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then
        begin
-            ShowMessage('Внести корректировки можно только в апреле 2019');
+            BitBtn1.Enabled:=true;
             Exit;
        end;
-{
+    IF not ((CurrYear=2019) and (nmes=08)) THEN
+       begin
+            ShowMessage('Внести корректировки можно только в августе 2019');
+            BitBtn1.Enabled:=true;
+            Exit;
+       end;
+
     if NameServList.CountSelected<=0 then
        begin
+            BitBtn1.Enabled:=true;
             ShowMessage('Не выбраны подразделения');
             Exit;
        end;
-}
+    if GruppyList.CountSelected<=0 then
+       begin
+            BitBtn1.Enabled:=true;
+            ShowMessage('Не выбраны счета');
+            Exit;
+       end;
+    if KategList.CountSelected<=0 then
+       begin
+            BitBtn1.Enabled:=true;
+            ShowMessage('Не выбраны категории сотрудников');
+            Exit;
+       end;
+    self.amntOfDay:=cxSpinEditAmntOfDay.Value;
+    if ((amntOfDay<1) or (amntOfDay>31)) then
+       begin
+            ShowMessage('Неверно указано количество дней.');
+            BitBtn1.Enabled:=true;
+            exit;
+       end;
+    BitBtn1.Enabled:=false;
     ProgressBar1.Min      := 0;
     ProgressBar1.Max      := Count_Serv;
     ProgressBar1.Position := 0;
@@ -112,7 +168,7 @@ begin
              nsrv:=i_nsrv;
              ProgressBar1.Position := i_nsrv;
              Application.ProcessMessages;
-//             if not NameServList.IsSelected(NSRV) then continue;
+             if not NameServList.IsSelected(NSRV) then continue;
              mkflnm;
              if not fileexists(fninf) then continue;
              getinf(true);
@@ -120,7 +176,10 @@ begin
              curr_Person:=head_Person;
              while (curr_person<>nil) do
               begin
-                   Fill_Tabel(need);
+                   if GruppyList.IsSelected(curr_person^.GRUPPA) then
+                   if KategList.IsSelected(curr_person^.KATEGORIJA) then
+//                      Fill_Tabel(need);
+                      Fill_Tabel_For_Amnt_Of_Day(need);
                    if Curr_Person^.Tabno=1356 then
                       Curr_Person^.Tabno:=1356;
 
@@ -143,12 +202,20 @@ begin
     mkflnm;
     getinf(true);
     ShowMessage('Табель откорректирован');
+    BitBtn1.Enabled:=true;
+
 end;
 
 procedure TFormMakeALLTabel032011.BitBtn3Click(Sender: TObject);
 begin
     Application.CreateForm(TFormSelPKG, FormSelPKG);
     FormSelPKG.ShowModal;
+end;
+
+procedure TFormMakeALLTabel032011.FormCreate(Sender: TObject);
+begin
+     self.amntOfDay:=3;
+     cxSpinEditAmntOfDay.Value:=self.amntOfDay;
 end;
 
 end.
