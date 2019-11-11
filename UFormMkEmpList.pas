@@ -1938,8 +1938,10 @@ begin
         begin
 //              Application.CreateForm(TFormMoveRecalcOtp2016,FormMoveRecalcOtp2016);
 //              FormMoveRecalcOtp2016.ShowModal;
-              Application.CreateForm(TFormMoveAwans2017_12,FormMoveAwans2017_12);
-              FormMoveAwans2017_12.ShowModal;
+//              Application.CreateForm(TFormMoveAwans2017_12,FormMoveAwans2017_12);
+//              FormMoveAwans2017_12.ShowModal;
+              Application.CreateForm(TFormMoveRecalcOtp2016,FormMoveRecalcOtp2016);
+              FormMoveRecalcOtp2016.ShowModal;
         end;
 
 

@@ -322,4 +322,92 @@ object FormRepF4: TFormRepF4
     Left = 352
     Top = 56
   end
+  object dsSowm: TpFIBDataSet
+    SelectSQL.Strings = (
+      'select kk.tabno'
+      '       ,kk.fio'
+      '       ,kk.nal_code'
+      '       ,kk.data_pri'
+      '       ,kk.data_uw'
+      '       ,kk.code_uwol'
+      
+        '       ,pr.nomerprik,pr.dataprik,coalesce(pr.idclassificator,0) ' +
+        'idclassificator'
+      
+        '       ,substr(pr.kodkp,1,6) kodkp,substr(pr.kodzkpptr,1,5) kodz' +
+        'kpptr, coalesce(pr.namedol,'#39#39') namedol, coalesce(pr.nameprof,'#39#39')' +
+        ' nameprof'
+      '       ,pr.databeg'
+      '       ,pr.dataend'
+      '       from kadry kk'
+      '            join tb_prikazy pr on kk.tabno=pr.tabno'
+      '       where pr.y=:y'
+      '         and pr.m=:m'
+      '         and not pr.content is null'
+      '         and (upper(pr.content) like '#39'%'#1057#1059#1052#1030#1057'%'#39')'
+      '         and (upper(pr.content) like '#39'%'#1055#1056#1048#1049#1053#1071#1058#1048'%'#39')')
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    Left = 384
+    Top = 56
+    object dsSowmTABNO: TFIBIntegerField
+      FieldName = 'TABNO'
+    end
+    object dsSowmFIO: TFIBStringField
+      FieldName = 'FIO'
+      Size = 51
+      EmptyStrToNull = True
+    end
+    object dsSowmNAL_CODE: TFIBStringField
+      FieldName = 'NAL_CODE'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsSowmDATA_PRI: TFIBDateField
+      FieldName = 'DATA_PRI'
+    end
+    object dsSowmDATA_UW: TFIBDateField
+      FieldName = 'DATA_UW'
+    end
+    object dsSowmCODE_UWOL: TFIBSmallIntField
+      FieldName = 'CODE_UWOL'
+    end
+    object dsSowmNOMERPRIK: TFIBStringField
+      FieldName = 'NOMERPRIK'
+      Size = 15
+      EmptyStrToNull = True
+    end
+    object dsSowmDATAPRIK: TFIBDateField
+      FieldName = 'DATAPRIK'
+    end
+    object dsSowmIDCLASSIFICATOR: TFIBIntegerField
+      FieldName = 'IDCLASSIFICATOR'
+    end
+    object dsSowmKODKP: TFIBStringField
+      FieldName = 'KODKP'
+      Size = 80
+      EmptyStrToNull = True
+    end
+    object dsSowmKODZKPPTR: TFIBStringField
+      FieldName = 'KODZKPPTR'
+      Size = 80
+      EmptyStrToNull = True
+    end
+    object dsSowmNAMEDOL: TFIBStringField
+      FieldName = 'NAMEDOL'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsSowmNAMEPROF: TFIBStringField
+      FieldName = 'NAMEPROF'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsSowmDATABEG: TFIBDateField
+      FieldName = 'DATABEG'
+    end
+    object dsSowmDATAEND: TFIBDateField
+      FieldName = 'DATAEND'
+    end
+  end
 end

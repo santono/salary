@@ -21,11 +21,14 @@ type
     pFIBDataSet1SUMMAECB: TFIBBCDField;
     pFIBDataSet1SUMMAPOD: TFIBBCDField;
     pFIBDataSet1ISSCIPED: TFIBIntegerField;
+    Memo1: TMemo;
     procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
     wantedShifr:integer;
      procedure ExecuteMovePod2012;
+     procedure ExecuteMovePod2019;
+
 
   public
     { Public declarations }
@@ -35,16 +38,16 @@ var
   FormMoveRecalcOtp2016: TFormMoveRecalcOtp2016;
 
 implementation
-  Uses UFibModule,ScrDef,ScrIo,ScrUtil;
+  Uses UFibModule,ScrDef,ScrIo,ScrUtil,scrlists;
 
 {$R *.dfm}
-
 
 procedure TFormMoveRecalcOtp2016.BitBtn1Click(Sender: TObject);
 begin
      if MessageDlg('Выполнить перенос данных перерасчета отпускных после 25 07 2016 г?',
     mtConfirmation, [mbYes, mbNo], 0) = mrYes  then
-     ExecuteMovePod2012;
+ //    ExecuteMovePod2012;
+     ExecuteMovePod2019;
 end;
 
 procedure TFormMoveRecalcOtp2016.ExecuteMovePod2012;
@@ -203,7 +206,7 @@ var NMES_Sav,NSRV_Sav:Integer;
    end;
 
 begin
-     wantedShifr:=169;
+     wantedshifr:=169;
      NMES_Sav:=NMES;
      NSRV_Sav:=NSRV;
      EMPTY_ALL_PERSON;
@@ -260,5 +263,294 @@ begin
      ShowMessage('Перенос закончен');
 
 end;
+
+procedure TFormMoveRecalcOtp2016.ExecuteMovePod2019;
+const id=49;
+
+type
+       pRec=^tRec;
+       trec=record
+            tabno    : integer;
+            summa    : real;
+            period   : integer;
+            shifrgru : integer;
+            fio      : string;
+           end;
+var NMES_Sav,NSRV_Sav:Integer;
+    I_NSRV,SC:Integer;
+    Curr_Person:Person_Ptr;
+    Maked:Boolean;
+    List:TList;
+    I:Integer;
+    SQLStmnt:string;
+    summa:real;
+    s:string;
+    ierr:integer;
+  procedure InitList;
+    const separator=';';
+    var Rec:PRec;
+        fName:string;
+        dev:textfile;
+        s:string;
+        sa:TArrOfString;
+        a:real;
+        iErr:integer;
+        tabno,shifrgru,period:integer;
+        summa:real;
+    begin
+         fname:=cdir+'OTP_2019.txt';
+         if not fileexists(fname) then
+            begin
+                 showMessage('Отсутствует файл '+fName);
+                 exit;
+            end;
+         system.AssignFile(dev,fname);
+         system.reset(dev);
+         List:=TList.Create;
+         summa:=0;
+         while not eof(dev) do
+           begin
+                readln(dev,s);
+                s:=trim(s);
+                sa:=split(s,separator);
+                if length(trim(sa[0]))<1 then continue; //июль
+                val(trim(sa[0]),tabno,ierr);
+                if ierr>0 then continue;
+                if tabno=8547 then
+                   ierr:=0;
+
+                if length(trim(sa[4]))>0 then //июль
+                   begin
+                        val(trim(sa[4]),a,ierr);
+                        if ierr=0 then
+                           begin
+                                new(Rec);
+                                Rec.tabno:=tabno;
+                                Rec.summa:=a;
+                                Rec.period:=7;
+                                Rec.shifrgru:=1;
+                                rec.fio:=sa[1];
+                                list.Add(Rec);
+                                summa:=summa+a;
+                           end;
+                   end;
+                if length(trim(sa[5]))>0 then //июль вне
+                   begin
+                        val(trim(sa[5]),a,ierr);
+                        if ierr=0 then
+                           begin
+                                new(Rec);
+                                Rec.tabno:=tabno;
+                                Rec.summa:=a;
+                                Rec.period:=7;
+                                Rec.shifrgru:=2;
+                                rec.fio:=sa[1];
+                                list.Add(Rec);
+                           end;
+                   end;
+                if length(trim(sa[6]))>0 then //август
+                   begin
+                        val(trim(sa[6]),a,ierr);
+                        if ierr=0 then
+                           begin
+                                new(Rec);
+                                Rec.tabno:=tabno;
+                                Rec.summa:=a;
+                                Rec.period:=8;
+                                Rec.shifrgru:=1;
+                                rec.fio:=sa[1];
+                                list.Add(Rec);
+                           end;
+                   end;
+                if length(trim(sa[7]))>0 then //сент
+                   begin
+                        val(trim(sa[7]),a,ierr);
+                        if ierr=0 then
+                           begin
+                                new(Rec);
+                                Rec.tabno:=tabno;
+                                Rec.summa:=a;
+                                Rec.period:=9;
+                                Rec.shifrgru:=1;
+                                rec.fio:=sa[1];
+                                list.Add(Rec);
+                           end;
+                   end;
+
+           end;
+         system.CloseFile(dev);
+         showMessage('Summa='+FloatToStr(summa));
+    end;
+  procedure delete_Add_Otp_From_Podr;
+   var curr_person:person_ptr;
+     procedure Delete_Add_Otp;
+         var Finished:Boolean;
+             Curr_Add:Add_PTR;
+         begin
+              while True do
+               begin
+                     Finished:=True;
+                     Curr_Add:=Curr_Person^.Add;
+                     while (Curr_Add<>Nil) do
+                       begin
+                            if Curr_Add^.SHIFR  = Wantedshifr then
+//                            if Curr_Add^.Period = Period      then
+                            if Curr_Add^.YEAR   = 2019-1990   then
+                            if Curr_Add^.WHO    = Id          then
+                               begin
+                                    DEL_Add(Curr_Add,Curr_Person);
+                                    Finished:=False;
+                                    Break;
+                               end;
+                            Curr_Add:=Curr_Add^.NEXT;
+                       end;
+                     if Finished then Break;
+               end;
+         end;
+   begin
+        curr_person:=head_person;
+        while (curr_person<>nil) do
+          begin
+               Delete_Add_Otp;
+               curr_person:=curr_person^.next;
+          end;
+   end;
+
+  procedure MovePodToPerson(Curr_Person:Person_Ptr);
+   var Curr_Add:Add_Ptr;
+       Rec:PRec;
+       Finded:Boolean;
+       i,j:Integer;
+       saved_i,period:integer;
+       summa:real;
+       procedure MoveOtpToPerson(SummaOtp:Real;
+                                 Period:integer);
+        var Curr_Add:Add_PTR;
+        begin
+             if Abs(SummaOtp)>1.00 then
+                begin
+                     MAKE_Add(Curr_Add,Curr_Person);
+                     Curr_Add^.SHIFR := wantedShifr;
+                     Curr_Add^.SUMMA := SummaOtp;
+                     Curr_Add^.FZP   := Curr_Add^.SUMMA;
+                     Curr_Add^.PERIOD := Period;
+                     Curr_Add^.YEAR   := 2019-1990;
+                     Curr_Add^.VYPLACHENO:=GET_OUT;
+                     Curr_Add^.WHO:=id;
+                     maked:=true;
+                end;
+        end;
+   begin
+        if Curr_Person^.Wid_Raboty<>Osn_Wid_Raboty then Exit;
+        Curr_Add:=Curr_Person^.Add;
+        if List.Count=0 then Exit;
+        finded:=false;
+        if curr_person.tabno=8547 then
+           finded:=false;
+        while (true) do
+           begin
+                finded:=false;
+                for i:=0 to List.Count-1 do
+                    begin
+                         if PRec(List.Items[i])^.tabno=Curr_Person.TABNO then
+                         if (pRec(List.Items[i])^.shifrgru=curr_person^.gruppa) then
+                             begin
+                                 finded:=true;
+                                 period:=PRec(List.Items[i]).period;
+                                 summa:=PRec(List.Items[i]).summa;
+                                 saved_i:=i;
+                                 Break;
+                             end
+                    end;
+                if Finded then
+                   begin
+                        MoveOtpToPerson(summa,period);
+        //                PRec(List.Items[saved_i])^.tabno:=-PRec(List.Items[i]).tabno;
+
+                        List.Delete(saved_i);
+                        List.Capacity:=list.Count;
+                   end;
+             if not finded then break;
+           end;
+   end;
+
+begin
+    s:=InputBox('Шифр статьи', 'Укажите шифр статьи', '169');
+     val(s,wantedShifr,ierr);
+     if ierr<>0 then
+        begin
+             showMessage('Неверно указан шифр');
+             exit;
+        end;
+     if not ShifrList.IsAdd(wantedShifr) then
+        begin
+             showMessage('Неверно указан шифр');
+             exit;
+        end;
+ 
+//     wantedShifr:=169;
+     NMES_Sav:=NMES;
+     NSRV_Sav:=NSRV;
+     EMPTY_ALL_PERSON;
+     ProgressBar1.Max:=Count_SERV;
+     ProgressBar1.Min:=0;
+     ProgressBar1.Position:=0;
+     SC:=0;
+     List:=TList.Create;
+     InitList;
+     if List.Count>0 then
+     for I_NSRV:=1 to COUNT_SERV do
+         begin
+              Sc:=Sc+1;
+              ProgressBar1.Position:=Sc;
+              if I_NSRV in [76,81,82,102,121,105,106,140] then Continue;
+              NSRV:=I_NSRV;
+              mkflnm;
+              Label1.Caption:=Name_Serv(NSRV);
+              Application.ProcessMessages;
+              if not FileExists(fninf) then Continue;
+              GetInf(False);
+              delete_Add_Otp_From_Podr;
+              Curr_Person:=Head_Person;
+              Maked:=false;
+              while (Curr_Person<>NIl) do
+               begin
+                    if Curr_person^.tabno=1189 then
+                       Curr_person^.tabno:=1189;
+                    MovePodToPerson(Curr_Person);
+                    Curr_Person:=Curr_Person^.Next;
+               end;
+              if Maked then PUTINF;
+              EMPTY_ALL_PERSON;
+
+         end;
+     if List.Count>0 then
+        begin
+             summa:=0;
+             for i:=0 to List.Count-1 do
+                 begin
+                      summa:=summa+pRec(list.Items[i]).summa;
+                      s:=IntToStr(pRec(list.Items[i]).tabno)+' '+trim(pRec(list.Items[i]).fio)+' '+IntToStr(pRec(list.Items[i]).period)+' '+IntToStr(pRec(list.Items[i]).shifrgru);
+                      s:=s+' '+FloatToStr(pRec(list.Items[i]).summa);
+                      memo1.lines.Add(s);
+
+                 end;
+             application.ProcessMessages;    
+             ShowMessage('Не перенесено '+intToStr(List.Count)+' записей');
+        end;
+     if List.Count>0 then
+        begin
+            for i:=0 to List.Count-1 do
+               Dispose(PRec(List.Items[i]));
+        end;
+     List.Free;
+     NMES:=NMES_Sav;
+     NSRV:=NSRV_Sav;
+     MKFLNM;
+     GETINF(TRUE);
+     ShowMessage('Перенос закончен');
+
+end;
+
 
 end.

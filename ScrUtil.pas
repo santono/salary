@@ -7,6 +7,8 @@ unit ScrUtil;
 interface
    USES SCRDEF;
    type DWord = LongWord;
+        TArrOfString = array of string;
+
    PROCEDURE MKFLNM;
    FUNCTION testFninf : boolean;
    PROCEDURE MKFLNM_Y;
@@ -34,6 +36,7 @@ interface
    function GetMonthUkr(N:Integer):string;
    function GetMonthShortUkr(N:Integer):string;
    FUNCTION SHORT_FIO(FFIO:STRING):STRING;
+   function Split(const StringParam: String; const DelimChar: String): TArrOfString;
    function SplitFIO(FIO:STRING;var FAM,NAM,OTC:string):boolean;
    FUNCTION GET_kat_name(n_kat:INTEGER):string;
    FUNCTION GET_kat_short_name(n_kat:INTEGER):string;
@@ -613,7 +616,6 @@ implementation
                       MODE             : INTEGER;
                       MAIN             : INTEGER;
                END;
-     TArrOfString = array of string;          
  VAR R : R_TYPE;
      C : C_TYPE;
      STEP_NET:REAL;

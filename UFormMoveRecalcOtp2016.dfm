@@ -45,6 +45,15 @@ object FormMoveRecalcOtp2016: TFormMoveRecalcOtp2016
     TabOrder = 2
     Kind = bkClose
   end
+  object Memo1: TMemo
+    Left = 16
+    Top = 72
+    Width = 649
+    Height = 289
+    Lines.Strings = (
+      'Memo1')
+    TabOrder = 3
+  end
   object pFIBDataSet1: TpFIBDataSet
     SelectSQL.Strings = (
       'SELECT'

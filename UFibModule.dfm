@@ -4,13 +4,14 @@ object FIB: TFIB
   Left = 243
   Top = 161
   Height = 490
-  Width = 528
+  Width = 697
   object pFIBDatabaseSal: TpFIBDatabase
-    DBName = 'E:\Projects\ZARPLATA\VUGU\SVDN\IB\SAL_SVDN_19_04_2019.FDB'
+    DBName = 'E:\Projects\ZARPLATA\VUGU\ib\SAL_28_10_2019.FDB'
     DBParams.Strings = (
       'user_name=SYSDBA'
       'password=masterkey'
-      'lc_ctype=WIN1251')
+      'lc_ctype=WIN1251'
+      'sql_role_name=')
     DefaultTransaction = pFIBTransactionSAL
     DefaultUpdateTransaction = pFIBTransactionSAL
     SQLDialect = 3
@@ -75,8 +76,7 @@ object FIB: TFIB
     DBParams.Strings = (
       'user_name=SYSDBA'
       'lc_ctype=WIN1251'
-      'password=masterkey'
-      'sql_role_name=')
+      'password=masterkey')
     DefaultTransaction = pFIBTransactionArc
     DefaultUpdateTransaction = pFIBTransactionArcWrite
     SQLDialect = 3

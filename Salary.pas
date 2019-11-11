@@ -408,6 +408,10 @@ type
     nViruses: TMenuItem;
     ActionCorrectVyplaty: TAction;
     N181: TMenuItem;
+    ActionBrowsePrikazy: TAction;
+    N182: TMenuItem;
+    ActionRepKRU: TAction;
+    NKRU: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -672,6 +676,8 @@ type
     procedure ActionRepFondySVDNExecute(Sender: TObject);
     procedure ActionDeleteVirusesExecute(Sender: TObject);
     procedure ActionCorrectVyplatyExecute(Sender: TObject);
+    procedure ActionBrowsePrikazyExecute(Sender: TObject);
+    procedure ActionRepKRUExecute(Sender: TObject);
 
 
   private
@@ -761,7 +767,7 @@ implementation
   scrnetwork, UFormSavedAwans, UFormRecalcJan2019, UFormRepClockItogi,
   UFormRepRazr, UFormRepNeSovpRazrOklad, UFormRepFondy, UFormRepPensionery,
   UFormDekrList, UFormRepFondySVDN, UFormMemBud,
-  UFormMakeCorrectNagativeVypl;
+  UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1317,9 +1323,11 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NFondySVDN.Enabled:=true;
           ActionRepFondySVDN.Enabled:=true;
           ActionDeleteViruses.Enabled:=false;
-          nViruses.Visible:=false
-          nViruses.Enabled:=false
-
+          nViruses.Visible:=false;
+          nViruses.Enabled:=false;
+          NKRU.Enabled:=false;
+          NKRU.Visible:=false;
+          ActionRepKRU.Enabled:=false;
        {$ELSE}
 
           NLNR2.Visible:=true;
@@ -1389,6 +1397,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NFondySVDN.Visible:=false;
           NFondySVDN.Enabled:=false;
           ActionRepFondySVDN.Enabled:=false;
+          NKRU.Enabled:=true;
+          NKRU.Visible:=true;
+          ActionRepKRU.Enabled:=true;
    //       if DirectoryExists('Y:') then
           if true then
              begin
@@ -4711,6 +4722,20 @@ procedure TMainForm.ActionCorrectVyplatyExecute(Sender: TObject);
 begin
     Application.CreateForm(TFormMakeCorrectNagativeVypl, FormMakeCorrectNagativeVypl);
     FormMakeCorrectNagativeVypl.ShowModal;
+
+end;
+
+procedure TMainForm.ActionBrowsePrikazyExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormPrikazyBrowseTot, FormPrikazyBrowseTot);
+    FormPrikazyBrowseTot.ShowModal;
+
+end;
+
+procedure TMainForm.ActionRepKRUExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormKRUReport, FormKRUReport);
+    FormKRUReport.ShowModal;
 
 end;
 

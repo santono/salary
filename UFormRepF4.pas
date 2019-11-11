@@ -58,6 +58,22 @@ type
     dsDekr6: TpFIBDataSet;
     dsDekrFIO: TFIBStringField;
     dsDekrINN: TFIBStringField;
+    dsSowm: TpFIBDataSet;
+    dsSowmTABNO: TFIBIntegerField;
+    dsSowmFIO: TFIBStringField;
+    dsSowmNAL_CODE: TFIBStringField;
+    dsSowmDATA_PRI: TFIBDateField;
+    dsSowmDATA_UW: TFIBDateField;
+    dsSowmCODE_UWOL: TFIBSmallIntField;
+    dsSowmNOMERPRIK: TFIBStringField;
+    dsSowmDATAPRIK: TFIBDateField;
+    dsSowmIDCLASSIFICATOR: TFIBIntegerField;
+    dsSowmKODKP: TFIBStringField;
+    dsSowmKODZKPPTR: TFIBStringField;
+    dsSowmNAMEDOL: TFIBStringField;
+    dsSowmNAMEPROF: TFIBStringField;
+    dsSowmDATABEG: TFIBDateField;
+    dsSowmDATAEND: TFIBDateField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -84,6 +100,8 @@ type
     procedure fillTable5;
     procedure fillTable5PrinjatUwolen;
     procedure fillTable5Perevody;
+    procedure fillTable5Sowm;
+
     procedure fillTable5CPH;
     procedure fillTable5Dekr;
 
@@ -1505,9 +1523,10 @@ procedure TFormRepF4.fillTable5;
      startDt,endDt:integer;
  begin
       fillTable5PrinjatUwolen;
-      fillTable5Perevody;
+  //    fillTable5Perevody;
       fillTable5CPH;
       fillTable5Dekr;
+      fillTable5Sowm;
 
  end;
 procedure TFormRepF4.fillTable5PrinjatUwolen;
@@ -1778,6 +1797,177 @@ procedure TFormRepF4.fillTable5Perevody;
       dsPerevody.Close;
       dsPerevody.Transaction.commit;
  end;
+procedure TFormRepF4.fillTable5Sowm;
+//Принятые и уволенные своместители - преподаватели
+ var tabno:integer;
+     i,j:integer;
+     finded,finded6:boolean;
+     rec5:pRec5;
+     startDt,endDt:integer;
+     codeUwol:integer;
+     datePri:tDateTime;
+     dateUw:TDateTime;
+     SQLStmnt:string;
+     v:variant;
+     reasonUwol:string;
+     recPerson:pRecPerson;
+     rec6:pRec6;
+     zo:integer;
+     nomerprik:string;
+     dataprik:TDateTime;
+     idclassificator:integer;
+     kodkp : string;
+     kodzkpptr : string;
+     namedol : string;
+     nameprof : string;
+     pid:string;
+     vzv:string;
+
+ begin
+      dsSowm.Params[0].Value:=currYear;
+      dsSowm.Params[1].Value:=nmes;
+      dsSowm.Transaction.StartTransaction;
+      dsSowm.Open;
+      while (not dsSowm.Eof) do
+        begin
+             tabno:=dsSowmTABNO.value;
+             if dsSowmDATABEG.IsNull then
+                datePri:=encodedate(1990,1,1)
+             else
+                datePri:=dsSowmDATABEG.value;
+             if dsSowmDATAEND.IsNull then
+                dateUw:=encodedate(1990,1,1)
+             else
+                dateUw:=dsSowmDATAEND.value;
+             if dsSowmCODE_UWOL.IsNull then
+                codeUwol:=0
+             else
+                codeUwol:=dsSowmCODE_UWOL.Value;
+             if dsSowmNOMERPRIK.IsNull then
+                nomerprik:=''
+             else
+                nomerprik:=dsSowmNOMERPRIK.Value;
+             if dsSowmDATAPRIK.IsNull then
+                dataprik:=encodedate(1990,1,1)
+             else
+                dataprik:=dsSowmDATAPRIK.Value;
+             if dsSowmIDCLASSIFICATOR.IsNull then
+                idclassificator:=0
+             else
+                idclassificator:=dsSowmIDCLASSIFICATOR.value;
+             if dsSowmKODKP.isNull then
+                kodKp:=''
+             else
+                kodkp:=dsSowmKODKP.Value;
+             if dsSowmKODZKPPTR.isNull then
+                kodzkpptr:=''
+             else
+                kodzkpptr:=dsSowmKODZKPPTR.Value;
+             if dsSowmNAMEDOL.isNull then
+                nameDol:=''
+             else
+                nameDol:=dsSowmNAMEDOL.Value;
+             if dsSowmNAMEPROF.isNull then
+                nameProf:=''
+             else
+                nameprof:=dsSowmNAMEPROF.Value;
+             startDt:=0;
+             endDt:=0;
+             if ((yearOf(datePri)=currYear) and (monthOf(datePri)=nmes)) then
+                startDt:=dayOf(datePri);
+             if ((yearOf(dateUw)=currYear) and (monthOf(dateUw)=nmes)) then
+                endDt:=dayOf(dateUw);
+             reasonUwol:='';
+//             if codeUwol>0 then
+//                begin
+//                     SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
+//                     v:=SQLQueryValue(SQLStmnt);
+//                     if VarIsStr(v) then
+//                        reasonUwol:=trim(ReplQto2Q(v));
+//                end;
+             pid:='';
+             if ((yearOf(dataprik)>2017)
+                and
+                (length(trim(nomerprik))>0)) then
+                begin
+                    pid:='Приказ '+trim(nomerprik)+' від ';
+                    if (dayOf(dataPrik)<10) then
+                       pid:=pid+'0';
+                    pid:=pid+intToStr(dayOf(dataPrik))+'.';
+                    if (monthOf(dataPrik)<10) then
+                       pid:=pid+'0';
+                    pid:=pid+intToStr(monthOf(dataPrik))+'.';
+                    pid:=pid+intToStr(yearOf(dataprik));
+                end;
+             finded:=false;
+             recPerson:=nil;
+             if listCheck.Count>0 then
+                for i:=0 to listCheck.Count-1 do
+                    if pRecPerson(listCheck.Items[i]).tabno=tabno then
+                       begin
+                            recPerson:=pRecPerson(listCheck.Items[i]);
+                            finded:=true;
+                            break;
+                       end;
+             finded6:=false;
+             rec6:=nil;
+             zo:=2;       //Трудова книжка на підприэмстві
+             if list6.Count>0 then
+                for i:=0 to list6.Count-1 do
+                    if pRec6(list6.Items[i]).tabno=tabno then
+                    if pRec6(list6.Items[i]).zo in [1,2,25,26,32] then
+                       begin
+   //                         zo:=pRec6(list6.Items[i]).zo;
+                            rec6:=pRec6(list6.Items[i]);
+                            finded6:=true;
+                            break;
+                       end;
+             if not finded6 then
+                zo:=2;
+             if finded6 then
+             if recPerson<>nil then
+                begin
+                     pid      := trim(copy(pid+space(250),1,250));
+                     nameDol  := trim(copy(nameDol+space(250),1,250));
+                     nameProf := trim(copy(nameProf+space(250),1,250));
+                     kodzkpptr:= trim(copy(kodzkpptr+space(5),1,5));
+                     kodkp    := trim(copy(kodkp+space(6),1,6));
+                     vzv      := '';
+                     pid:=trim(copy(pid+space(250),1,250));
+                     new(rec5);
+                     fillChar(rec5^,sizeOf(rec5^),0);
+                     rec5.YEARVY:=currYear;
+                     rec5.monthVy:=nmes;
+                     rec5.tabno:=tabno;
+                     rec5.PERIODM:=rec5.monthVy;
+                     rec5.PERIODY:=rec5.yearVy;
+                     if finded6 then
+                        rec5.UKRGROMAD:=rec6.ukrGromad
+                     else
+                        rec5.UKRGROMAD:=1;
+
+                     rec5.NUMIDENT:=trim(recPerson.numIdent);
+                     rec5.FIO:=trim(recPerson.fio);
+                     rec5.NM:=trim(recPerson.nm);
+                     rec5.FTN:=trim(recPerson.ftn);
+                     rec5.START_DT:=startDt;
+                     rec5.END_DT:=endDt;
+                     rec5.ZO:=zo;
+                     rec5.PID_ZV:=reasonUwol;
+                     rec5.PNR:=trim(ReplQto2Q(nameprof));
+                     rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr));
+                     rec5.prof:=trim(ReplQto2Q(kodkp));
+                     rec5.POS:=trim(ReplQto2Q(namedol));
+                     rec5.PID:=trim(pid);
+                     rec5.VZV:=trim(vzv);
+                     list5.Add(rec5);
+                end;
+             dsSowm.Next;
+        end;
+      dsSowm.Close;
+      dsSowm.Transaction.commit;
+ end;
+
 procedure TFormRepF4.fillTable5CPH;
  var tabno:integer;
      i,j:integer;

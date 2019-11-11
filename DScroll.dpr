@@ -361,7 +361,11 @@ uses
   UCnEntity in 'UCnEntity.pas',
   UPersonEntity in 'UPersonEntity.pas',
   UPersonService in 'UPersonService.pas',
-  UFormMakeCorrectNagativeVypl in 'UFormMakeCorrectNagativeVypl.pas' {FormMakeCorrectNagativeVypl};
+  UFormMakeCorrectNagativeVypl in 'UFormMakeCorrectNagativeVypl.pas' {FormMakeCorrectNagativeVypl},
+  UFormPrikazyBrowseTot in 'UFormPrikazyBrowseTot.pas' {FormPrikazyBrowseTot},
+  UFormPrikazyFilter in 'UFormPrikazyFilter.pas' {FormPrikazyFilter},
+  UFormPrikazRekvizityTot in 'UFormPrikazRekvizityTot.pas' {FormPrikazRekvizityTot},
+  UFormKRUReport in 'UFormKRUReport.pas' {FormKRUReport};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

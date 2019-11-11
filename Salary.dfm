@@ -656,6 +656,9 @@ object MainForm: TMainForm
         object N179: TMenuItem
           Action = ActionRepPensionery
         end
+        object NKRU: TMenuItem
+          Action = ActionRepKRU
+        end
       end
     end
     object N14: TMenuItem
@@ -682,6 +685,9 @@ object MainForm: TMainForm
       end
       object N155: TMenuItem
         Action = ActionFRXTable
+      end
+      object N182: TMenuItem
+        Action = ActionBrowsePrikazy
       end
     end
     object N30: TMenuItem
@@ -1619,6 +1625,15 @@ object MainForm: TMainForm
       Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1080' '#1086#1090#1088#1080#1094#1072#1090#1077#1083#1100#1085#1099#1093' '#1074#1099#1087#1083#1072#1090
       Hint = #1059#1089#1090#1088#1072#1085#1077#1085#1080#1077' '#1076#1086#1083#1075#1086#1074' '#1079#1072' '#1089#1095#1077#1090' '#1091#1084#1077#1085#1100#1096#1077#1085#1080#1103' '#1074#1099#1087#1083#1072#1090' '#1085#1072' '#1073#1072#1085#1082
       OnExecute = ActionCorrectVyplatyExecute
+    end
+    object ActionBrowsePrikazy: TAction
+      Caption = #1055#1088#1080#1082#1072#1079#1099
+      Hint = #1055#1088#1080#1082#1072#1079#1099
+      OnExecute = ActionBrowsePrikazyExecute
+    end
+    object ActionRepKRU: TAction
+      Caption = #1057#1074#1086#1076' '#1076#1083#1103' '#1050#1056#1059
+      OnExecute = ActionRepKRUExecute
     end
   end
   object ImageList1: TImageList
