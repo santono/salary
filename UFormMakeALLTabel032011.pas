@@ -103,30 +103,39 @@ var savnsrv,i_nsrv : integer;
   begin
        finded:=false;
        for i:=31 downto 31-amntOfDay+1 do
-       if (Curr_Person^.Tabel[i]=JAWKA) then
-           begin
-                finded:=true;
-                break;
-           end;
-       if not finded  then exit;
-       for i:=31 downto 31-amntOfDay+1 do
-       if Curr_Person^.Tabel[i]=Jawka  then
+       if (Curr_Person^.Tabel[31]=NEZAPOLN) then
+       if (Curr_Person^.Tabel[30]=TARIFN_OTPUSK) then
           begin
-               Curr_Person^.Tabel[i]:=PROGUL;
-               need:=true;
-          end;
+                Curr_Person^.Tabel[31]:=TARIFN_OTPUSK;
+                finded := true;
+                need   := true;
+          end
+       ELSE
+       if (Curr_Person^.Tabel[30]=ILLNESS) then
+          begin
+                Curr_Person^.Tabel[31]:=ILLNESS;
+                finded := true;
+                need   := true;
+          end
+       ELSE
+       if (Curr_Person^.Tabel[30]<>NEZAPOLN) then
+            begin
+                Curr_Person^.Tabel[31]:=VYHODN;
+                finded := true;
+                need   := true;
+           end;
   end;
 begin
     if not isLNR then exit;
     BitBtn1.Enabled:=false;
-    if not YesNo('Внести корректировки в табель ППС университета в августе 2019?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then
+    if not YesNo('Внести корректировки в табель ППС университета в декабре 2019?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then
        begin
             BitBtn1.Enabled:=true;
             Exit;
        end;
-    IF not ((CurrYear=2019) and (nmes=08)) THEN
+    IF not ((CurrYear=2019) and (nmes=12)) THEN
        begin
-            ShowMessage('Внести корректировки можно только в августе 2019');
+            ShowMessage('Внести корректировки можно только в декабре 2019');
             BitBtn1.Enabled:=true;
             Exit;
        end;

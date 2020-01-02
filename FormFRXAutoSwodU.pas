@@ -366,7 +366,7 @@ begin
                begin
                     S1:=FormatFloat(F,SummaAdd);
                     if isSVDN then
-                       Cross.AddValue([LineNo],['Iтого'+chr(13)+'нараховано'],[S1])
+                       Cross.AddValue([LineNo],['Ітого'+chr(13)+'нараховано'],[S1])
                     else
                        Cross.AddValue([LineNo],['Итого'+chr(13)+'начислено'],[S1]);
                end;

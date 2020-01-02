@@ -1338,10 +1338,11 @@ procedure TFormPlatReestr.PrepareAllPlatInDBF;
        TabnoS:ShortString;
        bankCount:shortstring;
        mfo:ShortString;
+//       countLen:byte;
    (*
 TNUM	    C	10	0    1
 MFO	      C	 9	0    2
-ACCOUNT	  C	14	0    3
+ACCOUNT	  C	14	0    3   с 23 12 2019 29
 LASTNAME	C	40	0    4
 FIRSTNAME	C	40	0    5
 SURNAME	  C	40	0    6
@@ -1369,8 +1370,11 @@ AMOUNT	  C	15	0    7
         Application.ProcessMessages;
 
         dBASE.SetFieldData(1 , System.Copy(tabnoS+space(10),1,10));
-        dBASE.SetFieldData(2 , System.Copy(MFO+space(9),1,9));
-        dBASE.SetFieldData(3 , System.Copy(bankCount+space(14),1,14));
+        dBASE.SetFieldData(2 , System.Copy(MFO+space(dBASE.GetFieldSize(2)),1,dBASE.GetFieldSize(2)));
+//        dBASE.SetFieldData(3 , System.Copy(bankCount+space(14),1,14));
+//        countLen := dBASE.GetFieldSize(3);
+        dBASE.SetFieldData(3 , System.Copy(bankCount+space(dBASE.GetFieldSize(3)),1,dBASE.GetFieldSize(3)));
+
         dBASE.SetFieldData(4 , WinToDos(System.Copy(FAM+space(50),1,40)));
         dBASE.SetFieldData(5 , WinToDos(System.Copy(NAM+space(50),1,40)));
         dBASE.SetFieldData(6 , WinToDos(System.Copy(OTC+space(50),1,40)));
@@ -1400,6 +1404,7 @@ AMOUNT	  C	15	0    7
        Nazn:shortString;
        Val15:ShortString;
        dt:tdatetime;
+//       countLen:byte;
    (*
 NDOC	 C	 10	0   1
 DT   	  D	  8	0   2
@@ -1409,7 +1414,7 @@ ACCCLI	C	 15	0   5
 NAMECLI	C	 38	0   6
 BANKCLI	C	254	0   7
 MFOCOR	C	 12	0   8
-ACCCOR	C	 15	0   9
+ACCCOR	C	 15	0   9   с 23 12 2019 29
 OKPOCOR	C	 14	0  10
 NAMECOR	C	 38	0  11
 BANKCOR	C	254	0  12
@@ -1453,7 +1458,6 @@ VAL	    N	 4	0  16
         NAMECor:=FIO;
   //      bankCount := Trim(getPersonBankCount(tabno));
         ACCCor := bankCount;
-
         Nazn:= 'Заробітна плата';
         BankCor:=BANKCli;
         TabnoS:=IntToStr(tabno);
@@ -1465,22 +1469,25 @@ VAL	    N	 4	0  16
         DateForDBFRecordS:= ConvertDataForDBF(dt);
         Application.ProcessMessages;
 
+ //       dBASE.SetFieldData(1  , System.Copy(space(dBASE.GetFieldSize(dBASE.GetFieldSize(1))-length(ndoc)),1,dBASE.GetFieldSize(dBASE.GetFieldSize(9))-length(ndoc))+ndoc);
         dBASE.SetFieldData(1  , System.Copy(space(9),1,9)+ndoc);
         dBASE.SetFieldData(2  , DateForDBFRecordS);
-        dBASE.SetFieldData(3  , System.Copy(MFO+space(12),1,12));
-        dBASE.SetFieldData(4  , System.Copy(OKPOCli+space(14),1,14));
-        dBASE.SetFieldData(5  , System.Copy(ACCCLI+space(15),1,15));
-        dBASE.SetFieldData(6  , winToDos(System.Copy(NAMECli+space(38),1,38)));
-        dBASE.SetFieldData(7  , winToDos(System.Copy(BANKCli+space(254),1,254)));
-        dBASE.SetFieldData(8  , System.Copy(MFOCor+space(12),1,12));
-        dBASE.SetFieldData(9  , System.Copy(ACCCor+space(15),1,15));
-        dBASE.SetFieldData(10 , System.Copy(OKPOCor+space(14),1,14));
-        dBASE.SetFieldData(11 , WinToDos(System.Copy(NAMECor+space(38),1,38)));
-        dBASE.SetFieldData(12 , WinToDos(System.Copy(BANKCor+space(254),1,254)));
+        dBASE.SetFieldData(3  , System.Copy(MFO+space(dBASE.GetFieldSize(3)),1,dBASE.GetFieldSize(3)));
+        dBASE.SetFieldData(4  , System.Copy(OKPOCli+space(dBASE.GetFieldSize(4)),1,dBASE.GetFieldSize(4)));
+        dBASE.SetFieldData(5  , System.Copy(ACCCLI+space(dBASE.GetFieldSize(5)),1,dBASE.GetFieldSize(5)));
+        dBASE.SetFieldData(6  , winToDos(System.Copy(NAMECli+space(dBASE.GetFieldSize(6)),1,dBASE.GetFieldSize(6))));
+        dBASE.SetFieldData(7  , winToDos(System.Copy(BANKCli+space(dBASE.GetFieldSize(7)),1,dBASE.GetFieldSize(7))));
+        dBASE.SetFieldData(8  , System.Copy(MFOCor+space(dBASE.GetFieldSize(8)),1,dBASE.GetFieldSize(8)));
+//        dBASE.SetFieldData(9  , System.Copy(ACCCor+space(15),1,15));
+//        countLen:=dBASE.GetFieldSize(9);
+        dBASE.SetFieldData(9  , System.Copy(ACCCor+space(dBASE.GetFieldSize(9)),1,dBASE.GetFieldSize(9)));
+        dBASE.SetFieldData(10 , System.Copy(OKPOCor+space(dBASE.GetFieldSize(10)),1,dBASE.GetFieldSize(10)));
+        dBASE.SetFieldData(11 , WinToDos(System.Copy(NAMECor+space(dBASE.GetFieldSize(11)),1,dBASE.GetFieldSize(11))));
+        dBASE.SetFieldData(12 , WinToDos(System.Copy(BANKCor+space(dBASE.GetFieldSize(12)),1,dBASE.GetFieldSize(12))));
         dBASE.SetFieldData(13 , '1');
-        dBASE.SetFieldData(14 , System.copy(SummaS+space(20),1,20));
-        dBASE.SetFieldData(15 , WinToDos(System.copy(Nazn+space(160),1,160)));
-        dBASE.SetFieldData(16 , System.Copy(VAl15+space(4),1,4));
+        dBASE.SetFieldData(14 , System.copy(SummaS+space(dBASE.GetFieldSize(14)),1,dBASE.GetFieldSize(14)));
+        dBASE.SetFieldData(15 , WinToDos(System.copy(Nazn+space(dBASE.GetFieldSize(15)),1,dBASE.GetFieldSize(15))));
+        dBASE.SetFieldData(16 , System.Copy(VAl15+space(dBASE.GetFieldSize(16)),1,dBASE.GetFieldSize(16)));
 
         dBase.Post;
    end;

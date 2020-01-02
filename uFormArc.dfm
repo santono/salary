@@ -1,6 +1,6 @@
 object FormArc: TFormArc
-  Left = 54
-  Top = 120
+  Left = 221
+  Top = 122
   Width = 922
   Height = 582
   Caption = #1040#1088#1093#1080#1074
@@ -69,7 +69,7 @@ object FormArc: TFormArc
     Top = 40
     Width = 883
     Height = 481
-    ActivePage = tab20114v
+    ActivePage = TabSheetVyY11
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -764,6 +764,9 @@ object FormArc: TFormArc
           BandIndex = 0
           RowIndex = 0
           FieldName = 'SUMMAWS'
+          SummaryFooterType = cstSum
+          SummaryFooterField = 'SUMMAWS'
+          SummaryField = 'SUMMAWS'
         end
         object dxDBGridYearVy11SUMMAKVYD: TdxDBGridCurrencyColumn
           Caption = #1050' '#1074#1099#1076#1072#1095#1077
