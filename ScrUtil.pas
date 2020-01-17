@@ -546,6 +546,7 @@ interface
   function isForbiddenPodrWrite(N_SERV:integer):Boolean;
   function GetFullPodrNameFromSQL(nserv:integer):string;
   function GetHistoryPodrNameFromSQL(nserv:integer;y,m:integer):string;
+  function GetHistoryPodrNameFromSQLSalArc(nserv:integer;y,m:integer):string;
   function checkNeedDolgTest(shifrDol:integer):boolean;
   function putSVDNFooterRec:Boolean;
   function getSVDNFooterRec:Boolean;
@@ -11248,6 +11249,33 @@ function GetHistoryPodrNameFromSQL(nserv:integer;y,m:integer):string;
             retVal:=trim(Name_Serv(NSERV));
         retVal:=trim(retVal);
         GetHistoryPodrNameFromSQL:=RetVal;
+   end;
+function GetHistoryPodrNameFromSQLSalArc(nserv:integer;y,m:integer):string;
+   var I:Integer;
+       RetVal,RetVal1,RetVal2:string;
+       SQLStmnt:string;
+       v:Variant;
+       idowner:Integer;
+       DateS:String;
+   begin
+        RetVal  := '';
+        RetVal1 := '';
+        RetVal2 := '';
+        GetHistoryPodrNameFromSQLSalArc:=RetVal;
+        if (nserv<0) or (nserv>300) then Exit;
+        DateS:=IntToStr(y)+'-'+IntToStr(m)+'-10';
+        SQLStmnt:='select first 1 name from tb_podr_history where shifrpod='+IntToStr(nserv)+' and dateTo>'''+DateS+''' order by dateTo';
+        saveDataBase;
+        v:=SQLQueryValue(SQLStmnt);
+        if VarIsStr(v) then
+           begin
+                retVal:=v;
+           end
+        else
+            retVal:=trim(Name_Serv(NSERV));
+        restoreDataBase;
+        retVal:=trim(retVal);
+        GetHistoryPodrNameFromSQLSalArc:=RetVal;
    end;
 
  function checkNeedDolgTest(shifrDol:integer):boolean;

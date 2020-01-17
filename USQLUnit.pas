@@ -6,10 +6,13 @@ interface
   function SQLQueryValue(SQLStmnt:WideString;fieldNo:integer=0):variant;
   procedure setSal;
   procedure setArc;
+  procedure saveDatabase;
+  procedure restoreDatabase;
 
 implementation
  uses UFibModule,pFIBDatabase,SysUtils,Dialogs;
  var dataBase:TpFIBDatabase;
+     savedDataBase:TpFIBDatabase;
   function SQLQueryRecValues(SQLStmnt:WideString):variant;
      var retVal:Variant;
      begin
@@ -55,6 +58,17 @@ implementation
      begin
           dataBase:=FIB.pFIBDatabaseArc;
      end;
+  procedure saveDatabase;
+     begin
+          savedDataBase:=dataBase;
+     end;
+  procedure restoreDatabase;
+     begin
+          if savedDataBase<>nil then
+             dataBase:=savedDataBase;
+     end;
 begin
      dataBase:=nil;
+     savedDataBase:=nil;
+
 end.

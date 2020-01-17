@@ -635,7 +635,10 @@ begin
      if CompareText(VarName, 'NameRep') = 0 then
         if cbArchiv.Checked then
            if isLNR then
-              Value:=trim(GetMonthRus(WantedMonth))+' '+IntToStr(WantedYear)+' г. '+trim(GetFullPodrNameFromSQL(NSRV))
+             if ((WantedYear>2014) or ((WantedYear=2014) and (WantedMonth>8))) then
+                Value:=trim(GetMonthRus(WantedMonth))+' '+IntToStr(WantedYear)+' г. '+trim(GetFullPodrNameFromSQL(NSRV))
+             else
+                 Value:=trim(GetMonthUkr(WantedMonth))+' '+IntToStr(WantedYear)+' р. '+trim(GetHistoryPodrNameFromSQLSalArc(nsrv,WantedYear,WantedMonth))
            else
 //              Value:=trim(GetMonthRus(WantedMonth))+' '+IntToStr(WantedYear)+' г. '+trim(Name_Serv(NSRV))
               if wantedYear>2017 then
@@ -658,22 +661,31 @@ begin
      else
      if CompareText(VarName, 'NameUni') = 0 then
         if isLNR then
+           if ((WantedYear>2014) or ((WantedYear=2014) and (WantedMonth>8))) then
      //      Value:='ГОУ ВПО Луганский государственный университет имени В.Даля'
              Value:='ГОУ ВПО '+trim(getNameUniFromSQL)
+           else
+           Value:='Східноукраїнський національній університет імени В.Даля'
         else
-           Value:='Східноукраїнський національній університет імени В.Даля'   
+           Value:='Східноукраїнський національній університет імени В.Даля'
      else
      if CompareText(VarName, 'nameBuh') = 0 then
         if isLNR then
+           if ((WantedYear>2014) or ((WantedYear=2014) and (WantedMonth>8))) then
      //      Value:='ГОУ ВПО Луганский государственный университет имени В.Даля'
              Value:=copy('Главный бухгалтер'+space(30),1,30)+getGlBuhFIO
+           else
+             Value:='Головний бухгалтер'
         else
            Value:='Головний бухгалтер'
      else
      if CompareText(VarName, 'nameRek') = 0 then
         if isLNR then
+           if ((WantedYear>2014) or ((WantedYear=2014) and (WantedMonth>8))) then
      //      Value:='ГОУ ВПО Луганский государственный университет имени В.Даля'
              Value:=copy(getRektorDolg+space(35),1,35)+getRektorFIO
+           else
+           Value:=''
         else
 //           Value:='Ректор'
            Value:=''
