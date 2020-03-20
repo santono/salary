@@ -80,8 +80,17 @@ object FormRepFondySVDN: TFormRepFondySVDN
       ' , coalesce(b.summaprem,0.00)  summaprem1'
       ' , coalesce(b.summaoth,0.00)   summaoth1'
       ' , coalesce(b.summaprem102,0.00) summaprem1021'
-      ' from pr_fondy(2018,1,12,1) a'
-      'join PR_FONDY(2019,1,5,1) b on a.razr=b.razr'
+      '  , 0.00  nmbofpers1'
+      '  , 0.00  summafop1'
+      '  , 0.00  summaokl1'
+      '  , 0.00  summadoplo1'
+      '  , 0.00  summadopln1'
+      '  , 0.00  summadomin1'
+      '  , 0.00  summaprem1'
+      '  , 0.00  summaoth1'
+      '  , 0.00  summaprem1021'
+      ' from pr_fondy(2019,1,12,1) a'
+      'join PR_FONDY(2020,1,1,1) b on a.razr=b.razr'
       'order by a.razr')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal

@@ -106,7 +106,7 @@ var E,WC:Variant;
     summaFop,summaFop1:real;
 begin
 //     FName:=TemplateDIR+'WorkersPlan.xlt';
-     FName:=TemplateDIR+'FOP_2019.xlt';
+     FName:=TemplateDIR+'FOP_2020.xlt';
      if not FileExists(FName) then
         begin
              ShowMessage('Отсутствует шаблон '+FName);
@@ -158,6 +158,7 @@ begin
                E.WorkBooks[1].WorkSheets[1].Cells[ExRow,19] := dsFondySUMMAOTH1.Value;
                E.WorkBooks[1].WorkSheets[1].Cells[ExRow,20] := dsFondySUMMAPREM102.Value;
                E.WorkBooks[1].WorkSheets[1].Cells[ExRow,21] := dsFondySUMMAPREM1021.Value;
+
                dsFondy.Next;
          end;
 

@@ -1,4 +1,4 @@
-object FormRptWantedAdd: TFormRptWantedAdd
+object FormRptPremGM: TFormRptPremGM
   Left = 206
   Top = 255
   Width = 671
@@ -101,7 +101,7 @@ object FormRptWantedAdd: TFormRptWantedAdd
     PrintOptions.Printer = 'Default'
     PrintOptions.PrintOnSheet = 0
     ReportOptions.CreateDate = 40564.625080138890000000
-    ReportOptions.LastChange = 40614.855491168980000000
+    ReportOptions.LastChange = 43892.577949745370000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       'begin'
@@ -146,8 +146,9 @@ object FormRptWantedAdd: TFormRptWantedAdd
       Width = 1000.000000000000000000
     end
     object Page1: TfrxDMPPage
-      PaperWidth = 210.819863845504600000
-      PaperHeight = 296.862308276425900000
+      Orientation = poLandscape
+      PaperWidth = 297.179808071374000000
+      PaperHeight = 211.401946802909400000
       PaperSize = 9
       LeftMargin = 2.539998359584393000
       RightMargin = 2.539998359584393000
@@ -157,33 +158,37 @@ object FormRptWantedAdd: TFormRptWantedAdd
       object MasterData1: TfrxMasterData
         Height = 34.000000000000000000
         Top = 17.000000000000000000
-        Width = 777.600000000000000000
+        Width = 1104.000000000000000000
         RowCount = 1
         object DMPMemo1: TfrxDMPMemoView
           Left = 134.400000000000000000
           Width = 336.000000000000000000
           Height = 17.000000000000000000
           AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
           Memo.UTF8 = (
-            '[namesta] '#1056#1030' [month] [year] '#1056#1110'. [periodglo]')
+            '[namesta] '#1057#1107' [month] [year] '#1057#1026'. [periodglo]')
         end
         object DMPMemo7: TfrxDMPMemoView
           Top = 17.000000000000000000
-          Width = 662.400000000000000000
+          Width = 1104.000000000000000000
           Height = 17.000000000000000000
+          DisplayFormat.DecimalSeparator = ','
           Memo.UTF8 = (
             
-              ' '#1056#1116#1056#1112#1057#1026'  '#1056#1118'.'#1056#1029#1056#1109#1056#1112'   '#1056#164#1056#176#1056#1112#1056#1105#1056#187#1056#1105#1057#1039' '#1056#152#1056#1112#1057#1039' '#1056#1115#1057#8218#1057#8225#1056#181#1057#1027#1057#8218#1056#1030#1056#1109'     ' +
-              '  '#1056#8221#1056#1109#1056#187#1056#182#1056#1029#1056#1109#1057#1027#1057#8218#1057#1034'   '#1056#1119#1056#1169#1057#1026'      '#1056#1038#1057#1107#1056#1112#1056#1112#1056#176)
+              ' '#1056#1116#1056#1112#1057#1026'  '#1056#1118'.'#1056#1029#1056#1109#1056#1112'   '#1056#1119#1057#1026'i'#1056#183#1056#1030#1056#1105#1057#8240#1056#181' I'#1056#1112#39#1057#1039' '#1056#1119#1056#1109#1056#177#1056#176#1057#8218#1057#1034#1056#1108#1056#1109#1056#1030'i ' +
+              '                '#1056#1119#1056#1109#1057#1027#1056#176#1056#1169#1056#176'          '#1056#1119'i'#1056#1169#1057#1026#1056#1109#1056#183#1056#1169'i'#1056#187'          ' +
+              '              '#1056#1038#1057#1107#1056#1112#1056#176)
         end
       end
       object DetailData1: TfrxDetailData
         Height = 17.000000000000000000
         Top = 68.000000000000000000
-        Width = 777.600000000000000000
+        Width = 1104.000000000000000000
         DataSet = frxUserDataSetAddl
         DataSetName = 'frxUserDataSetAddl'
         RowCount = 0
+        Stretched = True
         object DMPMemo2: TfrxDMPMemoView
           Width = 48.000000000000000000
           Height = 17.000000000000000000
@@ -201,21 +206,24 @@ object FormRptWantedAdd: TFormRptWantedAdd
         end
         object DMPMemo4: TfrxDMPMemoView
           Left = 124.800000000000000000
-          Width = 259.200000000000000000
+          Width = 345.600000000000000000
           Height = 17.000000000000000000
+          StretchMode = smMaxHeight
           Memo.UTF8 = (
             '[frxUserDataSetAddl."fio"]')
         end
         object DMPMemo5: TfrxDMPMemoView
-          Left = 489.600000000000000000
-          Width = 57.600000000000000000
+          Left = 633.600000000000000000
+          Width = 345.600000000000000000
           Height = 17.000000000000000000
-          HAlign = haRight
+          StretchMode = smMaxHeight
+          DisplayFormat.DecimalSeparator = ','
           Memo.UTF8 = (
             '[frxUserDataSetAddl."w_place"]')
+          VAlign = vaBottom
         end
         object DMPMemo6: TfrxDMPMemoView
-          Left = 556.800000000000000000
+          Left = 979.200000000000000000
           Width = 105.600000000000000000
           Height = 17.000000000000000000
           HAlign = haRight
@@ -223,28 +231,19 @@ object FormRptWantedAdd: TFormRptWantedAdd
             '[frxUserDataSetAddl."summa"]')
         end
         object DMPMemo8: TfrxDMPMemoView
-          Left = 384.000000000000000000
-          Width = 96.000000000000000000
+          Left = 470.400000000000000000
+          Width = 163.200000000000000000
           Height = 17.000000000000000000
           Memo.UTF8 = (
             '[frxUserDataSetAddl."dolg"]')
-        end
-        object DMPMemo9: TfrxDMPMemoView
-          Left = 662.400000000000000000
-          Width = 57.600000000000000000
-          Height = 17.000000000000000000
-          DisplayFormat.DecimalSeparator = ','
-          HAlign = haRight
-          Memo.UTF8 = (
-            '[frxUserDataSetAddl."period"]')
         end
       end
       object Footer1: TfrxFooter
         Height = 17.000000000000000000
         Top = 102.000000000000000000
-        Width = 777.600000000000000000
+        Width = 1104.000000000000000000
         object DMPMemo10: TfrxDMPMemoView
-          Left = 556.800000000000000000
+          Left = 979.200000000000000000
           Width = 105.600000000000000000
           Height = 17.000000000000000000
           HAlign = haRight

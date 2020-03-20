@@ -1,5 +1,5 @@
 unit ScrLini;
-                            
+
 interface
            FUNCTION FILL_PODR:BOOLEAN;
            FUNCTION SET_PODR_NAMES_FOR_NMES:BOOLEAN;
@@ -493,7 +493,10 @@ PROCEDURE INI_EXL;
                     {$I+}
                     Short_Name:=DosToWin(Short_Name);
                     Long_Name:=DosToWin(Long_Name);
-                    if (Upper_String(AllTrim(Short_Name))='бяецн сдепфюмн') then M_Shifr:=Shifr_Shi;
+                    if ((Upper_String(AllTrim(Short_Name))='бяецн сдепфюмн')
+                       or
+                       (Upper_String(AllTrim(Short_Name))='бяэнцн српхлюмн'))
+                     then M_Shifr:=Shifr_Shi;
                     New(ShifrRec);
                     if Shifr_Shi=53 then
                        Shifr_Shi:=53;
@@ -509,7 +512,8 @@ PROCEDURE INI_EXL;
                     if ShifrList.IsSelected(SHIFR_SHI) then
                        Shifr_Shi:=SHIFR_SHI;;
 
-                    if Pos('бяецн',Upper_String(AllTrim(Short_NAme)))=1 then
+                    if ((Pos('бяецн',Upper_String(AllTrim(Short_NAme)))=1) or
+                        (Pos('бяэнцн',Upper_String(AllTrim(Short_NAme)))=1)) then
                        Total_Ud_Shifr:=Shifr_Shi;
                END;
         CloseFile(DEV);
@@ -568,9 +572,13 @@ PROCEDURE INI_EXL;
                             Exit;
                        end;
                     {$I+}
-                    Short_Name:=DosToWin(Short_Name);
-                    Long_Name:=DosToWin(Long_Name);
-                    if (Upper_String(DosToWin(AllTrim(Short_Name)))='бяецн мювхякемн') then L_Shifr:=Shifr_Shi;
+                    Short_Name:=trim(DosToWin(Short_Name));
+                    Long_Name:=trim(DosToWin(Long_Name));
+               //     sysUtils.AnsiCompareText(shortName,'бЯЭНЦН МЮПЮУНБЮМН');
+//                    if ((Upper_String(DosToWin(AllTrim(Short_Name)))='бяецн мювхякемн') OR
+//                        (Upper_String(DosToWin(AllTrim(Short_Name)))='бяэнцн мюпюунбюмн')) then L_Shifr:=Shifr_Shi;
+                    if ((sysUtils.AnsiCompareText(short_Name,'бяецн мювхякемн')=0) OR
+                        (sysUtils.AnsiCompareText(short_Name,'бЯЭНЦН МЮПЮУНБЮМН')=0)) then L_Shifr:=Shifr_Shi;
                     New(ShifrRec);
                     ShifrRec^.Shifr      := Shifr_Shi;
                     ShifrRec^.Short_Name := Short_Name;
@@ -592,7 +600,10 @@ PROCEDURE INI_EXL;
                                                       fsWS ;
                     ShifrList.Add(ShifrRec);
                     ShifrAddList.Add(ShifrRec);
-                    if Pos('бяецн',Upper_String(AllTrim(Short_NAme)))=1 then
+                    if ((Pos('бяецн',Upper_String(AllTrim(Short_NAme)))=1)
+                       or
+                       (Pos('бяэнцн',Upper_String(AllTrim(Short_NAme)))=1))
+                       then
                        Total_Add_Shifr:=Shifr_Shi;
                END;
         CloseFile(Dev);
@@ -685,12 +696,17 @@ PROCEDURE INI_EXL;
                        end;
                     {$I+}
                     s:=Upper_String(AllTrim(DosToWin(Short_Name)));
-                    if S='бяецн мювхякемн' then
+                    if ((S='бяецн мювхякемн')
+                        or
+                       (S='бяэнцн мюпюунбюмн'))  then
                        begin
                              L_Shifr:=Shifr_Shi;
                              Total_Add_Shifr:=Shifr_Shi;
-                       end;
-                    if S='бяецн сдепфюмн' then
+                       end
+                    else
+                    if ((S='бяецн сдепфюмн') or
+                        (S='бяэнцн српхлюмн'))
+                     then
                        begin
                             M_Shifr:=Shifr_Shi;
                             Total_Ud_Shifr:=Shifr_Shi;

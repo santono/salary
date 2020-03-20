@@ -87,7 +87,7 @@ procedure TFormGenYSpr.BitBtn2Click(Sender: TObject);
 begin
       ShifrId:=0;
       y:=SpinEdit1.Value;
-      if (Y<1991) or (y>2020) then
+      if (Y<1991) or (y>hugeWrongYear) then
          begin
               ShowMessage('Не указан год');
               Exit;

@@ -365,7 +365,8 @@ uses
   UFormPrikazyBrowseTot in 'UFormPrikazyBrowseTot.pas' {FormPrikazyBrowseTot},
   UFormPrikazyFilter in 'UFormPrikazyFilter.pas' {FormPrikazyFilter},
   UFormPrikazRekvizityTot in 'UFormPrikazRekvizityTot.pas' {FormPrikazRekvizityTot},
-  UFormKRUReport in 'UFormKRUReport.pas' {FormKRUReport};
+  UFormKRUReport in 'UFormKRUReport.pas' {FormKRUReport},
+  UFormRptPremGM in 'UFormRptPremGM.pas' {FormRptPremGM};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

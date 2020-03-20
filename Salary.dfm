@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 194
-  Top = 154
+  Left = 256
+  Top = 214
   Width = 782
   Height = 493
   HorzScrollBar.Visible = False
@@ -588,7 +588,14 @@ object MainForm: TMainForm
         end
         object N102: TMenuItem
           Caption = #1042#1099#1087#1083#1072#1090#1099' '#1087#1086' '#1089#1090#1072#1090#1100#1077
-          OnClick = N102Click
+          object N183: TMenuItem
+            Caption = #1057#1086#1082#1088#1072#1097#1077#1085#1085#1099#1081
+            OnClick = N183Click
+          end
+          object N184: TMenuItem
+            Caption = #1056#1072#1079#1074#1077#1088#1085#1091#1090#1099#1081
+            OnClick = N184Click
+          end
         end
         object ActionPochasSwod1: TMenuItem
           Action = ActionPochasSwod

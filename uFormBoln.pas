@@ -167,7 +167,7 @@ var
 implementation
 uses uFrmFindKadryFB,UFibModule,
      UFormUpdBoln,ScrDef,UFormWait,
-     ComObj,ScrUtil,ScrLists,UFormSelBay,UFormView;
+     ComObj,ScrUtil,ScrLists,UFormSelBay,UFormView,uSQLUnit;
 
 {$R *.dfm}
 
@@ -1084,6 +1084,7 @@ var E,WB,XLS,WC:Variant;
     dolg:string;
     oklad:Real;
     shifrPod:integer;
+    FIO:string;
 begin
      limitMonth:=6;
      if isSVDN then
@@ -1096,7 +1097,8 @@ begin
          //                      0     1    2      3       4           5      6        7       8       9     10         11       12       13       14      15
      SQLStmnt:=' select first 1 tabno,fio,f_data,l_data,k_wo_day,summa_bol,ShifrId,ShifrKat,Nomer_B,Procent,MEAN_DAY,NAL_CODE,SHIFR_STA,YEAR_VY,MONTH_VY,MODE_ILL from boln';
      SQLStmnt:=trim(SQLSTmnt)+' where ShifrId='+IntToStr(ShifrIdBoln);
-     v:=FIB.pFIBDatabaseSal.QueryValues(SQLStmnt);
+//     v:=FIB.pFIBDatabaseSal.QueryValues(SQLStmnt);
+     v:=SQLQueryRecValues(SQLStmnt);
      if not VarIsArray(v) then
         begin
              ShowMessage('Не найден больничый лист в БД');
@@ -1122,13 +1124,31 @@ begin
      Tabno:=v[0];
 
      ExRow:=16;
-     E.WorkBooks[1].WorkSheets[1].Cells[2,1]:='Номер лікарняного лістку '+trim(getVariantString(v[8])); //'NOMER_B';
-     E.WorkBooks[1].WorkSheets[1].Cells[3,1]:='Співробітник '+trim(getVariantString(v[1])) +// trim(FIB.pFIBQuery.FieldByName('FIO').AsString) +
+     if isSVDN then
+        begin
+             E.WorkBooks[1].WorkSheets[1].Cells[2,1]:='Номер лікарняного лістку '+trim(getVariantString(v[8])); //'NOMER_B';
+             E.WorkBooks[1].WorkSheets[1].Cells[3,1]:='Співробітник '+trim(getVariantString(v[1])) +// trim(FIB.pFIBQuery.FieldByName('FIO').AsString) +
                    '     т.н.'+trim(IntToStr(getVariantInteger(v[0])))+
                    '     ідентіф.код'+trim(getVariantString(v[11]));
-     E.WorkBooks[1].WorkSheets[1].Cells[4,1]:='Лікарняний з '+DateToStr(getVariantDate(v[2])) +
+             E.WorkBooks[1].WorkSheets[1].Cells[4,1]:='Лікарняний з '+DateToStr(getVariantDate(v[2])) +
                    ' по ' + DateToStr(getVariantDate(v[3])) +
                    '      тривалість '+trim(IntToStr(getVariantInteger(v[4])))+' днів';
+        end
+     else
+        begin
+             E.WorkBooks[1].WorkSheets[1].Cells[2,1]:='Номер больничного листка '+trim(getVariantString(v[8])); //'NOMER_B';
+             if tabno>0 then
+                FIO:=GetFullRusFioPerson(tabno)
+             else
+                fio:=getVariantString(v[1]);
+             E.WorkBooks[1].WorkSheets[1].Cells[3,1]:='Сотрудник '+trim(fio) +// trim(FIB.pFIBQuery.FieldByName('FIO').AsString) +
+                   '     т.н.'+trim(IntToStr(getVariantInteger(v[0])))+
+                   '     идентиф.код'+trim(getVariantString(v[11]));
+             E.WorkBooks[1].WorkSheets[1].Cells[4,1]:='Больничный с '+DateToStr(getVariantDate(v[2])) +
+                   ' по ' + DateToStr(getVariantDate(v[3])) +
+                   '      продолжительность '+trim(IntToStr(getVariantInteger(v[4])))+' дней';
+        end ;
+
      Procent     := getVariantReal(v[9]);
      Mean_Day    := getVariantReal(v[10]);
      ShifrSta    := getVariantInteger(v[12]);

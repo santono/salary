@@ -85,6 +85,7 @@ type
     procedure setKopToRubForAll092015;
     procedure translateFIO;
     procedure CorrectTabelUwol;
+    procedure Restore092014FromDBFirebird;
 
 
 
@@ -104,7 +105,7 @@ implementation
   uses ScrUtil,ScrLists,ScrIO,UFibModule,ScrNalog, UFormPovLNR,
   UFormMovRecalc0416, UFormMoveRecalcOtp2016, UFormImportFromKU,
   UFormRepRecalcOtp2015,DateUtils,UFormMovePremFromSQL,
-  UFormCalcPrem_11_2017,UFormMoveAwans2017_12;
+  UFormCalcPrem_11_2017,UFormMoveAwans2017_12,ScrIoSQL;
 
 {$R *.dfm}
 
@@ -1543,6 +1544,57 @@ begin
      ShowMessage('Восстановлено '+IntToStr(AmountOfPerson)+' сотрудников.');
 end;
 
+procedure TFormMkEmpList.Restore092014FromDBFirebird;
+ const wantedMonth=9;
+       wantedYear=2014;
+ var I_Podr,Cnt : Integer;
+     NSRVTmp,NMESTmp : Integer;
+     S       : String;
+     aVal    : Real;
+     i       : Integer;
+
+
+begin
+
+     if not ((NMES=09) and (CURRYEAR=2014)) then
+        begin
+             ShowMessage('Можно запустить только в сентябре 2014');
+             Exit;
+        end;
+     if not YesNo('Восстановить начисления из БД?') then Exit;
+     NSRVTmp := NSRV;
+     NMESTmp := NMES;
+     PutInf;
+     LDEL_PERSON;
+     ProgressBar1.Max      := Count_Serv;
+     ProgressBar1.Min      := 0;
+     ProgressBar1.Position := 0;
+     Label1.Caption:='';
+     Label2.Caption:='';
+     Cnt           := 0;
+     for i_podr:=82 to 82 do
+         begin
+              Inc(Cnt);
+              ProgressBar1.Position:=Cnt;
+              Label1.Caption:=Name_Serv(I_Podr);
+              Application.ProcessMessages;
+              NSRV:=I_Podr;
+              MKFLNM;
+              if not FileExists(FNINF) then Continue;
+              GetInf(true);
+              LDEL_PERSON;
+              getInfSqlArc(WantedMonth,WantedYear);
+              i:=count_person;
+              putinf;
+              LDEL_PERSON;
+         end;
+     NSRV := NSRVTmp;
+     NMES := NMESTmp;
+     MKFLNM;
+     GetInf(True);
+     ShowMessage('Восстановлено ');
+end;
+
 procedure TFormMkEmpList.CorrectFile2015;
  var I_Podr,Cnt : Integer;
      NSRVTmp,NMESTmp : Integer;
@@ -1734,7 +1786,8 @@ end;
 
 procedure TFormMkEmpList.BitBtn12Click(Sender: TObject);
 begin
-     RestoreAdd09FromFile;
+//     RestoreAdd09FromFile;
+     Restore092014FromDBFirebird;
 end;
 
 procedure TFormMkEmpList.BitBtn13Click(Sender: TObject);

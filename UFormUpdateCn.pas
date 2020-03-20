@@ -240,7 +240,7 @@ begin
                       Val(S1,m,j);
                       if j<>0 then y:=YearOf(now)
                               else y:=y+2000;
-                      if ((y<2011) or (y>2020)) then Y:=YearOf(now);
+                      if ((y<2011) or (y>hugeWrongYear)) then Y:=YearOf(now);
                       dtpDataUw.Date:=EncodeDate(y,m,d);
                   }
                       dtpDataUw.Date:=DecodeDataFromPrim1(s);
@@ -264,7 +264,7 @@ begin
                       Val(S1,m,j);
                       if j<>0 then y:=YearOf(now)
                               else y:=y+2000;
-                      if ((y<2011) or (y>2020)) then Y:=YearOf(now);
+                      if ((y<2011) or (y>hugeWrongYear)) then Y:=YearOf(now);
                       dtpDataPri.Date:=EncodeDate(y,m,d);
                  end;
         end;

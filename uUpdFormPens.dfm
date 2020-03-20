@@ -1,6 +1,6 @@
 object FormPensSpr2006: TFormPensSpr2006
-  Left = 188
-  Top = 107
+  Left = 207
+  Top = 65
   Width = 736
   Height = 513
   Caption = #1057#1087#1088#1072#1074#1082#1072' '#1074' '#1087#1077#1085#1089#1080#1086#1085#1085#1099#1081' '#1092#1086#1085#1076' '#1089' '#1103#1085#1074#1072#1088#1103' 2007'
@@ -33,9 +33,9 @@ object FormPensSpr2006: TFormPensSpr2006
   object StringGridS: TStringGrid
     Left = 24
     Top = 40
-    Width = 593
+    Width = 689
     Height = 361
-    ColCount = 9
+    ColCount = 22
     RowCount = 14
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goColSizing]
     TabOrder = 0
@@ -110,7 +110,7 @@ object FormPensSpr2006: TFormPensSpr2006
     Top = 440
     Width = 105
     Height = 25
-    Caption = '2015-2019'
+    Caption = '2015-2020'
     TabOrder = 8
     OnClick = BitBtnLNR2015Click
   end

@@ -1218,7 +1218,7 @@ procedure TFormIndex.MoveInd201207;
                          BaseM:=NMES;
                     end;
                     if (((BaseM<1) or (BaseM>12)) or
-                         ((BaseY<2000) or (BaseY>2020))) then
+                         ((BaseY<2000) or (BaseY>hugeWrongYear))) then
                         begin
                              BaseY:=CURRYEAR;
                              BaseM:=NMES;

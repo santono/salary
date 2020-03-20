@@ -397,7 +397,8 @@ const
                        NAL_CODE         : STRING[10];
 *)
 
-       
+         hugeWrongYear         = 2030;
+  
 
 var
     HEAD_PERSON,TAIL_PERSON:PERSON_PTR;

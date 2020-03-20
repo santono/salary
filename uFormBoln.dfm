@@ -576,6 +576,10 @@ object FormBoln: TFormBoln
         Value = ''
       end>
     Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
     object Page1: TfrxReportPage
       Orientation = poLandscape
       PaperWidth = 297.000000000000000000

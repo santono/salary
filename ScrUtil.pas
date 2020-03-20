@@ -1268,7 +1268,8 @@ FUNCTION ALLTRIM(T:STRING):STRING;
                 Shifr_Serv:=PodrRec^.Shifr;
 {                Shifr_Serv:=PItem(NAMESERVLIST^.At(Wanted_Serv-1))^.ShifrId}
            end
-                                  else Shifr_Serv:=WN;
+        else
+           Shifr_Serv:=WN;
 
    END;
   function Name_Serv(WN:integer):String;
@@ -3217,8 +3218,8 @@ FUNCTION GET_KOEF_UW_OKLAD_PERSON(CURR_PERSON:PERSON_PTR):REAL;
      A:INTEGER;
  BEGIN
      A:=1;
-     CURR_CN:=CURR_PERSON^.CN;
-     FINDED:=FALSE;
+     CURR_CN := CURR_PERSON^.CN;
+     FINDED  := FALSE;
      WHILE (NOT FINDED) AND (CURR_CN<>NIL) DO
       BEGIN
            IF CURR_CN^.SHIFR=KOD_DOLG_SHIFR+LIMIT_CN_BASE THEN
@@ -12115,7 +12116,7 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
             curr_ud:=curr_ud^.NEXT;
        end;
       summaPodRas:=summaAdd*procPod;
-      if abs(summaPod-summaPodRas)>0.01111 then
+      if abs(summaPod-summaPodRas)>0.02 then
          retVal:=false
       else
          retVal:=true;

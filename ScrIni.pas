@@ -930,7 +930,8 @@ end;
           begin
                MainScreen[2].Shifr := DOPL_DO_MIN_SHIFR;
                MainScreen[2].Add   := true;
-               MainScreen[3].Shifr := DIFFER_SHIFR;
+           //    MainScreen[3].Shifr := DIFFER_SHIFR;
+               MainScreen[3].Shifr := BOL_TEK_SHIFR;
                MainScreen[3].Add   := true;
                MainScreen[4].Shifr := L_Shifr;
                MainScreen[4].Add   := true;
@@ -938,6 +939,7 @@ end;
                MainScreen[5].Add   := false;
                MainScreen[6].Shifr := WAR_SBOR_SHIFR;
                MainScreen[6].Add   := false;
+            //   MainForm.
           end
        else
           begin
@@ -957,6 +959,7 @@ end;
        MainScreen[Nmb_Of_Col_Main_Screen-1].Add   := false;
        MainScreen[Nmb_Of_Col_Main_Screen].Shifr := M_SHIFR+1;
        MainScreen[Nmb_Of_Col_Main_Screen].Add   := false;
+
   end;
 
 { ***************************************************** }

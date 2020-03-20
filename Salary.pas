@@ -174,7 +174,6 @@ type
     N99: TMenuItem;
     N100: TMenuItem;
     N101: TMenuItem;
-    N102: TMenuItem;
     N103: TMenuItem;
     N20112: TMenuItem;
     N104: TMenuItem;
@@ -412,6 +411,8 @@ type
     N182: TMenuItem;
     ActionRepKRU: TAction;
     NKRU: TMenuItem;
+    N183: TMenuItem;
+    N184: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -551,7 +552,6 @@ type
     procedure N98Click(Sender: TObject);
     procedure N100Click(Sender: TObject);
     procedure N101Click(Sender: TObject);
-    procedure N102Click(Sender: TObject);
     procedure N103Click(Sender: TObject);
     procedure N20112Click(Sender: TObject);
     procedure N105Click(Sender: TObject);
@@ -678,6 +678,8 @@ type
     procedure ActionCorrectVyplatyExecute(Sender: TObject);
     procedure ActionBrowsePrikazyExecute(Sender: TObject);
     procedure ActionRepKRUExecute(Sender: TObject);
+    procedure N184Click(Sender: TObject);
+    procedure N183Click(Sender: TObject);
 
 
   private
@@ -698,6 +700,8 @@ type
     procedure SXTRStarted(var Msg:TMessage); message SX_TRSTARTED;
     procedure RecalcPersonWithWantedMode(WantedMode:integer);
     procedure ExecuteSort(Mode:integer);
+    procedure InitUkrMessages;
+    procedure InitRusMessages;
 
 
     { Private declarations }
@@ -767,7 +771,8 @@ implementation
   scrnetwork, UFormSavedAwans, UFormRecalcJan2019, UFormRepClockItogi,
   UFormRepRazr, UFormRepNeSovpRazrOklad, UFormRepFondy, UFormRepPensionery,
   UFormDekrList, UFormRepFondySVDN, UFormMemBud,
-  UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport;
+  UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
+  UFormRptPremGM;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -853,7 +858,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
  const F='######0.00';
  var I,J,JJ       : Integer;
      Curr_Person  : Person_Ptr;
-     S            : String;
+     S,S1         : String;
      A            : Double;
      Curr_Add     : Add_Ptr;
      Curr_Ud      : Ud_Ptr;
@@ -873,6 +878,8 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
 }
      CurrWrkFio:=FIB.GetFioCurrWrk(CurrWrk);
 {     Caption:=AllTrim(CurrWrkFio)+' '+AllTrim(Month[NMES])+' '+IntToStr(CurrYear)+' г. '+NAME_SERV(NSRV)+' '+IntToStr(Count_Person)+' Записей ';}
+     s:=GetMonthRus(NMES);
+     s1:='записей';
      if isGKH then
         prefix:='ЖКХ '
      else
@@ -880,8 +887,13 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
         prefix:='ЛНУ '
      else
      if isSVDN then
-        prefix:='СНУ ';
-     Caption:=prefix+AllTrim(CurrWrkFio)+' '+AllTrim(Month[NMES])+' '+IntToStr(Work_Year_Val)+' г. '+NAME_SERV(NSRV)+' '+IntToStr(Count_Person)+' Записей ';
+        begin
+             prefix:='СНУ ';
+             s:=GetMonthUkr(NMES);
+             s1:='записiв';
+        end;
+
+     Caption:=prefix+AllTrim(CurrWrkFio)+' '+s+' '+IntToStr(Work_Year_Val)+' г. '+NAME_SERV(NSRV)+' '+IntToStr(Count_Person)+' '+s1;
 {
      StringGrid1.Height:=Self.Height-200;
      StringGrid2.Top:=Self.Height-150;
@@ -905,14 +917,22 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
              end;
      StringGrid1.Cells[0,0]:='Т.н.';
      StringGrid1.ColWidths[0]:=60;
-     StringGrid1.Cells[1,0]:='Ф.И.О. сотрудника';
+     s:='Ф.И.О. сотрудника';
+     if isSVDN then
+        s:='П.I.Б. спiвробiтника';
+
+     StringGrid1.Cells[1,0]:=s;
      StringGrid1.ColWidths[1]:=150;
      for i:=1 to Nmb_Of_Col_Main_Screen do
          begin
               StringGrid1.ColWidths[i+1]:=94;
               MainScreen[i].Summa:=0;
               S:=ShifrList.GetName(MainScreen[i].Shifr);
-              if MainScreen[i].Shifr>M_Shifr then S:='К выдаче';
+              if MainScreen[i].Shifr>M_Shifr then
+                 if isSVDN then
+                    S:='До видачi'
+                 else
+                    S:='К выдаче';
               StringGrid1.Cells[i+1,0]:=copy(S,1,10);
               if length(S)>10 then
                  StringGrid1.Cells[i+1,1]:=copy(S,11,10);
@@ -1140,6 +1160,31 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
       Self.Enabled        then
       StringGrid1.SetFocus;
  end;
+procedure TMainForm.InitUkrMessages;
+ begin
+     N2.Caption:='Довiдники';
+     N3.Caption:='Звiди';
+     N14.Caption:='Архiв';
+     N16.Caption:='Параметри';
+     N30.Caption:='Утiлiти';
+     N42.Caption:='Довiдки';
+     N59.Caption:='Плановий вiддiл';
+     N85.Caption:='Вихiд';
+
+
+ end;
+procedure TMainForm.InitRusMessages;
+ begin
+     N2.Caption:='Справочники';
+     N3.Caption:='Своды';
+     N14.Caption:='Архив';
+     N16.Caption:='Параметры';
+     N30.Caption:='Утилиты';
+     N42.Caption:='Справки';
+     N59.Caption:='Плановый отдел';
+     N85.Caption:='Виход';
+ end;
+
 procedure TMainForm.FormCreate(Sender: TObject);
  var WantedRow:Integer;
      WantedTabno,WantedWR,WantedServ:Integer;
@@ -1214,6 +1259,10 @@ procedure TMainForm.FormCreate(Sender: TObject);
       end;
 }
    InitMain;
+   if isSVDN then
+      InitUkrMessages
+   else
+      InitRusMessages;   
    uSQLUnit.setSal; 
    unLockAllMy;
    if isSVDN then
@@ -3595,14 +3644,6 @@ begin
 
 end;
 
-procedure TMainForm.N102Click(Sender: TObject);
-begin
-     if CntFormWantedAdd=0 then
-        begin
-             Application.CreateForm(TFormRptWantedAdd,FormRptWantedAdd);
-             FormRptWantedAdd.ShowModal;
-        end;
-end;
 
 procedure TMainForm.N103Click(Sender: TObject);
 begin
@@ -4736,6 +4777,22 @@ procedure TMainForm.ActionRepKRUExecute(Sender: TObject);
 begin
     Application.CreateForm(TFormKRUReport, FormKRUReport);
     FormKRUReport.ShowModal;
+
+end;
+
+procedure TMainForm.N184Click(Sender: TObject);
+begin
+    Application.CreateForm(TFormRptPremGM, FormRptPremGM);
+    FormRptPremGM.ShowModal;
+end;
+
+procedure TMainForm.N183Click(Sender: TObject);
+begin
+     if CntFormWantedAdd=0 then
+        begin
+             Application.CreateForm(TFormRptWantedAdd,FormRptWantedAdd);
+             FormRptWantedAdd.ShowModal;
+        end;
 
 end;
 
