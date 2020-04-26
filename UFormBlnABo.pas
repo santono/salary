@@ -411,7 +411,7 @@ begin
               //                                // 23 01 2011
                      Mode_V_Z   := 1;  // в - с 19 12 2010
 
-                  Mode_Ill   := 0;
+                  Mode_Ill_GLO   := 0;
                   ModeDC     := 0;
                   ModeWR     := 0; // и осн и свм
                   WantedCodeIll  := 1;
@@ -513,7 +513,7 @@ begin
                           MeanDay_GN  := SELF.pFIBDataSetBA.FieldByName('MEAN_DAY_GN').AsFloat;
                           MeanDay_NIS := SELF.pFIBDataSetBA.FieldByName('MEAN_DAY_NIS').AsFloat;
                           WantedShifrSta :=SELF.pFIBDataSetBA.FieldByName('SHIFR_STA').AsInteger;
-                          Mode_Ill    :=SELF.pFIBDataSetBA.FieldByName('MODE_ILL').AsInteger;
+                          Mode_Ill_GLO    :=SELF.pFIBDataSetBA.FieldByName('MODE_ILL').AsInteger;
                           ModeDC      :=SELF.pFIBDataSetBA.FieldByName('MODE_DAY_CLOCK').AsInteger;
                           ShifrBuh    :=SELF.pFIBDataSetBA.FieldByName('SHIFRBUH').AsInteger;
                           ModeWR      :=SELF.pFIBDataSetBA.FieldByName('MODEWR').AsInteger;

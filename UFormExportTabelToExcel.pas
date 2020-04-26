@@ -42,9 +42,10 @@ implementation
          xlMedium   = 	-4138; 	//От среднего.
          xlThick 	  =   4; 	//Жирное (широкой границы).
          xlThin 	  =   2;  //
-         MAX_TABEL_KOD=17;
+         MAX_TABEL_KOD=19;
          SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
-         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До');
+       //  ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До');
+         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ');
 
 procedure TFormExportTabelToExcel.FormClose(Sender: TObject;
   var Action: TCloseAction);

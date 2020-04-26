@@ -1525,7 +1525,8 @@ FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxT
       FOR I:=START_DAY TO LAST_DAY DO IF ((CURR_PERSON^.TABEL[I]=RABOTA)       OR
                        //    (CURR_PERSON^.TABEL[I]=KOMANDIROWKA) OR
                        //    (CURR_PERSON^.TABEL[I]=Donorsk_tabel)    OR     Т И сказала, что донорские в раб.дни не входят 13 03 2018
-                           (CURR_PERSON^.TABEL[I]=LEGK_TRUD)    OR
+                           (CURR_PERSON^.TABEL[I]=LEGK_TRUD)     OR
+                           (CURR_PERSON^.TABEL[I]=PROSTOY_TABEL) OR
                            (CURR_PERSON^.TABEL[I]=GOS_OB))       THEN
                            J:=J+1;
       if ((maxTabelDays>0) and (maxTabelDays<32)) then
@@ -1592,6 +1593,7 @@ FUNCTION WORK_CLOCK(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):R
                                     ELSE
          FOR I:=START_DAY TO LAST_DAY DO IF ((CURR_PERSON^.TABEL[I]=RABOTA)       OR
         //                      (CURR_PERSON^.TABEL[I]=KOMANDIROWKA) OR
+                              (CURR_PERSON^.TABEL[I]=PROSTOY_TABEL) OR
                               (CURR_PERSON^.TABEL[I]=GOS_OB))       THEN
                               IF TEST_SUBBOTA(I) THEN  A:=A+6
                                                  ELSE  A:=A+7;
@@ -1620,6 +1622,7 @@ FUNCTION WORK_CLOCK_LERA(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_P
       A:=0;
          FOR I:=START_DAY TO LAST_DAY DO IF ((CURR_PERSON^.TABEL[I]=RABOTA)       OR
         //                      (CURR_PERSON^.TABEL[I]=KOMANDIROWKA) OR
+                              (CURR_PERSON^.TABEL[I]=PROSTOY_TABEL) OR
                               (CURR_PERSON^.TABEL[I]=GOS_OB))       THEN
                               if curr_person^.kategorija=1 then A:=A+7.2
                                                       ELSE  A:=A+8;
@@ -1675,6 +1678,7 @@ FUNCTION NADBAWKA_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR)
                                 TARIFN_OTPUSK      ,
                                 ILLNESS           ,
                                 KOMANDIROWKA      ,
+                                PROSTOY_TABEL      ,
                                 NEOPL_NETRUD])      THEN INC(J);
              end;
       NADBAWKA_DAY:=J;

@@ -328,7 +328,7 @@ procedure TFormRepWordkers.moveToExcel;
      currPod:=0;
      currDol:=0;
      currGru:=0;
-     FName:=TemplateDIR+'WorkersPlan_2019.xlt';
+     FName:=TemplateDIR+'WorkersPlan_2020.xlt';
      if not FileExists(FName) then
         begin
              ShowMessage('Отсутствует шаблон '+FName);
@@ -464,7 +464,8 @@ begin
              wbs.Cells[ExRow,3] := nmbOfSt;
              wbs.Cells[ExRow,4] := avgChisl;
              wbs.Cells[ExRow,5] := SummaTot;
-             wbs.Cells[ExRow,7] := SummaClear;
+             if avgChisl>0.01 then
+             wbs.Cells[ExRow,7] := SummaClear/avgChisl;
         end;
 
 end;

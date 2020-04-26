@@ -3,7 +3,7 @@
 
 unit UFormUpdBoln;
 
-interface                           
+interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
@@ -176,7 +176,7 @@ type
     MEANDAY_NIS        : real;
     B_DAY              : integer;
     MODE_V_Z           : integer;
-    MODE_ILL           : integer;
+    MODE_ILL_GLO       : integer;
     MODEDC             : integer;
     WantedMode         : integer;
     WantedPodr         : integer;
@@ -198,6 +198,8 @@ implementation
       ScrLists;
 
 {$R *.dfm}
+
+  
 
 procedure TFormUpdBoln.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -427,7 +429,8 @@ var Y,M,D    : word;
     ModeVyZa : integer;
     DateFr   : TDate;
     MsgText  : string;
-    Mode_Ill : integer;
+    Mode_Ill_loc : integer;
+    Mode_Ill_In :integer;
     SQLStmnt : WideString;
 begin
      if ((WorkYear<>CurrYear) OR (WorkMonth<>Flow_Month)) THEN
@@ -461,62 +464,24 @@ begin
                    else ModeVyZa:=1;     // в
 
      MODE_V_Z:=ModeVyZa;
-     Mode_Ill       :=  0 ;    { Обычный больный }
+     Mode_Ill_loc       :=  0 ;    { Обычный больный }
      IF ComboBoxShifrSta.ItemIndex=1 THEN
-         Mode_Ill       :=  1        { Декретный больный }
+         Mode_Ill_loc       :=  1        { Декретный больный }
      ELSE IF ComboBoxShifrSta.ItemIndex=2 THEN
-         Mode_Ill       :=  2 ;     { Больный по уходу }
+         Mode_Ill_loc       :=  2      { Больный по уходу }
+     else if ((ComboBoxShifrSta.ItemIndex=3) and (isLNR)) then
+         Mode_Ill_loc       := 3;     { Бактерионоситель }
      ModeDC:=0;
      if RadioGroupModeDC.ItemIndex=1 then
         ModeDC:=1;
 
-     if WantedMode=10 then Mode_Ill:=10; { Командировки }
+     if WantedMode=10 then Mode_Ill_loc:=10; { Командировки }
      Modewr         :=  0 ;    { Расчет и осн и совм}
      if rgModeWR.ItemIndex=1 then modeWr:=1
      else
      if rgModeWR.ItemIndex=2 then modeWr:=2;
 
      DecodeDate(DateTimePickerFr.Date,Y,M,D);
-(*
-     if not pFIBStoredProcMkSummy.Transaction.Active then
-        pFIBStoredProcMkSummy.Transaction.StartTransaction;
-     pFIBStoredProcMkSummy.Prepare;
-     try
-        pFIBStoredProcMkSummy.Params[0].AsInteger := WantedTabno;
-        pFIBStoredProcMkSummy.Params[1].AsString  := IntToStr(Y)+'-'+IntToStr(M)+'-'+IntToStr(D);
-{        pFIBStoredProcMkSummy.Params[1].AsDateTime  := DateTimePickerFr.Date;}
-        pFIBStoredProcMkSummy.Params[2].AsInteger := NMES;
-        pFIBStoredProcMkSummy.Params[3].AsInteger := CurrYear;
-        pFIBStoredProcMkSummy.Params[4].AsInteger := ModeVyZa;
-        pFIBStoredProcMkSummy.Params[5].AsInteger := Mode_Ill;
-        pFIBStoredProcMkSummy.Params[6].AsInteger := ModeDC;
-{        pFIBStoredProcMkSummy.Prepare;  }
-        FormWait.Show;
-        Application.ProcessMessages;
-        if ((paramcount=1) and (paramstr(1)='1')) then
-            ShowMessage('3. Перед вызовом инициализации ');
-
-        pFIBStoredProcMkSummy.ExecProc;
-        if ((paramcount=1) and (paramstr(1)='1')) then
-            ShowMessage('4. Инициализация успешно выполнена ');
-        FormWait.Hide;
-        Application.ProcessMessages;
-     except
-            on E:EFIBError do
-               begin
-                     MsgText := 'Ошибка инициализации больничного:' + #10#13        + #10#13 +
-                                'SQLCode = '     + IntToStr(E.SQLCode)     + #10#13 +
-                                'SQLMessage = '  + E.SQLMessage             + #10#13 +
-                                'IBErrorCode = ' + IntToStr(E.IBErrorCode) + #10#13 +
-                                'IBMessage: '    + #10#13 + E.IBMessage    + #10#13 +
-                                'Message = '     + E.Message;
-                    ShowMessage(MsgText);
-                    Raise;
-               end
-     end;
-     if pFIBStoredProcMkSummy.Transaction.Active then
-        pFIBStoredProcMkSummy.Transaction.Commit;
-*)
      FormWait.Show;
      Application.ProcessMessages;
      pFIBStoredProcMkSummy.Close;
@@ -532,7 +497,9 @@ begin
              SQLStmnt:=Trim(SQLSTmnt)+IntToStr(NMES)+',';
              SQLStmnt:=Trim(SQLSTmnt)+IntToStr(currYear)+',';
              SQLStmnt:=Trim(SQLSTmnt)+IntToStr(ModeVyZa)+',';
-             SQLStmnt:=Trim(SQLSTmnt)+IntToStr(Mode_Ill)+',';
+             mode_Ill_in:=mode_ill_loc;
+             if mode_Ill_loc=4 then mode_ill_in:=1; {Корректировка бактерионосителя }
+             SQLStmnt:=Trim(SQLSTmnt)+IntToStr(Mode_Ill_In)+',';
              SQLStmnt:=Trim(SQLSTmnt)+IntToStr(ModeDC);
              if not bolnLNRMode2016 then
                 SQLStmnt:=Trim(SQLSTmnt)+','+IntToStr(ModeWR);
@@ -547,7 +514,7 @@ begin
              SQLStmnt:=Trim(SQLSTmnt)+IntToStr(NMES)+',';
              SQLStmnt:=Trim(SQLSTmnt)+IntToStr(currYear)+',';
              SQLStmnt:=Trim(SQLSTmnt)+IntToStr(ModeVyZa)+',';
-             SQLStmnt:=Trim(SQLSTmnt)+IntToStr(Mode_Ill)+',';
+             SQLStmnt:=Trim(SQLSTmnt)+IntToStr(Mode_Ill_Loc)+',';
              SQLStmnt:=Trim(SQLSTmnt)+IntToStr(ModeDC);
              SQLStmnt:=Trim(SQLSTmnt)+','+IntToStr(ModeWR);
              SQLStmnt:=Trim(SQLSTmnt)+')';
@@ -570,6 +537,7 @@ var
     DF,DT:String;
     ContBoln : integer;
     SQLStmnt : string;
+    mode_ill_in:integer;
 begin
      IF ((WorkYear<>CurrYear) OR (WorkMonth<>Nmes)) THEN
         BEGIN
@@ -601,21 +569,27 @@ begin
      ContBoln:=0;
      if IsContinueBoln then ContBoln:=1;
 
-     Mode_Ill       :=  0 ;    { Обычный больный }
+     Mode_Ill_GLO       :=  0 ;    { Обычный больный }
      IF ComboBoxShifrSta.ItemIndex=1 THEN
         begin
-             WantedShifrSta := 32 ;
-             Mode_Ill       :=  1 ;       { Декретный больный }
+             WantedShifrSta := DEKRET_SHIFR ;
+             Mode_Ill_GLO       :=  1 ;       { Декретный больный }
         end
      ELSE IF ComboBoxShifrSta.ItemIndex=2 THEN
           begin
-               WantedShifrSta := 14 ;
-               Mode_Ill       :=  2 ;     { Больный по уходу }
+               WantedShifrSta := BOL_TEK_SHIFR ;
+               Mode_Ill_GLO       :=  2 ;     { Больный по уходу }
+          end
+     ELSE IF ((ComboBoxShifrSta.ItemIndex=3) and (isLNR)) THEN
+          begin
+               WantedShifrSta := bol_tek_shifr ;
+               Mode_Ill_GLO       :=  3 ;     { Бактероноситель }
           end;
+
      if WantedMode=10 then  { Командировки }
         begin
              WantedShifrSta:=Komandirowki_Shifr;
-             Mode_Ill:=10;
+             Mode_Ill_Glo:=10;
         end;
 
      DecodeDate(DateTimePickerFr.Date,YFR,MFR,DFR);
@@ -626,9 +600,13 @@ begin
         pFIBQuery.Transaction.Commit;
      pFIBQuery.SQL.Clear;
      if isLNR then
-        SQLStmnt := 'SELECT MeanDay,MeanDay_Bud,MeanDay_VNE,MeanDay_GN,MeanDay_Nis,B_DAY FROM CALCBOLN_01_12_2016('''+DF+''','''+DT+''','+IntToStr(WantedShifrSta)+','+FloatToStr(WantedProc)+','+IntToStr(Mode_V_Z)+','+IntToStr(ContBoln)+','+IntToStr(Mode_Ill)+','+IntToStr(ModeDC)+','+IntToStr(ModeRecalcClock)+')'
+        begin
+             mode_ill_in:=mode_ill_Glo;
+             if mode_ill_Glo=3 then mode_ill_in:=1;  // Бактрионоситель
+        SQLStmnt := 'SELECT MeanDay,MeanDay_Bud,MeanDay_VNE,MeanDay_GN,MeanDay_Nis,B_DAY FROM CALCBOLN_01_12_2016('''+DF+''','''+DT+''','+IntToStr(WantedShifrSta)+','+FloatToStr(WantedProc)+','+IntToStr(Mode_V_Z)+','+IntToStr(ContBoln)+','+IntToStr(Mode_Ill_In)+','+IntToStr(ModeDC)+','+IntToStr(ModeRecalcClock)+')'
+        end
      else
-        SQLStmnt := 'SELECT MeanDay,MeanDay_Bud,MeanDay_VNE,MeanDay_GN,MeanDay_Nis,B_DAY FROM CALCBOLN('''+DF+''','''+DT+''','+IntToStr(WantedShifrSta)+','+FloatToStr(WantedProc)+','+IntToStr(Mode_V_Z)+','+IntToStr(ContBoln)+','+IntToStr(Mode_Ill)+','+IntToStr(ModeDC)+','+IntToStr(ModeRecalcClock)+')';
+        SQLStmnt := 'SELECT MeanDay,MeanDay_Bud,MeanDay_VNE,MeanDay_GN,MeanDay_Nis,B_DAY FROM CALCBOLN('''+DF+''','''+DT+''','+IntToStr(WantedShifrSta)+','+FloatToStr(WantedProc)+','+IntToStr(Mode_V_Z)+','+IntToStr(ContBoln)+','+IntToStr(Mode_Ill_Glo)+','+IntToStr(ModeDC)+','+IntToStr(ModeRecalcClock)+')';
 
      pFIBQuery.SQL.Add(SQLStmnt);
      if not pFIBQuery.Transaction.Active then
@@ -725,11 +703,11 @@ begin
         SUMMA_GN     := pFIBQuery.Fields[2].AsFloat;
         SUMMA_NIS    := pFIBQuery.Fields[3].AsFloat;
         NMBOFDAYS    := pFIBQuery.Fields[4].AsInteger;
-        if isSVDN and (MODE_ILL<>10) then    // Для коммандировок - рабочие дни
+        if isSVDN and (MODE_ILL_GLO<>10) then    // Для коммандировок - рабочие дни
            NMBOFDAYS    := pFIBQuery.Fields[5].AsInteger
         else
            NMBOFDAYS    := pFIBQuery.Fields[4].AsInteger;
-       if MODE_ILL = 1 then
+       if MODE_ILL_GLO = 1 then      
           NMBOFDAYS    := pFIBQuery.Fields[5].AsInteger;
 
      except
@@ -782,23 +760,28 @@ end;
 
 procedure TFormUpdBoln.ComboBoxShifrStaChange(Sender: TObject);
 begin
-      WantedShifrSta := 14 ;      {Обычный бошьничный}
-      Mode_Ill       :=  0 ;
+      WantedShifrSta := bol_tek_shifr ;      {Обычный бошьничный}
+      Mode_Ill_GLO    :=  0 ;
       IF ComboBoxShifrSta.ItemIndex=1 THEN
          begin
-              WantedShifrSta := 32 ;     { Декретный больничный }
-              Mode_Ill       :=  1 ;
+              WantedShifrSta := DEKRET_SHIFR ;     { Декретный больничный }
+              Mode_Ill_GLO       :=  1 ;
          end
       ELSE IF ComboBoxShifrSta.ItemIndex=2 THEN
            begin
-                WantedShifrSta := 14 ;     { Больничный по уходу }
-                Mode_Ill       :=  2 ;
+                WantedShifrSta := bol_tek_shifr ;     { Больничный по уходу }
+                Mode_Ill_GLO       :=  2 ;
+           end
+      ELSE IF ((ComboBoxShifrSta.ItemIndex=3) and (isLNR)) THEN
+           begin
+                WantedShifrSta := bol_tek_shifr ;     { Бактерионоситель }
+                Mode_Ill_GLO       :=  3 ;
            end;
 
       if WantedMode=10 then
          begin
                WantedShifrSta := Komandirowki_Shifr;
-                Mode_Ill      :=  10 ;
+                Mode_Ill_GLO      :=  10 ;
          end;
 end;
 
@@ -811,7 +794,7 @@ var D,M,Y:word;
 begin
      ModeRecalcClock := 0; {Обычныый перерасчет больничного}
      IsContinueBoln := false;
-     WantedShifrSta :=  14;
+     WantedShifrSta :=  bol_tek_shifr;
      WantedProc     := 100;
      ShifrIdBoln    :=   0;
      NomerB         :=  '';
@@ -887,6 +870,22 @@ begin
      pFIBDataSetSummy.UpdateSQL.Clear;
      pFIBDataSetSummy.UpdateSQL.Add(UpdateSQLStmnt);
      modeWR:=0;
+     comboBoxShifrSta.Items.Clear;
+     comboBoxShifrSta.ItemIndex:=0;
+     if isLNR then
+       begin
+            comboBoxShifrSta.Items.Add('Больничный');
+            comboBoxShifrSta.Items.Add('Декретный');
+            comboBoxShifrSta.Items.Add('Уход за ребенком');
+            comboBoxShifrSta.Items.Add('Бактерионоситель');
+       end
+     else
+       begin
+            comboBoxShifrSta.Items.Add('Лiкарняний');
+            comboBoxShifrSta.Items.Add('Вагiтнiсть');
+            comboBoxShifrSta.Items.Add('Догляд за дитиною');
+       end;
+     comboBoxShifrSta.DropDownCount:=comboBoxShifrSta.Items.Count;
 {
      if isLNR then
         begin
@@ -907,8 +906,10 @@ procedure TFormUpdBoln.FormShow(Sender: TObject);
 begin
       ComboBoxShifrSta.ItemIndex := 0;
 
-      if Mode_Ill = 1      then ComboBoxShifrSta.ItemIndex:=1
-      else if Mode_Ill = 2 then ComboBoxShifrSta.ItemIndex:=2;
+      if Mode_Ill_GLO = 1      then ComboBoxShifrSta.ItemIndex:=1
+      else if Mode_Ill_GLO = 2 then ComboBoxShifrSta.ItemIndex:=2;
+      if isLnr then    // Бактерионоситель
+         if mode_ill_GLO=3 then ComboBoxShifrSta.ItemIndex:=3;
       if isSVDN then
          begin
               IF WantedProc=50     THEN ComboBoxProc.ItemIndex:=3
@@ -1042,47 +1043,6 @@ begin
 
    //  pFIBTransactionSAL.StartTransaction ;
      DataVy:=EnCodeDate(CurrYear,NMES,1);
-(*     
-     if pFIBDataSetRes.UpdateTransaction.Active then
-        pFIBDataSetRes.UpdateTransaction.Commit;
-     
-     if not pFIBStoredProcSave.Transaction.Active then
-        pFIBStoredProcSave.Transaction.StartTransaction;
-     pFIBStoredProcSave.Prepare;
-     try
-        pFIBStoredProcSave.Params[0].AsInteger  := ShifrIdBoln;
-        pFIBStoredProcSave.Params[1].AsInteger  := WantedTabno;
-        pFIBStoredProcSave.Params[2].AsString   := NomerB;
-        pFIBStoredProcSave.Params[3].AsString   := DateToStr(DateTimePickerFr.Date);
-        pFIBStoredProcSave.Params[4].AsString   := DateToStr(DateTimePickerTo.Date);
-        pFIBStoredProcSave.Params[5].AsString   := DateToStr(DataVy);
-        pFIBStoredProcSave.Params[6].AsFloat    := WantedProc;
-        pFIBStoredProcSave.Params[7].AsInteger  := WantedShifrSta;
-        pFIBStoredProcSave.Params[8].AsInteger  := B_DAY;
-        pFIBStoredProcSave.Params[9].AsFloat    := MEANDAY;
-        pFIBStoredProcSave.Params[10].AsFloat   := MEANDAY_BUD;
-        pFIBStoredProcSave.Params[11].AsFloat   := MEANDAY_VNE;
-        pFIBStoredProcSave.Params[12].AsFloat   := MEANDAY_GN;
-        pFIBStoredProcSave.Params[13].AsFloat   := MEANDAY_NIS;
-        pFIBStoredProcSave.Params[14].AsInteger := MODE_V_Z;
-        pFIBStoredProcSave.Params[15].AsInteger := MODE_ILL;
-        pFIBStoredProcSave.Params[16].AsInteger := MODEDC;
-        pFIBStoredProcSave.Params[17].AsString  := SWIDSS;
-        pFIBStoredProcSave.Params[18].AsInteger := WantedCodeIll;
-        pFIBStoredProcSave.Params[19].AsInteger := ShifrBuh;
-        FormWait.Show;
-        Application.ProcessMessages;
-        pFIBStoredProcSave.ExecProc;
-        FormWait.Hide;
-     except
-       ShowMessage('Ошибка сохранения больничного')
-     end;
-     pFIBStoredProcSave.Close;
-     Close;
-
-//     pFIBTransactionSAL.Commit;
-     pFIBStoredProcSave.Transaction.Commit;
-*)
 //EXECUTE PROCEDURE PUTBOLN (?SHIFRID, ?TABNO, ?NOMER_B, ?F_DATA, ?L_DATA, ?DATAVY, ?PROCENT, ?SHIFRSTA, ?B_DAY, ?MEANDAY, ?MEANDAY_BUD, ?MEANDAY_VNE, ?MEANDAY_GN, ?MEANDAY_NIS, ?MODE_V_Z, ?MODE_ILL,?MODEDC,?SWIDSS,?CODE_REASON_ILL,?SHIFRBUH)
      if isLNR then
          if bolnLNRMode2016 then
@@ -1107,7 +1067,7 @@ begin
      SQLStmnt:=Trim(SQLStmnt)+trim(FormatFloatPoint(MEANDAY_GN))+',';
      SQLStmnt:=Trim(SQLStmnt)+trim(FormatFloatPoint(MEANDAY_NIS))+',';
      SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(MODE_V_Z))+',';
-     SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(MODE_ILL))+',';
+     SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(MODE_ILL_GLO))+',';
      SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(MODEDC))+',';
      SQLStmnt:=Trim(SQLStmnt)+''''+trim(SWIDSS)+''',';
      SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(WantedCodeIll))+',';

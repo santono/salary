@@ -33,7 +33,9 @@ CONST
          NEZAPOLN                  =15;  {Пробел                            }
          LEGK_TRUD                 =16;  {Легкий труд                           }
          Donorsk_tabel             =17;  {Легкий труд                           }
-         Povkwa_table              =18;  {Повышение квалификации }
+         Povkwa_tabel              =18;  {Повышение квалификации }
+         Prostoy_tabel             =19;  {Простой (из-за короно вируса 26 04 2020)}
+
 
          TEACHER_KATEGORIJA        =  1;
          UCH_WCPOM_KATEGORIJA      =  2;
@@ -398,7 +400,12 @@ const
 *)
 
          hugeWrongYear         = 2030;
-  
+{$IFDEF SVDN}
+         NIGHT_PROC   = 35.00;
+{$ELSE}
+         NIGHT_PROC   = 40.00;
+{$ENDIF}
+
 
 var
     HEAD_PERSON,TAIL_PERSON:PERSON_PTR;

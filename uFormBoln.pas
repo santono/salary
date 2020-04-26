@@ -416,7 +416,7 @@ begin
                   WorkYear    := WantedYear;
                   WorkMonth   := WantedMonth;
                   ShifrIdBoln := 0;
-                  Mode_Ill    := 0;
+                  Mode_Ill_GLO    := 0;
                   ModeDC      := 0;
                   WantedCodeIll := 1;
                   ShifrBuh    := CurrWrk;
@@ -467,7 +467,7 @@ begin
                           MeanDay_GN  := SELF.pFIBDataSetBoln.FieldByName('MEAN_DAY_GN').AsFloat;
                           MeanDay_NIS := SELF.pFIBDataSetBoln.FieldByName('MEAN_DAY_NIS').AsFloat;
                           WantedShifrSta :=SELF.pFIBDataSetBoln.FieldByName('SHIFR_STA').AsInteger;
-                          Mode_Ill       :=SELF.pFIBDataSetBoln.FieldByName('MODE_ILL').AsInteger;
+                          Mode_Ill_GLO       :=SELF.pFIBDataSetBoln.FieldByName('MODE_ILL').AsInteger;
                           ModeDC       :=SELF.pFIBDataSetBoln.FieldByName('MODE_DAY_CLOCK').AsInteger;
                           ShifrBuh     :=SELF.pFIBDataSetBoln.FieldByName('SHIFRBUH').AsInteger;
                      end;

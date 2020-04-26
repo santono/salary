@@ -279,13 +279,18 @@ end;
 
 procedure TFormUpdAdd.CalcNightPrazdn;
  const F='######0.00';
+ var proc:double;
  begin
+      if  (NIGHT_PROC>1) then
+          proc := sum(NIGHT_PROC / 100.00)
+      else
+          proc := NIGHT_PROC;
       if MonthClock>0.01 then
          begin
               if ShifrSta=Prazdn_Shifr then
-                 Summa := sum(Oklad / MonthClock * WorkClock *2)
+                 Summa := sum(Oklad / MonthClock * WorkClock *2.00)
               else if ShifrSta=Night_Shifr then
-                 Summa := sum(Oklad / MonthClock * WorkClock *0.35);
+                 Summa := sum(Oklad / MonthClock * WorkClock *proc);
               dxCalcEditSumm.Text      := FormatFloat(F,Summa);
               Application.ProcessMessages;
          end;
