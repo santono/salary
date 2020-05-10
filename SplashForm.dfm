@@ -45,7 +45,7 @@ object AboutBox: TAboutBox
       Top = 104
       Width = 216
       Height = 24
-      Caption = 'Version 1.0 '#1086#1090' 29 03 2020'
+      Caption = 'Version 1.0 '#1086#1090' 11 05 2020'
       IsControl = True
     end
     object Copyright: TLabel

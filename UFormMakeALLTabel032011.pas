@@ -78,7 +78,25 @@ var savnsrv,i_nsrv : integer;
 
  procedure Fill_Tabel(var need:boolean);
   begin
-       if not((Curr_Person^.Tabel[31]=JAWKA)
+       if (Curr_Person^.Tabel[8]=JAWKA) and
+          (Curr_Person^.Tabel[10]=JAWKA) and
+          (Curr_Person^.Tabel[11]=VYHODN) then
+          begin
+//               Curr_Person^.Tabel[8]:=JAWKA;
+               Curr_Person^.Tabel[10]:=VYHODN;
+               Curr_Person^.Tabel[11]:=JAWKA;
+               need:=true;
+          end
+       else
+       if (Curr_Person^.Tabel[8]=VYHODN) and
+          (Curr_Person^.Tabel[10]=JAWKA) and
+          (Curr_Person^.Tabel[11]=VYHODN) then
+          begin
+               Curr_Person^.Tabel[8]:=JAWKA;
+               Curr_Person^.Tabel[10]:=VYHODN;
+               need:=true;
+          end;
+(*
        or (Curr_Person^.Tabel[30]=JAWKA)
        or (Curr_Person^.Tabel[29]=JAWKA)) then exit;
        if Curr_Person^.Tabel[31]=Jawka  then
@@ -96,6 +114,7 @@ var savnsrv,i_nsrv : integer;
                Curr_Person^.Tabel[29]:=PROGUL;
                need:=true;
           end;
+*)          
   end;
  procedure Fill_Tabel_For_Amnt_Of_Day(var need:boolean);
   var i:integer;
@@ -128,14 +147,14 @@ var savnsrv,i_nsrv : integer;
 begin
     if not isLNR then exit;
     BitBtn1.Enabled:=false;
-    if not YesNo('Внести корректировки в табель ППС университета в декабре 2019?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then
+    if not YesNo('Внести корректировки в табель университета в мае 2020?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then
        begin
             BitBtn1.Enabled:=true;
             Exit;
        end;
-    IF not ((CurrYear=2019) and (nmes=12)) THEN
+    IF not ((CurrYear=2020) and (nmes=05)) THEN
        begin
-            ShowMessage('Внести корректировки можно только в декабре 2019');
+            ShowMessage('Внести корректировки можно только в мае 2020');
             BitBtn1.Enabled:=true;
             Exit;
        end;
@@ -187,8 +206,8 @@ begin
               begin
                    if GruppyList.IsSelected(curr_person^.GRUPPA) then
                    if KategList.IsSelected(curr_person^.KATEGORIJA) then
-//                      Fill_Tabel(need);
-                      Fill_Tabel_For_Amnt_Of_Day(need);
+                      Fill_Tabel(need);
+//                      Fill_Tabel_For_Amnt_Of_Day(need);
                    if Curr_Person^.Tabno=1356 then
                       Curr_Person^.Tabno:=1356;
 
@@ -225,6 +244,7 @@ procedure TFormMakeALLTabel032011.FormCreate(Sender: TObject);
 begin
      self.amntOfDay:=3;
      cxSpinEditAmntOfDay.Value:=self.amntOfDay;
+     cxSpinEditAmntOfDay.Hide;
 end;
 
 end.

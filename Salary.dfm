@@ -605,7 +605,14 @@ object MainForm: TMainForm
           Action = ActionRepInvalidNalogi
         end
         object N127: TMenuItem
-          Action = actLimitSummy2014
+          Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1084#1072#1082#1089#1080#1084#1072#1083#1100#1085#1110#1093' '#1085#1072#1095#1080#1089#1083#1077#1085#1080#1081
+          object L1: TMenuItem
+            Action = actLimitSummy2014
+          end
+          object N20201: TMenuItem
+            Caption = #1050#1072#1088#1072#1085#1090#1080#1085' 2020'
+            OnClick = N20201Click
+          end
         end
         object N129: TMenuItem
           Action = actListLgotyDeti
@@ -834,7 +841,7 @@ object MainForm: TMainForm
           OnClick = GUIDSQL1Click
         end
         object N20112: TMenuItem
-          Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1072' '#1090#1072#1073#1077#1083#1103' '#1074' '#1076#1077#1082#1072#1073#1088#1077' 2019 '#1076#1083#1103' '#1074#1089#1077#1075#1086' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090#1072
+          Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1072' '#1090#1072#1073#1077#1083#1103' '#1074' '#1084#1072#1077' 2020 '#1076#1083#1103' '#1074#1089#1077#1075#1086' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090#1072
           OnClick = N20112Click
         end
         object N107: TMenuItem
@@ -1011,6 +1018,9 @@ object MainForm: TMainForm
         end
         object N181: TMenuItem
           Action = ActionCorrectVyplaty
+        end
+        object NImportNadb: TMenuItem
+          Action = ActionImportNadbFromPlanoviy
         end
       end
       object N170: TMenuItem
@@ -1641,6 +1651,10 @@ object MainForm: TMainForm
     object ActionRepKRU: TAction
       Caption = #1057#1074#1086#1076' '#1076#1083#1103' '#1050#1056#1059
       OnExecute = ActionRepKRUExecute
+    end
+    object ActionImportNadbFromPlanoviy: TAction
+      Caption = #1048#1084#1087#1086#1088#1090' '#1085#1072#1076#1073#1072#1074#1086#1082' '#1080#1079' '#1055#1054
+      OnExecute = ActionImportNadbFromPlanoviyExecute
     end
   end
   object ImageList1: TImageList

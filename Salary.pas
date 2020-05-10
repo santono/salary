@@ -413,6 +413,10 @@ type
     NKRU: TMenuItem;
     N183: TMenuItem;
     N184: TMenuItem;
+    L1: TMenuItem;
+    N20201: TMenuItem;
+    ActionImportNadbFromPlanoviy: TAction;
+    NImportNadb: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -680,6 +684,8 @@ type
     procedure ActionRepKRUExecute(Sender: TObject);
     procedure N184Click(Sender: TObject);
     procedure N183Click(Sender: TObject);
+    procedure N20201Click(Sender: TObject);
+    procedure ActionImportNadbFromPlanoviyExecute(Sender: TObject);
 
 
   private
@@ -772,7 +778,7 @@ implementation
   UFormRepRazr, UFormRepNeSovpRazrOklad, UFormRepFondy, UFormRepPensionery,
   UFormDekrList, UFormRepFondySVDN, UFormMemBud,
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
-  UFormRptPremGM;
+  UFormRptPremGM, UFormSumLimitForCarantine, UFormMoveNabdToDB;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1163,7 +1169,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
 procedure TMainForm.InitUkrMessages;
  begin
      N2.Caption:='Довiдники';
-     N3.Caption:='Звiди';
+     N3.Caption:='Звiти';
      N14.Caption:='Архiв';
      N16.Caption:='Параметри';
      N30.Caption:='Утiлiти';
@@ -1377,6 +1383,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NKRU.Enabled:=false;
           NKRU.Visible:=false;
           ActionRepKRU.Enabled:=false;
+          NImportNadb.Enabled:=false;
+          NImportNadb.Visible:=false;
+          ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
 
           NLNR2.Visible:=true;
@@ -1449,6 +1458,10 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NKRU.Enabled:=true;
           NKRU.Visible:=true;
           ActionRepKRU.Enabled:=true;
+          NImportNadb.Enabled:=true;
+          NImportNadb.Visible:=true;
+          ActionImportNadbFromPlanoviy.Enabled:=true;
+
    //       if DirectoryExists('Y:') then
           if true then
              begin
@@ -4793,6 +4806,20 @@ begin
              Application.CreateForm(TFormRptWantedAdd,FormRptWantedAdd);
              FormRptWantedAdd.ShowModal;
         end;
+
+end;
+
+procedure TMainForm.N20201Click(Sender: TObject);
+begin
+    Application.CreateForm(TFormSumLimitForCarantine, FormSumLimitForCarantine);
+    FormSumLimitForCarantine.ShowModal;
+
+end;
+
+procedure TMainForm.ActionImportNadbFromPlanoviyExecute(Sender: TObject);
+begin
+    Application.CreateForm(TFormMoveNabdToDB, FormMoveNabdToDB);
+    FormMoveNabdToDB.ShowModal;
 
 end;
 

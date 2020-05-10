@@ -40,6 +40,7 @@ type
 
 var
   FormECBMonthMenu: TFormECBMonthMenu;
+  needMakeRepECBOldStyle:Boolean;
 
 implementation
   uses ScrDef,ScrUtil,UFormGetDRFO,UFormMovECBToDBF, uFormWait, DateUtils,
@@ -68,7 +69,7 @@ begin
          begin
               btnExportExcel.Show();
               btnExportExcel.Enabled:=true;
-              Button1.Hide();
+              Button1.Hide;
               button1.Enabled:=false;
          end
       else
@@ -77,6 +78,8 @@ begin
               btnExportExcel.Enabled:=false;
               button1.Show;
               button1.Enabled:=true;
+              if not needMakeRepECBOldStyle then
+                 BitBtn2.Enabled:=False;
          end;
 
 end;
@@ -162,4 +165,7 @@ begin
      FormRepF4.showModal;
 end;
 
+
+begin
+  needMakeRepECBOldStyle:=false;
 end.

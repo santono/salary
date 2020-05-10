@@ -10,7 +10,8 @@ object FIB: TFIB
     DBParams.Strings = (
       'user_name=SYSDBA'
       'password=masterkey'
-      'lc_ctype=WIN1251')
+      'lc_ctype=WIN1251'
+      'sql_role_name=')
     DefaultTransaction = pFIBTransactionSAL
     DefaultUpdateTransaction = pFIBTransactionSAL
     SQLDialect = 3
@@ -19,6 +20,7 @@ object FIB: TFIB
     OnTimeout = pFIBDatabaseSalTimeout
     AfterDisconnect = pFIBDatabaseSalAfterDisconnect
     DesignDBOptions = [ddoIsDefaultDatabase]
+    LibraryName = 'E:\Projects\ZARPLATA\VUGU\delphi\fbclient.dll'
     SQLLogger = FIBSQLLoggerSal
     AliasName = 'FIBSalDatabase'
     WaitForRestoreConnect = 0

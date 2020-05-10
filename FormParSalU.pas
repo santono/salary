@@ -29,6 +29,8 @@ type
     cbRoundNalogi: TCheckBox;
     cxSpinEdit1: TcxSpinEdit;
     cbCheckMem: TCheckBox;
+    PanelRepECB: TPanel;
+    ButtonRepECB: TButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -36,7 +38,9 @@ type
     procedure BtnProtectedPodrClick(Sender: TObject);
     procedure cxSpinEdit1PropertiesChange(Sender: TObject);
     procedure cbRoundNalogiClick(Sender: TObject);
+    procedure ButtonRepECBClick(Sender: TObject);
   private
+    procedure SetMultiLineButton(AParent: TWinControl) ;
     { Private declarations }
   public
     { Public declarations }
@@ -46,7 +50,7 @@ var
   FormParSal : TFormParSal;
 
 implementation
- uses scrdef, UFibModule, UFormChangeNMES;
+ uses scrdef, UFibModule, UFormChangeNMES,UFormECBMonthMenu;
 
 {$R *.dfm}
 
@@ -142,6 +146,17 @@ begin
         cbCheckMem.Checked:=true
      else
         cbCheckMem.Checked:=false;
+     if isSVDN then
+        begin
+            PanelRepECB.Show;
+            ButtonRepECB.Show;
+            SetMultiLineButton(PanelRepECB);
+        end
+     else
+        begin
+            PanelRepECB.Hide;
+            ButtonRepECB.Hide;
+        end;
 
 
 end;
@@ -216,6 +231,27 @@ begin
              cxSpinEdit1.Enabled:=false;
              needRoundNalogiCalculation:=false;
         end
+
+end;
+
+procedure TFormParSal.SetMultiLineButton(AParent: TWinControl);
+var j : integer;
+ah : THandle;
+begin
+     for j := 0 to AParent.ControlCount - 1 do
+         if (AParent.Controls[j] is TButton) then
+            begin
+              ah := (AParent.Controls[j] as TButton).Handle;
+              SetWindowLong(ah, GWL_STYLE,
+              GetWindowLong(ah, GWL_STYLE) OR
+              BS_MULTILINE) ;
+            end;
+end;
+
+procedure TFormParSal.ButtonRepECBClick(Sender: TObject);
+begin
+     needMakeRepECBOldStyle:=True;
+     ButtonRepECB.Enabled:=False;
 
 end;
 

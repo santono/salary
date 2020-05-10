@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Buttons, ComCtrls, FIBDatabase, pFIBDatabase, DB,
   FIBDataSet, pFIBDataSet, frxClass, frxDBSet, ExtCtrls,
-  scrDef;
+  scrDef, FIBQuery, pFIBQuery;
 
 type
   TFormRepF4 = class(TForm)
@@ -74,6 +74,27 @@ type
     dsSowmNAMEPROF: TFIBStringField;
     dsSowmDATABEG: TFIBDateField;
     dsSowmDATAEND: TFIBDateField;
+    cbNRC: TCheckBox;
+    dsPriUwPrik: TpFIBDataSet;
+    dsPriUwPrikTABNO: TFIBIntegerField;
+    dsPriUwPrikDATABEG: TFIBDateField;
+    dsPriUwPrikDATAEND: TFIBDateField;
+    dsPriUwPrikSHIFRIDTYP: TFIBIntegerField;
+    dsPriUwPrikDATAPRIK: TFIBDateField;
+    dsPriUwPrikNOMERPRIK: TFIBStringField;
+    dsPriUwPrikFIO: TFIBStringField;
+    dsPriUwPrikKODZKPPTR: TFIBStringField;
+    dsPriUwPrikKODKP: TFIBStringField;
+    dsPriUwPrikNAMEDOL: TFIBStringField;
+    dsPriUwPrikNAMEPROF: TFIBStringField;
+    dsPriUwPrikID: TFIBIntegerField;
+    dsDekr6TABNO: TFIBIntegerField;
+    dsDekr6FIO: TFIBStringField;
+    dsDekr6INN: TFIBStringField;
+    dsDekr6DATE_FR: TFIBDateField;
+    dsDekr6DATE_TO: TFIBDateField;
+    dsDekr6KIND: TFIBIntegerField;
+    pQDekr6: TpFIBQuery;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -97,8 +118,10 @@ type
     procedure fillCheckList;
     procedure fillDoplDoMin;
     procedure fillTable7;
+    procedure fillTable7Dekr;
     procedure fillTable5;
     procedure fillTable5PrinjatUwolen;
+    procedure fillTable5PrinjatUwolenFromPrikazy;
     procedure fillTable5Perevody;
     procedure fillTable5Sowm;
 
@@ -270,7 +293,7 @@ implementation
       listCPH           : TList;
       E:Variant;
 {$R *.dfm}
- function addToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0):pRec6;
+ function addToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0;nrc:Integer=0):pRec6;
  var finded:boolean;
      i:integer;
      rec6:pRec6;
@@ -321,11 +344,11 @@ implementation
      Rec6.periodY  := Rec6.yearVy;
      Rec6.rowNum   := 0;
      Rec6.ukrGromad:= 1;
-     Rec6.zo       := zo; // Для обычных научных 1- для обычных 2- обчныеинвалиды 32- инвалиды научные
+     Rec6.zo       := zo; // Для обычных научных 1- для обычных 2- обчныеинвалиды 25 - научный 32- инвалиды научные
      Rec6.payTp    := payTp;
      Rec6.payMnth  := payMnth;
      Rec6.payYear  := payYear;
-     if payTp=13 then
+     if payTp=13 then    //Доплата до минимальной
         rec6.sumDiff := summaAdd
      else
         Rec6.sumTotal := summaAdd;
@@ -335,6 +358,8 @@ implementation
         rec6.kdPtv:=kd_ptv;
      if kd_nzp>0 then
         rec6.kdNzp:=kd_nzp;
+     if nrc>0 then
+        rec6.nrc:=nrc;
      rec6.exp:=exp;
      list6.add(rec6);
      addToF6 := rec6;
@@ -351,6 +376,9 @@ procedure TFormRepF4.FormCreate(Sender: TObject);
 begin
      dtIn.Date        := IncMonth(Date,-1);
      ShifrBk          := 0;
+     cbNRC.Checked:=false;
+     if ((NMES>3) and (NMES<9) and (CURRYEAR=2020)) then
+        cbNRC.Checked:=True;
 end;
 
 procedure TFormRepF4.BitBtn1Click(Sender: TObject);
@@ -386,6 +414,7 @@ procedure TFormRepF4.CreateReport6;
   var savNMES,savNSRV:integer;
       iNSRV,i:Integer;
       curr_person:PERSON_PTR;
+      summa6:real;
   begin
        savNMES:=NMES;
        savNSRV:=NSRV;
@@ -564,6 +593,8 @@ procedure TFormRepF4.CreateReport6;
        fillFullList6RecsFromCheckList;
        fillTable5;
        fillTable7;
+       fillTable7Dekr; // 07 05 2020 деревянкина сказала, что дектречики должны
+                       // быть в табл 7 если они преподаватели
        DisposePensList;
        moveToBD;
        if list5.count>0 then
@@ -571,9 +602,13 @@ procedure TFormRepF4.CreateReport6;
               dispose(pRec5(list5.Items[i]));
        list5.Free;
        list5:=nil;
+       Summa6:=0;
        if list6.count>0 then
           for i:=0 to list6.count-1 do
-              dispose(pRec6(list6.Items[i]));
+              begin
+                   summa6:=r10(r10(summa6)+r10(pRec6(list6.Items[i]).sumTotal));
+                   dispose(pRec6(list6.Items[i]));
+              end;
        list6.Free;
        list6:=nil;
        if list7.count>0 then
@@ -595,7 +630,7 @@ procedure TFormRepF4.CreateReport6;
        NSRV:=savNSRV;
        MKFLNM;
        getinf(true);
-       showMessage('Отчет сформирован');
+       showMessage('Отчет сформирован. Сумма в таблице 6 '+FormatSummaForPlt(summa6));
   end;
 procedure TFormRepF4.fillPerson(curr_person:person_ptr);
   var rec6:pRec6;
@@ -1218,6 +1253,8 @@ procedure TFormRepF4.fillBolDay;
               // Декретные больничные 42 - б 43 - инв
               if pRec6(list6.items[i]).zo in [29,36] then
                  begin
+                      if pRec6(list6.items[i])^.tabno=11978 then
+                         bolDays:=0;
                       bolDays:=0;
                       dekrBolDays:=0;
                       bolDays:=getBolDay(pRec6(list6.items[i]).tabno,pRec6(list6.items[i]).payYear,pRec6(list6.items[i]).payMnth);
@@ -1347,7 +1384,7 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
       end;
  begin
        if not DOG_POD_PODRAZD(nsrv) then exit;
-       if  not curr_person^.MESTO_OSN_RABOTY  in [16,82,121] then exit;
+  //     if  not curr_person^.MESTO_OSN_RABOTY  in [16,82,121] then exit;
        summaAdd:=getSummaOsnAddForPerson(curr_person);
        if abs(summaAdd)>0.01  then
           begin
@@ -1383,17 +1420,20 @@ procedure TFormRepF4.fillPremPerson(curr_person:person_ptr);
           curr_add:=curr_person.ADD;
           while (curr_add<>nil) do
              begin
-                  retVal:=retVal+curr_add^.SUMMA;
+                  if not (isotpshifr(curr_add^.shifr)) then
+                     retVal:=retVal+curr_add^.SUMMA;
                   curr_add:=curr_add.NEXT;
              end;
           getSummaOsnAddForPerson:=retVal;
       end;
  begin
        if not (nsrv in [11,102]) then exit;
+               if curr_person^.tabno=29 then
+                  curr_person^.MALO:=0;
        summaAdd:=getSummaOsnAddForPerson(curr_person);
        if abs(summaAdd)>0.01  then
           begin
-               if curr_person^.tabno=55 then
+               if curr_person^.tabno=29 then
                   curr_person^.MALO:=0;
                finded:=false;
                if list6.count>0 then
@@ -1506,6 +1546,8 @@ procedure TFormRepF4.fillDoplDoMin;
       while not dsMinSal.Eof do
          begin
               tabno := dsMinSalTABNO.Value;
+              if tabno=12237 then
+                 zo:=1;
               summa := dsMinSalSUMMA_RAZN.Value;
               fillZOFromRec6;
               rec6:=addToF6(TABNO,zo,payTp,payMnth,payYear,summa);
@@ -1525,7 +1567,7 @@ procedure TFormRepF4.fillTable5;
       fillTable5PrinjatUwolen;
   //    fillTable5Perevody;
       fillTable5CPH;
-      fillTable5Dekr;
+  //    fillTable5Dekr;
       fillTable5Sowm;
 
  end;
@@ -1634,6 +1676,149 @@ procedure TFormRepF4.fillTable5PrinjatUwolen;
         end;
       dsPrinjatUwolen.Close;
       dsPrinjatUwolen.Transaction.commit;
+ end;
+procedure TFormRepF4.fillTable5PrinjatUwolenFromPrikazy;
+ var tabno:integer;
+     i,j:integer;
+     finded,finded6:boolean;
+     rec5:pRec5;
+     startDt,endDt:integer;
+     codeUwol:integer;
+     datePri:tDateTime;
+     dateUw:TDateTime;
+     SQLStmnt:string;
+     v:variant;
+     reasonUwol:string;
+     recPerson:pRecPerson;
+     rec6:pRec6;
+     zo:integer;
+     KODZKPPTR,KODKP:string;
+     namedol,nameprof:string;
+     shifrIdTyp:Integer;
+     NomerPrik:string;
+     DatePrik:TDateTime;
+     d,m,y:Integer;
+     ds,ms,ys:string;
+ begin
+      dsPriUwPrik.Params[0].Value:=currYear;
+      dsPriUwPrik.Params[1].Value:=nmes;
+      dsPriUwPrik.Transaction.StartTransaction;
+      dsPriUwPrik.Open;
+      while (not dsPriUwPrik.Eof) do
+        begin
+             tabno      := dsPriUwPrikTABNO.value;
+             datePri    := encodedate(1990,1,1);
+             dateUw     := encodedate(1990,1,1);
+             DatePrik   := encodedate(1990,1,1);
+             NomerPrik  := '';
+             KODZKPPTR  := '';
+             KODKP      := '';
+             codeUwol   := 0;
+             namedol    := '';
+             nameprof   := '';
+             shifrIdTyp := dsPriUwPrikSHIFRIDTYP.Value;
+             if not dsPriUwPrikDATABEG.IsNull then
+                if shifridTyp=13 then             // Увольнение
+                   datePri := dsPriUwPrikDATABEG.value
+                else
+                   dateUw  := dsPriUwPrikDATABEG.value;
+             if shifrIdTyp=5 then
+                if not dsPriUwPrikDATAEND.IsNull then
+                   dateUw:=dsPriUwPrikDATAEND.value;
+             if not dsPriUwPrikKODZKPPTR.IsNull then
+                KODZKPPTR:=dsPriUwPrikKODZKPPTR.Value;
+             if not dsPriUwPrikKODKP.IsNull then
+                KODKP:=dsPriUwPrikKODKP.Value;
+             if not dsPriUwPrikNAMEDOL.IsNull then
+                nameDol:=Trim(dsPriUwPrikNAMEDOL.Value);
+             if not dsPriUwPrikNAMEPROF.IsNull then
+                namePROF:=Trim(dsPriUwPrikNAMEPROF.Value);
+             if not dsPriUwPrikDATAPRIK.IsNull then
+                   DatePrik:=dsPriUwPrikDATAPRIK.value;
+             if not dsPriUwPrikNOMERPRIK.IsNull then
+                   NomerPrik:=Trim(dsPriUwPrikNOMERPRIK.value);
+
+             startDt:=1;
+             endDt:=lenMonth(encodeDate(currYear,nmes,1));
+             if ((yearOf(datePri)=currYear) and (monthOf(datePri)=nmes)) then
+                startDt:=dayOf(datePri);
+             if ((yearOf(dateUw)=currYear) and (monthOf(dateUw)=nmes)) then
+                endDt:=dayOf(dateUw);
+             reasonUwol:='';
+             if codeUwol>0 then
+                begin
+                     SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
+                     v:=SQLQueryValue(SQLStmnt);
+                     if VarIsStr(v) then
+                        reasonUwol:=trim(ReplQto2Q(v));
+                end;
+             finded:=false;
+             recPerson:=nil;
+             if listCheck.Count>0 then
+                for i:=0 to listCheck.Count-1 do
+                    if pRecPerson(listCheck.Items[i]).tabno=tabno then
+                       begin
+                            recPerson:=pRecPerson(listCheck.Items[i]);
+                            finded:=true;
+                            break;
+                       end;
+             finded6:=false;
+             rec6:=nil;
+                // Таблица ZO
+                // 1 – наймані працівники з трудовою книжкою;
+                // 2 – наймані працівники (без трудової книжки);
+                // 3 – особи, які виконують роботи за договорами цивільно-правового характеру;
+                // 4 – особи, яким надано відпустку по догляду за дитиною від трирічного віку до досягнення нею шестирічного віку;
+                // 5 – особи, яким надано відпустку по вагітності і пологах;
+                // 6 – особи, яким надано відпустку по догляду за дитиною до досягнення нею трирічного віку.
+             zo:=1;   //Трудова книжка на підпрємстві
+             if list6.Count>0 then
+                for i:=0 to list6.Count-1 do
+                    if pRec6(list6.Items[i]).tabno=tabno then
+                    if pRec6(list6.Items[i]).zo in [1,2,25,26,32] then
+                       begin
+                            rec6:=pRec6(list6.Items[i]);
+                            finded6:=true;
+                            break;
+                       end;
+             if recPerson<>nil then
+                begin
+                     reasonUwol:=trim(copy(reasonUwol+space(250),1,250));
+                     new(rec5);
+                     fillChar(rec5^,sizeOf(rec5^),0);
+                     rec5.YEARVY  := currYear;
+                     rec5.monthVy := nmes;
+                     rec5.tabno   := tabno;
+                     rec5.PERIODM := rec5.monthVy;
+                     rec5.PERIODY := rec5.yearVy;
+                     if finded6 then
+                        rec5.UKRGROMAD:=rec6.ukrGromad
+                     else
+                        rec5.UKRGROMAD:=1;
+                     rec5.NUMIDENT := trim(recPerson.numIdent);
+                     rec5.FIO      := trim(recPerson.fio);
+                     rec5.NM       := trim(recPerson.nm);
+                     rec5.FTN      := trim(recPerson.ftn);
+                     rec5.START_DT := startDt;
+                     rec5.END_DT   := endDt;
+                     rec5.ZO       := zo;
+                     rec5.pid      := 'наказ вiд '+FormatDate(DatePrik)+' '+trim(nomerPrik);
+                     if shifridTyp=5 then
+                        begin
+                             rec5.ZKPP := Trim(KODZKPPTR);
+                             rec5.pnr  := Trim(nameprof);  //Професiональна назва роботи
+                             rec5.PNR  := Trim(KODKP);     //код класiфiкатора професii
+                             rec5.POS  := Trim(namedol);
+                        end
+                     else
+                     if shifrIdTyp=13 then
+                        rec5.PID_ZV := reasonUwol;
+                     list5.Add(rec5);
+                end;
+             dsPriUwPrik.Next;
+        end;
+      dsPriUwPrik.Close;
+      dsPriUwPrik.Transaction.commit;
  end;
 procedure TFormRepF4.fillTable5Perevody;
  var tabno:integer;
@@ -1976,7 +2161,7 @@ procedure TFormRepF4.fillTable5CPH;
      startDt,endDt:integer;
      recCPH:pRecCPH;
      shifrDogDetId:integer;
-     SQLStmnt:string;
+     SQLStmnt:widestring;
      v,e:variant;
      dateFr,dateTo:TDateTime;
      code_uwol:integer;
@@ -1984,23 +2169,42 @@ procedure TFormRepF4.fillTable5CPH;
      rec6:pRec6;
      recPerson:pRecPerson;
      zo:integer;
+     dogovors:string;
+     y,m,d:Integer;
+     ds,ms,dateFrs:string;
  begin
      if listCPH.count<1 then exit;
+     zo:=3;
      for i:=0 to listCPH.Count-1 do
          begin
               shifrDogDetId:=pRecCPH(listCPH.items[i]).shifrDogDetId;
               tabno:=pRecCPH(listCPH.items[i]).tabno;
+              SQLStmnt := 'select count(*)';
+              SQLStmnt := trim(SQLStmnt) + ' from tb_dogovora_gn_det';
+              SQLStmnt := trim(SQLStmnt) + ' join kadry on kadry.tabno=tb_dogovora_gn_det.tabno';
+              SQLStmnt := trim(SQLStmnt) + ' join person on person.tabno=kadry.tabno';
+              SQLStmnt := trim(SQLStmnt) + ' join tb_dogovora_gn on tb_dogovora_gn.id=tb_dogovora_gn_det.iddog';
+              SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(currYear)+' and person.monthvy='+intToStr(nmes);
+              SQLStmnt := trim(SQLStmnt) + ' and person.tabno='+intToStr(tabno)+' and tb_dogovora_gn_det.id='+intToStr(shifrDogDetId);
+              SQLStmnt := trim(SQLStmnt) + ' and (select abs(coalesce(sum(fadd.summa),0)) from fadd where fadd.shifridperson=person.shifrid)>0.01)';
+              v:=SQLQueryValue(SQLStmnt);
+              if VarIsNull(v)      then continue;
+              if VarIsEmpty(v)     then continue;
+              if not VarIsNumeric(v) then continue;
+              e:=v;
+              if e<>1 then Continue;
               SQLStmnt := 'select tb_dogovora_gn_det.datefr';
               SQLStmnt := trim(SQLStmnt) + ', tb_dogovora_gn_det.dateto';
-              SQLStmnt := trim(SQLStmnt) + ', kadry.code_uwol';
-              SQLStmnt := trim(SQLStmnt) + ', tb_dogovora_gn.nomer';
-              SQLStmnt := trim(SQLStmnt) + ', tb_dogovora_gn_det.reasonok';
-              SQLStmnt := trim(SQLStmnt) + ' from kadry';
+              SQLStmnt := trim(SQLStmnt) + ', coalesce(kadry.code_uwol,0)';
+              SQLStmnt := trim(SQLStmnt) + ', coalesce(tb_dogovora_gn.nomer,'''')';
+              SQLStmnt := trim(SQLStmnt) + ', coalesce(tb_dogovora_gn_det.reasonok,'''')';
+              SQLStmnt := trim(SQLStmnt) + ' from tb_dogovora_gn_det';
+              SQLStmnt := trim(SQLStmnt) + ' join kadry on kadry.tabno=tb_dogovora_gn_det.tabno';
               SQLStmnt := trim(SQLStmnt) + ' join person on person.tabno=kadry.tabno';
-              SQLStmnt := trim(SQLStmnt) + ' join fcn on fcn.shifridperson=person.shifrid';
-              SQLStmnt := trim(SQLStmnt) + ' join tb_dogovora_gn_det on tb_dogovora_gn_det.id='+intToStr(shifrDogDetId);
               SQLStmnt := trim(SQLStmnt) + ' join tb_dogovora_gn on tb_dogovora_gn.id=tb_dogovora_gn_det.iddog';
-              SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(currYear)+' and person.monthvy='+intToStr(nmes)+')';
+              SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(currYear)+' and person.monthvy='+intToStr(nmes);
+              SQLStmnt := trim(SQLStmnt) + ' and person.tabno='+intToStr(tabno)+' and tb_dogovora_gn_det.id='+intToStr(shifrDogDetId);
+              SQLStmnt := trim(SQLStmnt) + ' and (select abs(coalesce(sum(fadd.summa),0)) from fadd where fadd.shifridperson=person.shifrid)>0.01)';
               v:=SQLQueryRecValues(SQLStmnt);
               if VarIsNull(v)      then continue;
               if VarIsEmpty(v)     then continue;
@@ -2020,10 +2224,15 @@ procedure TFormRepF4.fillTable5CPH;
               e:=v[4];
               if not (VarIsNull(e) or VarIsEmpty(e)) then
                  reasonOk := e;
+              e:=trim(e);
+              if length(e)<1 then
+                 reasonOk := 'гд. 61 ЦКУ';
               reasonOk:=trim(copy(reasonOk+space(250),1,250));
-              if ((yearOf(DateFr)<2017) or  (yearOf(DateFr)<2030)) then
+              y:=yearOf(DateFr);
+              if ((y<2017) or  (y>2030)) then
                   dateFr:=encodeDate(1990,1,1,);
-              if ((yearOf(DateTo)<2017) or  (yearOf(DateTo)<2030)) then
+              y:=yearOf(DateTo);
+              if ((yearOf(DateTo)<2017) or  (yearOf(DateTo)>2030)) then
                   dateTo:=encodeDate(1990,1,1,);
               startdt:=1;
               enddt:=lenMonth(enCodeDate(currYear,nmes,1));
@@ -2031,6 +2240,15 @@ procedure TFormRepF4.fillTable5CPH;
                  startDt:=dayOf(DateFr);
               if ((yearOf(DateTo)=currYear) and (monthOf(dateTo)=nmes)) then
                  endDt:=dayOf(DateTo);
+             d:=DayOf(dateFr);
+             m:=monthOf(dateFr);
+             y:=YearOf(dateFr);
+             ds:=IntToStr(d);
+             if d<10 then ds:='0'+ds;
+             ms:=IntToStr(m);
+             if m<10 then ms:='0'+ms;
+             dateFrS:=ds+'.'+ms+'.'+intToStr(y);
+             dogovors:='Договiр вiд '+dateFrS+' '+nomerDogGN;
              finded:=false;
              recPerson:=nil;
              if listCheck.Count>0 then
@@ -2043,7 +2261,7 @@ procedure TFormRepF4.fillTable5CPH;
                        end;
              finded6:=false;
              rec6:=nil;
-             zo:=2; // м-б 3?
+             zo:=3; // м-б 3?  //3 Сказала Деревянкина 07 05 2020
              if list6.Count>0 then
                 for j:=0 to list6.Count-1 do
                     if pRec6(list6.Items[j]).tabno=tabno then
@@ -2082,6 +2300,7 @@ procedure TFormRepF4.fillTable5CPH;
                      rec5.ZO:=zo;
                      rec5.DOG_CPH:=1;
                      rec5.PID_ZV:=trim(ReplQto2Q(reasonOk));
+                     rec5.PID := dogovors;
                      list5.Add(rec5);
 
                 end;
@@ -2246,6 +2465,7 @@ procedure TFormRepF4.fillTable5Dekr;
                                  end;
                          end;
                  end;
+             if False then // 07 05 2020 декретчики не добавляются в табл 6 (Деревянкина)
              if not ((F_data>dateTo) or (L_data<datefr)) then
                 begin
                      zo       := 1;
@@ -2341,6 +2561,98 @@ procedure TFormRepF4.fillTable7;
                list7.Add(rec7);
 //               rec7.NUM_NAK:=1;
           end;
+
+ end;
+procedure TFormRepF4.fillTable7Dekr;
+ var tabno:integer;
+     i,j:integer;
+     finded:boolean;
+     rec7:pRec7;
+     startDt,endDt:integer;
+     inn,fio:shortstring;
+     fam,nam,otc:shortstring;
+     SQLStmnt,S1:string;
+     ds,ys,ms:string;
+
+
+ begin
+      if list6.Count<1 then exit;
+      ms:=IntToStr(NMES);
+      ys:=IntToStr(CURRYEAR);
+      ds:=IntToStr(lenMonth(EncodeDate(CURRYEAR,NMES,1)));
+      SQLStmnt:='select b.tabno,b.fio,b.inn,b.date_fr,b.date_to,coalesce(b.kind,4) kind from tb_dekr_ecb b';
+      SQLStmnt:=SQLStmnt+' join kadry k on b.tabno=k.tabno';
+      SQLStmnt:=SQLStmnt+' where';
+      SQLStmnt:=SQLStmnt+' not ( b.date_fr > cast(('+ys+'||''-''||'+ms+'||''-''||'+ds+') as date)';
+      SQLStmnt:=SQLStmnt+' or';
+      SQLStmnt:=SQLStmnt+' b.date_to < cast(('+ys+'||''-''||'+ms+'||''-01'') as date)';
+      SQLStmnt:=SQLStmnt+' )';
+      SQLStmnt:=SQLStmnt+' and exists (';
+      SQLStmnt:=SQLStmnt+' select first 1 * from person fa';
+      SQLStmnt:=SQLStmnt+' where fa.tabno=b.tabno';
+      SQLStmnt:=SQLStmnt+' and fa.shifrkat=1';
+      SQLStmnt:=SQLStmnt+' )';
+      //'select b.tabno,b.fio,b.inn,b.date_fr,b.date_to,coalesce(b.kind,4) kind from tb_dekr_ecb b join kadry k on b.tabno=k.tabno where not ( b.date_fr > cast((2020||'-'||4||'-28') as date) or b.date_to < cast((2020||'-'||4||'-01') as date) ) and exists ( select first 1 * from person fa where fa.tabno=b.tabno and fa.shifrkat=1 )'
+      pQDekr6.SQL.Clear;
+      pQDekr6.SQL.Add(sqlStmnt);
+      pQDekr6.Transaction.StartTransaction;
+      pQDekr6.ExecQuery;
+      while not pqDekr6.Eof do
+          begin
+               tabno:=pQDekr6.Fields[0].AsInteger;
+               inn:=trim(pQDekr6.Fields[2].AsString);
+               fio:=Trim(pQDekr6.Fields[1].AsString);
+               SplitFIO(fio,fam,nam,otc);
+               fam:=UPPER_STRING(fam);
+               nam:=UPPER_STRING(nam);
+               otc:=UPPER_STRING(otc);
+               finded:=false;
+//               if list7.count>0 then
+//                  for j:=0 to list7.Count-1 do
+//                      if pRec7(list7.Items[j]).tabno=pRec6(list6.Items[i]).tabno then
+//                         begin
+//                              finded:=true;
+//                              break;
+//                         end;
+//               if Finded then
+//                  begin
+//                       pqDekr6.Next;
+//                       continue;
+//                  end;
+               startDt:=1;
+               endDt:=LenMonth(encodeDate(currYear,nmes,1));
+//               if listCheck.count>0 then
+//                  for j:=0 to listCheck.Count-1 do
+//                      if pRecPerson(listCheck.Items[j]).tabno=pRec6(list6.Items[i]).tabno then
+//                         begin
+//                              startDt:=pRecPerson(listCheck.Items[j]).start_d;
+//                              endDt:=pRecPerson(listCheck.Items[j]).end_d;
+//                              break;
+//                         end;
+               new(rec7);
+               fillChar(rec7^,sizeOf(rec7^),0);
+               rec7.yearVy  := currYear;
+               rec7.monthVy := nmes;
+               rec7.tabno   := tabno;
+               rec7.PERIODM := rec7.monthVy;
+               rec7.PERIODY := rec7.yearVy;
+               rec7.UKRGROMAD:= 1;
+               rec7.NUMIDENT := INN;
+               rec7.FIO      := fam;
+               rec7.NM       := nam;
+               rec7.FTN      := otc;
+               rec7.C_PID    :='ЗНТ024А1';
+               rec7.START_DT :=startDt;
+               rec7.END_DT   :=endDt;
+               rec7.DAYS     :=endDt-startDt+1;
+               rec7.NORMA    :=rec7.DAYS;
+               rec7.SEAZON:=1;
+               list7.Add(rec7);
+               pqDekr6.Next;
+//               rec7.NUM_NAK:=1;
+          end;
+          pqDekr6.Close;
+          pqDekr6.Transaction.Commit;
 
  end;
 
@@ -2493,14 +2805,20 @@ procedure TFormRepF4.fillFullList6RecsFromCheckList;
                 pRec6(list6.items[i])^.sumMax:=pRec6(list6.items[i])^.sumTotal;
 //                pRec6(list6.items[i])^.otk := recPerson^.otk;
 //                pRec6(list6.items[i])^.exp := 0; ////
+                pRec6(list6.items[i])^.nrc := 0; ///;
+                if pRec6(list6.Items[i])^.tabno=12222 then
+                   pRec6(list6.items[i])^.nrc := 0; ///;
+
                 if (pRec6(list6.items[i])^.zo in [1,2,25,32]) then // работник
-                   if not pRec6(list6.items[i])^.payTp in [10,13] then // не отпускные
+                   if not (pRec6(list6.items[i])^.payTp in [10,13]) then // не отпускные
                       if ((pRec6(list6.items[i])^.payYear=currYear) and (pRec6(list6.items[i])^.payMnth=nmes)) then
                          begin
                               pRec6(list6.items[i])^.kdptv := recPerson.kdPtv;
                               pRec6(list6.items[i])^.kdnzp := recPerson.kdNzp; ///
+                            // карантина 2020 nrc=1
+                              if cbNRC.Checked then
+                                 pRec6(list6.items[i])^.nrc:=1;
                          end;
-                pRec6(list6.items[i])^.nrc := 0; ///;
 //                pRec6(list6.items[i])^.sumNarah := 0; ///;
 //                pRec6(list6.items[i])^.sumDiff := 0; ///;
                 sumNarah:=0;
@@ -2522,6 +2840,10 @@ procedure TFormRepF4.fillFullList6RecsFromCheckList;
                 if pRec6(list6.items[i])^.w_r=2 then
                 if pRec6(list6.items[i])^.zo in [1,2] then
                    pRec6(list6.items[i])^.nrc:=1;
+
+                // проверка карантина при карантине основная работа и совм
+                // nrc=1
+
            end;
   end;
 procedure TFormRepF4.moveToBD;
@@ -2789,7 +3111,10 @@ procedure TFormRepF4.fillCheckList;
           if abs(abs(pRecPerson(listCheck.Items[i]).summaAddSal)
                  - abs(pRecPerson(listCheck.Items[i]).summaAddF6))>1.0 then
           begin
-               error(intToStr(pRecPerson(listCheck.Items[i]).tabno)+' '+pRecPerson(listCheck.Items[i]).fio+' '+FormatFloatPoint(pRecPerson(listCheck.Items[i]).summaAddSal)+' '+' '+FormatFloatPoint(pRecPerson(listCheck.Items[i]).summaAddF6));
+               showMessage('Ошибка '+intToStr(pRecPerson(listCheck.Items[i]).tabno)+
+               ' '+pRecPerson(listCheck.Items[i]).fio+
+               ' В зарплате '+FormatFloatPoint(pRecPerson(listCheck.Items[i]).summaAddSal)+
+               ' а в форме 6 '+FormatFloatPoint(pRecPerson(listCheck.Items[i]).summaAddF6));
           end;
  end;
 
@@ -2857,6 +3182,8 @@ function TFormRepF4.getBolDay(tabno:integer;payYear:integer;payMnth:integer):int
      v               : variant;
      retVal          : integer;
  begin
+      if tabno=11978 then
+         retVal:=0;
      retVal := 0;
      SQLStmnt:='select coalesce(sum(coalesce(br.b_day,0)),0) b_day from boln_res br';
      SQLStmnt:=trim(SQLStmnt)+' join boln b on b.shifrid=br.shifridboln';
@@ -2864,7 +3191,7 @@ function TFormRepF4.getBolDay(tabno:integer;payYear:integer;payMnth:integer):int
      SQLStmnt:=trim(SQLStmnt)+' and b.year_vy='+intToStr(currYear)+' and b.month_vy='+intToStr(NMES);
      SQLStmnt:=trim(SQLStmnt)+' and b.shifr_sta in (12,14)';
      SQLStmnt:=trim(SQLStmnt)+' and b.tabno='+intToStr(tabno);
-     v:=SQLQueryRecValues(SQLStmnt);
+     v:=SQLQueryValue(SQLStmnt);
      if VarIsNumeric(v) then
         retVal := v;
      getBolDay:=retVal;
@@ -2882,7 +3209,7 @@ function TFormRepF4.getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer)
      SQLStmnt:=trim(SQLStmnt)+' and b.year_vy='+intToStr(currYear)+' and b.month_vy='+intToStr(NMES);
      SQLStmnt:=trim(SQLStmnt)+' and b.shifr_sta in (32)';
      SQLStmnt:=trim(SQLStmnt)+' and b.tabno='+intToStr(tabno);
-     v:=SQLQueryRecValues(SQLStmnt);
+     v:=SQLQueryValue(SQLStmnt);
      if VarIsNumeric(v) then
         retVal := v;
      getDekrBolDay:=retVal;
@@ -2900,7 +3227,7 @@ function TFormRepF4.getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer)
      SQLStmnt:=trim(SQLStmnt)+' and o.year_vy='+intToStr(currYear)+' and o.month_vy='+intToStr(NMES);
      SQLStmnt:=trim(SQLStmnt)+' and o.shifrsta in (5)';
      SQLStmnt:=trim(SQLStmnt)+' and o.tabno='+intToStr(tabno);
-     v:=SQLQueryRecValues(SQLStmnt);
+     v:=SQLQueryValue(SQLStmnt);
      if VarIsNumeric(v) then
         retVal := v;
      getOtpDay:=retVal;

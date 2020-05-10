@@ -1,8 +1,8 @@
 object FormRepF4: TFormRepF4
-  Left = 276
-  Top = 349
+  Left = 270
+  Top = 168
   Width = 657
-  Height = 283
+  Height = 331
   Caption = #1057#1074#1086#1076' '#1087#1086' '#1045#1057#1042
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -56,6 +56,14 @@ object FormRepF4: TFormRepF4
     Width = 609
     Height = 17
     TabOrder = 3
+  end
+  object cbNRC: TCheckBox
+    Left = 40
+    Top = 104
+    Width = 241
+    Height = 17
+    Caption = #1053#1077#1087#1086#1074#1085#1080#1081' '#1088#1086#1073#1086#1095#1080#1081' '#1095#1072#1089
+    TabOrder = 4
   end
   object dsMinSal: TpFIBDataSet
     SelectSQL.Strings = (
@@ -305,22 +313,45 @@ object FormRepF4: TFormRepF4
   object dsDekr6: TpFIBDataSet
     SelectSQL.Strings = (
       
-        '           select b.tabno,b.fio,b.inn,b.date_fr,b.date_to,coales' +
-        'ce(b.kind,4) from tb_dekr_ecb b'
-      '                    join kadry k on b.tabno=k.tabno'
-      '                    where'
-      
-        '                        not ( b.date_fr > cast((:y1||'#39'-'#39'||:m1||'#39 +
-        '-28'#39') as date)'
-      '                              or'
-      
-        '                              b.date_to < cast((:y2||'#39'-'#39'||:m2||'#39 +
-        '-01'#39') as date)'
-      '                            )')
+        'select b.tabno,b.fio,b.inn,b.date_fr,b.date_to,coalesce(b.kind,4' +
+        ') kind from tb_dekr_ecb b'
+      '       join kadry k on b.tabno=k.tabno'
+      '       where'
+      '        not ( b.date_fr > cast((:y1||'#39'-'#39'||:m1||'#39'-28'#39') as date)'
+      '              or'
+      '              b.date_to < cast((:y2||'#39'-'#39'||:m2||'#39'-01'#39') as date)'
+      '            )'
+      '--        and exists ('
+      '--        select first 1 * from person fa '
+      '--               where fa.tabno=b.tabno'
+      '--                 and fa.shifrkat=1'
+      '--        )')
     Transaction = FIB.pFIBTransactionSAL
     Database = FIB.pFIBDatabaseSal
     Left = 352
     Top = 56
+    object dsDekr6TABNO: TFIBIntegerField
+      FieldName = 'TABNO'
+    end
+    object dsDekr6FIO: TFIBStringField
+      FieldName = 'FIO'
+      Size = 51
+      EmptyStrToNull = True
+    end
+    object dsDekr6INN: TFIBStringField
+      FieldName = 'INN'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsDekr6DATE_FR: TFIBDateField
+      FieldName = 'DATE_FR'
+    end
+    object dsDekr6DATE_TO: TFIBDateField
+      FieldName = 'DATE_TO'
+    end
+    object dsDekr6KIND: TFIBIntegerField
+      FieldName = 'KIND'
+    end
   end
   object dsSowm: TpFIBDataSet
     SelectSQL.Strings = (
@@ -409,5 +440,99 @@ object FormRepF4: TFormRepF4
     object dsSowmDATAEND: TFIBDateField
       FieldName = 'DATAEND'
     end
+  end
+  object dsPriUwPrik: TpFIBDataSet
+    SelectSQL.Strings = (
+      'select pr.tabno'
+      '     , pr.databeg'
+      '     , pr.dataend'
+      '     , pr.shifridtyp'
+      '     , pr.dataprik'
+      '     , pr.nomerprik'
+      '     , pr.fio'
+      '     , pr.kodzkpptr'
+      '     , pr.kodkp'
+      '     , pr.namedol'
+      '     , pr.nameprof'
+      '     , pr.id'
+      '     from tb_prikazy pr'
+      'where '
+      '     ('
+      '    (extract(year from pr.dataprik)=:y'
+      'and extract(month from pr.dataprik)=:m)'
+      '    or ((not pr.databeg is null and'
+      '    extract(year from pr.dataprik)=:y'
+      'and extract(month from pr.dataprik)=:m'
+      '    and pr.shifridtyp=13'
+      '    )'
+      '    )'
+      '    )'
+      '     and pr.shifridtyp in (5,13)')
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    Left = 296
+    Top = 96
+    object dsPriUwPrikTABNO: TFIBIntegerField
+      FieldName = 'TABNO'
+    end
+    object dsPriUwPrikDATABEG: TFIBDateField
+      FieldName = 'DATABEG'
+    end
+    object dsPriUwPrikDATAEND: TFIBDateField
+      FieldName = 'DATAEND'
+    end
+    object dsPriUwPrikSHIFRIDTYP: TFIBIntegerField
+      FieldName = 'SHIFRIDTYP'
+    end
+    object dsPriUwPrikDATAPRIK: TFIBDateField
+      FieldName = 'DATAPRIK'
+    end
+    object dsPriUwPrikNOMERPRIK: TFIBStringField
+      FieldName = 'NOMERPRIK'
+      Size = 15
+      EmptyStrToNull = True
+    end
+    object dsPriUwPrikFIO: TFIBStringField
+      FieldName = 'FIO'
+      Size = 50
+      EmptyStrToNull = True
+    end
+    object dsPriUwPrikKODZKPPTR: TFIBStringField
+      FieldName = 'KODZKPPTR'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsPriUwPrikKODKP: TFIBStringField
+      FieldName = 'KODKP'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsPriUwPrikNAMEDOL: TFIBStringField
+      FieldName = 'NAMEDOL'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPriUwPrikNAMEPROF: TFIBStringField
+      FieldName = 'NAMEPROF'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPriUwPrikID: TFIBIntegerField
+      FieldName = 'ID'
+    end
+  end
+  object pQDekr6: TpFIBQuery
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    SQL.Strings = (
+      
+        'select b.tabno,b.fio,b.inn,b.date_fr,b.date_to,coalesce(b.kind,4' +
+        ') kind from tb_dekr_ecb b join kadry k on b.tabno=k.tabno where ' +
+        'not ( b.date_fr > cast((2020||'#39'-'#39'||4||'#39'-28'#39') as date) or b.date_' +
+        'to < cast((2020||'#39'-'#39'||4||'#39'-01'#39') as date) ) and exists ( select f' +
+        'irst 1 * from person fa where fa.tabno=b.tabno and fa.shifrkat=1' +
+        ' )')
+    Left = 336
+    Top = 96
   end
 end

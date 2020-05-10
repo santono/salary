@@ -192,6 +192,7 @@ begin
      TabSheetZa.TabVisible:=false;
      TabSheetvy.TabVisible:=false;              
      TabSheetVy2011.TabVisible:=false;
+     DateTimePicker1.Date:=encodedate(curryear,nmes,1);
 end;
 function SortPersonRec(Item1, Item2: Pointer): Integer;
  var personSummyRec1,personSummyRec2 : pPersonSummyRec;
@@ -249,7 +250,10 @@ procedure TFormSumLimit.MakeCurrentSummy(WantedY:Integer;WantedM:Integer);
             MKFLNM;
             FormProgress.Gauge.Progress:=I_NSRV;
             FormProgress.LabelHeader.Caption:=name_serv(I_NSRV);
-            if not FileExists(fninf) then Exit;
+            FormProgress.Repaint;
+            Formprogress.Refresh;
+            Application.ProcessMessages;
+            if not FileExists(fninf) then continue;
             GetInf(false);
             Curr_Person:=Head_Person;
             while (Curr_Person<>nil) do
@@ -305,15 +309,15 @@ procedure TFormSumLimit.MakeCurrentSummy(WantedY:Integer;WantedM:Integer);
                     end;
                    curr_Person:=curr_Person.NEXT;
               end;
-
        end;
      FormProgress.Hide;
      FormProgress.Free;
      PersonSummyList.Sort(@SortPersonRec);
   //   ShowMessage(IntToStr(PersonSummyList.Count));
-     NSRV:=NSRVtmp;
-     NMES:=NMEStmp;
+     NSRV := NSRVtmp;
+     NMES := NMEStmp;
      MKFLNM;
+
      getinf(true);
 
 

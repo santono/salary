@@ -408,7 +408,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
            gggg:=1;
         IF (WORK_PERSON.TABNO<1) OR (WORK_PERSON.TABNO>25000) THEN
            BEGIN
-                ShowMessage('Неверный табельный номер у работника номер '+INTtoStr(NUMBER)+'. Версия '+VERS);
+                ShowMessage('Подр='+IntToStr(NSRV)+'Неверный табельный номер у работника номер '+INTtoStr(NUMBER)+'. Версия '+VERS);
                 ShowMessage('Ошибка с адреса '+IntToStr(IO_BUF_PTR_OLD));
 {                PRINT_BUF_HEX(WORK_PERSON,SIZEOF(WORK_PERSON));}
                 EXIT;
@@ -435,7 +435,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
               CH:=DOSTOWIN(WORK_PERSON.FIO[I]);
               IF NOT (CH[1] IN ['A'..'z','А'..'я',' ','.','-','Ї','ї','Є','є','''','`','І','і','"','ё','Ё']) THEN
                  BEGIN
-                      ShowMessage('Не верная фамилия у работника номер '+INTTOSTR(NUMBER)+' '+trim(dostowin(WORK_PERSON.FIO))+'. Версия '+VERSion);
+                      ShowMessage('Подр='+IntToStr(NSRV)+'Не верная фамилия у работника номер '+INTTOSTR(NUMBER)+' '+trim(dostowin(WORK_PERSON.FIO))+'. Версия '+VERSion);
                       ShowMessage('Ошибка с адреса '+INTTOSTR(IO_BUF_PTR_OLD));
 {                      PRINT_BUF_HEX(WORK_PERSON,SIZEOF(WORK_PERSON)-20);}
                       EXIT
@@ -452,7 +452,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
               CH:=DOSTOWIN(WORK_PERSON.DOLG[I]);
               IF NOT (CH[1] IN ['A'..'z','А'..'я',' ','.','-','0'..'9','(',')',',','/','\',';',':','>','<','Ї','ї','Є','є','''','`','І','і','ё','Ё']) THEN
                  BEGIN
-                 ShowMessage('Не верная должность у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSion);
+                 ShowMessage('Подр='+IntToStr(NSRV)+'Не верная должность у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSion);
                  ShowMessage('Ошибка с адреса '+INTTOSTR(IO_BUF_PTR_OLD));
 {                 PRINT_BUF_HEX(WORK_PERSON,SIZEOF(WORK_PERSON)-20);}
                  EXIT
@@ -474,21 +474,21 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
          END;
         IF (WORK_PERSON.GRUPPA<1) OR (WORK_PERSON.GRUPPA>MAX_GRUPPA) THEN
            BEGIN
-                ShowMessage('Неверная группа у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION);
+                ShowMessage('Подр='+IntToStr(NSRV)+'Неверная группа у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION);
                 ShowMessage('Ошибка с адреса '+INTTOSTR(IO_BUF_PTR_OLD));
 {                PRINT_BUF_HEX(WORK_PERSON,SIZEOF(WORK_PERSON));}
                 EXIT;
            END;
         IF (WORK_PERSON.KATEGORIJA<1) OR (WORK_PERSON.KATEGORIJA>MAX_KAT) THEN
            BEGIN
-                ShowMessage('Неверная категория у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION);
+                ShowMessage('Подр='+IntToStr(NSRV)+'Неверная категория у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION);
                 ShowMessage('Ошибка с адреса '+INTTOSTR(IO_BUF_PTR_OLD));
 {                PRINT_BUF_HEX(WORK_PERSON,SIZEOF(WORK_PERSON));}
                 EXIT;
            END;
         IF (WORK_PERSON.WID_RABOTY<1) OR (WORK_PERSON.WID_RABOTY>2) THEN
            BEGIN
-                ShowMessage('Неверный вид работы у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION);
+                ShowMessage('Подр='+IntToStr(NSRV)+'Неверный вид работы у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION);
                 ShowMessage('Ошибка с адреса '+INTTOSTR(IO_BUF_PTR_OLD));
 {                PRINT_BUF_HEX(WORK_PERSON,SIZEOF(WORK_PERSON));}
                 EXIT;
@@ -505,7 +505,8 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
         IF (WORK_PERSON.MESTO_OSN_RABOTY<0) OR
            (I>MAX_COUNT_PODRAZD) THEN
            BEGIN
-                ShowMessage('Неверное место основной работы у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION+' Место осн работы='+intToStr(I));
+                ShowMessage('Подр='+IntToStr(NSRV)+'Неверное место основной работы у работника номер '+INTTOSTR(NUMBER)+'. Версия '+VERSION+' Место осн работы='+intToStr(I));
+                ShowMessage('Tabno='+IntToStr(WORK_PERSON.tabno)+' ФИО '+trim(dostowin(WORK_PERSON.fio)));
                 ShowMessage('Ошибка с адреса '+INTTOSTR(IO_BUF_PTR_OLD));
 {               PRINT_BUF_HEX(WORK_PERSON,SIZEOF(WORK_PERSON));}
                 EXIT;
