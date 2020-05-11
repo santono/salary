@@ -246,7 +246,12 @@ object FormPrikazyBrowseTot: TFormPrikazyBrowseTot
       ' KODZKPPTR,'
       ' NAMEDOL,'
       ' IDCLASSIFICATOR,'
-      ' NAMEPROF '
+      ' NAMEPROF, '
+      ' KODKP_OLD,'
+      ' KODZKPPTR_OLD,'
+      ' NAMEDOL_OLD,'
+      ' NAMEPROF_OLD,'
+      ' IDCLASSIFICATOR_OLD'
       'FROM'
       ' TB_PRIKAZY'
       ''
@@ -340,6 +345,29 @@ object FormPrikazyBrowseTot: TFormPrikazyBrowseTot
       FieldName = 'FIO'
       Size = 30
       Calculated = True
+    end
+    object dsPrikazyKODKP_OLD: TFIBStringField
+      FieldName = 'KODKP_OLD'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsPrikazyKODZKPPTR_OLD: TFIBStringField
+      FieldName = 'KODZKPPTR_OLD'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsPrikazyNAMEDOL_OLD: TFIBStringField
+      FieldName = 'NAMEDOL_OLD'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPrikazyNAMEPROF_OLD: TFIBStringField
+      FieldName = 'NAMEPROF_OLD'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPrikazyIDCLASSIFICATOR_OLD: TFIBIntegerField
+      FieldName = 'IDCLASSIFICATOR_OLD'
     end
   end
   object trRead: TpFIBTransaction

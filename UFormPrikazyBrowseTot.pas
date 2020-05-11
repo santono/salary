@@ -64,6 +64,11 @@ type
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
+    dsPrikazyKODKP_OLD: TFIBStringField;
+    dsPrikazyKODZKPPTR_OLD: TFIBStringField;
+    dsPrikazyNAMEDOL_OLD: TFIBStringField;
+    dsPrikazyNAMEPROF_OLD: TFIBStringField;
+    dsPrikazyIDCLASSIFICATOR_OLD: TFIBIntegerField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
     procedure frxReport1GetValue(const VarName: String;

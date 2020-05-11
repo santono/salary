@@ -194,9 +194,16 @@ object FormRepF4: TFormRepF4
         '       pr.nomerprik,pr.dataprik,coalesce(pr.idclassificator,0) i' +
         'dclassificator,'
       
-        '       substr(pr.kodkp,1,6) kodkp,substr(pr.kodzkpptr,1,5) kodzk' +
-        'pptr, coalesce(pr.namedol,'#39#39') namedol, coalesce(pr.nameprof,'#39#39') ' +
-        'nameprof'
+        '       substr(coalesce(pr.kodkp,'#39#39')||'#39'         '#39',1,6) kodkp,subs' +
+        'tr(coalesce(pr.kodzkpptr,'#39#39')||'#39'       '#39',1,5) kodzkpptr, coalesce' +
+        '(pr.namedol,'#39#39') namedol, coalesce(pr.nameprof,'#39#39') nameprof,'
+      '       coalesce(pr.idclassificator_old,0) idclassificator_old,'
+      
+        '       substr(coalesce(pr.kodkp_old,'#39' '#39')||'#39'         '#39',1,6) kodkp' +
+        '_old,substr(coalesce(pr.kodzkpptr_old,'#39' '#39')||'#39'        '#39',1,5) kodz' +
+        'kpptr_old, coalesce(pr.namedol_old,'#39' '#39') namedol_old, coalesce(pr' +
+        '.nameprof_old,'#39' '#39') nameprof_old,'
+      '       databeg,dataend'
       '       from kadry kk'
       '            join tb_prikazy pr on kk.tabno=pr.tabno'
       '       where pr.y=:y'
@@ -258,6 +265,35 @@ object FormRepF4: TFormRepF4
       FieldName = 'NAMEPROF'
       Size = 512
       EmptyStrToNull = True
+    end
+    object dsPerevodyIDCLASSIFICATOR_OLD: TFIBIntegerField
+      FieldName = 'IDCLASSIFICATOR_OLD'
+    end
+    object dsPerevodyKODKP_OLD: TFIBStringField
+      FieldName = 'KODKP_OLD'
+      Size = 80
+      EmptyStrToNull = True
+    end
+    object dsPerevodyKODZKPPTR_OLD: TFIBStringField
+      FieldName = 'KODZKPPTR_OLD'
+      Size = 80
+      EmptyStrToNull = True
+    end
+    object dsPerevodyNAMEDOL_OLD: TFIBStringField
+      FieldName = 'NAMEDOL_OLD'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPerevodyNAMEPROF_OLD: TFIBStringField
+      FieldName = 'NAMEPROF_OLD'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPerevodyDATABEG: TFIBDateField
+      FieldName = 'DATABEG'
+    end
+    object dsPerevodyDATAEND: TFIBDateField
+      FieldName = 'DATAEND'
     end
   end
   object dsDekr: TpFIBDataSet

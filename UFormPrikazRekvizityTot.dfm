@@ -1,8 +1,8 @@
 object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
-  Left = 226
-  Top = 78
+  Left = 345
+  Top = 0
   Width = 696
-  Height = 657
+  Height = 679
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1087#1088#1080#1082#1072#1079#1072
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -86,34 +86,6 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
     Height = 20
     Caption = #1052#1077#1089#1103#1094
   end
-  object LabelKodKP: TLabel
-    Left = 24
-    Top = 456
-    Width = 56
-    Height = 20
-    Caption = #1050#1086#1076' '#1050#1055
-  end
-  object LabelKodZKPPTR: TLabel
-    Left = 160
-    Top = 456
-    Width = 98
-    Height = 20
-    Caption = #1050#1086#1076' '#1047#1050#1055#1055#1058#1056
-  end
-  object LabelProf: TLabel
-    Left = 24
-    Top = 488
-    Width = 88
-    Height = 20
-    Caption = #1055#1088#1086#1092#1077#1089#1089#1080#1103
-  end
-  object LabelDolg: TLabel
-    Left = 24
-    Top = 528
-    Width = 86
-    Height = 20
-    Caption = #1044#1086#1083#1078#1085#1086#1089#1090#1100
-  end
   object LabelFIO: TLabel
     Left = 104
     Top = 56
@@ -164,7 +136,7 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
   end
   object btn1: TBitBtn
     Left = 16
-    Top = 592
+    Top = 608
     Width = 120
     Height = 25
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
@@ -174,7 +146,7 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
   end
   object BitBtn1: TBitBtn
     Left = 144
-    Top = 592
+    Top = 608
     Width = 120
     Height = 25
     Caption = '&'#1042#1099#1093#1086#1076
@@ -214,60 +186,187 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
     MaxValue = 12.000000000000000000
     StoredValues = 48
   end
-  object dxDBEditDolg: TdxDBEdit
-    Left = 120
-    Top = 528
-    Width = 313
-    TabOrder = 10
-    DataField = 'NAMEDOL'
-    DataSource = FormPrikazyBrowseTot.dsoPrikazy
-  end
-  object BitBtnKP: TBitBtn
-    Left = 400
-    Top = 456
-    Width = 249
-    Height = 25
-    Caption = #1050#1083#1072#1089#1089#1080#1092#1080#1082#1072#1090#1086#1088' '#1044#1050' 003:2010 '
-    TabOrder = 11
-    OnClick = BitBtnKPClick
-  end
-  object dxDBEditProf: TdxDBEdit
-    Left = 120
-    Top = 488
-    Width = 529
-    Enabled = False
-    TabOrder = 12
-    DataField = 'NAMEPROF'
-    DataSource = FormPrikazyBrowseTot.dsoPrikazy
-    ReadOnly = True
-    StoredValues = 64
-  end
-  object dxDBEditKodKP: TdxDBEdit
-    Left = 80
-    Top = 448
-    Width = 73
-    Enabled = False
-    TabOrder = 13
-    DataField = 'KODKP'
-    DataSource = FormPrikazyBrowseTot.dsoPrikazy
-    ReadOnly = True
-    StoredValues = 64
-  end
-  object dxDBEditKodZKPPTR: TdxDBEdit
-    Left = 264
-    Top = 448
-    Width = 121
-    TabOrder = 14
-    DataField = 'KODZKPPTR'
-    DataSource = FormPrikazyBrowseTot.dsoPrikazy
-  end
   object BitBtnFIO: TBitBtn
     Left = 16
     Top = 56
     Width = 57
     Height = 25
     Caption = '. . .'
-    TabOrder = 15
+    TabOrder = 10
     OnClick = BitBtnFIOClick
+  end
+  object PageControl1: TPageControl
+    Left = 24
+    Top = 448
+    Width = 649
+    Height = 153
+    ActivePage = tbDolg
+    TabOrder = 11
+    object tbDolg: TTabSheet
+      Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1076#1086#1083#1078#1085#1086#1089#1090#1080
+      object LabelDolg: TLabel
+        Left = 16
+        Top = 50
+        Width = 86
+        Height = 20
+        Caption = #1044#1086#1083#1078#1085#1086#1089#1090#1100
+      end
+      object LabelKodKP: TLabel
+        Left = 8
+        Top = 10
+        Width = 56
+        Height = 20
+        Caption = #1050#1086#1076' '#1050#1055
+      end
+      object LabelProf: TLabel
+        Left = 8
+        Top = 82
+        Width = 88
+        Height = 20
+        Caption = #1055#1088#1086#1092#1077#1089#1089#1080#1103
+      end
+      object LabelKodZKPPTR: TLabel
+        Left = 144
+        Top = 10
+        Width = 98
+        Height = 20
+        Caption = #1050#1086#1076' '#1047#1050#1055#1055#1058#1056
+      end
+      object dxDBEditKodKP: TdxDBEdit
+        Left = 72
+        Top = 10
+        Width = 73
+        Enabled = False
+        TabOrder = 0
+        DataField = 'KODKP'
+        DataSource = FormPrikazyBrowseTot.dsoPrikazy
+        ReadOnly = True
+        StoredValues = 64
+      end
+      object dxDBEditKodZKPPTR: TdxDBEdit
+        Left = 248
+        Top = 10
+        Width = 121
+        TabOrder = 1
+        DataField = 'KODZKPPTR'
+        DataSource = FormPrikazyBrowseTot.dsoPrikazy
+      end
+      object dxDBEditProf: TdxDBEdit
+        Left = 104
+        Top = 82
+        Width = 529
+        Enabled = False
+        TabOrder = 2
+        DataField = 'NAMEPROF'
+        DataSource = FormPrikazyBrowseTot.dsoPrikazy
+        ReadOnly = True
+        StoredValues = 64
+      end
+      object dxDBEditDolg: TdxDBEdit
+        Left = 104
+        Top = 50
+        Width = 313
+        TabOrder = 3
+        DataField = 'NAMEDOL'
+        DataSource = FormPrikazyBrowseTot.dsoPrikazy
+      end
+      object BitBtnKP: TBitBtn
+        Left = 376
+        Top = 10
+        Width = 249
+        Height = 25
+        Caption = #1050#1083#1072#1089#1089#1080#1092#1080#1082#1072#1090#1086#1088' '#1044#1050' 003:2010 '
+        TabOrder = 4
+        OnClick = BitBtnKPClick
+      end
+    end
+    object tbDolgOld: TTabSheet
+      Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1089#1090#1072#1088#1086#1081' '#1076#1086#1083#1078#1085#1086#1089#1090#1080
+      ImageIndex = 1
+      object Panel1: TPanel
+        Left = 0
+        Top = 0
+        Width = 641
+        Height = 121
+        Caption = 'Panel1'
+        Color = cl3DLight
+        TabOrder = 0
+        object LabelProfOld: TLabel
+          Left = 8
+          Top = 82
+          Width = 88
+          Height = 20
+          Caption = #1055#1088#1086#1092#1077#1089#1089#1080#1103
+        end
+        object Label1DolgOld: TLabel
+          Left = 8
+          Top = 50
+          Width = 86
+          Height = 20
+          Caption = #1044#1086#1083#1078#1085#1086#1089#1090#1100
+        end
+        object Label1ZKPOld: TLabel
+          Left = 144
+          Top = 10
+          Width = 98
+          Height = 20
+          Caption = #1050#1086#1076' '#1047#1050#1055#1055#1058#1056
+        end
+        object Label1KodKpOld: TLabel
+          Left = 8
+          Top = 18
+          Width = 56
+          Height = 20
+          Caption = #1050#1086#1076' '#1050#1055
+        end
+        object BitBtnKPOld: TBitBtn
+          Left = 376
+          Top = 10
+          Width = 249
+          Height = 25
+          Caption = #1050#1083#1072#1089#1089#1080#1092#1080#1082#1072#1090#1086#1088' '#1044#1050' 003:2010 '
+          TabOrder = 0
+          OnClick = BitBtnKPOldClick
+        end
+        object dxDBEditProfOld: TdxDBEdit
+          Left = 104
+          Top = 82
+          Width = 529
+          Enabled = False
+          TabOrder = 1
+          DataField = 'NAMEPROF_OLD'
+          DataSource = FormPrikazyBrowseTot.dsoPrikazy
+          ReadOnly = True
+          StoredValues = 64
+        end
+        object dxDBEdit2: TdxDBEdit
+          Left = 104
+          Top = 50
+          Width = 313
+          TabOrder = 2
+          DataField = 'NAMEDOL_OLD'
+          DataSource = FormPrikazyBrowseTot.dsoPrikazy
+        end
+        object dxEditZkpOld: TdxDBEdit
+          Left = 248
+          Top = 10
+          Width = 121
+          TabOrder = 3
+          DataField = 'KODZKPPTR_OLD'
+          DataSource = FormPrikazyBrowseTot.dsoPrikazy
+        end
+        object dsEditKodKpOld: TdxDBEdit
+          Left = 72
+          Top = 10
+          Width = 73
+          Enabled = False
+          TabOrder = 4
+          DataField = 'KODKP_OLD'
+          DataSource = FormPrikazyBrowseTot.dsoPrikazy
+          ReadOnly = True
+          StoredValues = 64
+        end
+      end
+    end
   end
 end

@@ -7,7 +7,7 @@ uses
   Dialogs, dxExEdtr, dxEdLib, dxDBELib, dxCntner, dxEditor, StdCtrls,
   Buttons, dxExGrEd, dxExELib, cxGraphics, cxControls, cxContainer, cxEdit,
   cxTextEdit, cxMaskEdit, cxDropDownEdit, cxLookupEdit, cxDBLookupEdit,
-  cxDBLookupComboBox, DBCtrls;
+  cxDBLookupComboBox, DBCtrls, ComCtrls, ExtCtrls;
 
 type
   TFormPrikazRekvizity = class(TForm)
@@ -40,17 +40,31 @@ type
     dxDBEditProf: TdxDBEdit;
     dxDBEditKodKP: TdxDBEdit;
     dxDBEditKodZKPPTR: TdxDBEdit;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    dxDBEdit2: TdxDBEdit;
+    dxDBEdit3: TdxDBEdit;
+    dxDBEdit4: TdxDBEdit;
+    dxDBEdit5: TdxDBEdit;
+    BitBtn2: TBitBtn;
+    Panel1: TPanel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btn1Click(Sender: TObject);
     procedure dxDBExtLookupEdit1Change(Sender: TObject);
     procedure DBLookupComboBox1Click(Sender: TObject);
     procedure BitBtnKPClick(Sender: TObject);
+    procedure BitBtnKPOldClick(Sender: TObject);
   private
     { Private declarations }
         SQLAction:Integer; // 1=добавить 2-обновить
         procedure ShowPerevodRekvizity;
         procedure HidePerevodRekvizity;
-
+        procedure getClassificator(mode:integer);
   public
       constructor createP(AOwner:TComponent;SQLAction:integer);
     { Public declarations }
@@ -68,8 +82,9 @@ constructor TFormPrikazRekvizity.createP(AOwner:TComponent;SQLAction:integer);
  begin
       inherited Create(AOwner);
       Self.SQLAction:=SQLAction;
-//      if (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.value=7) then
-          ShowPerevodRekvizity;
+//      if (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.value=TYP_PRIKAZA_PEREVOD) then
+    //      ShowPerevodRekvizity;
+//          HidePerevodRekvizity;
 //      else
 //          HidePerevodRekvizity;
       if Self.SQLAction=1 then
@@ -90,6 +105,10 @@ constructor TFormPrikazRekvizity.createP(AOwner:TComponent;SQLAction:integer);
          end
       else
          FormPrikazyBrowse.dsoPrikazy.Edit;
+      if (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.value=TYP_PRIKAZA_PEREVOD) then
+          ShowPerevodRekvizity
+      else
+          HidePerevodRekvizity;
 
  end;
 
@@ -119,20 +138,19 @@ end;
 
 procedure TFormPrikazRekvizity.DBLookupComboBox1Click(Sender: TObject);
 begin
-//     FormPrikazyBrowse.dsPrikazyCONTENT.Value:=FormPrikazyBrowse.dsPriTypeCONTENT.Value;
-//     if  (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.Value=7) then
-//         ShowPerevodRekvizity
-//     else
-//         HidePerevodRekvizity;
+     FormPrikazyBrowse.dsPrikazyCONTENT.Value:=FormPrikazyBrowse.dsPriTypeCONTENT.Value;
+     if  (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.Value=TYP_PRIKAZA_PEREVOD) then
+         ShowPerevodRekvizity
+     else
+         HidePerevodRekvizity;
 
      Application.ProcessMessages;
 end;
 
 procedure TFormPrikazRekvizity.BitBtnKPClick(Sender: TObject);
-var id:integer;
-    kodKP,kodZKPPTR:string;
-    nameProf:string;
 begin
+     Self.getClassificator(1);
+(*
      Application.CreateForm(TFormSearchClassificator,FormSearchClassificator);
      if (FormPrikazyBrowse.dsPrikazyIDCLASSIFICATOR.Value>0) then
         begin
@@ -152,10 +170,58 @@ begin
      FormSearchClassificator.dsClassificator.Transaction.Commit;
      FormSearchClassificator.dsClassificator.Close;
      FormSearchClassificator.Free;
+*)
 
 end;
+procedure TFormPrikazRekvizity.BitBtnKPOldClick(Sender: TObject);
+begin
+     Self.getClassificator(2);
+
+end;
+procedure TFormPrikazRekvizity.getClassificator(mode:integer);
+var id:integer;
+    kodKP,kodZKPPTR:string;
+    nameProf:string;
+    valueId:integer;
+begin
+     if mode = 2 then   //  2- old dolg
+        valueId := FormPrikazyBrowse.dsPrikazyIDCLASSIFICATOR_OLD.Value
+     else
+        valueId := FormPrikazyBrowse.dsPrikazyIDCLASSIFICATOR.Value;
+     Application.CreateForm(TFormSearchClassificator,FormSearchClassificator);
+     if (valueId>0) then
+        FormSearchClassificator.dsClassificator.Locate('ID',valueId,[]);
+     if ( FormSearchClassificator.ShowModal() = mrOK ) then
+        begin
+             id        := FormSearchClassificator.dsClassificatorID.value;
+             kodKp     := FormSearchClassificator.dsClassificatorKodKP.value;
+             kodZKPPTR := FormSearchClassificator.dsClassificatorkodZKPPTR.value;
+             nameProf  := FormSearchClassificator.dsClassificatorname.value;
+             if mode = 2 then
+                begin
+                      FormPrikazyBrowse.dsPrikazyIDCLASSIFICATOR_OLD.Value:=id;
+                      FormPrikazyBrowse.dsPrikazyKODKP_OLD.Value     := kodKp;
+                      FormPrikazyBrowse.dsPrikazyKODZKPPTR_OLD.Value := kodZKPPTR;
+                      FormPrikazyBrowse.dsPrikazyNAMEPROF_OLD.Value  := nameProf;
+                end
+             else
+                begin
+                      FormPrikazyBrowse.dsPrikazyIDCLASSIFICATOR.Value:=id;
+                      FormPrikazyBrowse.dsPrikazyKODKP.Value     := kodKp;
+                      FormPrikazyBrowse.dsPrikazyKODZKPPTR.Value := kodZKPPTR;
+                      FormPrikazyBrowse.dsPrikazyNAMEPROF.Value  := nameProf;
+                end;
+        end;
+     FormSearchClassificator.dsClassificator.Transaction.Commit;
+     FormSearchClassificator.dsClassificator.Close;
+     FormSearchClassificator.Free;
+
+end;
+
 procedure TFormPrikazRekvizity.HidePerevodRekvizity;
   begin
+       PageControl1.Pages[1].TabVisible:=false;
+(*
        LabelKodKP.Hide;
        LabelKodKP.Enabled:=false;
        LabelKodZKPPTR.Hide;
@@ -174,9 +240,12 @@ procedure TFormPrikazRekvizity.HidePerevodRekvizity;
        dxDBEditKodKP.Enabled:=false;
        dxDBEditKodZKPPTR.Hide;
        dxDBEditKodZKPPTR.Enabled:=false;
+*)
   end;
 procedure TFormPrikazRekvizity.ShowPerevodRekvizity;
   begin
+       PageControl1.Pages[1].TabVisible:=true;
+(*
        LabelKodKP.Show;
        LabelKodZKPPTR.Show;
        LabelProf.Show;
@@ -189,6 +258,7 @@ procedure TFormPrikazRekvizity.ShowPerevodRekvizity;
        dxDBEditDolg.Enabled:=true;
        dxDBEditKodKP.Show;
        dxDBEditKodZKPPTR.Show;
+*)       
   end;
 
 

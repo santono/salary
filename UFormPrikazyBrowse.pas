@@ -51,6 +51,11 @@ type
     dsPrikazyNAMEDOL: TFIBStringField;
     dsPrikazyIDCLASSIFICATOR: TFIBIntegerField;
     dsPrikazyNAMEPROF: TFIBStringField;
+    dsPrikazyKODKP_OLD: TFIBStringField;
+    dsPrikazyKODZKPPTR_OLD: TFIBStringField;
+    dsPrikazyNAMEDOL_OLD: TFIBStringField;
+    dsPrikazyIDCLASSIFICATOR_OLD: TFIBIntegerField;
+    dsPrikazyNAMEPROF_OLD: TFIBStringField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
     procedure frxReport1GetValue(const VarName: String;

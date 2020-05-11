@@ -95,6 +95,13 @@ type
     dsDekr6DATE_TO: TFIBDateField;
     dsDekr6KIND: TFIBIntegerField;
     pQDekr6: TpFIBQuery;
+    dsPerevodyIDCLASSIFICATOR_OLD: TFIBIntegerField;
+    dsPerevodyKODKP_OLD: TFIBStringField;
+    dsPerevodyKODZKPPTR_OLD: TFIBStringField;
+    dsPerevodyNAMEDOL_OLD: TFIBStringField;
+    dsPerevodyNAMEPROF_OLD: TFIBStringField;
+    dsPerevodyDATABEG: TFIBDateField;
+    dsPerevodyDATAEND: TFIBDateField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -1565,7 +1572,7 @@ procedure TFormRepF4.fillTable5;
      startDt,endDt:integer;
  begin
       fillTable5PrinjatUwolen;
-  //    fillTable5Perevody;
+      fillTable5Perevody;
       fillTable5CPH;
   //    fillTable5Dekr;
       fillTable5Sowm;
@@ -1825,7 +1832,7 @@ procedure TFormRepF4.fillTable5Perevody;
      i,j:integer;
      finded,finded6:boolean;
      rec5:pRec5;
-     startDt,endDt:integer;
+     startDt,endDt,startDt1,endDt1,startDt2,endDt2:integer;
      codeUwol:integer;
      datePri:tDateTime;
      dateUw:TDateTime;
@@ -1837,13 +1844,14 @@ procedure TFormRepF4.fillTable5Perevody;
      zo:integer;
      nomerprik:string;
      dataprik:TDateTime;
-     idclassificator:integer;
-     kodkp : string;
-     kodzkpptr : string;
-     namedol : string;
-     nameprof : string;
+     idclassificator,idclassificator_old:integer;
+     kodkp,kodkp_old : string;
+     kodzkpptr,kodzkpptr_old : string;
+     namedol,namedol_old : string;
+     nameprof,nameprof_old : string;
      pid:string;
      vzv:string;
+     datebeg,dateend:TDatetime;
 
  begin
       dsPerevody.Params[0].Value:=currYear;
@@ -1861,6 +1869,14 @@ procedure TFormRepF4.fillTable5Perevody;
                 dateUw:=encodedate(1990,1,1)
              else
                 dateUw:=dsPerevodyDATA_UW.value;
+             if dsPerevodyDATABEG.IsNull then
+                dateBeg:=encodedate(1990,1,1)
+             else
+                dateBeg:=dsPerevodyDATABEG.value;
+             if dsPerevodyDATAEND.IsNull then
+                dateend:=encodedate(1990,1,1)
+             else
+                dateEnd:=dsPerevodyDATAEND.value;
              if dsPerevodyCODE_UWOL.IsNull then
                 codeUwol:=0
              else
@@ -1877,29 +1893,60 @@ procedure TFormRepF4.fillTable5Perevody;
                 idclassificator:=0
              else
                 idclassificator:=dsPerevodyIDCLASSIFICATOR.value;
+             if dsPerevodyIDCLASSIFICATOR_OLD.IsNull then
+                idclassificator_old:=0
+             else
+                idclassificator_old:=dsPerevodyIDCLASSIFICATOR_OLD.value;
              if dsPerevodyKODKP.isNull then
                 kodKp:=''
              else
                 kodkp:=dsPerevodyKODKP.Value;
+             if dsPerevodyKODKP_OLD.isNull then
+                kodKp_old:=''
+             else
+                kodkp_old:=dsPerevodyKODKP_OLD.Value;
              if dsPerevodyKODZKPPTR.isNull then
                 kodzkpptr:=''
              else
                 kodzkpptr:=dsPerevodyKODZKPPTR.Value;
+             if dsPerevodyKODZKPPTR_OLD.isNull then
+                kodzkpptr_old:=''
+             else
+                kodzkpptr_old:=dsPerevodyKODZKPPTR_OLD.Value;
              if dsPerevodyNAMEDOL.isNull then
                 nameDol:=''
              else
                 nameDol:=dsPerevodyNAMEDOL.Value;
+             if dsPerevodyNAMEDOL_OLD.isNull then
+                nameDol_OLD:=''
+             else
+                nameDol_old:=dsPerevodyNAMEDOL_OLD.Value;
              if dsPerevodyNAMEPROF.isNull then
                 nameProf:=''
              else
                 nameprof:=dsPerevodyNAMEPROF.Value;
-             startDt:=0;
-             endDt:=0;
-//             if ((yearOf(datePri)=currYear) and (monthOf(datePri)=nmes)) then
-//                startDt:=dayOf(datePri);
-//             if ((yearOf(dateUw)=currYear) and (monthOf(dateUw)=nmes)) then
-//                endDt:=dayOf(dateUw);
-//             reasonUwol:='';
+             if dsPerevodyNAMEPROF_OLD.isNull then
+                nameProf_old:=''
+             else
+                nameprof_old:=dsPerevodyNAMEPROF_OLD.Value;
+             startDt:=1;
+             endDt:=1;
+             if ((yearOf(datePri)=currYear) and (monthOf(datePri)=nmes)) then
+                startDt:=dayOf(datePri);
+             if ((yearOf(dateUw)=currYear) and (monthOf(dateUw)=nmes)) then
+                endDt:=dayOf(dateUw);
+             startDt1:=startDt;
+             endDt1:=endDt;
+             startDt2:=startDt;
+             endDt2:=endDt;
+             if ((monthOf(datebeg)=NMES) and (YearOf(datebeg)=CURRYEAR)) then
+                begin
+                     startDt1:=DayOf(datebeg);
+                     endDt2:=StartDt1-1;
+                     if endDt2<1 then
+                        enddt2:=1;
+                end;
+             reasonUwol:='';
              if codeUwol>0 then
                 begin
                      SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
@@ -1912,7 +1959,7 @@ procedure TFormRepF4.fillTable5Perevody;
                 and
                 (length(trim(nomerprik))>0)) then
                 begin
-                    pid:='Приказ '+trim(nomerprik)+' від ';
+                    pid:='Наказ '+trim(nomerprik)+' від ';
                     if (dayOf(dataPrik)<10) then
                        pid:=pid+'0';
                     pid:=pid+intToStr(dayOf(dataPrik))+'.';
@@ -1933,7 +1980,7 @@ procedure TFormRepF4.fillTable5Perevody;
                        end;
              finded6:=false;
              rec6:=nil;
-             zo:=1;       //Трудова книжка на пыдприэмстві
+             zo:=1;       //Трудова книжка на пiдприэмстві
              if list6.Count>0 then
                 for i:=0 to list6.Count-1 do
                     if pRec6(list6.Items[i]).tabno=tabno then
@@ -1965,8 +2012,8 @@ procedure TFormRepF4.fillTable5Perevody;
                      rec5.FIO:=trim(recPerson.fio);
                      rec5.NM:=trim(recPerson.nm);
                      rec5.FTN:=trim(recPerson.ftn);
-                     rec5.START_DT:=startDt;
-                     rec5.END_DT:=endDt;
+                     rec5.START_DT:=startDt1;
+                     rec5.END_DT:=endDt1;
                      rec5.ZO:=zo;
                      rec5.PID_ZV:=reasonUwol;
                      rec5.PNR:=trim(ReplQto2Q(nameprof));
@@ -1976,6 +2023,38 @@ procedure TFormRepF4.fillTable5Perevody;
                      rec5.PID:=trim(pid);
                      rec5.VZV:=trim(vzv);
                      list5.Add(rec5);
+//                   Вторая запись - о старой должности
+                     pid      := trim(copy(pid+space(250),1,250));
+                     nameDol_old  := trim(copy(nameDol_old+space(250),1,250));
+                     nameProf_old := trim(copy(nameProf_old+space(250),1,250));
+                     kodzkpptr_old:= trim(copy(kodzkpptr_old+space(5),1,5));
+                     kodkp_old    := trim(copy(kodkp_old+space(6),1,6));
+                     vzv      := '';
+                     pid:=trim(copy(pid+space(250),1,250));
+                     new(rec5);
+                     fillChar(rec5^,sizeOf(rec5^),0);
+                     rec5.YEARVY:=currYear;
+                     rec5.monthVy:=nmes;
+                     rec5.tabno:=tabno;
+                     rec5.PERIODM:=rec5.monthVy;
+                     rec5.PERIODY:=rec5.yearVy;
+                     rec5.UKRGROMAD:=rec6.ukrGromad;
+                     rec5.NUMIDENT:=trim(recPerson.numIdent);
+                     rec5.FIO:=trim(recPerson.fio);
+                     rec5.NM:=trim(recPerson.nm);
+                     rec5.FTN:=trim(recPerson.ftn);
+                     rec5.START_DT:=startDt2;
+                     rec5.END_DT:=endDt2;
+                     rec5.ZO:=zo;
+                     rec5.PID_ZV:=reasonUwol;
+                     rec5.PNR:=trim(ReplQto2Q(nameprof_old));
+                     rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr_old));
+                     rec5.prof:=trim(ReplQto2Q(kodkp_old));
+                     rec5.POS:=trim(ReplQto2Q(namedol_old));
+                     rec5.PID:=trim(pid);
+                     rec5.VZV:=trim(vzv);
+                     list5.Add(rec5);
+
                 end;
              dsPerevody.Next;
         end;

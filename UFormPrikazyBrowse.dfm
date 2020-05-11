@@ -199,8 +199,13 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' KODZKPPTR,'
       ' NAMEDOL,'
       ' IDCLASSIFICATOR,'
-      ' NAMEPROF '
-      'FROM'
+      ' NAMEPROF,'
+      ' KODKP_OLD,'
+      ' KODZKPPTR_OLD,'
+      ' NAMEDOL_OLD,'
+      ' IDCLASSIFICATOR_OLD,'
+      ' NAMEPROF_OLD'
+      ' FROM'
       ' TB_PRIKAZY'
       'where tabno=:old_tabno'
       'order by dataprik desc')
@@ -284,6 +289,29 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
     end
     object dsPrikazyNAMEPROF: TFIBStringField
       FieldName = 'NAMEPROF'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPrikazyKODKP_OLD: TFIBStringField
+      FieldName = 'KODKP_OLD'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsPrikazyKODZKPPTR_OLD: TFIBStringField
+      FieldName = 'KODZKPPTR_OLD'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsPrikazyNAMEDOL_OLD: TFIBStringField
+      FieldName = 'NAMEDOL_OLD'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsPrikazyIDCLASSIFICATOR_OLD: TFIBIntegerField
+      FieldName = 'IDCLASSIFICATOR_OLD'
+    end
+    object dsPrikazyNAMEPROF_OLD: TFIBStringField
+      FieldName = 'NAMEPROF_OLD'
       Size = 512
       EmptyStrToNull = True
     end

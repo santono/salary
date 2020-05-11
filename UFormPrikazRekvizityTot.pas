@@ -7,7 +7,7 @@ uses
   Dialogs, dxExEdtr, dxEdLib, dxDBELib, dxCntner, dxEditor, StdCtrls,
   Buttons, dxExGrEd, dxExELib, cxGraphics, cxControls, cxContainer, cxEdit,
   cxTextEdit, cxMaskEdit, cxDropDownEdit, cxLookupEdit, cxDBLookupEdit,
-  cxDBLookupComboBox, DBCtrls;
+  cxDBLookupComboBox, DBCtrls, ComCtrls, ExtCtrls;
 
 type
   TFormPrikazRekvizityTot = class(TForm)
@@ -25,12 +25,12 @@ type
     Label5  : TLabel;
     Label6  : TLabel;
     DBLookupComboBox1: TDBLookupComboBox;
-    Label7: TLabel;
-    Label8: TLabel;
+    Label7  : TLabel;
+    Label8  : TLabel;
     dxDBSpinEditY: TdxDBSpinEdit;
     dxDBSpinEditM: TdxDBSpinEdit;
-    Label9: TLabel;
-    Label10: TLabel;
+    Label9  : TLabel;
+    Label10 : TLabel;
     LabelKodKP: TLabel;
     LabelKodZKPPTR: TLabel;
     LabelProf: TLabel;
@@ -42,11 +42,25 @@ type
     dxDBEditKodZKPPTR: TdxDBEdit;
     BitBtnFIO: TBitBtn;
     LabelFIO: TLabel;
+    PageControl1: TPageControl;
+    tbDolg: TTabSheet;
+    tbDolgOld: TTabSheet;
+    Label1KodKpOld: TLabel;
+    Label1ZKPOld: TLabel;
+    Label1DolgOld: TLabel;
+    LabelProfOld: TLabel;
+    dsEditKodKpOld: TdxDBEdit;
+    dxEditZkpOld: TdxDBEdit;
+    dxDBEdit2: TdxDBEdit;
+    dxDBEditProfOld: TdxDBEdit;
+    BitBtnKPOld: TBitBtn;
+    Panel1: TPanel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btn1Click(Sender: TObject);
     procedure dxDBExtLookupEdit1Change(Sender: TObject);
     procedure DBLookupComboBox1Click(Sender: TObject);
     procedure BitBtnKPClick(Sender: TObject);
+    procedure BitBtnKPOldClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BitBtnFIOClick(Sender: TObject);
   private
@@ -54,6 +68,8 @@ type
 //        SQLAction:Integer; // 1=добавить 2-обновить
         procedure ShowPerevodRekvizity;
         procedure HidePerevodRekvizity;
+        procedure getClassificator(mode:integer);
+
 
   public
 //      constructor createP(AOwner:TComponent;SQLAction:integer);
@@ -73,7 +89,7 @@ constructor TFormPrikazRekvizityTot.createP(AOwner:TComponent;SQLAction:integer)
  begin
       inherited Create(AOwner);
       Self.SQLAction:=SQLAction;
-//      if (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.value=7) then
+//      if (FormPrikazyBrowse.dsPrikazySHIFRIDTYP.value=TYP_PRIKAZA_PEREVOD) then
           ShowPerevodRekvizity;
 //      else
 //          HidePerevodRekvizity;
@@ -127,7 +143,7 @@ end;
 procedure TFormPrikazRekvizityTot.DBLookupComboBox1Click(Sender: TObject);
 begin
      FormPrikazyBrowseTot.dsPrikazyCONTENT.Value:=FormPrikazyBrowseTot.dsPriTypeCONTENT.Value;
-     if  (FormPrikazyBrowseTot.dsPrikazySHIFRIDTYP.Value=7) then
+     if  (FormPrikazyBrowseTot.dsPrikazySHIFRIDTYP.Value=TYP_PRIKAZA_PEREVOD) then
          ShowPerevodRekvizity
      else
          HidePerevodRekvizity;
@@ -136,10 +152,9 @@ begin
 end;
 
 procedure TFormPrikazRekvizityTot.BitBtnKPClick(Sender: TObject);
-var id:integer;
-    kodKP,kodZKPPTR:string;
-    nameProf:string;
 begin
+     self.getClassificator(1);
+(*
      Application.CreateForm(TFormSearchClassificator,FormSearchClassificator);
      if (FormPrikazyBrowseTot.dsPrikazyIDCLASSIFICATOR.Value>0) then
         begin
@@ -159,10 +174,64 @@ begin
      FormSearchClassificator.dsClassificator.Transaction.Commit;
      FormSearchClassificator.dsClassificator.Close;
      FormSearchClassificator.Free;
+*)
 
 end;
+
+procedure TFormPrikazRekvizityTot.BitBtnKPOldClick(Sender: TObject);
+begin
+     self.getClassificator(2);
+
+end;
+
+procedure TFormPrikazRekvizityTot.getClassificator(mode:integer);
+var id:integer;
+    kodKP,kodZKPPTR:string;
+    nameProf:string;
+    valueId:integer;
+begin
+     if mode = 2 then   //  2- old dolg
+        valueId := FormPrikazyBrowseTot.dsPrikazyIDCLASSIFICATOR_OLD.Value
+     else
+        valueId := FormPrikazyBrowseTot.dsPrikazyIDCLASSIFICATOR.Value;
+     Application.CreateForm(TFormSearchClassificator,FormSearchClassificator);
+     if (valueId>0) then
+        FormSearchClassificator.dsClassificator.Locate('ID',valueId,[]);
+     if ( FormSearchClassificator.ShowModal() = mrOK ) then
+        begin
+             id        := FormSearchClassificator.dsClassificatorID.value;
+             kodKp     := FormSearchClassificator.dsClassificatorKodKP.value;
+             kodZKPPTR := FormSearchClassificator.dsClassificatorkodZKPPTR.value;
+             nameProf  := FormSearchClassificator.dsClassificatorname.value;
+             if mode = 2 then
+                begin
+                      FormPrikazyBrowseTot.dsPrikazyIDCLASSIFICATOR_OLD.Value:=id;
+                      FormPrikazyBrowseTot.dsPrikazyKODKP_OLD.Value     := kodKp;
+                      FormPrikazyBrowseTot.dsPrikazyKODZKPPTR_OLD.Value := kodZKPPTR;
+                      FormPrikazyBrowseTot.dsPrikazyNAMEPROF_OLD.Value  := nameProf;
+                end
+             else
+                begin
+                      FormPrikazyBrowseTot.dsPrikazyIDCLASSIFICATOR.Value:=id;
+                      FormPrikazyBrowseTot.dsPrikazyKODKP.Value     := kodKp;
+                      FormPrikazyBrowseTot.dsPrikazyKODZKPPTR.Value := kodZKPPTR;
+                      FormPrikazyBrowseTot.dsPrikazyNAMEPROF.Value  := nameProf;
+                end;
+        end;
+     FormSearchClassificator.dsClassificator.Transaction.Commit;
+     FormSearchClassificator.dsClassificator.Close;
+     FormSearchClassificator.Free;
+
+end;
+
+
 procedure TFormPrikazRekvizityTot.HidePerevodRekvizity;
   begin
+       PageControl1.Pages[1].TabVisible:=False;
+   //    PageControl1.Pages[1].Name  TabVisible:=False;
+       Application.ProcessMessages;
+
+(*
        LabelKodKP.Hide;
        LabelKodKP.Enabled:=false;
        LabelKodZKPPTR.Hide;
@@ -181,9 +250,13 @@ procedure TFormPrikazRekvizityTot.HidePerevodRekvizity;
        dxDBEditKodKP.Enabled:=false;
        dxDBEditKodZKPPTR.Hide;
        dxDBEditKodZKPPTR.Enabled:=false;
+*)
   end;
 procedure TFormPrikazRekvizityTot.ShowPerevodRekvizity;
   begin
+       PageControl1.Pages[1].TabVisible:=true;
+       Application.ProcessMessages;
+(*
        LabelKodKP.Show;
        LabelKodZKPPTR.Show;
        LabelProf.Show;
@@ -196,6 +269,7 @@ procedure TFormPrikazRekvizityTot.ShowPerevodRekvizity;
        dxDBEditDolg.Enabled:=true;
        dxDBEditKodKP.Show;
        dxDBEditKodZKPPTR.Show;
+*)       
   end;
 
 
@@ -217,7 +291,11 @@ begin
                     labelFio.Caption:=intToSTr(FormPrikazyBrowseTot.dsPrikazyTabno.Value)+' '+GetFullRusFioPerson(FormPrikazyBrowseTot.dsPrikazyTabno.Value)
                  else
                     labelFio.Caption:=intToSTr(FormPrikazyBrowseTot.dsPrikazyTabno.Value)+' '+GetFullUkrFioPerson(FormPrikazyBrowseTot.dsPrikazyTabno.Value);
-         end
+         end;
+      if (FormPrikazyBrowseTot.dsPrikazySHIFRIDTYP.value=TYP_PRIKAZA_PEREVOD) then
+          ShowPerevodRekvizity
+      else
+          HidePerevodRekvizity;
 
 end;
 

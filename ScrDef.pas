@@ -557,6 +557,7 @@ var
     bolnLNRMode2016:boolean;
     needAllPodr:boolean;      // ”казать в меню все подразд даже резервы дл€ —¬ƒЌ
     needHideGenerMessages:boolean;
+    TYP_PRIKAZA_PEREVOD:Integer;
 
     SVDNfooterRec:record
                        summaAdd         : Real;
@@ -699,6 +700,7 @@ begin
     needAllPodr:=false;
     needHideGenerMessages:=false;
     FillChar(NSRVarr,SIZEOF(NSRVARR),0);
+    TYP_PRIKAZA_PEREVOD:=7;
 {$IFDEF SVDN}
     isSVDN := True  ;
     isLNR  := False ;
