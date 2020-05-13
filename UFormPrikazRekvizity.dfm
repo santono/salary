@@ -1,6 +1,6 @@
 object FormPrikazRekvizity: TFormPrikazRekvizity
-  Left = 342
-  Top = 107
+  Left = 319
+  Top = 83
   Width = 696
   Height = 635
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1087#1088#1080#1082#1072#1079#1072
@@ -252,10 +252,10 @@ object FormPrikazRekvizity: TFormPrikazRekvizity
         StoredValues = 64
       end
       object BitBtnKP: TBitBtn
-        Left = 392
+        Left = 432
         Top = 5
-        Width = 249
-        Height = 25
+        Width = 209
+        Height = 68
         Caption = #1050#1083#1072#1089#1089#1080#1092#1080#1082#1072#1090#1086#1088' '#1044#1050' 003:2010 '
         TabOrder = 4
         OnClick = BitBtnKPClick
@@ -304,11 +304,11 @@ object FormPrikazRekvizity: TFormPrikazRekvizity
           Height = 20
           Caption = #1050#1086#1076' '#1050#1055
         end
-        object BitBtn2: TBitBtn
-          Left = 392
+        object BitBtnKPOld: TBitBtn
+          Left = 432
           Top = 5
-          Width = 249
-          Height = 25
+          Width = 209
+          Height = 68
           Caption = #1050#1083#1072#1089#1089#1080#1092#1080#1082#1072#1090#1086#1088' '#1044#1050' 003:2010 '
           TabOrder = 0
           OnClick = BitBtnKPOldClick
@@ -340,7 +340,7 @@ object FormPrikazRekvizity: TFormPrikazRekvizity
           DataSource = FormPrikazyBrowse.dsoPrikazy
         end
         object dxDBEdit2: TdxDBEdit
-          Left = 72
+          Left = 80
           Top = 3
           Width = 73
           TabOrder = 4

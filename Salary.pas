@@ -415,8 +415,8 @@ type
     N184: TMenuItem;
     L1: TMenuItem;
     N20201: TMenuItem;
-    ActionImportNadbFromPlanoviy: TAction;
     NImportNadb: TMenuItem;
+    ActionBrowseNadbPlanoviy: TAction;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -686,6 +686,7 @@ type
     procedure N183Click(Sender: TObject);
     procedure N20201Click(Sender: TObject);
     procedure ActionImportNadbFromPlanoviyExecute(Sender: TObject);
+    procedure ActionBrowseNadbPlanoviyExecute(Sender: TObject);
 
 
   private
@@ -778,7 +779,8 @@ implementation
   UFormRepRazr, UFormRepNeSovpRazrOklad, UFormRepFondy, UFormRepPensionery,
   UFormDekrList, UFormRepFondySVDN, UFormMemBud,
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
-  UFormRptPremGM, UFormSumLimitForCarantine, UFormMoveNabdToDB;
+  UFormRptPremGM, UFormSumLimitForCarantine,
+  UFormBrowseNadbPlanoviy;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1385,7 +1387,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionRepKRU.Enabled:=false;
           NImportNadb.Enabled:=false;
           NImportNadb.Visible:=false;
-          ActionImportNadbFromPlanoviy.Enabled:=false;
+      //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
 
           NLNR2.Visible:=true;
@@ -1460,7 +1462,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionRepKRU.Enabled:=true;
           NImportNadb.Enabled:=true;
           NImportNadb.Visible:=true;
-          ActionImportNadbFromPlanoviy.Enabled:=true;
+          ActionBrowseNadbPlanoviy.Enabled:=true;
 
    //       if DirectoryExists('Y:') then
           if true then
@@ -4309,6 +4311,8 @@ procedure TMainForm.ActionPrikazyPersonExecute(Sender: TObject);
      tabno,i,j:integer;
  begin
       j:=count_person;
+      if j<1 then Exit;
+      curr_person:=nil;
       if StringGrid1.Row<=j+1 then
          begin
               i:=0;
@@ -4321,6 +4325,7 @@ procedure TMainForm.ActionPrikazyPersonExecute(Sender: TObject);
                       Curr_Person:=Curr_Person^.NEXT;
                  end;
          end;
+     if curr_person=Nil then exit;    
      Tabno:=Curr_Person^.TABNO;
      if tabno<1 then Exit;
      FormPrikazyBrowse:=TFormPrikazyBrowse.CreatePrikaz(Self,Tabno);
@@ -4818,9 +4823,17 @@ end;
 
 procedure TMainForm.ActionImportNadbFromPlanoviyExecute(Sender: TObject);
 begin
-    Application.CreateForm(TFormMoveNabdToDB, FormMoveNabdToDB);
-    FormMoveNabdToDB.ShowModal;
+//    Application.CreateForm(TFormMoveNabdToDB, FormMoveNabdToDB);
+//    FormMoveNabdToDB.ShowModal;
+end;
 
+procedure TMainForm.ActionBrowseNadbPlanoviyExecute(Sender: TObject);
+var yearZa,monthZa:Integer;
+begin
+     YearZa:=currYear;
+     MonthZa:=NMES;
+     FormBrowseNadbPlanoviy:=TFormBrowseNadbPlanoviy.createZa(Self,monthZa,YearZa);
+     FormBrowseNadbPlanoviy.showModal;
 end;
 
 end.

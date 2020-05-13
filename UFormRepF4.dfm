@@ -64,6 +64,7 @@ object FormRepF4: TFormRepF4
     Height = 17
     Caption = #1053#1077#1087#1086#1074#1085#1080#1081' '#1088#1086#1073#1086#1095#1080#1081' '#1095#1072#1089
     TabOrder = 4
+    Visible = False
   end
   object dsMinSal: TpFIBDataSet
     SelectSQL.Strings = (

@@ -1020,7 +1020,7 @@ object MainForm: TMainForm
           Action = ActionCorrectVyplaty
         end
         object NImportNadb: TMenuItem
-          Action = ActionImportNadbFromPlanoviy
+          Action = ActionBrowseNadbPlanoviy
         end
       end
       object N170: TMenuItem
@@ -1652,9 +1652,9 @@ object MainForm: TMainForm
       Caption = #1057#1074#1086#1076' '#1076#1083#1103' '#1050#1056#1059
       OnExecute = ActionRepKRUExecute
     end
-    object ActionImportNadbFromPlanoviy: TAction
-      Caption = #1048#1084#1087#1086#1088#1090' '#1085#1072#1076#1073#1072#1074#1086#1082' '#1080#1079' '#1055#1054
-      OnExecute = ActionImportNadbFromPlanoviyExecute
+    object ActionBrowseNadbPlanoviy: TAction
+      Caption = #1053#1072#1076#1073#1072#1074#1082#1080' '#1087#1083#1072#1085#1086#1074#1086#1075#1086' '#1086#1090#1076#1077#1083#1072
+      OnExecute = ActionBrowseNadbPlanoviyExecute
     end
   end
   object ImageList1: TImageList

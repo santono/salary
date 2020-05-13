@@ -1,6 +1,6 @@
 object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
-  Left = 345
-  Top = 0
+  Left = 335
+  Top = 79
   Width = 696
   Height = 679
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1087#1088#1080#1082#1072#1079#1072
@@ -200,7 +200,7 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
     Top = 448
     Width = 649
     Height = 153
-    ActivePage = tbDolg
+    ActivePage = tbDolgOld
     TabOrder = 11
     object tbDolg: TTabSheet
       Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1076#1086#1083#1078#1085#1086#1089#1090#1080
@@ -236,7 +236,6 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
         Left = 72
         Top = 10
         Width = 73
-        Enabled = False
         TabOrder = 0
         DataField = 'KODKP'
         DataSource = FormPrikazyBrowseTot.dsoPrikazy
@@ -255,7 +254,6 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
         Left = 104
         Top = 82
         Width = 529
-        Enabled = False
         TabOrder = 2
         DataField = 'NAMEPROF'
         DataSource = FormPrikazyBrowseTot.dsoPrikazy
@@ -271,10 +269,10 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
         DataSource = FormPrikazyBrowseTot.dsoPrikazy
       end
       object BitBtnKP: TBitBtn
-        Left = 376
+        Left = 432
         Top = 10
-        Width = 249
-        Height = 25
+        Width = 201
+        Height = 63
         Caption = #1050#1083#1072#1089#1089#1080#1092#1080#1082#1072#1090#1086#1088' '#1044#1050' 003:2010 '
         TabOrder = 4
         OnClick = BitBtnKPClick
@@ -320,10 +318,10 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
           Caption = #1050#1086#1076' '#1050#1055
         end
         object BitBtnKPOld: TBitBtn
-          Left = 376
+          Left = 424
           Top = 10
-          Width = 249
-          Height = 25
+          Width = 201
+          Height = 63
           Caption = #1050#1083#1072#1089#1089#1080#1092#1080#1082#1072#1090#1086#1088' '#1044#1050' 003:2010 '
           TabOrder = 0
           OnClick = BitBtnKPOldClick
@@ -332,7 +330,6 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
           Left = 104
           Top = 82
           Width = 529
-          Enabled = False
           TabOrder = 1
           DataField = 'NAMEPROF_OLD'
           DataSource = FormPrikazyBrowseTot.dsoPrikazy
@@ -359,7 +356,6 @@ object FormPrikazRekvizityTot: TFormPrikazRekvizityTot
           Left = 72
           Top = 10
           Width = 73
-          Enabled = False
           TabOrder = 4
           DataField = 'KODKP_OLD'
           DataSource = FormPrikazyBrowseTot.dsoPrikazy

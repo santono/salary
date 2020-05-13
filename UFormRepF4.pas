@@ -384,8 +384,8 @@ begin
      dtIn.Date        := IncMonth(Date,-1);
      ShifrBk          := 0;
      cbNRC.Checked:=false;
-     if ((NMES>3) and (NMES<9) and (CURRYEAR=2020)) then
-        cbNRC.Checked:=True;
+//     if ((NMES>3) and (NMES<9) and (CURRYEAR=2020)) then
+//        cbNRC.Checked:=True;
 end;
 
 procedure TFormRepF4.BitBtn1Click(Sender: TObject);
@@ -682,8 +682,8 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
                       or
                       (curr_add^.shifr=31)  // Мат помощь облагаемая
                       or
-                      (curr_add^.shifr=dekret_shifr)
-                      or
+//                      (curr_add^.shifr=dekret_shifr)
+//                      or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
                       or
                       (curr_add^.shifr=dogPodShifr)
@@ -1055,9 +1055,11 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
        fillKdNzpPerson;
        otk:=1;
        if curr_person^.MESTO_OSN_RABOTY in [82,121] then otk:=0;
+       otk:=0;  // Для совместителй всегда OTK=0 (07 05 2020 Деревянкина)
+       zo:=1;   // Для совместителй всегда OTK=0 (07 05 2020 Деревянкина)
        if abs(summaSciPedAdd)>0.01 then
           begin
-               zo       := 25;
+//               zo       := 25;
                summaAdd := summaSciPedAdd;
                payTp    := 0;
                payYear  := currYear;
@@ -1364,6 +1366,7 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
       curr_cn:cn_ptr;
       recCPH:pRecCPH;
       rec6:pRec6;
+      finded:boolean;
     function getSummaOsnAddForPerson(curr_person:PERSON_PTR):Real;
       var retVal:Real;
           curr_add:ADD_PTR;
@@ -1401,7 +1404,48 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
                payYear  := currYear;
                payMnth  := nmes;
                rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,0);
+               if curr_Person^.TABNO=11982 then
+                  zo:=26;
+
                shifrDogDetId:=GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON);
+               if ((NMES=4) and (currYear=2020)) then
+                  begin
+                        if curr_person^.tabno=11986 then
+                           shifrDogDetId:=-1
+                        else
+                        if (shifrDogDetId<0) then
+                           case curr_person^.tabno of
+                                6626:  shifrDogDetId:=139;
+                               11981:  shifrDogDetId:=129;
+                               11982:  shifrDogDetId:=128;
+                               12249:  shifrDogDetId:=130;
+                               12175:  shifrDogDetId:=108;
+                               12238:  shifrDogDetId:=137;
+                               12060:  shifrDogDetId:=131;
+                               12271:  shifrDogDetId:=133;
+                               12711:  shifrDogDetId:=132;
+                           end;
+//6626 белоус  139
+// 11982 галстян а г  128
+//11981 галстян г а   129
+//12 249 соловьев с о  130
+//12175 лысенко     108 --???
+//12238 сова       137
+//12060 фомина а м     131
+//12271 черняк г ю           133
+//фомин в в  убрать ------------- 11986
+//11711 фомин о в добавить  132
+
+                  end;
+               finded:=false;
+               if listCPH.count>0 then
+                  for i:=0 to listCPH.count-1 do
+                      if pRecCPH(listCPH.items[i])^.tabno=curr_person^.tabno then
+                        begin
+                             finded:=true;
+                             break;
+                        end;
+               if not finded  then
                if shifrDogDetId > 0 then
                   begin
                        new(recCPH);
@@ -1540,6 +1584,22 @@ procedure TFormRepF4.fillDoplDoMin;
                       break;
                  end;
   end;
+ procedure makeNrcForMinSal;
+  var i:integer;
+   // Для тех, кому доплата до мин зарплаты
+   // NRC=1 кроме договора подряда
+
+  begin
+       zo:=1;
+       if list6.Count>0 then
+          for i:=0 to list6.Count-1 do
+              if pRec6(list6.Items[i]).tabno=tabno then
+              if pRec6(list6.Items[i]).zo in [1,2,25,32] then
+                //<>26 - дого подряда
+                 begin
+                      pRec6(list6.Items[i]).nrc:=1;
+                 end;
+  end;
 
  begin
       payTp:=13;
@@ -1558,6 +1618,7 @@ procedure TFormRepF4.fillDoplDoMin;
               summa := dsMinSalSUMMA_RAZN.Value;
               fillZOFromRec6;
               rec6:=addToF6(TABNO,zo,payTp,payMnth,payYear,summa);
+              makeNrcForMinSal;
               dsMinSal.Next;
          end;
       dsMinSal.Close;
@@ -1945,7 +2006,7 @@ procedure TFormRepF4.fillTable5Perevody;
                      endDt2:=StartDt1-1;
                      if endDt2<1 then
                         enddt2:=1;
-                end;
+                end;                          
              reasonUwol:='';
              if codeUwol>0 then
                 begin
@@ -2258,6 +2319,8 @@ procedure TFormRepF4.fillTable5CPH;
          begin
               shifrDogDetId:=pRecCPH(listCPH.items[i]).shifrDogDetId;
               tabno:=pRecCPH(listCPH.items[i]).tabno;
+              if tabno=11982 then
+                 zo:=3;
               SQLStmnt := 'select count(*)';
               SQLStmnt := trim(SQLStmnt) + ' from tb_dogovora_gn_det';
               SQLStmnt := trim(SQLStmnt) + ' join kadry on kadry.tabno=tb_dogovora_gn_det.tabno';
@@ -2266,13 +2329,14 @@ procedure TFormRepF4.fillTable5CPH;
               SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(currYear)+' and person.monthvy='+intToStr(nmes);
               SQLStmnt := trim(SQLStmnt) + ' and person.tabno='+intToStr(tabno)+' and tb_dogovora_gn_det.id='+intToStr(shifrDogDetId);
               SQLStmnt := trim(SQLStmnt) + ' and (select abs(coalesce(sum(fadd.summa),0)) from fadd where fadd.shifridperson=person.shifrid)>0.01)';
+              SQLStmnt := trim(SQLStmnt) + ' and (person.w_place in (81,140))';
               v:=SQLQueryValue(SQLStmnt);
               if VarIsNull(v)      then continue;
               if VarIsEmpty(v)     then continue;
               if not VarIsNumeric(v) then continue;
               e:=v;
-              if e<>1 then Continue;
-              SQLStmnt := 'select tb_dogovora_gn_det.datefr';
+              if e<1 then Continue;
+              SQLStmnt := 'select first 1 tb_dogovora_gn_det.datefr';
               SQLStmnt := trim(SQLStmnt) + ', tb_dogovora_gn_det.dateto';
               SQLStmnt := trim(SQLStmnt) + ', coalesce(kadry.code_uwol,0)';
               SQLStmnt := trim(SQLStmnt) + ', coalesce(tb_dogovora_gn.nomer,'''')';
@@ -2284,6 +2348,7 @@ procedure TFormRepF4.fillTable5CPH;
               SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(currYear)+' and person.monthvy='+intToStr(nmes);
               SQLStmnt := trim(SQLStmnt) + ' and person.tabno='+intToStr(tabno)+' and tb_dogovora_gn_det.id='+intToStr(shifrDogDetId);
               SQLStmnt := trim(SQLStmnt) + ' and (select abs(coalesce(sum(fadd.summa),0)) from fadd where fadd.shifridperson=person.shifrid)>0.01)';
+              SQLStmnt := trim(SQLStmnt) + ' and (person.w_place in (81,140))';
               v:=SQLQueryRecValues(SQLStmnt);
               if VarIsNull(v)      then continue;
               if VarIsEmpty(v)     then continue;
@@ -2341,6 +2406,17 @@ procedure TFormRepF4.fillTable5CPH;
              finded6:=false;
              rec6:=nil;
              zo:=3; // м-б 3?  //3 Сказала Деревянкина 07 05 2020
+             //проверить если есть в табл 5 то добавлять не надо
+             finded:=False;
+             if list5.Count>0 then
+                for j:=0 to list5.Count-1 do
+                    if pRecPerson(list5.Items[j]).tabno=tabno then
+                       begin
+                            finded:=true;
+                            break;
+                       end;
+             if finded then Continue;
+             //Конец проверки на дублирование
              if list6.Count>0 then
                 for j:=0 to list6.Count-1 do
                     if pRec6(list6.Items[j]).tabno=tabno then
@@ -2894,9 +2970,21 @@ procedure TFormRepF4.fillFullList6RecsFromCheckList;
                          begin
                               pRec6(list6.items[i])^.kdptv := recPerson.kdPtv;
                               pRec6(list6.items[i])^.kdnzp := recPerson.kdNzp; ///
+                              if recPerson.summaKoef<1.0 then
+                                 pRec6(list6.items[i])^.nrc:=1;  // Неповний раб час ести меньше ставки
                             // карантина 2020 nrc=1
-                              if cbNRC.Checked then
-                                 pRec6(list6.items[i])^.nrc:=1;
+//                              if cbNRC.Checked then
+//                                 pRec6(list6.items[i])^.nrc:=1;
+//белоус
+//галстян а г
+//галстян г а
+//соловьев с о
+//лысенко
+//сова
+//фомина а м
+//черняк г ю
+//фомин в в  убрать -------------
+//фомин о в добавить
                          end;
 //                pRec6(list6.items[i])^.sumNarah := 0; ///;
 //                pRec6(list6.items[i])^.sumDiff := 0; ///;

@@ -51,7 +51,7 @@ type
     dxDBEdit3: TdxDBEdit;
     dxDBEdit4: TdxDBEdit;
     dxDBEdit5: TdxDBEdit;
-    BitBtn2: TBitBtn;
+    BitBtnKPOld: TBitBtn;
     Panel1: TPanel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btn1Click(Sender: TObject);
@@ -109,6 +109,9 @@ constructor TFormPrikazRekvizity.createP(AOwner:TComponent;SQLAction:integer);
           ShowPerevodRekvizity
       else
           HidePerevodRekvizity;
+      BitBtnKPOld.Caption:='Классификатор'+#13#10+'старой'+#13#10+'должности';
+      BitBtnKP.Caption:='Классификатор'+#13#10+'новой'+#13#10+'должности';
+          
 
  end;
 

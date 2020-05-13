@@ -1,9 +1,11 @@
 unit USQLUnit;
 
 interface
+   uses pFIBQuery;
   function SQLQueryRecValues(SQLStmnt:WideString):variant;
   procedure SQLExecute(SQLStmnt:WideString);
   function SQLQueryValue(SQLStmnt:WideString;fieldNo:integer=0):variant;
+  function SQLGetQuery:TpFIBQuery;
   procedure setSal;
   procedure setArc;
   procedure saveDatabase;
@@ -67,6 +69,10 @@ implementation
           if savedDataBase<>nil then
              dataBase:=savedDataBase;
      end;
+  function SQLGetQuery:TpFIBQuery;
+    begin
+         SQLGetQuery:=FIB.pFIBQuery;
+    end;
 begin
      dataBase:=nil;
      savedDataBase:=nil;

@@ -296,6 +296,8 @@ begin
           ShowPerevodRekvizity
       else
           HidePerevodRekvizity;
+      BitBtnKPOld.Caption:='Классификатор'+#13#10+'старой'+#13#10+'должности';
+      BitBtnKP.Caption:='Классификатор'+#13#10+'новой'+#13#10+'должности';
 
 end;
 

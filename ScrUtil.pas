@@ -4422,7 +4422,9 @@ FUNCTION GetProcPensNalog(CURR_PERSON:PERSON_PTR;Summa:Real;var PensNalog:real;S
        if (i=BOL_TEK_SHIFR) or
           (i=BOL_PROSHL_SHIFR) or
         //  (i=BOL_FUTURE_SHIFR) or
-          (i=BOL_5_SHIFR) then IsBolnShifrForECB:=true
+          (i=BOL_5_SHIFR) or
+          (i=DEKRET_SHIFR)   // 07 05 2020 декретные входят в Т6 (Деревянкина)
+          then IsBolnShifrForECB:=true
                            else IsBolnShifrForECB:=false;
   end;
 
