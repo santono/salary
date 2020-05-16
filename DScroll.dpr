@@ -3,7 +3,7 @@
 {$HINTS OFF}
 program DScroll;
 
-uses                         
+uses
   Windows,
   Forms,
   SysUtils,
@@ -368,8 +368,8 @@ uses
   UFormKRUReport in 'UFormKRUReport.pas' {FormKRUReport},
   UFormRptPremGM in 'UFormRptPremGM.pas' {FormRptPremGM},
   UFormSumLimitForCarantine in 'UFormSumLimitForCarantine.pas' {FormSumLimitForCarantine},
-  UFormMoveNabdToDB in '..\..\..\stawki\delphi\UFormMoveNabdToDB.pas' {FormMoveNabdToDB},
-  UFormBrowseNadbPlanoviy in '..\..\..\stawki\delphi\UFormBrowseNadbPlanoviy.pas' {FormBrowseNadbPlanoviy};
+  UFormMoveNabdToDB in 'UFormMoveNabdToDB.pas' {FormMoveNabdToDB},
+  UFormBrowseNadbPlanoviy in 'UFormBrowseNadbPlanoviy.pas' {FormBrowseNadbPlanoviy};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 
