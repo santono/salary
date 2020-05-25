@@ -136,14 +136,17 @@ var I_C,I,J,JJ:Integer;
      StringGridS.Left       := StringGridT.Left + StringGridT.width+1;
      StringGridS.RowCount   := StringGridT.RowCount;
      if isSvdn then
-        StringGridS.ColCount   := 4
+        StringGridS.ColCount   := 5
      else
         StringGridS.ColCount   := 3;
      StringGridS.Cells[0,0] :='Раб';
      StringGridS.Cells[1,0] :='Бол';
      StringGridS.Cells[2,0] :='Отп';
      if isSvdn then
-        StringGridS.Cells[3,0] :='Год';
+        begin
+             StringGridS.Cells[3,0] :='Про';
+             StringGridS.Cells[4,0] :='Год';
+        end;
 
      for i:=0 to StringGridS.ColCount-1 do StringGridS.ColWidths[i]:=25;
      if isSVDN then
@@ -158,7 +161,10 @@ var I_C,I,J,JJ:Integer;
               StringGridS.Cells[1,i]:=IntToStr(15);
               StringGridS.Cells[2,i]:=IntToStr(10);
               if isSVDN then
-                 StringGridS.Cells[3,i]:=' ';
+                 begin
+                      StringGridS.Cells[3,i]:=IntToStr(19);
+                      StringGridS.Cells[4,i]:=' ';
+                 end;
          end;
 
      Curr_P:=Head_Person;
@@ -183,13 +189,18 @@ var I_C,I,J,JJ:Integer;
                     else StringGridS.Cells[2,i]:='';
             if isSVDN then
                begin
+                    JJ:=Prostoy_Day(1,31,Curr_P);
+                    if JJ>0 then StringGridS.Cells[3,i]:=IntToStr(JJ)
+                            else StringGridS.Cells[3,i]:='';
                     JJClock:=WORK_CLOCK_LERA(1,31,Curr_P);
                     if (JJClock>0.01) then
                        begin
                             str(roundto(JJClock,-1):15:1,s);
                             s:=trim(s);
-                            StringGridS.Cells[3,i]:=s;
-                       end;
+                            StringGridS.Cells[4,i]:=s;
+                       end
+                    else
+                       StringGridS.Cells[4,i]:='';
                end;
             if Curr_P^.Automatic=1 then
                begin
@@ -329,6 +340,8 @@ end;
 procedure TFormTabel.StringGridTKeyPress(Sender: TObject; var Key: Char);
 var   C,R,jj:integer;
      C_Person:Person_ptr;
+     jjClock:Real;
+     S:string;
 begin
      if Key=chr(13) then
         begin
@@ -354,6 +367,21 @@ begin
              JJ:=Otpusk_Day(1,C_Person);
              if JJ>0 then StringGridS.Cells[2,StringGridT.Row]:=IntToStr(JJ)
                      else StringGridS.Cells[2,StringGridT.Row]:='';
+             if isSVDN then
+               begin
+                    JJ:=Prostoy_Day(1,31,C_Person);
+                    if JJ>0 then StringGridS.Cells[3,StringGridT.Row]:=IntToStr(JJ)
+                            else StringGridS.Cells[3,StringGridT.Row]:='';
+                    JJClock:=WORK_CLOCK_LERA(1,31,C_Person);
+                    if (JJClock>0.01) then
+                       begin
+                            str(roundto(JJClock,-1):15:1,s);
+                            s:=trim(s);
+                            StringGridS.Cells[4,StringGridT.Row]:=s;
+                       end
+                    else
+                       StringGridS.Cells[4,StringGridT.Row]:='';
+               end;
 
              c:=0;
              r:=0;
@@ -432,11 +460,14 @@ procedure TFormTabel.showGridRow(wantedRow:integer;curr_person:person_ptr);
                     else StringGridS.Cells[2,wantedRow]:='';
             if isSVDN then
                begin
+                     JJ:=Prostoy_Day(1,31,Curr_Person);
+                     if JJ>0 then StringGridS.Cells[3,wantedRow]:=IntToStr(JJ)
+                             else StringGridS.Cells[3,wantedRow]:='';
                      JJClock:=work_clock_lera(1,31,curr_person);
                      Str(JJClock:12:1,s);
                      s:=trim(s);
-                     if JJClock>0.1 then StringGridS.Cells[3,wantedRow]:=s
-                                  else StringGridS.Cells[3,wantedRow]:='';
+                     if JJClock>0.1 then StringGridS.Cells[4,wantedRow]:=s
+                                    else StringGridS.Cells[4,wantedRow]:='';
                end;
             if Curr_Person^.Automatic=1 then
                begin

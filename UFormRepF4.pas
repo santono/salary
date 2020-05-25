@@ -124,6 +124,9 @@ type
     procedure fillFullList6RecsFromCheckList;
     procedure fillCheckList;
     procedure fillDoplDoMin;
+    procedure fillRecalcNarah22;
+    procedure addZavadskieToList6;
+
     procedure fillTable7;
     procedure fillTable7Dekr;
     procedure fillTable5;
@@ -144,7 +147,7 @@ type
     function  getOtpDay(tabno:integer;payYear:integer;payMnth:integer):integer;
     procedure fillBolDay;
     function isSciPedForSwod(curr_person:person_ptr):boolean;
-
+    procedure  calculateSumNarahInBD;
     procedure moveToBD;
 
   public
@@ -157,7 +160,7 @@ var
 implementation
   uses
       uFIBModule,UFormWait,ScrUtil,DateUtils,ComObj,ScrIO,
-      scrLists,uFormMkPensList,uSqlUnit;
+      scrLists,uFormMkPensList,uSqlUnit,math;
   type
        pRec5=^TRec5;
        TRec5=record
@@ -300,6 +303,85 @@ implementation
       listCPH           : TList;
       E:Variant;
 {$R *.dfm}
+(*
+ function checkPerson(TABNO:integer;zo,payTp,payMnth,payYear,w_r:integer):real;
+ var finded:boolean;
+     i:integer;
+     rec6:pRec6;
+     exp:integer;
+ begin
+     finded:=false;
+     if list6.count>0 then
+        for i:=0 to list6.Count-1 do
+            if pRec6(list6.items[i])^.tabno=tabno then
+            if pRec6(list6.items[i])^.zo=zo then
+            if pRec6(list6.items[i])^.paytp=paytp then
+            if pRec6(list6.items[i])^.payYear=payYear then
+            if pRec6(list6.items[i])^.payMnth=payMnth then
+            if pRec6(list6.items[i])^.w_r=w_r then
+               begin
+                    finded:=true;
+                    checkPerson::=pRec6(list6.items[i])^.sumTotal:=r10(pRec6(list6.items[i])^.sumTotal)+r10(summaAdd);
+                    rec6:=pRec6(list6.items[i]);
+                    break;
+               end;
+     if  not finded then
+        begin
+             addSummaToF6 := nil;
+             exit;
+        end;
+     Rec6.sumTotal := Rec6.sumTotal + summaAdd;
+     addSummaToF6:=rec6;
+
+ end;
+*)
+ function addSummaToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0;nrc:Integer=0):pRec6;
+ var finded:boolean;
+     i:integer;
+     rec6:pRec6;
+     exp:integer;
+ begin
+     if ((abs(summaAdd)<0.01) and (not needZero)) then
+        exit;
+     // Перекодировать инвалидов
+     if zo in [1,25,29] then
+        if PensionerList.IsPensioner(Tabno) then
+           if zo=29 then // Больничный
+              zo:=36     //Инвалид - больничный
+           else
+           if zo=25 then
+              zo:=32     //Инвалид - науковець
+           else
+              zo:=2;  // Инвалид обычный
+     exp:=0;
+     if zo in [25,32] then
+        exp:=1;
+     finded:=false;
+     if list6.count>0 then
+        for i:=0 to list6.Count-1 do
+            if pRec6(list6.items[i])^.tabno=tabno then
+            if pRec6(list6.items[i])^.zo=zo then
+            if pRec6(list6.items[i])^.paytp=paytp then
+            if pRec6(list6.items[i])^.payYear=payYear then
+            if pRec6(list6.items[i])^.payMnth=payMnth then
+            if pRec6(list6.items[i])^.w_r=w_r then
+               begin
+                    finded:=true;
+//                    pRec6(list6.items[i])^.sumTotal:=r10(pRec6(list6.items[i])^.sumTotal)+r10(summaAdd);
+                    rec6:=pRec6(list6.items[i]);
+                    break;
+               end;
+     if  not finded then
+        begin
+             addSummaToF6 := nil;
+             exit;
+        end;
+     Rec6.sumTotal := Rec6.sumTotal + summaAdd;
+     addSummaToF6:=rec6;
+
+ end;
+
+
  function addToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0;nrc:Integer=0):pRec6;
  var finded:boolean;
      i:integer;
@@ -432,7 +514,7 @@ procedure TFormRepF4.CreateReport6;
        listCheck:=TList.Create;
        listCPH:=TList.Create;
        ProgressBar1.Min:=0;
-       ProgressBar1.Max:=Count_Serv * 7;
+       ProgressBar1.Max:=Count_Serv * 8;
        ProgressBar1.Step:=1;
        MAKEPENSLIST(2);   // Список инвалидов
        // 1 Основная
@@ -495,7 +577,7 @@ procedure TFormRepF4.CreateReport6;
                 EMPTY_ALL_PERSON;
            end;
        // 4 Почасовка
-       if false then
+//       if false then
        for iNSRV:=1 to Count_Serv do
            begin
                 NSRV:=iNSRV;
@@ -598,13 +680,16 @@ procedure TFormRepF4.CreateReport6;
        Application.ProcessMessages;
 //       list4.Sort(@Compare);
 //       fillFullList6Recs;
+       addZavadskieToList6;  // ДОбавляются фиктивные сказана Т И 18 05 2020
        fillFullList6RecsFromCheckList;
+//       fillRecalcNarah22;       18 05 2020 Расчет в БД после переноса
        fillTable5;
        fillTable7;
        fillTable7Dekr; // 07 05 2020 деревянкина сказала, что дектречики должны
                        // быть в табл 7 если они преподаватели
        DisposePensList;
        moveToBD;
+       calculateSumNarahInBD;
        if list5.count>0 then
           for i:=0 to list5.count-1 do
               dispose(pRec5(list5.Items[i]));
@@ -843,6 +928,8 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
                    zo:=25;
               end;
        nzp:=OTPUSK_BEZ_DAY(1,CURR_PERSON);
+ //      if nzp>0 then
+          
   end;
 
 procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
@@ -855,6 +942,7 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
       zo,payYear,payMnth:integer;
       kd_ptv:integer;
       kd_nzp:integer;
+      w_r:integer;
     function getSummaOsnAddForPerson(curr_person:PERSON_PTR):Real;
       var retVal:Real;
           curr_add:ADD_PTR;
@@ -872,8 +960,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
                       (curr_add^.shifr=31)  // Мат помощь облагаемая
                       or
                       (curr_add^.shifr=dekret_shifr)
-//                      or
-//                      (curr_add^.shifr=pochas_shifr)
+                      or
+                      (curr_add^.shifr=pochas_shifr)
                       or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
                       or
@@ -924,13 +1012,20 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
       end;
 
   begin
-       if  not (IS_OSN_WID_RABOTY(curr_person)
-          or (NSRV=98)) then exit;
- //      if nsrv in [82,98,105,106,121] then exit; // 98 - почасовка
-       if nsrv in [82,105,106,121] then exit; // 98 - почасовка
+       if  not (IS_OSN_WID_RABOTY(curr_person)) then
+       if GET_DOL_CODE(curr_person)<>5 then Exit; //Надбавка
+//          or (NSRV=98)) then exit;
+       if ((curr_person^.tabno=11626))
+         then
+            zo:=25;
+       if nsrv in [82,98,105,106,121] then exit; // 98 - почасовка
+ //      if nsrv in [82,105,106,121] then exit; // 98 - почасовка
        if DOG_POD_PODRAZD(nsrv) then exit;
        if ((curr_person^.tabno=11609) and (NSRV=98)) then
           zo:=25;
+       if (curr_person^.tabno=3719)
+         then
+            zo:=25;
        summaAdd:=getSummaOsnAddForPerson(curr_person);
        if abs(summaAdd)<0.01 then exit;
        if curr_person^.tabno=55 then
@@ -939,6 +1034,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
        fillNotSciPerson;
        fillKdPtvPerson;
        fillKdNzpPerson;
+       if kd_nzp>0 then
+          zo:=25;
        if abs(summaSciPedAdd)>0.01 then
           begin
                zo       := 25;
@@ -946,7 +1043,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
                payTp    := 0;
                payYear  := currYear;
                payMnth  := nmes;
-               rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
+               w_r      := 1;
+               rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp,w_r);
                rec6^.w_r:=1;
           end;
        if abs(summaNotSciPedAdd)>0.01 then
@@ -989,8 +1087,8 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
                       (curr_add^.shifr=31)  // Мат помощь облагаемая
                       or
                       (curr_add^.shifr=dekret_shifr)
-//                      or
-//                      (curr_add^.shifr=pochas_shifr)
+                      or
+                      (curr_add^.shifr=pochas_shifr)
                       or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
                       or
@@ -1045,16 +1143,23 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
                   retVal:=LenMonth(encodeDate(currYear,nmes,1));
 
            kd_Nzp:=OTPUSK_BEZ_DAY(1,curr_person);
+       if kd_nzp>0 then
+          zo:=1;
+
       end;
 
   begin
        if IS_OSN_WID_RABOTY(curr_person) then exit;
        if nsrv in [82,98,105,106,121] then exit;  // 98 - почасовка
        if DOG_POD_PODRAZD(nsrv) then exit;
+       if GET_DOL_CODE(curr_person)=5 then Exit;         //Надбавка ушла в основную
        summaAdd:=getSummaOsnAddForPerson(curr_person);
        if abs(summaAdd)<0.01 then exit;
        if curr_person^.tabno=55 then
           curr_person^.MALO:=0;
+               if curr_person^.tabno=11626 then
+                  curr_person^.MALO:=0;
+
        fillSciPerson;
        fillNotSciPerson;
        fillKdPtvPerson;
@@ -1075,16 +1180,26 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
 //             function addToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0):pRec6;
                rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,otk,0,0,2);
                rec6^.w_r:=2;
+               if curr_person^.tabno=11626 then // Заика
+                  rec6^.ZO:=25;
 //               if False then                     D
                if otk=0 then
                   begin
 //                       rec6^.kdPtv:=kd_ptv;    //  Рабочие дни не заполняются
-//                       rec6^.kdNzp:=kd_nzp;    //  для совместительства
+                       rec6^.kdNzp:=kd_nzp;    //  для совместительства
                        rec6^.kdPtv:=0;         // Рабочие дни не заполняются
-                       rec6^.kdNzp:=0;         //  для совместительства
+//                       rec6^.kdNzp:=0;         //  для совместительства
                                                //  14 05 2020 Деревянкина
                   end;
           end;
+          //050-994-03-94
+          // 11946 Козьменко одной строкой
+          // Саша 25
+          // заика 25
+// курило  без збереження по совмещению
+ // 11603 Завацкие Ю А Завацкая НЕ 4011они должня быть пустые с 1 и нрс все нули без содержания по втрой строке
+// Саша - одна строка - 25
+
        if abs(summaNotSciPedAdd)>0.01 then
           begin
                zo       := 1;
@@ -1104,7 +1219,7 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
                        rec6^.kdPtv:=0;
                        rec6^.kdNzp:=0;
 //                       rec6^.kdPtv:=kd_ptv;
-//                       rec6^.kdNzp:=kd_nzp;
+                       rec6^.kdNzp:=kd_nzp;
 //       nzp:=OTPUSK_BEZ_DAY(1,CURR_PERSON);
   end;
 procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
@@ -1170,9 +1285,13 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
       end;
 
   begin
-       Exit;  // - Почасовки нет
+  //     Exit;  // - Почасовки нет
        if nsrv in [82,105,106,121] then exit;
        if DOG_POD_PODRAZD(nsrv) then exit;
+       if ((curr_person^.tabno=3554) and (nsrv=98))
+         then
+            zo:=25;
+
        summaAdd:=getSummaOsnAddForPerson(curr_person);
        if abs(summaAdd)<0.01 then exit;
        if curr_person^.tabno=55 then
@@ -1188,8 +1307,15 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
                payTp    := 0;
                payYear  := currYear;
                payMnth  := nmes;
-               rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
-               //rec6^.w_r:=1;
+               rec6     := addSummaToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp,1);
+               if rec6=nil then
+                  begin
+                      rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
+                      rec6^.w_r:=2;
+                      rec6^.zo:=1;
+                      rec6^.exp:=1;
+                      rec6^.otk:=0;
+                  end
           end;
        if abs(summaNotSciPedAdd)>0.01 then
           begin
@@ -1198,8 +1324,14 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
                payTp    := 0;
                payYear  := currYear;
                payMnth  := nmes;
-               rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
-               //rec6^.w_r:=1;
+//               rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
+               rec6     := addSummaToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp,1);
+               if rec6=nil then
+                  begin
+                       rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
+                       rec6^.w_r:=2;
+                       rec6^.otk:=0;
+                  end;     
           end;
 //       nzp:=OTPUSK_BEZ_DAY(1,CURR_PERSON);
   end;
@@ -1456,6 +1588,9 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
 //фомин в в  убрать ------------- 11986
 //11711 фомин о в добавить  132
 
+ // курило  без збереження по совмещению
+ // Завацкие Ю А Завацкая НЕ они должня быть пустые с 1 и нрс все нули без содержания по втрой строке
+// Саша - одна строка - 25
                   end;
                finded:=false;
                if listCPH.count>0 then
@@ -1499,7 +1634,7 @@ procedure TFormRepF4.fillPremPerson(curr_person:person_ptr);
       end;
  begin
        if not (nsrv in [11,102]) then exit;
-               if curr_person^.tabno=29 then
+               if curr_person^.tabno=11626 then
                   curr_person^.MALO:=0;
        summaAdd:=getSummaOsnAddForPerson(curr_person);
        if abs(summaAdd)>0.01  then
@@ -1532,7 +1667,10 @@ procedure TFormRepF4.fillPremPerson(curr_person:person_ptr);
                        if curr_person^.MESTO_OSN_RABOTY=82 then
                           begin
                                rec6.otk:=0;
-                               if curr_person^.KATEGORIJA=1 then
+                               if ((curr_person^.KATEGORIJA=1)
+                                  and
+                                  (curr_person^.tabno<>4424)) // Белоусов ярослав
+                               then
                                rec6.zo:=25
                                else
                                rec6.zo:=1;
@@ -1603,6 +1741,8 @@ procedure TFormRepF4.fillDoplDoMin;
      summa:real;
      zo,payTp,payYear,payMnth:integer;
      rec6:pRec6;
+     otkimp,zoimp,expimp : Integer;
+     finded:Boolean;
  procedure fillZOFromRec6;
   var i:integer;
 
@@ -1613,7 +1753,9 @@ procedure TFormRepF4.fillDoplDoMin;
               if pRec6(list6.Items[i]).tabno=tabno then
               if pRec6(list6.Items[i]).zo in [1,2,25,32,42] then//42 декр болн
                  begin
-                      zo:=pRec6(list6.Items[i]).zo;
+                      zoimp:=pRec6(list6.Items[i]).zo;
+                      otkimp:=pRec6(list6.Items[i]).otk;
+                      expimp:=pRec6(list6.Items[i]).exp;
                       break;
                  end;
   end;
@@ -1637,6 +1779,9 @@ procedure TFormRepF4.fillDoplDoMin;
  begin
       payTp:=13;
       zo:=1;
+      otkimp:=0;
+      zoimp:=1;
+      expimp:=0;
       payYear:=currYear;
       payMnth:=NMES;
       dsMinSal.Params[0].Value:=currYear;
@@ -1652,7 +1797,8 @@ procedure TFormRepF4.fillDoplDoMin;
               fillZOFromRec6;
               rec6:=addToF6(TABNO,zo,payTp,payMnth,payYear,summa);
               rec6.nrc:=1;  // Для доплат NRC:=1 15 05 2020 Деревянкина
-              rec6.otk:=0;
+              rec6.otk:=otkimp;
+              rec6.exp:=expimp;
               makeNrcForMinSal(Tabno); // установить NRC для всех запсией если есть доплата
                                        // кроме договора подряда
               dsMinSal.Next;
@@ -3006,7 +3152,7 @@ procedure TFormRepF4.fillFullList6RecsFromCheckList;
                       if ((pRec6(list6.items[i])^.payYear=currYear) and (pRec6(list6.items[i])^.payMnth=nmes)) then
                          begin
 //                              pRec6(list6.items[i])^.kdptv := recPerson.kdPtv;
-                              pRec6(list6.items[i])^.kdnzp := recPerson.kdNzp; ///
+ //                             pRec6(list6.items[i])^.kdnzp := recPerson.kdNzp; ///
                               if pRec6(list6.items[i])^.tabno=9162 then
                                  j:=1;
                               if recPerson.summaKoef<1.0 then
@@ -3052,9 +3198,65 @@ procedure TFormRepF4.fillFullList6RecsFromCheckList;
 
            end;
   end;
+procedure TFormRepF4.fillRecalcNarah22;
+ var summaAdd,summaUdRas,summaI:real;
+     proc22:real;
+     i:Integer;
+     tn:integer;
+     sign:Integer;
+     aKop:Real;
+     cFrac:real;
+     iKop,iFLAG,iMod:Integer;
+   function p10(a:real):Real;
+     begin
+ //         p10:=roundTo(a,-2);
+          p10:=simpleroundTo(a,-2);
+     end;
+ begin
+  // rmNearest	Rounds to the closest value.
+//rmDown	Rounds toward negative infinity.
+//rmUp	Rounds toward positive infinity.
+//rmTruncate
+  //    setRoundMode(rmNearest);
+      proc22:=0.22;
+      if list6.count<1 then exit;
+       for i:=0 to list6.Count-1 do
+           begin
+        //         summaAdd:=p10(pREC6(List6.items[i]).sumMax);
+                 sign:=0;
+                 summaAdd:=pREC6(List6.items[i]).sumMax;
+                 if summaAdd<-0.005 then
+                    begin
+                         sign:=-1;
+                         summaAdd:=-summaAdd;
+                    end;
+                 tn:=pREC6(List6.items[i]).tabno;
+                 if tn=12224 then
+                   proc22:=0.22;
+                 if abs(abs(summaAdd)-10000.00)<0.01 then
+                    proc22:=0.22;
+                 summaI:=summaAdd*proc22;
+                 aKop:=frac(summaI);
+                 cFrac:=aKop*1000.00;
+                 if (Abs(cFrac)<0.0000000001) then
+                    begin
+                 iKop:=round(aKop*1000.00);
+                 iFlag:=0;
+                 iMod := iKop mod 10;
+                 if iMod=5 then
+                    summaI:=SummaI+0.001;
+                    end;
+                 summaudRas:=p10(summaI);
+                 if sign=-1 then
+                    summaUdRas:=-summaUdRas;
+                 pRec6(list6.Items[i]).sumNarah:=summaUdRas;
+
+           end;
+
+ end;
 procedure TFormRepF4.moveToBD;
  var SqlStmnt:wideString;
-     i:integer;
+     i,j:integer;
  begin
      formWait.Show;
      Application.ProcessMessages;
@@ -3127,9 +3329,12 @@ procedure TFormRepF4.moveToBD;
               SQLExecute(SQLStmnt);
 
          end;
+     j:=0;
      if list6.Count>0 then
      for i:=0 to list6.Count-1 do
          begin
+              if pRec6(list6.Items[i])^.tabno=11603 then
+                 j:=1;
               SQLStmnt:='insert into tb_e04t06c (';
 //              SQLStmnt:= SHIFRID     INTEGER NOT NULL,
               SQLStmnt:=trim(SQLStmnt)+'YEARVY,';
@@ -3438,13 +3643,106 @@ function TFormRepF4.getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer)
         retVal := v;
      getOtpDay:=retVal;
  end;
+
+procedure  TFormRepF4.addZavadskieToList6;
+ const tns:array[1..2] of integer=(4011,11603);
+ var tabno,i,j:integer;
+     zo:integer;
+     rec6,rec6_1:pRec6;
+     finded:Boolean;
+     payTp,payMnth,payYear:Integer;
+     kd_nzp:Integer;
+ begin
+      kd_nzp:=lenmonth(EncodeDate(CURRYEAR,NMES,1));
+      for i:=1 to 2 do
+        begin
+             tabno:=tns[i];
+             rec6:=nil;
+             finded:=false;
+             if list6.count>0 then
+                for j:=0 to list6.Count-1 do
+                    if pRec6(list6.items[j])^.tabno=tabno then
+                       begin
+                            finded:=True;
+                            rec6:=pRec6(list6.items[j]);
+                            Break;
+                       end;
+             if not finded then Continue;
+             zo       := 1;
+             payTp    := 0;
+             payYear  := currYear;
+             payMnth  := nmes;
+             rec6_1:=addToF6(tabno,zo,payTp,payMnth,payYear,10.00,false);
+             if rec6_1=nil then
+                begin
+                     ShowMessage('Не добавился Завадский т.н='+IntToStr(tabno));
+                     Continue;
+                end;
+             rec6_1^.sumMax:=0;
+             rec6_1^.sumTotal:=0;
+             rec6_1^.sumNarah:=0;
+             rec6_1^.w_r:=2;
+             rec6_1^.kdNzp:=kd_nzp;
+         end;
+
+ // 11603 Завацкие Ю А Завацкая НЕ 4011они должня быть пустые с 1 и нрс все нули без содержания по втрой строке
+
+ end;
+
+procedure  TFormRepF4.calculateSumNarahInBD;
+ var SqlStmnt:string;
+ begin
+      SQLSTmnt:='update tb_e04t06c tu';
+      SQLSTmnt:=trim(SQLStmnt)+' set tu.sum_narah=tu.sum_max*0.22';
+      SQLSTmnt:=trim(SQLStmnt)+' where ';
+      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(CURRYEAR);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(nmes);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.pay_tp<>13';
+      SQLSTmnt:=trim(SQLStmnt)+'   and not tu.zo in (2,32,42)';
+      SQLExecute(SQLStmnt);
+      SQLSTmnt:='update tb_e04t06c tu';
+      SQLSTmnt:=trim(SQLStmnt)+' set tu.sum_narah=tu.sum_diff*0.22';
+      SQLSTmnt:=trim(SQLStmnt)+' where ';
+      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(CURRYEAR);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(nmes);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.pay_tp=13';
+      SQLSTmnt:=trim(SQLStmnt)+'   and not tu.zo in (2,32,42)';
+      SQLExecute(SQLStmnt);
+      SQLSTmnt:='update tb_e04t06c tu';
+      SQLSTmnt:=trim(SQLStmnt)+' set tu.sum_narah=tu.sum_max*0.0841';
+      SQLSTmnt:=trim(SQLStmnt)+' where ';
+      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(CURRYEAR);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(nmes);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.pay_tp<>13';
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.zo in (2,32,42)';
+      SQLExecute(SQLStmnt);
+      SQLSTmnt:='update tb_e04t06c tu';
+      SQLSTmnt:=trim(SQLStmnt)+' set tu.sum_narah=tu.sum_diff*0.0841';
+      SQLSTmnt:=trim(SQLStmnt)+' where ';
+      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(CURRYEAR);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(nmes);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.pay_tp=13';
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.zo in (2,32,42)';
+      SQLExecute(SQLStmnt);
+
+ end;
+
 function TFormRepF4.isSciPedForSwod(curr_person:person_ptr):boolean;
  var retVal:boolean;
  begin
       retVal:=isSciPed(curr_person);
+      if (curr_person^.tabno=3719) then           // Зеленко
+      if (curr_person^.WID_RABOTY=1) then
+         retVal:=true;
       if ((curr_person^.WID_RABOTY=2) and
           (curr_person^.MESTO_OSN_RABOTY=82)) then
          retVal:=false;
+      if ((curr_person^.tabno =4424)
+         or
+         (curr_person^.tabno= 11761)) then // Белоусов  и Варченко из бухгальтерии
+         retVal:=false;
+      if curr_person^.tabno=11626  then // Заика
+         retVal:=True;
       isSciPedForSwod:=retVal;
  end;
 

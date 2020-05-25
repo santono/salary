@@ -34,6 +34,7 @@ PROCEDURE CALC_FOND;
 PROCEDURE OKLAD_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
 PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
 PROCEDURE DIFF_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
+PROCEDURE PROSTOY_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
 PROCEDURE CALC_UD_FOR_ALL_REST(CURR_PERSON:PERSON_PTR;PERIOD_NEW:INTEGER);
 PROCEDURE CALC_NAUD_WORK_WITHOUT_ALL_REST(CURR_PERSON:PERSON_PTR;PERIOD:INTEGER;LAST_DAY:INTEGER);
 PROCEDURE CALC_NAUD_FULL;
@@ -4182,6 +4183,104 @@ PROCEDURE OKLAD_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
         DEL_ADD(CURR_ADD,CURR_PERSON);
  END;
 
+PROCEDURE PROSTOY_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
+ VAR
+     C_ADD:INTEGER;
+     I,J,II:INTEGER;
+     CURR_ADD:ADD_PTR;
+     SUMMA,O_PERSON:REAL;
+     FOUND:BOOLEAN;
+     OO:REAL;
+     DEJA_SUMMA:REAL;
+     WANTED_SHIFR:INTEGER;
+     CURR_CNC:CN_PTR;
+     CLOCK:REAL;
+     DAY:INTEGER;
+     prostoyDayPerson:real;
+ BEGIN
+
+     IF CURR_PERSON^.AUTOMATIC<>AUTOMATIC_MODE THEN EXIT;
+     DAY:=0;
+     CLOCK:=0;
+     WANTED_SHIFR:=PROSTOY_SHIFR;
+     IF CURR_PERSON^.WID_OPLATY=POCHAS_WID_OPLATY THEN WANTED_SHIFR:=POCHAS_SHIFR;
+     if DOG_POD_PODRAZD(NSRV) then Wanted_Shifr:=DogPodShifr;
+     if (modeIskra and (NSRV=iskraPodr) and (GET_DOL_CODE(curr_person)=6)) then
+        Wanted_Shifr:=DogPodShifr;
+     C_ADD:=COUNT_ADD(CURR_PERSON);
+     J:=0;
+     FOUND:=FALSE;
+     IF C_ADD>0 THEN
+         WHILE (J<C_ADD) AND (NOT FOUND) DO
+          BEGIN
+           J:=J+1;
+           IF J=1 THEN CURR_ADD := CURR_PERSON^.ADD
+                  ELSE CURR_ADD := CURR_ADD^.NEXT;
+           IF CURR_ADD^.SHIFR  =  WANTED_SHIFR   THEN
+           IF CURR_ADD^.VYPLACHENO = NOT_GET_OUT THEN
+           IF CURR_ADD^.PERIOD =  NMES           THEN FOUND:=TRUE;
+          END;
+     IF NOT FOUND THEN
+        BEGIN
+             MAKE_ADD(CURR_ADD,CURR_PERSON);
+             CURR_ADD^.PERIOD:=NMES;
+             CURR_ADD^.SHIFR:=WANTED_SHIFR;
+        END;
+     ProstoyDayPerson:=Prostoy_DAY(1{CURR_PERSON^.START_DAY},LAST_DAY,CURR_PERSON,round(GetWDay(NMES,curr_person)));
+     IF ((CURR_PERSON^.OKLAD<=0) OR (ProstoyDayPerson<=0))
+     THEN
+         O_PERSON:=0.
+     ELSE
+        BEGIN
+             IF CURR_PERSON^.WID_OPLATY=POCHAS_WID_OPLATY THEN {Ïî÷àñîâêà}
+                BEGIN
+                    O_PERSON:=CURR_PERSON^.OKLAD*WORK_CLOCK(CURR_PERSON^.START_DAY,LAST_DAY,CURR_PERSON);
+                    CLOCK:=WORK_CLOCK(CURR_PERSON^.START_DAY,LAST_DAY,CURR_PERSON);
+                    DAY:=0;
+                END
+             ELSE
+                BEGIN
+//                         IF isFiveDayMode(CURR_PERSON) THEN OO:=GetWDay(NMES,curr_person)//OO:=W_DAY[NMES]
+//                                              ELSE OO:=GetWDay(NMES,curr_person);//OO:=W_DAY[NMES];
+                     OO:=GetWDay(NMES,curr_person);//OO:=W_DAY[NMES];
+                     if Abs(oo)<0.9 then
+                        begin
+                             if NMES=FLOW_MONTH then
+                                ShowMessage('Íå çàïîëíåí êàëåíäàðü çà '+getMonthRus(NMES));
+                                O_PERSON:=0
+                        end
+                     else
+                        begin
+//                             WorkDayPerson:=WORK_DAY(1{CURR_PERSON^.START_DAY},LAST_DAY,CURR_PERSON,round(oo));
+                             if ProstoyDayPerson>oo then
+                                ProstoyDayPerson:=oo;
+                             O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*ProstoyDayPerson;
+                        end;
+                     CLOCK:=0;
+                     DAY:=round(ProstoyDayPerson);
+                END;
+        END;
+     IF ((O_PERSON>0) OR (CURR_PERSON^.OKLAD>0.005)) THEN
+        BEGIN
+             DEJA_SUMMA:=SUM_VYPLACHENO_ADD(WANTED_SHIFR,CURR_PERSON,NMES);
+             CURR_CNC:=FIND_CN_BASE(CURR_PERSON,WANTED_SHIFR,NMES);
+             CURR_ADD^.SUMMA:=R10(O_PERSON-DEJA_SUMMA);
+             IF CURR_CNC<>NIL THEN
+                CURR_ADD^.SUMMA:=CURR_ADD^.SUMMA-CURR_CNC^.SUMMA;
+             CURR_ADD^.PERIOD := NMES;
+             CURR_ADD^.SHIFR  := WANTED_SHIFR;
+             CURR_ADD^.FZP    := CURR_ADD^.SUMMA;
+             CURR_ADD^.FMP    := 0;
+             CURR_ADD^.OTHER  := 0;
+             CURR_ADD^.WHO    := 1;
+             CURR_ADD^.WORK_DAY:=DAY;
+             CURR_ADD^.WORK_CLOCK:=CLOCK;
+             IF ABS(CURR_ADD^.SUMMA)<0.01 THEN DEL_ADD(CURR_ADD,CURR_PERSON);
+        END
+                   ELSE
+        DEL_ADD(CURR_ADD,CURR_PERSON);
+ END;
+
 
 PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
  VAR
@@ -4224,7 +4323,7 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      if (CURR_PERSON^.OKLAD<=0.01) then
         Exit;
      OO:=GetWDay(NMES,CURR_PERSON);
-     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON,round(oo));
+     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON,round(oo))+PROSTOY_DAY(1,LAST_DAY,CURR_PERSON,round(oo));
      if O_day<1 then
         Exit;
      repeat
@@ -5021,7 +5120,7 @@ PROCEDURE WORK_OUT_DOLG(CURR_PERSON:PERSON_PTR);
                                 if Abs(oo)<0.99 then
                                    O_PERSON:=0
                                 else                                                 
-    O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,ROUND(OO));
+    O_PERSON:=GET_PERSON_OKLAD(CURR_PERSON)/OO*WORK_DAY_NADB(1,{CURR_PERSON^.START_DAY}LAST_DAY,CURR_PERSON,ROUND(OO));
                                 if O_PERSON<0.1 then O_PERSON:=0;
                                 CURR_ADDW^.SUMMA:=R10(O_PERSON*CURR_CN^.SUMMA/100-
                                       SUM_VYPLACHENO_ADD_ID(CURR_CN^.SHIFR,CURR_PERSON,PERIOD,CURR_ADDW^.WHO));
@@ -5370,6 +5469,9 @@ BEGIN
                  BEGIN
                       CheckTabelForUwol(Curr_Person);
                       OKLAD_PERSON(CURR_PERSON,LAST_DAY);
+                      if isSVDN then
+                         PROSTOY_PERSON(CURR_PERSON,LAST_DAY);
+
                       CALC_NAUD_WORK_WITHOUT_ALL_REST(CURR_PERSON,NMES,LAST_DAY);
                       DOPL_DO_MIN_SAL_PERSON(CURR_PERSON,LAST_DAY);
 //                      DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);
@@ -5424,6 +5526,14 @@ BEGIN {ÍÀ×ÀËÎ ÃËÀÂÍÎÉ ÏÐÎÃÐÀÌÌÛ CALC_NAUD(CURR_PERSON)}
           else
            Error('Îøèáêà ðàñ÷åòà ïðî÷èõ íà÷èñëåíèé 1');
        end;
+       if isSVDN then
+          try
+             PROSTOY_PERSON(CURR_PERSON,LAST_DAY);
+          except
+             else
+              Error('Îøèáêà ðàñ÷åòà îïëàòû çà ïðîñòîé');
+           end;
+
        ExcludeShift_Shifr(Curr_Person);
 {            IF CURR_PERSON^.WID_RABOTY=SOWM_WID_RABOTY THEN PODOH_SOWM_PERSON(CURR_PERSON)
                                                ELSE}
@@ -5507,6 +5617,15 @@ BEGIN {ÍÀ×ÀËÎ ÃËÀÂÍÎÉ ÏÐÎÃÐÀÌÌÛ CALC_NAUD(CURR_PERSON)}
                   Error('Îøèáêà ðàñ÷åòà îêëàäà');
              end;
        end;
+       if isSVDN then
+         try
+            PROSTOY_PERSON(CURR_PERSON,LAST_DAY);
+         except
+           else
+               begin
+                    Error('Îøèáêà ðàñ÷åòà îïëàòû çà ïðîñòîé');
+               end;
+         end;
        l:=count_add(curr_person);
        try
           CALC_NAUD_WORK_WITHOUT_ALL_REST(CURR_PERSON,NMES,LAST_DAY);
@@ -5573,6 +5692,8 @@ BEGIN {ÍÀ×ÀËÎ ÃËÀÂÍÎÉ ÏÐÎÃÐÀÌÌÛ CALC_NAUD(CURR_PERSON)}
     l:=count_add(curr_person);
     OKLAD_PERSON(CURR_PERSON,LAST_DAY);
     l:=count_add(curr_person);
+    if isSVDN then
+       PROSTOY_PERSON(curr_person,LAST_DAY);
     CALC_NAUD_WORK_WITHOUT_ALL_REST(CURR_PERSON,NMES,LAST_DAY);
     DOPL_DO_MIN_SAL_PERSON(CURR_PERSON,LAST_DAY);
 //    DIFF_SAL_PERSON(CURR_PERSON,LAST_DAY);

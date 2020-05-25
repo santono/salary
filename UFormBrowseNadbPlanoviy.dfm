@@ -163,6 +163,7 @@ object FormBrowseNadbPlanoviy: TFormBrowseNadbPlanoviy
     VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast, nbEdit, nbPost, nbCancel, nbRefresh]
     Anchors = [akLeft, akBottom]
     TabOrder = 1
+    OnClick = DBNavigator1Click
   end
   object cbUniv: TCheckBox
     Left = 264
@@ -179,9 +180,6 @@ object FormBrowseNadbPlanoviy: TFormBrowseNadbPlanoviy
     UpdateSQL.Strings = (
       'UPDATE TB_NADB_PLANOVIY'
       'SET '
-      ' NPP = :NPP,'
-      ' FIO = :FIO,'
-      ' DOLG = :DOLG,'
       ' PROC = :PROC,'
       ' TABNO = :TABNO'
       'WHERE'
@@ -193,21 +191,6 @@ object FormBrowseNadbPlanoviy: TFormBrowseNadbPlanoviy
       'WHERE'
       '  ID = :OLD_ID'
       ' ')
-    InsertSQL.Strings = (
-      'INSERT INTO TB_NADB_PLANOVIY('
-      ' NPP,'
-      ' FIO,'
-      ' DOLG,'
-      ' PROC,'
-      ' TABNO'
-      ')'
-      'VALUES('
-      ' :NPP,'
-      ' :FIO,'
-      ' :DOLG,'
-      ' :PROC,'
-      ' :TABNO'
-      ')')
     RefreshSQL.Strings = (
       'SELECT'
       ' ID,'
@@ -231,7 +214,7 @@ object FormBrowseNadbPlanoviy: TFormBrowseNadbPlanoviy
       'FROM'
       ' TB_NADB_PLANOVIY '
       'WHERE'
-      '  TB_NADB_PLANOVIY.ID = :OLD_ID'
+      '   TB_NADB_PLANOVIY.ID = :OLD_ID'
       '  '
       ' ')
     SelectSQL.Strings = (

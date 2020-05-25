@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, Buttons, DB, FIBDataSet, FIBDatabase,
-  pFIBDatabase, pFIBDataSet, frxClass, frxDBSet;
+  pFIBDatabase, pFIBDataSet, frxClass, frxDBSet, ExtCtrls;
 
 type
   TFormSwodAlla = class(TForm)
@@ -28,16 +28,21 @@ type
     dsoSwod: TDataSource;
     frxReport1: TfrxReport;
     frxDBDataset1: TfrxDBDataset;
+    rgModeGru: TRadioGroup;
+    cbShifrGru: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btCreateClick(Sender: TObject);
     procedure frxReport1GetValue(const VarName: String;
       var Value: Variant);
+    procedure FormCreate(Sender: TObject);
+    procedure rgModeGruClick(Sender: TObject);
   private
     { Private declarations }
       dateFr:TDateTime;
       dateTo:TDateTime;
       dateFrS:string;
       dateToS:String;
+      wantedShifrGru:Integer;
   public
     { Public declarations }
   end;
@@ -46,7 +51,7 @@ var
   FormSwodAlla: TFormSwodAlla;
 
 implementation
-  uses UFibModule,uFormWait,DateUtils;
+  uses UFibModule,uFormWait,DateUtils,ScrDef,ScrLists,scrutil;
 
 {$R *.dfm}
 
@@ -65,11 +70,17 @@ begin
             ShowMessage('Не верно заданы даты');
             Exit;
         end;
+     if rgModeGru.itemIndex=1 then
+        wantedShifrGru:=cbShifrGru.ItemIndex+1
+     else
+        wantedShifrGru:=0;   
      dsSwod.StartTransaction;
      dsSwod.ParamByName('dFra').AsDate:=dateFr;
      dsSwod.ParamByName('dTOa').AsDate:=dateTo;
+     dsSwod.ParamByName('shifrgrua').AsInteger:=wantedShifrGru;
      dsSwod.ParamByName('dFru').AsDate:=dateFr;
      dsSwod.ParamByName('dTOu').AsDate:=dateTo;
+     dsSwod.ParamByName('shifrgruu').AsInteger:=wantedShifrGru;
      FormWait.Show;
      Application.ProcessMessages;
      dsSwod.Open;
@@ -85,7 +96,42 @@ procedure TFormSwodAlla.frxReport1GetValue(const VarName: String;
   var Value: Variant);
 begin
      if CompareText(Trim(VarName),'period')=0 then
-        Value:='c '+dateToStr(datefr)+' по '+dateToStr(dateto);
+        Value:='c '+dateToStr(datefr)+' по '+dateToStr(dateto)
+     else
+     if CompareText(Trim(VarName),'nameGru')=0 then
+        begin
+             if wantedShifrGru<1 then
+                Value:='по всiм рахункам'
+             else
+                Value:=Trim(GET_IST_NAME(wantedShifrGru));
+        end
+end;
+
+procedure TFormSwodAlla.FormCreate(Sender: TObject);
+var i:Integer;
+begin
+      wantedShifrGru:=0;
+      dtFR.date:=encodeDate(CurrYear,1,1);
+      dtTo.date:=encodeDate(CurrYear,NMES,1);
+      rgModeGru.ItemIndex:=0;
+      cbShifrGru.ItemIndex:=-1;
+      cbShifrGru.Hide;
+      cbShifrGru.Items.Clear;
+      for i:=1 to max_IST_FIN do
+          cbShifrGru.Items.Add(GET_IST_NAME(i));
+      cbShifrGru.ItemIndex:=0;
+end;
+
+procedure TFormSwodAlla.rgModeGruClick(Sender: TObject);
+begin
+     if rgModeGru.ItemIndex=1 then
+        cbShifrGru.Show
+     else
+        begin
+             cbShifrGru.Hide;
+             wantedShifrGru:=0;
+        end;
+     Application.ProcessMessages;      
 end;
 
 end.

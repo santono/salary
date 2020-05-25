@@ -12,6 +12,7 @@ object FormSwodAlla: TFormSwodAlla
   Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -66,6 +67,28 @@ object FormSwodAlla: TFormSwodAlla
     TabOrder = 3
     Kind = bkClose
   end
+  object rgModeGru: TRadioGroup
+    Left = 352
+    Top = 8
+    Width = 257
+    Height = 41
+    Caption = #1056#1077#1078#1080#1084
+    Columns = 2
+    Items.Strings = (
+      #1042#1089#1077' '#1089#1095#1077#1090#1072
+      #1059#1082#1072#1079#1072#1085#1085#1099#1081' '#1089#1095#1077#1090)
+    TabOrder = 4
+    OnClick = rgModeGruClick
+  end
+  object cbShifrGru: TComboBox
+    Left = 280
+    Top = 56
+    Width = 145
+    Height = 21
+    ItemHeight = 13
+    TabOrder = 5
+    Text = 'cbShifrGru'
+  end
   object dsSwod: TpFIBDataSet
     SelectSQL.Strings = (
       
@@ -74,10 +97,10 @@ object FormSwodAlla: TFormSwodAlla
       
         '       b.lineno linenoud, b.shifrsta shifrstaud,b.namesta anmeud' +
         ', b.summa summaud'
-      ' from pr_add_for_swod(:dfra,:dtoa) a'
+      ' from pr_add_for_swod(:dfra,:dtoa,:shifrgrua) a'
       
-        'full outer join pr_ud_for_swod(:dfru,:dtou) b on a.lineno=b.line' +
-        'no')
+        'full outer join pr_ud_for_swod(:dfru,:dtou,:shifrgruu) b on a.li' +
+        'neno=b.lineno')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
     Left = 320
@@ -141,7 +164,7 @@ object FormSwodAlla: TFormSwodAlla
     PrintOptions.Printer = 'Default'
     PrintOptions.PrintOnSheet = 0
     ReportOptions.CreateDate = 42754.982500706020000000
-    ReportOptions.LastChange = 42755.010083726850000000
+    ReportOptions.LastChange = 43976.923491030090000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       'begin'
@@ -163,6 +186,10 @@ object FormSwodAlla: TFormSwodAlla
       item
         Name = 'period'
         Value = ''
+      end
+      item
+        Name = 'nameGru'
+        Value = ''
       end>
     Style = <>
     object Data: TfrxDataPage
@@ -178,8 +205,8 @@ object FormSwodAlla: TFormSwodAlla
         Top = 18.897650000000000000
         Width = 793.701300000000000000
         object Memo1: TfrxMemoView
-          Left = 230.551330000000000000
-          Width = 483.779840000000000000
+          Left = 15.118120000000000000
+          Width = 699.213050000000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -187,8 +214,9 @@ object FormSwodAlla: TFormSwodAlla
           Font.Height = -13
           Font.Name = 'Arial'
           Font.Style = []
+          HAlign = haCenter
           Memo.UTF8 = (
-            #1056#1119#1056#1109#1056#187#1056#1029#1057#8249#1056#8470' '#1057#1027#1056#1030#1056#1109#1056#1169' '#1056#183#1056#176' '#1056#1111#1056#181#1057#1026#1056#1105#1056#1109#1056#1169' [period]')
+            #1056#1119#1056#1109#1056#187#1056#1029#1057#8249#1056#8470' '#1057#1027#1056#1030#1056#1109#1056#1169' '#1056#183#1056#176' '#1056#1111#1056#181#1057#1026#1056#1105#1056#1109#1056#1169' [period] [nameGru]')
           ParentFont = False
         end
         object Memo8: TfrxMemoView

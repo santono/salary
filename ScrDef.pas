@@ -59,7 +59,7 @@ CONST
          MANUAL_MODE               = 2;  {Не пересчитывать в АВТОМАТЕ       }
 { *}     PENSIJA_PODRAZD1           = 81; {ПОДРАЗДЕЛЕНИЕ ПЕНСИОНЕРОВ                               * }
 {$IFDEF SVDN}
-{ *}     MAXSHIFR                  = 174; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
+{ *}     MAXSHIFR                  = 176; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
 {$ELSE}
 { *}     MAXSHIFR                  = 171; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
 {$ENDIF}
@@ -210,10 +210,12 @@ CONST
 { *}     INNERSOWM_SHIFR           = 168;
 { *}     DIFFER_SHIFR              = 169;
 { *}     DOG_POD_VNESH_SOWM_SHIFR  = 173;
+{ *}     PROSTOY_SHIFR             = 175;
 {$ELSE}
 { *}     NeedToPersSwod            = 999; { Включать в свод по персонофикации без сумм  }
 { *}     INNERSOWM_SHIFR           = 999;
 { *}     DIFFER_SHIFR              = 999;
+{ *}     PROSTOY_SHIFR             = 999;
 { *}     NOMER_PODR_SHIFR          = 170;
 {$ENDIF}
 { *}     POL_SHIFR                 =  96; { Отметка пола                                             * }

@@ -43,6 +43,8 @@ interface
    FUNCTION GET_IST_NAME(N_IST:INTEGER):STRING;
    FUNCTION GET_IST_plt_name(n_IST:INTEGER):string;
    FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
+   FUNCTION PROSTOY_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
+   FUNCTION WORK_DAY_NADB(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
    FUNCTION WORK_CLOCK(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
    FUNCTION WORK_CLOCK_LERA(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
    FUNCTION ILL_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
@@ -1526,7 +1528,7 @@ FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxT
                        //    (CURR_PERSON^.TABEL[I]=KOMANDIROWKA) OR
                        //    (CURR_PERSON^.TABEL[I]=Donorsk_tabel)    OR     Т И сказала, что донорские в раб.дни не входят 13 03 2018
                            (CURR_PERSON^.TABEL[I]=LEGK_TRUD)     OR
-                           (CURR_PERSON^.TABEL[I]=PROSTOY_TABEL) OR
+//                           (CURR_PERSON^.TABEL[I]=PROSTOY_TABEL) OR
                            (CURR_PERSON^.TABEL[I]=GOS_OB))       THEN
                            J:=J+1;
       if ((maxTabelDays>0) and (maxTabelDays<32)) then
@@ -1534,6 +1536,35 @@ FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxT
          j:=maxTabelDays;
       WORK_DAY:=J;
  END;
+FUNCTION PROSTOY_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
+ VAR I,J:INTEGER;
+ BEGIN
+      J:=0;
+      FOR I:=START_DAY TO LAST_DAY DO
+         IF ((
+//              CURR_PERSON^.TABEL[I]=RABOTA)       OR
+         //    (CURR_PERSON^.TABEL[I]=KOMANDIROWKA) OR
+         //    (CURR_PERSON^.TABEL[I]=Donorsk_tabel)    OR     Т И сказала, что донорские в раб.дни не входят 13 03 2018
+//                  (CURR_PERSON^.TABEL[I]=LEGK_TRUD)     OR
+                           (CURR_PERSON^.TABEL[I]=PROSTOY_TABEL)
+//                           (CURR_PERSON^.TABEL[I]=GOS_OB
+              ))       THEN
+                           J:=J+1;
+      if ((maxTabelDays>0) and (maxTabelDays<32)) then
+      if j>maxTabelDays then
+         j:=maxTabelDays;
+     PROSTOY_DAY:=J;
+ END;
+
+FUNCTION WORK_DAY_NADB(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
+ var retVal:Integer;
+ begin
+      retVal:=0;
+      retVal := WORK_DAY(start_day,last_day,curr_person,maxTabelDays);
+      if isSVDN then
+         retVal:=retVal+prostoy_day(start_day,last_day,curr_person,maxTabelDays);
+      WORK_DAY_NADB:=retVal;
+ end;
 
    FUNCTION ILL_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):INTEGER;
     VAR I,J:INTEGER;

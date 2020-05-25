@@ -76,6 +76,7 @@ type
       var AColor: TColor; AFont: TFont; var AAlignment: TAlignment;
       var ADone: Boolean);
     procedure N3Click(Sender: TObject);
+    procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
   private
     { Private declarations }
     MonthZa: integer;
@@ -85,7 +86,8 @@ type
     procedure fillDBFromList;
     procedure emptyList;
     procedure CalcNadbPerson(Tabno:Integer;shifrPod:Integer;GUID:String);
-
+    procedure modifyTableStructure;
+//    procedure modifyTableStructure;
   public
     { Public declarations }
     constructor CreateZa(AOwner: TComponent; MonthZaPar: integer; yearZaPar: integer);
@@ -98,7 +100,7 @@ implementation
 
 uses
   ScrUtil, ScrDef,scrnalog, UFibModule, UFormMoveNabdToDB,SCrIo, USQLUnit, FIBQuery,UFormProgress,
-  uFormWait;
+  uFormWait,UFormUpdateNadbPlanoviy;
 
 type
   pRec = ^TRec;
@@ -576,6 +578,24 @@ procedure TFormBrowseNadbPlanoviy.CalcNadbPerson(Tabno:Integer;shifrPod:Integer;
               curr_cn:=curr_cn^.next;
          end;
   end;
+function existsCnNadb(curr_person:person_ptr):boolean;
+  var curr_cn:CN_PTR;
+      finded:boolean;
+  begin
+       finded:=false;
+       curr_cn := curr_person^.CN;
+       while (curr_cn<>nil) do
+         begin
+              if curr_cn^.shifr=nadbawka_k_z_shifr then
+              if curr_cn^.AUTOMATIC=manual_mode then
+                 begin
+                      finded:=True;
+                      Break;
+                 end;
+              curr_cn:=curr_cn^.next;
+         end;
+       existsCnNadb:=finded;
+  end;
  procedure fillDsNadbRec(curr_person:PERSON_PTR);
   var curr_add:ADD_PTR;
       summa:Real;
@@ -647,12 +667,18 @@ procedure TFormBrowseNadbPlanoviy.CalcNadbPerson(Tabno:Integer;shifrPod:Integer;
       maked:=false;
       while (curr_person<>nil) do
         begin
-             GUIDCurr:= GetGUIDPersonToString(Curr_person);
+             GUIDCurr:= Trim(GetGUIDPersonToString(Curr_person));
              if  curr_person^.oklad>10 then
              if curr_person^.WID_RABOTY=1 then
              if (curr_person.AUTOMATIC=automatic_mode) then
              if (curr_person^.TABNO=Tabno) then
-             if Trim(GUID)=Trim(GUIDCurr) then
+             if ((Length(GUIDCurr)>10) and
+                (Trim(GUID)=Trim(GUIDCurr)))
+                or (
+                     (Length(GUIDCurr)<2)
+                     and
+                     (existsCnNadb(curr_Person))
+                ) then
                 begin
                      unBlockNadbInCn(curr_person);
                      Calc_Naud_person(Curr_Person,31);
@@ -725,9 +751,25 @@ procedure TFormBrowseNadbPlanoviy.N3Click(Sender: TObject);
 begin
      frxReport1.ShowReport;
 end;
+procedure TFormBrowseNadbPlanoviy.modifyTableStructure;
+ var SQLStmnt:string;
+ begin
+ //     SQlStmnt:='ALTER TABLE TB_NADB_PLANOVIY ADD NADBINCN INTEGER';
+ //     SQLExecute(SQLStmnt);
+ end;
 
+
+procedure TFormBrowseNadbPlanoviy.DBNavigator1Click(Sender: TObject;
+  Button: TNavigateBtn);
+begin
+     if Button=nbEdit then
+        begin
+             Application.CreateForm(TFormUpdateNadbPlanoviy,FormUpdateNadbPlanoviy);
+             FormUpdateNadbPlanoviy.ShowModal;
+        end;
+end;
 begin
     list:=nil;
-    
+
 end.
 
