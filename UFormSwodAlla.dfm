@@ -38,6 +38,7 @@ object FormSwodAlla: TFormSwodAlla
     Time = 42754.968500995370000000
     DateFormat = dfLong
     TabOrder = 0
+    OnChange = dtFRChange
   end
   object dtTo: TDateTimePicker
     Left = 216
@@ -48,6 +49,7 @@ object FormSwodAlla: TFormSwodAlla
     Time = 42754.968985173610000000
     DateFormat = dfLong
     TabOrder = 1
+    OnChange = dtToChange
   end
   object btCreate: TBitBtn
     Left = 24
@@ -89,6 +91,14 @@ object FormSwodAlla: TFormSwodAlla
     TabOrder = 5
     Text = 'cbShifrGru'
   end
+  object cbPeriod: TCheckBox
+    Left = 440
+    Top = 56
+    Width = 153
+    Height = 17
+    Caption = #1056#1072#1079#1073#1080#1074#1072#1090#1100' '#1087#1086' '#1087#1077#1088#1080#1086#1076#1072#1084
+    TabOrder = 6
+  end
   object dsSwod: TpFIBDataSet
     SelectSQL.Strings = (
       
@@ -96,11 +106,11 @@ object FormSwodAlla: TFormSwodAlla
         'add, a.summa summaadd,'
       
         '       b.lineno linenoud, b.shifrsta shifrstaud,b.namesta anmeud' +
-        ', b.summa summaud'
-      ' from pr_add_for_swod(:dfra,:dtoa,:shifrgrua) a'
+        ', b.summa summaud, a.period aperiod, b.period bperiod'
+      ' from pr_add_for_swod(:dfra,:dtoa,:shifrgrua,:needperiod) a'
       
-        'full outer join pr_ud_for_swod(:dfru,:dtou,:shifrgruu) b on a.li' +
-        'neno=b.lineno')
+        'full outer join pr_ud_for_swod(:dfru,:dtou,:shifrgruu,:needperio' +
+        'd) b on a.lineno=b.lineno')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
     Left = 320
@@ -137,6 +147,12 @@ object FormSwodAlla: TFormSwodAlla
       Size = 2
       RoundByScale = True
     end
+    object dsSwodAPERIOD: TFIBIntegerField
+      FieldName = 'APERIOD'
+    end
+    object dsSwodBPERIOD: TFIBIntegerField
+      FieldName = 'BPERIOD'
+    end
   end
   object trRead: TpFIBTransaction
     DefaultDatabase = FIB.pFIBDatabaseSal
@@ -164,7 +180,7 @@ object FormSwodAlla: TFormSwodAlla
     PrintOptions.Printer = 'Default'
     PrintOptions.PrintOnSheet = 0
     ReportOptions.CreateDate = 42754.982500706020000000
-    ReportOptions.LastChange = 43976.923491030090000000
+    ReportOptions.LastChange = 43977.771768437500000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       'begin'
@@ -238,7 +254,7 @@ object FormSwodAlla: TFormSwodAlla
         object Memo9: TfrxMemoView
           Left = 41.574830000000000000
           Top = 37.795300000000000000
-          Width = 264.567075590000000000
+          Width = 245.669425590000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -305,7 +321,7 @@ object FormSwodAlla: TFormSwodAlla
         object Memo13: TfrxMemoView
           Left = 438.425480000000000000
           Top = 37.795300000000000000
-          Width = 226.771775590000000000
+          Width = 207.874015748031500000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -353,9 +369,41 @@ object FormSwodAlla: TFormSwodAlla
             #1056#1032#1056#1169#1056#181#1057#1026#1056#182#1056#176#1056#1029#1056#1105#1057#1039)
           ParentFont = False
         end
+        object Memo21: TfrxMemoView
+          Left = 287.244280000000000000
+          Top = 37.795300000000000000
+          Width = 18.897650000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Memo.UTF8 = (
+            #1056#1114#1057#8224)
+          ParentFont = False
+        end
+        object Memo22: TfrxMemoView
+          Left = 646.299630000000000000
+          Top = 37.795300000000000000
+          Width = 18.897650000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Memo.UTF8 = (
+            #1056#1114#1057#8224)
+          ParentFont = False
+        end
       end
       object MasterData1: TfrxMasterData
-        Height = 18.897637795275590000
+        Height = 18.897637800000000000
         Top = 136.063080000000000000
         Width = 793.701300000000000000
         DataSet = frxDBDataset1
@@ -383,7 +431,7 @@ object FormSwodAlla: TFormSwodAlla
         end
         object Memo3: TfrxMemoView
           Left = 41.574830000000000000
-          Width = 264.566929130000000000
+          Width = 245.669279130000000000
           Height = 18.897650000000000000
           StretchMode = smMaxHeight
           DisplayFormat.DecimalSeparator = ','
@@ -399,7 +447,7 @@ object FormSwodAlla: TFormSwodAlla
           VAlign = vaCenter
         end
         object Memo4: TfrxMemoView
-          Left = 306.141930000000000000
+          Left = 306.141732280000000000
           Width = 94.488250000000000000
           Height = 18.897650000000000000
           StretchMode = smMaxHeight
@@ -440,7 +488,7 @@ object FormSwodAlla: TFormSwodAlla
         end
         object Memo6: TfrxMemoView
           Left = 438.425480000000000000
-          Width = 226.771653540000000000
+          Width = 207.874015748031500000
           Height = 18.897650000000000000
           StretchMode = smMaxHeight
           DisplayFormat.DecimalSeparator = ','
@@ -476,6 +524,44 @@ object FormSwodAlla: TFormSwodAlla
           ParentFont = False
           VAlign = vaCenter
         end
+        object Memo20: TfrxMemoView
+          Left = 287.244094490000000000
+          Width = 18.897650000000000000
+          Height = 18.897650000000000000
+          StretchMode = smMaxHeight
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[frxDBDataset1."APERIOD"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo23: TfrxMemoView
+          Left = 646.299630000000000000
+          Width = 18.897650000000000000
+          Height = 18.897650000000000000
+          StretchMode = smMaxHeight
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[frxDBDataset1."BPERIOD"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
       end
       object ReportSummary1: TfrxReportSummary
         Height = 22.677180000000000000
@@ -502,7 +588,7 @@ object FormSwodAlla: TFormSwodAlla
         end
         object Memo17: TfrxMemoView
           Left = 3.779530000000000000
-          Width = 302.362400000000000000
+          Width = 302.362216930000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET

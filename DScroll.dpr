@@ -369,7 +369,8 @@ uses
   UFormRptPremGM in 'UFormRptPremGM.pas' {FormRptPremGM},
   UFormSumLimitForCarantine in 'UFormSumLimitForCarantine.pas' {FormSumLimitForCarantine},
   UFormMoveNabdToDB in 'UFormMoveNabdToDB.pas' {FormMoveNabdToDB},
-  UFormBrowseNadbPlanoviy in 'UFormBrowseNadbPlanoviy.pas' {FormBrowseNadbPlanoviy};
+  UFormBrowseNadbPlanoviy in 'UFormBrowseNadbPlanoviy.pas' {FormBrowseNadbPlanoviy},
+  UFormUpdateNadbPlanoviy in 'UFormUpdateNadbPlanoviy.pas' {FormUpdateNadbPlanoviy};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

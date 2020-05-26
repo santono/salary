@@ -57,9 +57,9 @@ implementation
 
 {$R *.dfm}
 const
-      MAX_TABEL_KOD=19;
+      MAX_TABEL_KOD=20;
       SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
-         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ');
+         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ','ТВ');
       LONG_MONTH:ARRAY[1..12] OF INTEGER=
          (31,29,31,30,31,30,31,31,30,31,30,31);
       {$IFDEF SVDN}
@@ -82,7 +82,8 @@ const
             'Легка праця                       ',
             'Донорскi                          ',
             'Подвищення квалiфiкацii           ',
-            'Простой                           ');
+            'Простой                           ',
+            'Творча вiдпустка                  ');
       {$ELSE}
       NAME_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[35]=
            ('Явка на работу                    ',
@@ -103,7 +104,8 @@ const
             'Легкий труд                       ',
             'Донорские                         ',
             'Повышение квалификации            ',
-            'Простой                           ');
+            'Простой                           ',
+            'Творческий отпуск                 ');
       {$ENDIF}
             RIGHT_DIRECTION = 1;
             DOWN_DIRECTION  = 2;
@@ -136,7 +138,7 @@ var I_C,I,J,JJ:Integer;
      StringGridS.Left       := StringGridT.Left + StringGridT.width+1;
      StringGridS.RowCount   := StringGridT.RowCount;
      if isSvdn then
-        StringGridS.ColCount   := 5
+        StringGridS.ColCount   := 6
      else
         StringGridS.ColCount   := 3;
      StringGridS.Cells[0,0] :='Раб';
@@ -145,7 +147,8 @@ var I_C,I,J,JJ:Integer;
      if isSvdn then
         begin
              StringGridS.Cells[3,0] :='Про';
-             StringGridS.Cells[4,0] :='Год';
+             StringGridS.Cells[4,0] :='ТвО';
+             StringGridS.Cells[5,0] :='Год';
         end;
 
      for i:=0 to StringGridS.ColCount-1 do StringGridS.ColWidths[i]:=25;
@@ -163,7 +166,8 @@ var I_C,I,J,JJ:Integer;
               if isSVDN then
                  begin
                       StringGridS.Cells[3,i]:=IntToStr(19);
-                      StringGridS.Cells[4,i]:=' ';
+                      StringGridS.Cells[4,i]:=IntToStr(20);
+                      StringGridS.Cells[5,i]:=' ';
                  end;
          end;
 
@@ -192,15 +196,18 @@ var I_C,I,J,JJ:Integer;
                     JJ:=Prostoy_Day(1,31,Curr_P);
                     if JJ>0 then StringGridS.Cells[3,i]:=IntToStr(JJ)
                             else StringGridS.Cells[3,i]:='';
+                    JJ:=TvOtp_Day(1,31,Curr_P);
+                    if JJ>0 then StringGridS.Cells[4,i]:=IntToStr(JJ)
+                            else StringGridS.Cells[4,i]:='';
                     JJClock:=WORK_CLOCK_LERA(1,31,Curr_P);
                     if (JJClock>0.01) then
                        begin
                             str(roundto(JJClock,-1):15:1,s);
                             s:=trim(s);
-                            StringGridS.Cells[4,i]:=s;
+                            StringGridS.Cells[5,i]:=s;
                        end
                     else
-                       StringGridS.Cells[4,i]:='';
+                       StringGridS.Cells[5,i]:='';
                end;
             if Curr_P^.Automatic=1 then
                begin
@@ -372,15 +379,18 @@ begin
                     JJ:=Prostoy_Day(1,31,C_Person);
                     if JJ>0 then StringGridS.Cells[3,StringGridT.Row]:=IntToStr(JJ)
                             else StringGridS.Cells[3,StringGridT.Row]:='';
+                    JJ:=TvOtp_Day(1,31,C_Person);
+                    if JJ>0 then StringGridS.Cells[4,StringGridT.Row]:=IntToStr(JJ)
+                            else StringGridS.Cells[4,StringGridT.Row]:='';
                     JJClock:=WORK_CLOCK_LERA(1,31,C_Person);
                     if (JJClock>0.01) then
                        begin
                             str(roundto(JJClock,-1):15:1,s);
                             s:=trim(s);
-                            StringGridS.Cells[4,StringGridT.Row]:=s;
+                            StringGridS.Cells[5,StringGridT.Row]:=s;
                        end
                     else
-                       StringGridS.Cells[4,StringGridT.Row]:='';
+                       StringGridS.Cells[5,StringGridT.Row]:='';
                end;
 
              c:=0;
@@ -463,11 +473,14 @@ procedure TFormTabel.showGridRow(wantedRow:integer;curr_person:person_ptr);
                      JJ:=Prostoy_Day(1,31,Curr_Person);
                      if JJ>0 then StringGridS.Cells[3,wantedRow]:=IntToStr(JJ)
                              else StringGridS.Cells[3,wantedRow]:='';
+                     JJ:=TvOtp_Day(1,31,Curr_Person);
+                     if JJ>0 then StringGridS.Cells[4,wantedRow]:=IntToStr(JJ)
+                             else StringGridS.Cells[4,wantedRow]:='';
                      JJClock:=work_clock_lera(1,31,curr_person);
                      Str(JJClock:12:1,s);
                      s:=trim(s);
-                     if JJClock>0.1 then StringGridS.Cells[4,wantedRow]:=s
-                                    else StringGridS.Cells[4,wantedRow]:='';
+                     if JJClock>0.1 then StringGridS.Cells[5,wantedRow]:=s
+                                    else StringGridS.Cells[5,wantedRow]:='';
                end;
             if Curr_Person^.Automatic=1 then
                begin

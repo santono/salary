@@ -35,6 +35,7 @@ CONST
          Donorsk_tabel             =17;  {Легкий труд                           }
          Povkwa_tabel              =18;  {Повышение квалификации }
          Prostoy_tabel             =19;  {Простой (из-за короно вируса 26 04 2020)}
+         Tvorch_otp_tabel          =20;  {Творческий отпуск                 }
 
 
          TEACHER_KATEGORIJA        =  1;

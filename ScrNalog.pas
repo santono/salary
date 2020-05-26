@@ -4323,7 +4323,8 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      if (CURR_PERSON^.OKLAD<=0.01) then
         Exit;
      OO:=GetWDay(NMES,CURR_PERSON);
-     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON,round(oo))+PROSTOY_DAY(1,LAST_DAY,CURR_PERSON,round(oo));
+  //   o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON,round(oo))+PROSTOY_DAY(1,LAST_DAY,CURR_PERSON,round(oo));
+     o_day:=WORK_DAY(1,LAST_DAY,CURR_PERSON,round(oo));
      if O_day<1 then
         Exit;
      repeat

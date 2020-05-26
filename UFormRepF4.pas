@@ -146,8 +146,8 @@ type
     function  getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer):integer;
     function  getOtpDay(tabno:integer;payYear:integer;payMnth:integer):integer;
     procedure fillBolDay;
-    function isSciPedForSwod(curr_person:person_ptr):boolean;
-    procedure  calculateSumNarahInBD;
+    function  isSciPedForSwod(curr_person:person_ptr):boolean;
+    procedure calculateSumNarahInBD;
     procedure moveToBD;
 
   public
@@ -3645,7 +3645,9 @@ function TFormRepF4.getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer)
  end;
 
 procedure  TFormRepF4.addZavadskieToList6;
- const tns:array[1..2] of integer=(4011,11603);
+// const tns:array[1..2] of integer=(4011,11603);
+ const ltns=1;
+ const tns:array[1..1] of integer=(11603);
  var tabno,i,j:integer;
      zo:integer;
      rec6,rec6_1:pRec6;
@@ -3654,7 +3656,8 @@ procedure  TFormRepF4.addZavadskieToList6;
      kd_nzp:Integer;
  begin
       kd_nzp:=lenmonth(EncodeDate(CURRYEAR,NMES,1));
-      for i:=1 to 2 do
+      if ltns>0 then
+      for i:=1 to ltns do
         begin
              tabno:=tns[i];
              rec6:=nil;
