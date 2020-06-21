@@ -242,7 +242,9 @@ object FormBrowseNadbPlanoviy: TFormBrowseNadbPlanoviy
       'WHERE'
       '   YEARZA=:YEARZA'
       'AND'
-      '   MONTHZA=:MONTHZA')
+      '   MONTHZA=:MONTHZA'
+      'ORDER BY FIO'
+      '')
     OnCalcFields = Valueelds
     AllowedUpdateKinds = [ukModify]
     Transaction = trRead

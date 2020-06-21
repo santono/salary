@@ -126,6 +126,7 @@ type
     procedure fillDoplDoMin;
     procedure fillRecalcNarah22;
     procedure addZavadskieToList6;
+    procedure fillSownVneList;
 
     procedure fillTable7;
     procedure fillTable7Dekr;
@@ -297,10 +298,15 @@ implementation
                       tabno         : integer;
                       shifrDogDetId : integer;
                      end;
+           pRecSowmVne = ^TRecSowmVne; // Внешние совместители
+           TRecSowmVne = record
+                          tabno : integer;
+                         end;
   var list5,list6,list7 : TList;
       listIll,listOtp   : TList;
       listCheck         : TList;
       listCPH           : TList;
+      listSowmVne       : TList;
       E:Variant;
 {$R *.dfm}
 (*
@@ -513,6 +519,7 @@ procedure TFormRepF4.CreateReport6;
        list7:=TList.Create;
        listCheck:=TList.Create;
        listCPH:=TList.Create;
+       listSowmVne:=TList.Create;
        ProgressBar1.Min:=0;
        ProgressBar1.Max:=Count_Serv * 8;
        ProgressBar1.Step:=1;
@@ -682,6 +689,7 @@ procedure TFormRepF4.CreateReport6;
 //       fillFullList6Recs;
        addZavadskieToList6;  // ДОбавляются фиктивные сказана Т И 18 05 2020
        fillFullList6RecsFromCheckList;
+       fillSownVneList;
 //       fillRecalcNarah22;       18 05 2020 Расчет в БД после переноса
        fillTable5;
        fillTable7;
@@ -719,6 +727,11 @@ procedure TFormRepF4.CreateReport6;
               dispose(pRecPerson(listCheck.Items[i]));
        listCheck.Free;
        listCheck:=nil;
+       if listSowmVne.count>0 then
+          for i:=0 to listSowmVne.count-1 do
+              dispose(pRecSowmVne(listSowmVne.Items[i]));
+       listSowmVne.Free;
+       listSowmVne:=nil;
        NMES:=savNMES;
        NSRV:=savNSRV;
        MKFLNM;
@@ -3198,6 +3211,77 @@ procedure TFormRepF4.fillFullList6RecsFromCheckList;
 
            end;
   end;
+procedure TFormRepF4.fillSownVneList;
+ var i,iCount:integer;
+     sowmVneRec:pRecSowmVne;
+   procedure addTabnoToSowmList(tabno:integer);
+    var finded:Boolean;
+        j:Integer;
+    begin
+         finded:=false;
+         if listSowmVne.count>0 then
+            for j:=0 to listSowmVne.Count-1 do
+                if pRecSowmVne(listSowmVne.Items[j]).tabno=tabno then
+                   begin
+                        finded:=true;
+                        Break;
+                   end;
+         if finded then Exit;
+         new(sowmVneRec);
+         sowmVneRec.Tabno:=tabno;
+         listSowmVne.add(sowmVneRec);
+
+    end;
+   procedure delTabnoFromSowmList(tabno:integer);
+    var finded:Boolean;
+        j:Integer;
+    begin
+         finded:=false;
+         if listSowmVne.count>0 then
+            for j:=0 to listSowmVne.Count-1 do
+                if pRecSowmVne(listSowmVne.Items[j]).tabno=tabno then
+                   begin
+                        pRecSowmVne(listSowmVne.Items[j]).tabno:=-1;
+                        Break;
+                   end;
+    end;
+   procedure  markOtkForVneSowm(tabno:integer);
+    var i:Integer;
+        finded:Boolean;
+    begin
+         for i:=0 to list6.Count-1 do
+           begin
+                if pRec6(list6.Items[i]).tabno<>tabno then Continue;
+                if not (pRec6(list6.Items[i]).zo in[1,25,26]) then Continue;
+                if (
+                    (pRec6(list6.Items[i]).payTp=0)
+                    and
+                    (pRec6(list6.Items[i]).payMnth=NMES)
+                    and
+                    (pRec6(list6.Items[i]).payYear=CURRYEAR)
+                   ) then
+                   pRec6(list6.Items[i]).kdPtv:=LenMonth(EncodeDate(CURRYEAR,NMES,1));
+
+           end;
+
+    end;
+
+ begin
+      for i:=0 to list6.Count-1 do
+          addTabnoToSowmList(pRec6(list6.Items[i]).tabno);
+      for i:=0 to list6.Count-1 do
+          if pRec6(list6.Items[i]).otk=1 then
+             delTabnoFromSowmList(pRec6(list6.Items[i]).tabno);
+      iCount:=0;
+      for i:=0 to listSowmVne.Count-1 do
+          if pRecSowmVne(listSowmVne.Items[i]).tabno>0 then
+             begin
+                  Inc(iCount);
+                  markOtkForVneSowm(pRecSowmVne(listSowmVne.Items[i]).tabno);
+             end;
+      i:=list6.Count;
+ end;
+
 procedure TFormRepF4.fillRecalcNarah22;
  var summaAdd,summaUdRas,summaI:real;
      proc22:real;

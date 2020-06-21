@@ -673,6 +673,9 @@ object MainForm: TMainForm
         object NKRU: TMenuItem
           Action = ActionRepKRU
         end
+        object N185: TMenuItem
+          Action = ActionRepKRURusDNR
+        end
       end
     end
     object N14: TMenuItem
@@ -1655,6 +1658,10 @@ object MainForm: TMainForm
     object ActionBrowseNadbPlanoviy: TAction
       Caption = #1053#1072#1076#1073#1072#1074#1082#1080' '#1087#1083#1072#1085#1086#1074#1086#1075#1086' '#1086#1090#1076#1077#1083#1072
       OnExecute = ActionBrowseNadbPlanoviyExecute
+    end
+    object ActionRepKRURusDNR: TAction
+      Caption = #1047#1072#1088#1087#1083#1072#1090#1072' '#1088#1072#1073#1086#1090#1085#1080#1082#1072' '#1079#1072' '#1087#1077#1088#1080#1086#1076
+      OnExecute = ActionRepKRURusDNRExecute
     end
   end
   object ImageList1: TImageList

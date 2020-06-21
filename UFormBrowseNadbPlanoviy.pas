@@ -70,11 +70,20 @@ type
     procedure Valueelds(DataSet: TDataSet);
     procedure dxDBGrid1CalcButtonClick(Sender: TObject;
       AbsoluteIndex: Integer);
+(*
     procedure dxDBGrid1CustomDrawCell(Sender: TObject; ACanvas: TCanvas;
-      ARect: TRect; ANode: TdxTreeListNode; AColumn: TdxTreeListColumn;
+      ARect: TRect; ANode: TdxTreeList;
+      Node: AColumn: TdxTreeListColumn;
       ASelected, AFocused, ANewItemRow: Boolean; var AText: String;
       var AColor: TColor; AFont: TFont; var AAlignment: TAlignment;
       var ADone: Boolean);
+*)
+    procedure dxDBGrid1CustomDrawCell(Sender: TObject;
+     ACanvas: TCanvas; ARect: TRect; ANode: TdxTreeListNode;
+     AColumn: TdxTreeListColumn; ASelected, AFocused, ANewItemRow: Boolean;
+     var AText: String; var AColor: TColor; AFont: TFont;
+     var AAlignment: TAlignment; var ADone: Boolean);
+
     procedure N3Click(Sender: TObject);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
   private
@@ -748,7 +757,23 @@ end;
 
 
 procedure TFormBrowseNadbPlanoviy.N3Click(Sender: TObject);
+ var i:Integer;
 begin
+{
+     if not (
+         (list=Unassigned) or
+         (list=nil) or
+         (list.Count=0)
+        ) then
+          begin
+             for i:=0 to list.Count-1 do
+                 Dispose(prec(list.Items[i]));
+             list.Clear;
+          end;
+     fillListFromBD;
+}
+
+
      frxReport1.ShowReport;
 end;
 procedure TFormBrowseNadbPlanoviy.modifyTableStructure;
@@ -767,6 +792,17 @@ begin
              Application.CreateForm(TFormUpdateNadbPlanoviy,FormUpdateNadbPlanoviy);
              FormUpdateNadbPlanoviy.ShowModal;
         end;
+end;
+
+procedure setSQLStatement;
+var SQLStmnt:string;
+begin
+     SQLStmnt:='SELECT ID,NPP,FIO,DOLG,PROC,PROC_SAL,TABNO,SHIFRPOD,RAZR,OKLAD';
+     SQLStmnt:=Trim(SQLStmnt)+',SUMMANADB_RAS,SUMMANADB_FAKT,WORKDAY,NOTNEED';
+     SQLSTMNT:=Trim(SQLStmnt)+',SUMMANADB_RAZN, NADBINCN, GUID';
+     SQLSTMNT:=Trim(SQLStmnt)+' FROM  TB_NADB_PLANOVIY';
+     SQLSTMNT:=Trim(SQLStmnt)+' WHERE YEARZA=:YEARZA AND MONTHZA=:MONTHZA';
+     SQLSTMNT:=Trim(SQLStmnt)+' ORDER BY FIO';
 end;
 begin
     list:=nil;

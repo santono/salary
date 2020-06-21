@@ -417,6 +417,8 @@ type
     N20201: TMenuItem;
     NImportNadb: TMenuItem;
     ActionBrowseNadbPlanoviy: TAction;
+    ActionRepKRURusDNR: TAction;
+    N185: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -687,6 +689,7 @@ type
     procedure N20201Click(Sender: TObject);
     procedure ActionImportNadbFromPlanoviyExecute(Sender: TObject);
     procedure ActionBrowseNadbPlanoviyExecute(Sender: TObject);
+    procedure ActionRepKRURusDNRExecute(Sender: TObject);
 
 
   private
@@ -780,7 +783,7 @@ implementation
   UFormDekrList, UFormRepFondySVDN, UFormMemBud,
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
   UFormRptPremGM, UFormSumLimitForCarantine,
-  UFormBrowseNadbPlanoviy;
+  UFormBrowseNadbPlanoviy, FormKRURosDNRU;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -4834,6 +4837,13 @@ begin
      MonthZa:=NMES;
      FormBrowseNadbPlanoviy:=TFormBrowseNadbPlanoviy.createZa(Self,monthZa,YearZa);
      FormBrowseNadbPlanoviy.showModal;
+end;
+
+procedure TMainForm.ActionRepKRURusDNRExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormKRURosDNR,FormKRURosDNR);
+     FormKRURosDNR.showModal;
+
 end;
 
 end.
