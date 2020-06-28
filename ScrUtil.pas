@@ -5927,6 +5927,31 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
       YFR,MFR,DFR:WORD;
       YTO,MTO,DTO:WORD;
       Template:array[1..31] of Byte;
+      corrected:boolean;
+      dtUw:TDateTime;
+      amntOfSowm:Integer;
+      shifrIdDol:Integer;
+      needcont:boolean;
+  function countSowm(curr_person:person_ptr):integer;
+    var retVal:Integer;
+        c_person:PERSON_PTR;
+        shifrdol:Integer;
+    begin
+         retVal:=0;
+         c_person:=HEAD_PERSON;
+         while (c_person<>nil) do
+          begin
+                shifrdol := GET_DOL_CODE(c_person);
+                if c_person^.TABNO=curr_person^.TABNO then
+                if c_person^.WID_RABOTY=2 then
+                if c_person^.oklad>0 then
+                if (shifrdol>9) and (shifrdol<>1500) then
+                   retVal:=retVal+1;
+                c_person:=c_person^.next;
+          end;
+         countSowm:=retVal;
+
+    end;
   function SetTemplate:Boolean;
     var RetVal:boolean;
         SQLStmnt:widestring;
@@ -5934,6 +5959,36 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
         YS,DataFrS,DataToS:String;
         DateFr,DateTo:TDateTime;
         df,dt,i:integer;
+        modewr:integer;
+        GUIDPerson:string;
+     function getGuidFromOtpSQL:widestring;
+      var SQLStmnt:widestring;
+      begin
+  //         SQLStmnt:='++'+'--';
+           SQLStmnt:='select first 1 guid from ( ';
+           SQLStmnt:=Trim(SQLStmnt)+' select oa1.summa' ;
+           SQLStmnt:=Trim(SQLStmnt)+' ,(select first 1';
+           SQLStmnt:=Trim(SQLStmnt)+'    (select first 1 guid from pr_getguid(p.shifrid, 0)) guid';
+           SQLStmnt:=Trim(SQLStmnt)+' from fadd fad';
+           SQLStmnt:=Trim(SQLStmnt)+'           join person p on p.shifrid=fad.shifridperson';
+           SQLStmnt:=Trim(SQLStmnt)+'           where fad.tabno=a.tabno';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.year_vy=oa1.year_vy';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.month_vy=oa1.month_vy';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.w_place=oa1.w_place';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.year_za=oa1.year_za';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.month_za=oa1.month_za';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.shifrsta=oa1.shifrsta';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.summa=oa1.summa';
+           SQLStmnt:=Trim(SQLStmnt)+' )';
+           SQLStmnt:=Trim(SQLStmnt)+' from otp_add oa1';
+       //    SQLStmnt:=Trim(SQLStmnt)+' --join otpuska ot on ot.shifrid=oa1.shifridotp';
+           SQLStmnt:=Trim(SQLStmnt)+' where oa1.shifridotp=a.shifrid';//+IntToStr(ShifrIdOtp);
+           SQLStmnt:=Trim(SQLStmnt)+'  and oa1.sel>0';
+           SQLStmnt:=Trim(SQLStmnt)+')';
+           SQLStmnt:=Trim(SQLStmnt)+' group by 1';
+           SQLStmnt:=Trim(SQLStmnt)+' order by count(*) desc';
+           getGuidFromOtpSQL:=SQLStmnt;
+      end;
     begin
          RetVal:=False;
          FillChar(Template,SizeOf(Template),0);
@@ -5942,8 +5997,22 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          DateFr:=EncodeDate(Word(Work_Year_Val),word(Nmes),1);
          DataToS:=YS+'-'+IntToStr(NMES)+'-'+IntToStr(LenMonth(DateFr));
          DateTo:=EncodeDate(Word(Work_Year_Val),word(Nmes),Word(LenMonth(DateFr)));
+         if IS_OSN_WID_RABOTY(curr_person) then
+            modewr:=1
+         else
+            modewr:=2;
+         GUIDperson:=Trim(GetGUIDPersonToString(curr_person));
+         if curr_person^.tabno=1356 then
+           isLNR:=true;
 
-         SQLStmnt:=         'select a.f_data,a.l_data from otpuska a';
+         SQLStmnt:=         'select a.f_data,a.l_data,a.shifrid';
+//         if isLNR then
+//            begin
+//                 SQLStmnt:=SQLStmnt+' (select first 1 coalesce(oa.w_place,0) from otp_add oa
+//                 SQLStmnt:=SQLStmnt+' where oa.shifridotp=a.shifrid';
+//                 SQLStmnt:=SQLStmnt+'     and coalesce(oa.sel,0)>0) shifrpod';
+//            end;
+         SQLStmnt:=SQLStmnt+' from otpuska a';
          SQLStmnt:=SQLStmnt+' where not ((a.f_data>'''+DataToS+''') or (a.l_data<'''+DataFrS+'''))';
          SQLStmnt:=SQLStmnt+' and exists (select  * from otp_res b where b.shifridotp=a.shifrid';
          SQLStmnt:=SQLStmnt+' and (extract(year from b.data_pere_bud)='+YS+' or';
@@ -5951,6 +6020,18 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          SQLStmnt:=SQLStmnt+'      extract(year from b.data_pere_gn)=' +YS+' or';
          SQLStmnt:=SQLStmnt+'      extract(year from b.data_pere_nis)='+YS+'))';
          SQLStmnt:=SQLStmnt+' and a.tabno='+IntToStr(Curr_Person^.Tabno);
+      //   if False then
+         if isLNR then
+            begin
+                SQLStmnt:=SQLStmnt + ' and coalesce(a.modewr,0)='+IntToStr(modewr);
+                SQLStmnt:=SQLStmnt+' and (select first 1 coalesce(oa.w_place,0) from otp_add oa';
+                SQLStmnt:=SQLStmnt+'  where oa.shifridotp=a.shifrid';
+                SQLStmnt:=SQLStmnt+'     and coalesce(oa.sel,0)=1)='+IntToStr(NSRV);
+//                SQLStmnt:=SQLStmnt+' and  ('+getGuidFromOtpSQL+')='''+GUIDperson+'''';
+
+
+ //               SQLStmnt:=SQLStmnt + ' and (CHAR_LENGTH(coalesce(a.guid,''1''))>5 and coalesce(a.guid,''1'')='''+GUIDPerson+''') ';
+            end;
 
 //         SQLStmnt='select first 1 s from pr_bld_otp_tabel('+IntToStr(Curr_Person^.Tabno)+','+ys+','+IntToStr
          IsStarted:=false;
@@ -5986,11 +6067,40 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          SetTemplate:=RetVal;
     end;
   BEGIN
-        if not SetTemplate then Exit;
+        if curr_person^.tabno=7817 then
+            isLnr:=true;
+        needcont:=false;
+        shifridDol:=GET_DOL_CODE(curr_person);
+        if SetTemplate then needcont:=True
+        else
+        if isLNR then
+        if curr_person^.WID_RABOTY=2 then
+        if (shifridDol>9) and (shifriddol<>1500) then
+        if Curr_Person^.KATEGORIJA=1 then //pps
+        if (CURRYEAR=2020) and (NMES in [7,8]) then
+           begin
+                needcont:=True;
+           end;
+        if not needcont then Exit;
         U_BOUND:=LENMONTH(EnCodeDate(CurrYear,NMes,1));
         IF NMES=MTO  THEN U_BOUND:=DTO;
         L_BOUND:=1;
         IF NMES=MFR  THEN L_BOUND:=DFR;
+        corrected:=false;
+        if curr_person^.tabno=1356 then
+           isLNR:=true;
+        if curr_person^.WID_RABOTY=2 then
+           begin
+                 amntOfSowm:=countSowm(curr_person);
+           end;
+        if not (
+           (isLNR) and
+           (curr_person^.WID_RABOTY=2) and
+           (NMES in [7,8]) and
+           (CURRYEAR=2020)
+
+         ) then
+
         for l:=1 to 31 do
             if Template[l]=1 then
             if
@@ -5999,10 +6109,26 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                 (GetDayCode(l)=2) OR
                 (GetDayCode(l)=3))
                 ) or isLNR   THEN
+                  begin
     //        IF ((MONTH_DAY[2,NMES,L]=1) OR
     //            (MONTH_DAY[2,NMES,L]=2) OR
     //            (MONTH_DAY[2,NMES,L]=3))   THEN
                CURR_PERSON^.TABEL[L]:=TARIFN_OTPUSK;
+                  corrected:=True;
+                  end;
+
+        if isLNR then
+        if (nmes in [7,8]) and (CURRyear=2020) then
+        if curr_person^.WID_RABOTY=2 then
+    //    if corrected then
+           begin
+                if Curr_Person^.tabno=1356 then
+                   isLNR:=True;
+                dtUw:=encodedate(2020,6,30);
+                setDataUwPerson(Curr_Person,dtUw);
+                curr_person^.AUTOMATIC:=MANUAL_MODE;
+           end;
+
   END;
 
  PROCEDURE MAKE_OG_TABEL_FROM_SQL(Curr_Person:Person_Ptr);

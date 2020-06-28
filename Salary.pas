@@ -419,6 +419,8 @@ type
     ActionBrowseNadbPlanoviy: TAction;
     ActionRepKRURusDNR: TAction;
     N185: TMenuItem;
+    ActionRepBolnPlan: TAction;
+    N186: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -690,6 +692,7 @@ type
     procedure ActionImportNadbFromPlanoviyExecute(Sender: TObject);
     procedure ActionBrowseNadbPlanoviyExecute(Sender: TObject);
     procedure ActionRepKRURusDNRExecute(Sender: TObject);
+    procedure ActionRepBolnPlanExecute(Sender: TObject);
 
 
   private
@@ -783,7 +786,7 @@ implementation
   UFormDekrList, UFormRepFondySVDN, UFormMemBud,
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
   UFormRptPremGM, UFormSumLimitForCarantine,
-  UFormBrowseNadbPlanoviy, FormKRURosDNRU;
+  UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -4843,6 +4846,13 @@ procedure TMainForm.ActionRepKRURusDNRExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormKRURosDNR,FormKRURosDNR);
      FormKRURosDNR.showModal;
+
+end;
+
+procedure TMainForm.ActionRepBolnPlanExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormRepBolnPlan,FormRepBolnPlan);
+     FormRepBolnPlan.showModal;
 
 end;
 

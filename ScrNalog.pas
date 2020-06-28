@@ -4204,7 +4204,7 @@ PROCEDURE PROSTOY_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      CLOCK:=0;
      WANTED_SHIFR:=PROSTOY_SHIFR;
      IF CURR_PERSON^.WID_OPLATY=POCHAS_WID_OPLATY THEN WANTED_SHIFR:=POCHAS_SHIFR;
-     if DOG_POD_PODRAZD(NSRV) then Wanted_Shifr:=DogPodShifr;
+  //   if DOG_POD_PODRAZD(NSRV) then Wanted_Shifr:=DogPodShifr;
      if (modeIskra and (NSRV=iskraPodr) and (GET_DOL_CODE(curr_person)=6)) then
         Wanted_Shifr:=DogPodShifr;
      C_ADD:=COUNT_ADD(CURR_PERSON);

@@ -45,6 +45,7 @@ procedure TFormMakeOtpTableFromSQL.BitBtn1Click(Sender: TObject);
      Curr_Person : Person_ptr;
      done        : boolean;
      i_nsrv      : integer;
+     shifrDol    : Integer;
 begin
      if not needHideGenerMessages then
         if not YesNo('Установить табель из SQL?'+#10+#13+'(Можно испортить данные, подумайте)?') then Exit;
@@ -61,13 +62,23 @@ begin
              mkflnm;
              ProgressBar1.Position := i_nsrv;
              Application.ProcessMessages;
+             if isLNR then
+             if NSRV in [81,82,121,128,140,156,157,158,164,165,179,180,181,182,189] then
+                Continue;
              if not fileexists(fninf) then continue;
              getinf(true);
              curr_Person:=head_Person;
              while (curr_person<>nil) do
               begin
-                   MAKE_OTP_TABEL_FROM_SQL(CURR_PERSON);
-                   MAKE_OG_TABEL_FROM_SQL(CURR_PERSON);
+                   shifrDol:=GET_DOL_CODE(curr_person);
+                   if (shifrDol>0)  and
+                       (shifrDol<>1500) then
+                   if curr_person^.oklad>0 then
+              //     if curr_person^.TABNO=7817 then
+                      begin
+                         MAKE_OTP_TABEL_FROM_SQL(CURR_PERSON);
+                         MAKE_OG_TABEL_FROM_SQL(CURR_PERSON);
+                      end;
                    Curr_Person:=Curr_Person^.Next;
               end;
              putinf;

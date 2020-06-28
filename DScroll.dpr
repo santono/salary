@@ -371,7 +371,8 @@ uses
   UFormMoveNabdToDB in 'UFormMoveNabdToDB.pas' {FormMoveNabdToDB},
   UFormBrowseNadbPlanoviy in 'UFormBrowseNadbPlanoviy.pas' {FormBrowseNadbPlanoviy},
   UFormUpdateNadbPlanoviy in 'UFormUpdateNadbPlanoviy.pas' {FormUpdateNadbPlanoviy},
-  FormKRURosDNRU in 'FormKRURosDNRU.pas' {FormKRURosDNR};
+  FormKRURosDNRU in 'FormKRURosDNRU.pas' {FormKRURosDNR},
+  UFormRepBolnPlan in 'UFormRepBolnPlan.pas' {FormRepBolnPlan};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

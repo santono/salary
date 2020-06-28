@@ -95,6 +95,8 @@ PROCEDURE MODI_INF;
       v:variant;
       SQLStmnt:string;
   begin
+       if isLNR then
+          Exit;
        m := nmes;
        y := CurrYear;
        SQLStmnt := 'select first 1 s from pr_bld_otp_tabel('+IntToStr(Curr_Person^.Tabno)+','+IntToStr(Y)+','+IntToStr(m)+')';
