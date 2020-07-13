@@ -106,6 +106,7 @@ end;
     WantedTabno : integer;
     Curr_Person : Person_Ptr;
     ShifrIdOtp  : Integer;
+    GUIDOtp     : string;
     procedure PrepareHints;
 
     { Public declarations }
@@ -127,7 +128,7 @@ var
   WPodrList  : TList;
 
 implementation
-uses UFibModule,uFormWait,ScrUtil,SCRIO,Types,DateUtils,ScrLists;
+uses UFibModule,uFormWait,ScrUtil,SCRIO,Types,DateUtils,ScrLists,USQLUnit;
 type
      PRec = ^ARec;
      ARec = record
@@ -160,61 +161,71 @@ type
   function GetNmbOfOtp(Tabno:integer):Integer;
    var S:String;
        I_Count:integer;
+       v:variant;
    begin
          Result := 0;
          S:='SELECT count(*) FROM otp where tabno='+IntToStr(Tabno)+
              ' and Month_Vy='+IntToStr(Nmes)+' and Year_Vy='+IntToStr(CurrYear);
-         if not FIB.pFIBQuery.Transaction.Active then
-            FIB.pFIBQuery.Transaction.StartTransaction;
-         FIB.pFIBQuery.SQL.Clear;
-         FIB.pFIBQuery.SQL.Add(S);
-         try
-            FormWait.Show;
-            Application.ProcessMessages;
-            FIB.pFIBQuery.ExecQuery;
-            FormWait.Hide;
-            I_Count:=FIB.pFIBQuery.Fields[0].AsInteger;
-            FIB.pFIBQuery.Close;
-         except
-            MessageDlg('Ошибка получения количества отпускных',mtInformation, [mbOk], 0);
-            if FIB.pFIBQuery.Transaction.Active then
-               FIB.pFIBQuery.Transaction.Commit;
-            Exit;
-         end;
+         v:=SQLQueryValue(S);
+         i_count:=0;
+         if VarIsNumeric(v) then
+            I_COunt:=v;
+//         if not FIB.pFIBQuery.Transaction.Active then
+//            FIB.pFIBQuery.Transaction.StartTransaction;
+//         FIB.pFIBQuery.SQL.Clear;
+//         FIB.pFIBQuery.SQL.Add(S);
+//         try
+//            FormWait.Show;
+//            Application.ProcessMessages;
+//            FIB.pFIBQuery.ExecQuery;
+//            FormWait.Hide;
+//            I_Count:=FIB.pFIBQuery.Fields[0].AsInteger;
+//            FIB.pFIBQuery.Close;
+//         except
+//            MessageDlg('Ошибка получения количества отпускных',mtInformation, [mbOk], 0);
+//            if FIB.pFIBQuery.Transaction.Active then
+//               FIB.pFIBQuery.Transaction.Commit;
+//            Exit;
+//         end;
+//         if FIB.pFIBQuery.Transaction.Active then
+//            FIB.pFIBQuery.Transaction.Commit;
          if ((I_Count>0) and (I_Count<10)) then
             Result:=I_Count;
-         if FIB.pFIBQuery.Transaction.Active then
-            FIB.pFIBQuery.Transaction.Commit;
    end;
 
   function IsCorrectPodrForOtp(WantedSrv:integer):boolean;
    var S:String;
        I_Count:integer;
        RetVal:boolean;
+       v:Variant;
    begin
          RetVal:=true;
+         i_count:=0;
          S:='SELECT count(*) FROM I_PODR where MODE=2 AND SHIFR_POD='+IntToStr(WANTEDSRV);
-         if not FIB.pFIBQuery.Transaction.Active then
-            FIB.pFIBQuery.Transaction.StartTransaction;
-         FIB.pFIBQuery.SQL.Clear;
-         FIB.pFIBQuery.SQL.Add(S);
-         try
-            FormWait.Show;
-            Application.ProcessMessages;
-            FIB.pFIBQuery.ExecQuery;
-            FormWait.Hide;
-            I_Count:=FIB.pFIBQuery.Fields[0].AsInteger;
-            FIB.pFIBQuery.Close;
-         except
-            MessageDlg('Ошибка проверки подразделения',mtInformation, [mbOk], 0);
-            if FIB.pFIBQuery.Transaction.Active then
-               FIB.pFIBQuery.Transaction.Commit;
-            Exit;
-         end;
+         v:=SQLQueryValue(S);
+         if VarIsNumeric(v) then
+            i_Count:=v;
+//         if not FIB.pFIBQuery.Transaction.Active then
+//            FIB.pFIBQuery.Transaction.StartTransaction;
+//         FIB.pFIBQuery.SQL.Clear;
+//         FIB.pFIBQuery.SQL.Add(S);
+//         try
+//            FormWait.Show;
+//            Application.ProcessMessages;
+//            FIB.pFIBQuery.ExecQuery;
+//            FormWait.Hide;
+//            I_Count:=FIB.pFIBQuery.Fields[0].AsInteger;
+//            FIB.pFIBQuery.Close;
+//         except
+//            MessageDlg('Ошибка проверки подразделения',mtInformation, [mbOk], 0);
+//            if FIB.pFIBQuery.Transaction.Active then
+//               FIB.pFIBQuery.Transaction.Commit;
+//            Exit;
+//         end;
+//         if FIB.pFIBQuery.Transaction.Active then
+//            FIB.pFIBQuery.Transaction.Commit;
          if (I_Count>0) then RetVal:=false;
          IsCorrectPodrForOtp:=RetVal;
-         if FIB.pFIBQuery.Transaction.Active then
-            FIB.pFIBQuery.Transaction.Commit;
    end;
 
 procedure TFormMovOtp.PrepareList;
@@ -227,9 +238,13 @@ var
     Data_Pere_Vne : TDateTime;
     Data_Pere_Gn  : TDateTime;
     Data_Pere_Nis : TDateTime;
-
+    v,vRec:Variant;
 
 begin
+     summaBud := 0.0;
+     summaVne := 0.0;
+     SummaGN  := 0.0;
+     SummaNIS := 0.0;
     if WPodrList.Count>0 then
        for i:=0 to WPodrList.Count-1 do
            begin
@@ -245,28 +260,36 @@ begin
         ' from otp_res'            +
         ' join otpuska on otpuska.shifrid=Otp_res.shifridOtp'+
         ' where otpuska.ShifrId='+IntToStr(ShifrIdOtp);
-    if not FIB.pFIBQuery.Transaction.Active then
-       FIB.pFIBQuery.Transaction.StartTransaction;
-    FIB.pFIBQuery.SQL.Clear;
-    FIB.pFIBQuery.SQL.Add(S);
-    try
-       FormWait.Show;
-       Application.ProcessMessages;
-       FIB.pFIBQuery.ExecQuery;
-       FormWait.Hide;
-       SummaBud := FIB.pFIBQuery.Fields[0].AsFloat;
-       SummaVne := FIB.pFIBQuery.Fields[1].AsFloat;
-       SummaGn  := FIB.pFIBQuery.Fields[2].AsFloat;
-       SummaNIS := FIB.pFIBQuery.Fields[3].AsFloat;
-       FIB.pFIBQuery.Close;
-    except
-       ShowMessage('Ошибка получени суммы отпусных');
-       if FIB.pFIBQuery.Transaction.Active then
-          FIB.pFIBQuery.Transaction.Commit;
-       Exit;
-    end;
-    if FIB.pFIBQuery.Transaction.Active then
-       FIB.pFIBQuery.Transaction.Commit;
+    vRec:=SQLQueryRecValues(S);
+    if VarIsArray(vRec) then
+       begin
+            if VarIsNumeric(vRec[0]) then summaBud := vRec[0];
+            if VarIsNumeric(vRec[1]) then summaVne := vRec[1];
+            if VarIsNumeric(vRec[2]) then summaGn  := vRec[2];
+            if VarIsNumeric(vRec[3]) then SummaNIS := vRec[3];
+       end;
+//    if not FIB.pFIBQuery.Transaction.Active then
+//       FIB.pFIBQuery.Transaction.StartTransaction;
+//    FIB.pFIBQuery.SQL.Clear;
+//    FIB.pFIBQuery.SQL.Add(S);
+//    try
+//       FormWait.Show;
+//       Application.ProcessMessages;
+//       FIB.pFIBQuery.ExecQuery;
+//       FormWait.Hide;
+//       SummaBud := FIB.pFIBQuery.Fields[0].AsFloat;
+//       SummaVne := FIB.pFIBQuery.Fields[1].AsFloat;
+//       SummaGn  := FIB.pFIBQuery.Fields[2].AsFloat;
+//       SummaNIS := FIB.pFIBQuery.Fields[3].AsFloat;
+//       FIB.pFIBQuery.Close;
+//    except
+//       ShowMessage('Ошибка получени суммы отпусных');
+//       if FIB.pFIBQuery.Transaction.Active then
+//          FIB.pFIBQuery.Transaction.Commit;
+//       Exit;
+//    end;
+//    if FIB.pFIBQuery.Transaction.Active then
+//       FIB.pFIBQuery.Transaction.Commit;
     if (SummaBud+SummaVne+SummaGN+SummaNis)<0.01 then
         begin
              ShowMessage('Отпускные для переноса либо не отмечены либо уже перенесены');
@@ -274,40 +297,55 @@ begin
              Exit;
         end;
     S:= 'select first 1 mode,kind_otp from otpuska where ShifrId='+IntToStr(ShifrIdOtp);
-    if not FIB.pFIBQuery.Transaction.Active then
-       FIB.pFIBQuery.Transaction.StartTransaction;
-    FIB.pFIBQuery.SQL.Clear;
-    FIB.pFIBQuery.SQL.Add(S);
-    try
-       FormWait.Show;
-       Application.ProcessMessages;
-       FIB.pFIBQuery.ExecQuery;
-       FormWait.Hide;
-       Mode := FIB.pFIBQuery.Fields[0].AsInteger;
-       KindOtp := FIB.pFIBQuery.Fields[1].AsInteger;
-       if ((Mode<0) or (Mode>2)) then Mode:=0;
-       if ((KindOtp<0) or (KindOtp>3)) then KindOtp:=0;
-       FIB.pFIBQuery.Close;
-    except
-       ShowMessage('Ошибка получения режима начисления отпускных');
-       if FIB.pFIBQuery.Transaction.Active then
-          FIB.pFIBQuery.Transaction.Commit;
-       Exit;
-    end;
-    if FIB.pFIBQuery.Transaction.Active then
-       FIB.pFIBQuery.Transaction.Commit;
+    vRec:=SQLQueryRecValues(s);
+    if VarIsArray(vRec) then
+       begin
+            if VarIsNumeric(vRec[0]) then  Mode    := vRec[0];
+            if VarIsNumeric(vRec[1]) then  KindOtp := vRec[1];
+       end;
+
+//    if not FIB.pFIBQuery.Transaction.Active then
+//       FIB.pFIBQuery.Transaction.StartTransaction;
+//    FIB.pFIBQuery.SQL.Clear;
+//    FIB.pFIBQuery.SQL.Add(S);
+//    try
+//       FormWait.Show;
+//       Application.ProcessMessages;
+//       FIB.pFIBQuery.ExecQuery;
+//       FormWait.Hide;
+//       Mode := FIB.pFIBQuery.Fields[0].AsInteger;
+//       KindOtp := FIB.pFIBQuery.Fields[1].AsInteger;
+//       if ((Mode<0) or (Mode>2)) then Mode:=0;
+//       if ((KindOtp<0) or (KindOtp>3)) then KindOtp:=0;
+//       FIB.pFIBQuery.Close;
+//    except
+//       ShowMessage('Ошибка получения режима начисления отпускных');
+//       if FIB.pFIBQuery.Transaction.Active then
+//          FIB.pFIBQuery.Transaction.Commit;
+//       Exit;
+//    end;
+//    if FIB.pFIBQuery.Transaction.Active then
+//       FIB.pFIBQuery.Transaction.Commit;
     S:= 'select b.data_pere_bud,b.data_pere_vne,b.data_pere_gn,b.data_pere_nis from otpuska b where b.ShifrId=' + IntToStr(ShifrIDOtp);
-    if not FIB.pFIBQuery.Transaction.Active then
-       FIB.pFIBQuery.Transaction.StartTransaction;
-    FIB.pFIBQuery.SQL.Clear;
-    FIB.pFIBQuery.SQL.Add(S);
-    FIB.pFIBQuery.ExecQuery;
-    Data_Pere_Bud := FIB.pFIBQuery.Fields[0].AsDate;
-    Data_Pere_Vne := FIB.pFIBQuery.Fields[1].AsDate;
-    Data_Pere_Gn  := FIB.pFIBQuery.Fields[2].AsDate;
-    Data_Pere_Nis := FIB.pFIBQuery.Fields[3].AsDate;
-    if FIB.pFIBQuery.Transaction.Active then
-       FIB.pFIBQuery.Transaction.Commit;
+    vRec:=SQLQueryRecValues(S);
+    if VarIsArray(vRec) then
+       begin
+            if not VarIsNull(vRec[0])   then Data_Pere_Bud := vRec[0];
+            if not VarIsNull(vRec[1])   then Data_Pere_Vne := vRec[1];
+            if not VarIsNull(vRec[2])   then Data_Pere_Gn  := vRec[2];
+            if not VarIsNull(vRec[3])   then Data_Pere_Nis := vRec[3];
+       end;
+//    if not FIB.pFIBQuery.Transaction.Active then
+//       FIB.pFIBQuery.Transaction.StartTransaction;
+//    FIB.pFIBQuery.SQL.Clear;
+//    FIB.pFIBQuery.SQL.Add(S);
+//    FIB.pFIBQuery.ExecQuery;
+//    Data_Pere_Bud := FIB.pFIBQuery.Fields[0].AsDate;
+//    Data_Pere_Vne := FIB.pFIBQuery.Fields[1].AsDate;
+//    Data_Pere_Gn  := FIB.pFIBQuery.Fields[2].AsDate;
+//    Data_Pere_Nis := FIB.pFIBQuery.Fields[3].AsDate;
+//    if FIB.pFIBQuery.Transaction.Active then
+//       FIB.pFIBQuery.Transaction.Commit;
     SummaBudTxt.Caption := '';
     SummaVneTxt.Caption := '';
     SummaGnTxt.Caption  := '';
@@ -332,7 +370,10 @@ begin
     CheckBoxNIS.Hide;
     if abs(SummaBud)>0.009 then
        begin
-            SummaBudTxt.Caption := FORMAT('Бюджет    %12.2f грн',[SummaBud]);
+            if isLNR then
+               SummaBudTxt.Caption := FORMAT('Бюджет    %12.2f руб',[SummaBud])
+            else
+               SummaBudTxt.Caption := FORMAT('Бюджет    %12.2f грн',[SummaBud]);
             CheckBoxBUD.Checked := true;
             CheckBoxBUD.Show;
             if (YearOf(Data_Pere_Bud)>2000) then
@@ -345,6 +386,12 @@ begin
             for i:=1 to PersonList.Count do
                 begin
                      ComboBoxBud.Items.Add(PPersonRec(PersonList.Items[i-1])^.Show);
+//                     if (WantedIndex < 0) then
+                     if length(GUIDOtp) > 10 then
+                     if Length(Trim(PPersonRec(PersonList.Items[i-1])^.GUID))>10 then
+                     if GUIDOtp=Trim(PPersonRec(PersonList.Items[i-1])^.GUID) then
+                     if GruppyList.GetShifrGruM(PPersonRec(PersonList.Items[i-1])^.ShifrGru)=1 then
+                         wantedIndex:=i-1;
                      if (WantedIndex < 0) then
                         if GruppyList.GetShifrGruM(PPersonRec(PersonList.Items[i-1])^.ShifrGru)=1 then
                         if PPersonRec(PersonList.Items[i-1])^.ShifrPod=NSRV then
@@ -369,7 +416,10 @@ begin
     else ComboBoxBud.Hide;
     if abs(SummaVne)>0.009 then
        begin
-            SummaVneTxt.Caption := FORMAT('Внебюджет %12.2f грн',[SummaVne]);
+            if isLNR then
+               SummaVneTxt.Caption := FORMAT('Внебюджет %12.2f руб',[SummaVne])
+            else
+               SummaVneTxt.Caption := FORMAT('Внебюджет %12.2f грн',[SummaVne]);
             ComboBoxVne.Show;
             CheckBoxVNE.Checked := true;
             CheckBoxVNE.Show;
@@ -382,6 +432,12 @@ begin
             for i:=1 to PersonList.Count do
                begin
                     ComboBoxVne.Items.Add(PPersonRec(PersonList.Items[i-1])^.Show);
+//                     if (WantedIndex < 0) then
+                     if length(GUIDOtp) > 10 then
+                     if Length(Trim(PPersonRec(PersonList.Items[i-1])^.GUID))>10 then
+                     if GUIDOtp=Trim(PPersonRec(PersonList.Items[i-1])^.GUID) then
+                     if GruppyList.GetShifrGruM(PPersonRec(PersonList.Items[i-1])^.ShifrGru)=2 then
+                         wantedIndex:=i-1;
                      if (WantedIndex < 0) then
                         if GruppyList.GetShifrGruM(PPersonRec(PersonList.Items[i-1])^.ShifrGru)=2 then
                         if PPersonRec(PersonList.Items[i-1])^.ShifrPod=NSRV then
@@ -406,7 +462,10 @@ begin
     else  ComboBoxVne.Hide;
     if abs(SummaGn)>0.009 then
        begin
-            SummaGnTxt.Caption :=  FORMAT('ГН        %12.2f грн',[SummaGN]);
+            if isLNR then
+               SummaGnTxt.Caption :=  FORMAT('ГН        %12.2f руб',[SummaGN])
+            else
+               SummaGnTxt.Caption :=  FORMAT('ДН        %12.2f грн',[SummaGN]);
             ComboBoxGn.Show;
             CheckBoxGN.Checked := true;
             CheckBoxGN.Show;
@@ -419,6 +478,11 @@ begin
             for i:=1 to PersonList.Count do
                 begin
                      ComboBoxGn.Items.Add(PPersonRec(PersonList.Items[i-1])^.Show);
+//                     if length(GUIDOtp) > 10 then
+                     if Length(Trim(PPersonRec(PersonList.Items[i-1])^.GUID))>10 then
+                     if GUIDOtp=Trim(PPersonRec(PersonList.Items[i-1])^.GUID) then
+                     if GruppyList.GetShifrGruM(PPersonRec(PersonList.Items[i-1])^.ShifrGru)=2 then
+                         wantedIndex:=i-1;
                      if (WantedIndex < 0) then
                         if GruppyList.GetShifrGruM(PPersonRec(PersonList.Items[i-1])^.ShifrGru)=3 then
                         if PPersonRec(PersonList.Items[i-1])^.ShifrPod=NSRV then
@@ -444,7 +508,10 @@ begin
         ComboBoxGn.Hide;
     if abs(SummaNIS)>0.009 then
        begin
-            SummaNISTxt.Caption := FORMAT('НИС       %12.2f грн',[SummaNis]);
+            if isLNR then
+               SummaNISTxt.Caption := FORMAT('НИС       %12.2f руб.',[SummaNis])
+            else
+              SummaNISTxt.Caption := FORMAT('НIС       %12.2f грн',[SummaNis]);
             ComboBoxNIS.Show;
             CheckBoxNIS.Checked := true;
             CheckBoxNIS.Show;
@@ -457,6 +524,11 @@ begin
             for i:=1 to PersonList.Count do
                 begin
                      ComboBoxNIS.Items.Add(PPersonRec(PersonList.Items[i-1])^.Show);
+//                     if length(GUIDOtp) > 10 then
+                     if Length(Trim(PPersonRec(PersonList.Items[i-1])^.GUID))>10 then
+                     if GUIDOtp=Trim(PPersonRec(PersonList.Items[i-1])^.GUID) then
+                         wantedIndex:=i-1;
+                     if GruppyList.GetShifrGruM(PPersonRec(PersonList.Items[i-1])^.ShifrGru)=2 then
                      if (WantedIndex < 0) then
                         if GruppyList.GetShifrGruM(PPersonRec(PersonList.Items[i-1])^.ShifrGru)=4 then
                         if PPersonRec(PersonList.Items[i-1])^.ShifrPod=NSRV then
@@ -644,13 +716,13 @@ procedure AddCreateNewPersonRec;
        //    if Curr_Sowm^.Where<>102 then
            if IsCorrectPodrForOtp(Curr_Sowm^.Where) then
               begin
-                   while (Head_Person<>Nil) do Del_Person(Head_Person);
+                   EMPTY_ALL_PERSON;
                    nsrv:=Curr_Sowm^.Where;
                    MKFLNM;
                    GETINF(TRUE);
                    FillPersonFromPodr;
                    MarkSowm(Curr_Sowm^.Where);
-                   while head_person<>Nil do Del_Person(Head_person);
+                   EMPTY_ALL_PERSON;
               end;
               Curr_Sowm:=Curr_Sowm^.Next;
       end;
@@ -682,26 +754,34 @@ function TFormMovOtp.IsMovedOtp(ShifrIdOtp:integer):boolean;
   var S:String;
       RetVal:boolean;
       Date_Pere:Tdate;
+      v:Variant;
   begin
        RetVal:=false;
-       S:='select Data_Pere from otpuska  where ShifrId=' + IntToStr(ShifrIDOtp);
-       if FIB.pFIBQuery.Open then FIB.pFIBQuery.Close;
-       FIB.pFIBQuery.SQL.Clear;
-       FIB.pFIBQuery.SQL.Add(S);
-       if not FIB.pFIBQuery.Transaction.Active then
-          FIB.pFIBQuery.Transaction.StartTransaction;
-       try
-          FIB.pFIBQuery.ExecQuery;
-          while not FIB.pFIBQuery.Eof do
-             begin
-                  Date_Pere := FIB.pFIBQuery.Fields[0].AsDate;
-                  if YearOf(Date_Pere)>2005 then
-                     RetVal:=true;
-                  break;
-             end;
-       except
-       end;
-       FIB.pFIBQuery.Transaction.Commit;
+       S:='select first 1 Data_Pere from otpuska  where ShifrId=' + IntToStr(ShifrIDOtp);
+       v:=SQLQueryValue(S);
+       if not VarIsNull(v) then
+          begin
+               date_Pere:=v;
+               if YearOf(Date_Pere)>2005 then
+                  RetVal:=true;
+          end;
+//       if FIB.pFIBQuery.Open then FIB.pFIBQuery.Close;
+//       FIB.pFIBQuery.SQL.Clear;
+//       FIB.pFIBQuery.SQL.Add(S);
+//       if not FIB.pFIBQuery.Transaction.Active then
+//          FIB.pFIBQuery.Transaction.StartTransaction;
+//       try
+//          FIB.pFIBQuery.ExecQuery;
+//          while not FIB.pFIBQuery.Eof do
+//             begin
+//                  Date_Pere := FIB.pFIBQuery.Fields[0].AsDate;
+//                  if YearOf(Date_Pere)>2005 then
+//                     RetVal:=true;
+//                  break;
+//             end;
+//       except
+//       end;
+//       FIB.pFIBQuery.Transaction.Commit;
        IsMovedOtp:=RetVal;
   end;
 

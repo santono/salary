@@ -254,6 +254,7 @@ interface
    PROCEDURE MAKE_OTP_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
    PROCEDURE MAKE_OG_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
    function GetShifrWrk:integer;
+   function get_bank_name(shifrban:integer):string;
    FUNCTION IS_LUGANSK(S:STRING):BOOLEAN;
    FUNCTION IS_KASSA(S:STRING):BOOLEAN;
    FUNCTION IS_PRAVEKSBANK(S:STRING):BOOLEAN;
@@ -6097,7 +6098,9 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
            (isLNR) and
            (curr_person^.WID_RABOTY=2) and
            (NMES in [7,8]) and
-           (CURRYEAR=2020)
+           (CURRYEAR=2020) and
+           (curr_person^.KATEGORIJA=1) and
+           (Pos('КАФЕДРА',UPPER_STRING(Name_Serv(NSRV)))>0)
 
          ) then
 
@@ -6119,7 +6122,11 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 
         if isLNR then
         if (nmes in [7,8]) and (CURRyear=2020) then
-        if curr_person^.WID_RABOTY=2 then
+        if ((curr_person^.WID_RABOTY=2)
+             and
+            (curr_person^.KATEGORIJA=1)
+            and (Pos('КАФЕДРА',UPPER_STRING(Name_Serv(NSRV)))>0)
+            ) then
     //    if corrected then
            begin
                 if Curr_Person^.tabno=1356 then
@@ -6638,6 +6645,19 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          END;
       IS_LUGANSK:=L;
   END;
+ function get_bank_name(shifrban:integer):string;
+  var RetVal:string;
+  begin
+       retVal:='Не найден';
+       if shifrban=0 then
+          retVal:='Касса'
+       else
+       if bankiList.count>0 then
+          begin
+               retVal:=BankiList.getBankName(shifrBan);
+          end;
+       get_bank_name:=RetVal;
+  end;
  FUNCTION IS_KASSA(S:STRING):BOOLEAN;
   VAR
       L:BOOLEAN;
@@ -7095,7 +7115,7 @@ end;
        if ShifrPod<>NSRV then
           begin
                PutInf;
-               while Head_Person<>Nil do Del_Person(Head_Person);
+               EMPTY_ALL_PERSON;
                Nsrv:=ShifrPod;
                MKFLNM;
                GETINF(TRUE);
@@ -7144,7 +7164,7 @@ end;
                { Восстановить текущее подразделение }
                if ShifrPod<>Nsrv_Temp then
                    begin
-                         LDel_Person;
+                         EMPTY_ALL_PERSON;
                          Nsrv:=Nsrv_Temp;
                          MKFLNM;
                          GETINF(TRUE);
@@ -7379,7 +7399,7 @@ end;
        if ShifrPod<>NSRV_Temp then
           begin
                PutInf;
-               while head_person<>Nil do Del_Person(Head_Person);
+               EMPTY_ALL_PERSON;
                Nsrv:=NSRV_TEMP;
                MKFLNM;
                GETINF(TRUE);
@@ -12350,7 +12370,7 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
          checkForma5ForVnePerson:=retVal;
     end;
 
-function DeleteFiles(const FileMask: string): integer;
+function DeleteFiles(const FileMask: string;var count:integer): integer;
   var  SearchRec: TSearchRec;
        fName:widestring;
        retVal:integer;
@@ -12384,7 +12404,14 @@ function DeleteFiles(const FileMask: string): integer;
                                     showMessage('Ошибка удаления '+intToStr(GetLastError)+' Файл '+fName+' Атрибуты '+intToStr(FileGetAttr(fName)));
                                     Break
                               end
-                           else inc(retVal);
+                           else
+                              begin
+                                   inc(retVal);
+                                   inc(count);
+                                   FormWait.setLabels('Удаление вирусов','Удалено - '+IntToStr(count));
+                                   Application.processMessages;
+
+                              end
                         end;
                until FindNext(SearchRec) <> 0;
        finally
@@ -12397,15 +12424,18 @@ procedure DeleteViruses;
   const mask1:string='y:\*.exe';
         mask2:string='y:\*.pif';
   var nmb:integer;
+      count:Integer;
   begin
        if not isLNR then exit;
+       FormWait.setLabels('Удаление вирусов','0');
        FormWAit.Show;
        application.ProcessMessages;
-       nmb:=deletefiles(mask1);
-       nmb:=nmb+deletefiles(mask2);
+       count:=0;
+       nmb:=deletefiles(mask1,count);
+       nmb:=nmb+deletefiles(mask2,count);
        FormWAit.Hide;
        application.ProcessMessages;
-       showMessage('Удалены '+intToStr(nmb)+' вирусов.');
+       showMessage('Удалено '+intToStr(nmb)+' вирусов.');
   end;
 
 end.

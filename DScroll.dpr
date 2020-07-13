@@ -372,7 +372,8 @@ uses
   UFormBrowseNadbPlanoviy in 'UFormBrowseNadbPlanoviy.pas' {FormBrowseNadbPlanoviy},
   UFormUpdateNadbPlanoviy in 'UFormUpdateNadbPlanoviy.pas' {FormUpdateNadbPlanoviy},
   FormKRURosDNRU in 'FormKRURosDNRU.pas' {FormKRURosDNR},
-  UFormRepBolnPlan in 'UFormRepBolnPlan.pas' {FormRepBolnPlan};
+  UFormRepBolnPlan in 'UFormRepBolnPlan.pas' {FormRepBolnPlan},
+  UFormTestKassaBank in 'UFormTestKassaBank.pas' {FormTestKassaBank};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

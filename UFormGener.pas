@@ -105,12 +105,15 @@ begin
      else
        LabelNextMonth.Caption:='Генерация данных для перехода на '+trim(getMonthRus(M))+' '+intToStr(y)+' г.';
      GetFromDay(m,d5,d6,c);
-     SelectLine;
      wantedShifrPKG:=66;
      if isSVDN then
         LabelDC.Caption:='Рабочих дней '+IntToStr(d5)+'. Часов '+IntToStr(c)+'.'
      else
-        LabelDC.Caption:='Рабочих дней: пятидневка - '+IntToStr(d5)+', шестидневка - '+intToStr(d6)+'. Часов '+IntToStr(c)+'.'
+        begin
+            LabelDC.Caption:='Рабочих дней: пятидневка - '+IntToStr(d5)+', шестидневка - '+intToStr(d6)+'. Часов '+IntToStr(c)+'.' ;
+            wantedShifrPKG:=81;
+        end;
+     SelectLine;
 end;
 
 procedure TFormGener.moveDAYS;
@@ -400,7 +403,7 @@ begin
            Shifr := FIB.pFibQuery.Fields[0].AsInteger;
            name  := FIB.pFibQuery.Fields[1].AsString;
            cbList.Items.Add(IntToStr(shifr)+' '+trim(name));
-           if (shifr=66) then
+           if (shifr=wantedShifrPKG) then
                cbList.Itemindex:=cbList.Items.Count-1;
            FIB.pFibQuery.Next;
        end;

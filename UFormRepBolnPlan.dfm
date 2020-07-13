@@ -26,9 +26,9 @@ object FormRepBolnPlan: TFormRepBolnPlan
   object BitBtn1: TBitBtn
     Left = 16
     Top = 64
-    Width = 185
+    Width = 273
     Height = 25
-    Caption = #1057#1086#1079#1076#1072#1090#1100' '#1086#1090#1095#1077#1090
+    Caption = #1057#1086#1079#1076#1072#1090#1100' '#1086#1090#1095#1077#1090' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090
     TabOrder = 0
     OnClick = BitBtn1Click
   end
@@ -58,5 +58,14 @@ object FormRepBolnPlan: TFormRepBolnPlan
     Width = 609
     Height = 17
     TabOrder = 3
+  end
+  object Button1: TButton
+    Left = 16
+    Top = 104
+    Width = 273
+    Height = 25
+    Caption = #1057#1086#1079#1076#1072#1090#1100' '#1086#1090#1095#1077#1090' '#1082#1086#1083#1083#1077#1076#1078
+    TabOrder = 4
+    OnClick = Button1Click
   end
 end

@@ -461,10 +461,18 @@ procedure TFormOtpAbo.MoveOtp;
      Finded,Eq : boolean;
      Sav,Curr  : array[1..L_Person_Data] of byte;
      J         : integer;
+     GUID      : string;
  begin
       ShifrIdO   := pFIBDataSetOA.FieldByName('ShifrId').AsInteger;
       MONTH_VY   := pFIBDataSetOA.FieldByName('MONTH_VY').AsInteger;
       YEAR_VY    := pFIBDataSetOA.FieldByName('YEAR_VY').AsInteger;
+      GUID       := '';
+      if not pFIBDataSetOAGUID.IsNull then
+         begin
+             GUID       := Trim(pFIBDataSetOAGUID.Value);
+             if Length(GUID)<10 then
+                GUID:='';
+         end;
 //      if (MONTH_VY<>NMES) OR (YEAR_VY<>CURRYEAR) then
       if not ((Year_Vy=2012) and (Month_Vy>5) and (Month_Vy<10)) then
       if ((Year_Vy>1995) and (Year_Vy<>CurrYear)) or ((Month_Vy>0) and (Month_Vy<>NMES)) then
@@ -477,6 +485,7 @@ procedure TFormOtpAbo.MoveOtp;
       FormMovOtp.WantedTabno := WantedTabno;
       FormMovOtp.Curr_Person := WantedCurrPerson;
       FormMovOtp.ShifrIdOtp  := ShifrIdO;
+      FormMovOtp.GUIDOtp     := GUID;
       FormMovOtp.PrepareHints;
       Sav_Person_Rec:=WantedCurrPerson^;
       move(WantedCurrPerson^,Sav,L_Person_Data);

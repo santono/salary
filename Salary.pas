@@ -421,6 +421,8 @@ type
     N185: TMenuItem;
     ActionRepBolnPlan: TAction;
     N186: TMenuItem;
+    ActionCheckKassaBank: TAction;
+    NCheckKassBank: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -693,6 +695,7 @@ type
     procedure ActionBrowseNadbPlanoviyExecute(Sender: TObject);
     procedure ActionRepKRURusDNRExecute(Sender: TObject);
     procedure ActionRepBolnPlanExecute(Sender: TObject);
+    procedure ActionCheckKassaBankExecute(Sender: TObject);
 
 
   private
@@ -786,7 +789,8 @@ implementation
   UFormDekrList, UFormRepFondySVDN, UFormMemBud,
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
   UFormRptPremGM, UFormSumLimitForCarantine,
-  UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan;
+  UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
+  UFormTestKassaBank;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1393,6 +1397,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionRepKRU.Enabled:=false;
           NImportNadb.Enabled:=false;
           NImportNadb.Visible:=false;
+          NCheckKassBank.Enabled:=false;
+          NCheckKassBank.Visible:=false;
+          ActionCheckKassaBank.Enabled:=False;
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
 
@@ -1469,6 +1476,11 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NImportNadb.Enabled:=true;
           NImportNadb.Visible:=true;
           ActionBrowseNadbPlanoviy.Enabled:=true;
+          NCheckKassBank.Enabled:=true;
+          NCheckKassBank.Visible:=true;
+          ActionCheckKassaBank.Enabled:=true;
+
+
 
    //       if DirectoryExists('Y:') then
           if true then
@@ -4853,6 +4865,13 @@ procedure TMainForm.ActionRepBolnPlanExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormRepBolnPlan,FormRepBolnPlan);
      FormRepBolnPlan.showModal;
+
+end;
+
+procedure TMainForm.ActionCheckKassaBankExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormTestKassaBank,FormTestKassaBank);
+     FormTestKassaBank.showModal;
 
 end;
 

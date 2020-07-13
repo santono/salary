@@ -1046,6 +1046,9 @@ object MainForm: TMainForm
         object N177: TMenuItem
           Action = ActionRepNeSovpRazrOkl
         end
+        object NCheckKassBank: TMenuItem
+          Action = ActionCheckKassaBank
+        end
       end
     end
     object N16: TMenuItem
@@ -1669,6 +1672,10 @@ object MainForm: TMainForm
     object ActionRepBolnPlan: TAction
       Caption = #1057#1074#1086#1076' '#1073#1086#1083#1100#1085#1080#1095#1085#1099#1093
       OnExecute = ActionRepBolnPlanExecute
+    end
+    object ActionCheckKassaBank: TAction
+      Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1074#1099#1087#1083#1072#1090' '#1087#1086' '#1082#1072#1089#1089#1077' '#1074' '#1073#1072#1085#1082
+      OnExecute = ActionCheckKassaBankExecute
     end
   end
   object ImageList1: TImageList

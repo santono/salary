@@ -15,16 +15,18 @@ type
     dtIn: TDateTimePicker;
     Label2: TLabel;
     ProgressBar1: TProgressBar;
+    Button1: TButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
-    procedure CreateReport;
+    procedure CreateReport(modeUniKol:integer);
     procedure fillPerson(curr_person:person_ptr);
     procedure fillPersonAUP_PPS(curr_person:person_ptr);
 //    procedure moveToExcel;
-    procedure SwodToExcel;
+    procedure SwodToExcel(modeUniKol:integer);
     function getShifrKat(curr_person:person_ptr):Integer;
 
 //    function initListPlanRecs:boolean;
@@ -70,7 +72,7 @@ end;
 
 procedure TFormRepBolnPlan.BitBtn1Click(Sender: TObject);
 begin
-     CreateReport;
+     CreateReport(1);
 end;
 function TFormRepBolnPlan.getShifrKat(curr_person:person_ptr):Integer;
  var retVal:Integer;
@@ -96,7 +98,7 @@ function TFormRepBolnPlan.getShifrKat(curr_person:person_ptr):Integer;
       getShifrKat:=retVal;
 
  end;
-procedure TFormRepBolnPlan.CreateReport;
+procedure TFormRepBolnPlan.CreateReport(modeUniKol:integer);
   var savNMES,savNSRV:integer;
       iNSRV,i:Integer;
       curr_person:PERSON_PTR;
@@ -117,7 +119,12 @@ procedure TFormRepBolnPlan.CreateReport;
                 ProgressBar1.StepIt;
                 Application.ProcessMessages;
                 if not fileexists(FNINF) then Continue;
-                if nsrv in [81,82,121,149] then continue;
+                if nsrv in [81,82,121,140] then continue;
+//                if modeUniKol=2 then
+//                   if not IsColedgPodr(nsrv) then Continue
+//                   else
+//                else
+//                   if IsColedgPodr(nsrv) then Continue;
                 getinf(false);
                 curr_person:=HEAD_PERSON;
                 while (curr_person<>nil) do
@@ -136,6 +143,11 @@ procedure TFormRepBolnPlan.CreateReport;
                 Application.ProcessMessages;
                 if not fileexists(FNINF) then Continue;
                 if nsrv in [82] then continue;
+                if modeUniKol=2 then
+                   if not IsColedgPodr(nsrv) then Continue
+                   else
+                else
+                   if IsColedgPodr(nsrv) then Continue;
                 getinf(false);
                 curr_person:=HEAD_PERSON;
                 while (curr_person<>nil) do
@@ -146,7 +158,7 @@ procedure TFormRepBolnPlan.CreateReport;
                 EMPTY_ALL_PERSON;
            end;
        Application.ProcessMessages;
-       swodToExcel;
+       swodToExcel(modeUniKol);
        if list.count>0 then
           for i:=0 to list.count-1 do
               dispose(pRec(list.Items[i]));
@@ -165,13 +177,13 @@ procedure TFormRepBolnPlan.fillPerson(curr_person:person_ptr);
        shifrKat:=getShifrKat(curr_person);
        while (curr_add<>nil) do
          begin
-              if curr_add^.shifr=12 then
+              if curr_add^.shifr=BOL_5_SHIFR then
                  if curr_person^.gruppa=1 then
                     swod[shifrKat].summa5bud:=swod[shifrKat].summa5bud+curr_add^.SUMMA
                  else
                     swod[shifrKat].summa5vne:=swod[shifrKat].summa5vne+curr_add^.SUMMA
               else
-              if curr_add^.shifr in [14,15] then
+              if curr_add^.shifr in [BOL_TEK_SHIFR,BOL_PROSHL_SHIFR,DEKRET_SHIFR] then
                  if curr_person^.gruppa=1 then
                     swod[shifrKat].summafssbud:=swod[shifrKat].summafssbud+curr_add^.SUMMA
                  else
@@ -198,7 +210,7 @@ procedure TFormRepBolnPlan.fillPersonAUP_PPS(curr_person:person_ptr);
        list.Add(rec);
   end;
 
-procedure TFormRepBolnPlan.SwodToExcel;
+procedure TFormRepBolnPlan.SwodToExcel(modeUniKol:integer);
 var E,WC:Variant;
     FName,S:String;
     SummaTot,SummaClear,nmbOfSt,avgChisl:real;
@@ -223,7 +235,11 @@ begin
      end;
      E.Visible:=True;
      E.WorkBooks.Open(FName);
-     h:=GetMonthRus(nmes)+' '+IntToStr(CURRYEAR)+' г.';
+     if modeUniKol=2 then
+        h:='Колледж'
+     else
+        h:='Университет';   
+     h:=h+' '+GetMonthRus(nmes)+' '+IntToStr(CURRYEAR)+' г.';
      E.WorkBooks[1].WorkSheets[1].Cells[3,3] := h;
      exRow:=6;
      for i:=1 to 5 do
@@ -246,6 +262,11 @@ begin
         end;
 
 
+end;
+
+procedure TFormRepBolnPlan.Button1Click(Sender: TObject);
+begin
+     CreateReport(2);
 end;
 
 end.
