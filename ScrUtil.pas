@@ -12425,8 +12425,11 @@ procedure DeleteViruses;
         mask2:string='y:\*.pif';
   var nmb:integer;
       count:Integer;
+      tmpLabel1,tmpLabel2:string;
   begin
        if not isLNR then exit;
+       tmpLabel1:=FormWait.Label1.Caption;
+       tmpLabel2:=FormWait.Label2.Caption;
        FormWait.setLabels('Удаление вирусов','0');
        FormWAit.Show;
        application.ProcessMessages;
@@ -12436,6 +12439,7 @@ procedure DeleteViruses;
        FormWAit.Hide;
        application.ProcessMessages;
        showMessage('Удалено '+intToStr(nmb)+' вирусов.');
+       FormWait.setLabels(tmpLabel1,tmpLabel2);
   end;
 
 end.
