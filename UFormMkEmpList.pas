@@ -105,7 +105,8 @@ implementation
   uses ScrUtil,ScrLists,ScrIO,UFibModule,ScrNalog, UFormPovLNR,
   UFormMovRecalc0416, UFormMoveRecalcOtp2016, UFormImportFromKU,
   UFormRepRecalcOtp2015,DateUtils,UFormMovePremFromSQL,
-  UFormCalcPrem_11_2017,UFormMoveAwans2017_12,ScrIoSQL;
+  UFormCalcPrem_11_2017,UFormMoveAwans2017_12,ScrIoSQL,
+  UFormMakeVypl082020;
 
 {$R *.dfm}
 
@@ -1787,7 +1788,9 @@ end;
 procedure TFormMkEmpList.BitBtn12Click(Sender: TObject);
 begin
 //     RestoreAdd09FromFile;
-     Restore092014FromDBFirebird;
+//     Restore092014FromDBFirebird;
+       Application.CreateForm(TFormMakeVypl082020 ,FormMakeVypl082020);
+       FormMakeVypl082020.sHOWmODAL; 
 end;
 
 procedure TFormMkEmpList.BitBtn13Click(Sender: TObject);

@@ -1028,6 +1028,9 @@ object MainForm: TMainForm
         object NImportNadb: TMenuItem
           Action = ActionBrowseNadbPlanoviy
         end
+        object NMove156LNR: TMenuItem
+          Action = ActionMove156LNR
+        end
       end
       object N170: TMenuItem
         Caption = #1058#1077#1089#1090#1099
@@ -1676,6 +1679,10 @@ object MainForm: TMainForm
     object ActionCheckKassaBank: TAction
       Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1074#1099#1087#1083#1072#1090' '#1087#1086' '#1082#1072#1089#1089#1077' '#1074' '#1073#1072#1085#1082
       OnExecute = ActionCheckKassaBankExecute
+    end
+    object ActionMove156LNR: TAction
+      Caption = #1055#1077#1088#1077#1085#1086#1089' '#1089#1090#1072#1090#1100#1080' 156 '#1080#1079' '#1072#1074#1075#1091#1089#1090#1072' '#1074' '#1089#1077#1085#1090#1103#1073#1088#1100' 2020'
+      OnExecute = ActionMove156LNRExecute
     end
   end
   object ImageList1: TImageList

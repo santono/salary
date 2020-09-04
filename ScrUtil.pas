@@ -5933,6 +5933,16 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
       amntOfSowm:Integer;
       shifrIdDol:Integer;
       needcont:boolean;
+  function countOtpDay(curr_person:person_ptr):Integer;
+   var retVal:Integer;
+       i:Integer;
+   begin
+        retVal:=0;
+        for i:=1 to 31 do
+           if curr_person^.TABEL[i]=TARIFN_OTPUSK then
+              Inc(RetVal);
+        countOtpDay:=retVal;
+   end;
   function countSowm(curr_person:person_ptr):integer;
     var retVal:Integer;
         c_person:PERSON_PTR;
@@ -6003,7 +6013,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          else
             modewr:=2;
          GUIDperson:=Trim(GetGUIDPersonToString(curr_person));
-         if curr_person^.tabno=1356 then
+         if curr_person^.tabno=11648 then
            isLNR:=true;
 
          SQLStmnt:=         'select a.f_data,a.l_data,a.shifrid';
@@ -6015,19 +6025,23 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 //            end;
          SQLStmnt:=SQLStmnt+' from otpuska a';
          SQLStmnt:=SQLStmnt+' where not ((a.f_data>'''+DataToS+''') or (a.l_data<'''+DataFrS+'''))';
-         SQLStmnt:=SQLStmnt+' and exists (select  * from otp_res b where b.shifridotp=a.shifrid';
-         SQLStmnt:=SQLStmnt+' and (extract(year from b.data_pere_bud)='+YS+' or';
-         SQLStmnt:=SQLStmnt+'      extract(year from b.data_pere_vne)='+YS+' or';
-         SQLStmnt:=SQLStmnt+'      extract(year from b.data_pere_gn)=' +YS+' or';
-         SQLStmnt:=SQLStmnt+'      extract(year from b.data_pere_nis)='+YS+'))';
          SQLStmnt:=SQLStmnt+' and a.tabno='+IntToStr(Curr_Person^.Tabno);
+         SQLStmnt:=SQLStmnt+' and exists (select  * from otp_res b where b.shifridotp=a.shifrid';
+//         if not (isLNR and (NMES=8) and (CURRYEAR=2020) and (NSRV<>162)) then
+//            begin
+//         SQLStmnt:=SQLStmnt+' and (extract(year from b.data_pere_bud)='+YS+' or';
+//         SQLStmnt:=SQLStmnt+'      extract(year from b.data_pere_vne)='+YS+' or';
+//         SQLStmnt:=SQLStmnt+'      extract(year from b.data_pere_gn)=' +YS+' or';
+//         SQLStmnt:=SQLStmnt+'      extract(year from b.data_pere_nis)='+YS+')';
+//            end;
       //   if False then
          if isLNR then
             begin
                 SQLStmnt:=SQLStmnt + ' and coalesce(a.modewr,0)='+IntToStr(modewr);
-                SQLStmnt:=SQLStmnt+' and (select first 1 coalesce(oa.w_place,0) from otp_add oa';
+                SQLStmnt:=SQLStmnt+' and exists (select * from otp_add oa';
                 SQLStmnt:=SQLStmnt+'  where oa.shifridotp=a.shifrid';
-                SQLStmnt:=SQLStmnt+'     and coalesce(oa.sel,0)=1)='+IntToStr(NSRV);
+                SQLStmnt:=SQLStmnt+'     and coalesce(oa.sel,0)=1';
+                SQLStmnt:=SQLStmnt+'     and coalesce(oa.w_place,0)='+IntToStr(NSRV)+'))';
 //                SQLStmnt:=SQLStmnt+' and  ('+getGuidFromOtpSQL+')='''+GUIDperson+'''';
 
 
@@ -6069,9 +6083,15 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
     end;
   BEGIN
         if curr_person^.tabno=7817 then
-            isLnr:=true;
+           isLnr:=true;
+        if isLNR then
+        if (CURRYEAR=2020) and (NMES=8) then
+           begin
+               L_BOUND:= countOtpDay(curr_person);
+               if L_BOUND>0 then Exit;
+           END;    
         needcont:=false;
-        shifridDol:=GET_DOL_CODE(curr_person);
+        shifridDol := GET_DOL_CODE(curr_person);
         if SetTemplate then needcont:=True
         else
         if isLNR then
@@ -6083,6 +6103,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                 needcont:=True;
            end;
         if not needcont then Exit;
+
         U_BOUND:=LENMONTH(EnCodeDate(CurrYear,NMes,1));
         IF NMES=MTO  THEN U_BOUND:=DTO;
         L_BOUND:=1;

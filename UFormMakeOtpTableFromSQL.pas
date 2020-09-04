@@ -56,7 +56,7 @@ begin
     savnsrv               := nsrv;
     putinf;
     empty_all_person;
-    for i_nsrv:=1 to count_serv do
+    for i_nsrv:=1 to Count_Serv do
         begin
              nsrv:=i_nsrv;
              mkflnm;
@@ -74,7 +74,7 @@ begin
                    if (shifrDol>0)  and
                        (shifrDol<>1500) then
                    if curr_person^.oklad>0 then
-              //     if curr_person^.TABNO=7817 then
+//                   if curr_person^.TABNO=11802 then
                       begin
                          MAKE_OTP_TABEL_FROM_SQL(CURR_PERSON);
                          MAKE_OG_TABEL_FROM_SQL(CURR_PERSON);

@@ -373,7 +373,9 @@ uses
   UFormUpdateNadbPlanoviy in 'UFormUpdateNadbPlanoviy.pas' {FormUpdateNadbPlanoviy},
   FormKRURosDNRU in 'FormKRURosDNRU.pas' {FormKRURosDNR},
   UFormRepBolnPlan in 'UFormRepBolnPlan.pas' {FormRepBolnPlan},
-  UFormTestKassaBank in 'UFormTestKassaBank.pas' {FormTestKassaBank};
+  UFormTestKassaBank in 'UFormTestKassaBank.pas' {FormTestKassaBank},
+  UFormMakeVypl082020 in 'UFormMakeVypl082020.pas' {FormMakeVypl082020},
+  UFormMakeVypl156082020 in 'UFormMakeVypl156082020.pas' {FormMakeVypl156082020};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

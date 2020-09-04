@@ -423,6 +423,8 @@ type
     N186: TMenuItem;
     ActionCheckKassaBank: TAction;
     NCheckKassBank: TMenuItem;
+    ActionMove156LNR: TAction;
+    NMove156LNR: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -696,6 +698,7 @@ type
     procedure ActionRepKRURusDNRExecute(Sender: TObject);
     procedure ActionRepBolnPlanExecute(Sender: TObject);
     procedure ActionCheckKassaBankExecute(Sender: TObject);
+    procedure ActionMove156LNRExecute(Sender: TObject);
 
 
   private
@@ -790,7 +793,7 @@ implementation
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
   UFormRptPremGM, UFormSumLimitForCarantine,
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
-  UFormTestKassaBank;
+  UFormTestKassaBank, UFormMakeVypl156082020;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1400,6 +1403,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NCheckKassBank.Enabled:=false;
           NCheckKassBank.Visible:=false;
           ActionCheckKassaBank.Enabled:=False;
+          NMove156LNR.Visible:=false;
+          NMove156LNR.Enabled:=false;
+          ActionMove156LNR.enabled:=False;
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
 
@@ -1479,6 +1485,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NCheckKassBank.Enabled:=true;
           NCheckKassBank.Visible:=true;
           ActionCheckKassaBank.Enabled:=true;
+          NMove156LNR.Visible:=true;
+          NMove156LNR.Enabled:=true;
+          ActionMove156LNR.enabled:=true;
 
 
 
@@ -4872,6 +4881,13 @@ procedure TMainForm.ActionCheckKassaBankExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormTestKassaBank,FormTestKassaBank);
      FormTestKassaBank.showModal;
+
+end;
+
+procedure TMainForm.ActionMove156LNRExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormMakeVypl156082020,FormMakeVypl156082020);
+     FormMakeVypl156082020.showModal;
 
 end;
 
