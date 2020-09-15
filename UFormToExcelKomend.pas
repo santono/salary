@@ -126,9 +126,10 @@ type
 
 var
   FormToExcelKomend: TFormToExcelKomend;
+
 implementation
   uses ScrDef,ComObj,ScrUtil,UFibModule,uFormWait,Math, DateUtils,ScrLists,
-  UFormSelPKG,ScrIO, UFormDeponenty;
+       UFormSelPKG,ScrIO, UFormDeponenty;
 
  type pRec=^trec;
       trec=record
