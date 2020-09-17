@@ -8,7 +8,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Grids,ScrDef, ComCtrls, Buttons, Mask, ActnList, Menus,
   cxControls, cxContainer, cxEdit, cxTextEdit, cxMaskEdit, cxDropDownEdit,
-  cxCalendar;
+  cxCalendar, ExtCtrls;
 
 type
   TFormKadry = class(TForm)
@@ -71,6 +71,9 @@ type
     btSearchDolg: TBitBtn;
     BitBtnDogPodSowm: TBitBtn;
     Label5f: TLabel;
+    PanelList: TPanel;
+    Splitter1: TSplitter;
+    PanelForm: TPanel;
     function Execute: boolean;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -384,6 +387,11 @@ begin
 //             ComboBoxBank.Enabled:=False;
         end;
         currRowSelected:=0;
+     PanelList.Width:=220;
+     StringGrid1.Left:=1;
+     StringGrid1.Top:=1;
+     StringGrid1.width:=PanelList.Width-2;
+     StringGrid1.height:=PanelList.Height-2;
 
 end;
 
@@ -1115,6 +1123,7 @@ procedure TFormKadry.btnChgFamClick(Sender: TObject);
      c:String;
      wrongCharacter:string;
      IsCorrect:Boolean;
+     L_Fio:Integer;
 begin
      if (NMES<>flow_month)then
         begin
@@ -1126,14 +1135,17 @@ begin
              ShowMessage('Не выбран сотрудник');
              Exit;
         end;
+     L_Fio:=40;
+     if Assigned(Curr_Person) then
+        l_fio:=SizeOf(Curr_person^.fio)-1;   
      Fio:=InputBox('Изменение фамилии','Введите Фамилию И.О.',StringGrid1.Cells[1,StringGrid1.Row]);
      Fio:=Trim(Fio);
-     if Length(Fio)>20 then
+     if Length(Fio)>L_FIO then
         begin
-             ShowMessage('Фамилия И.О. - не более 20 букв. А у Вас '+IntToStr(Length(Fio))+' символов');
+             ShowMessage('Фамилия И.О. - не более '+IntToStr(l_FIO)+' символов. А у Вас '+IntToStr(Length(Trim(Fio)))+' символов');
              Exit;
         end;
-     if Length(Fio)<0 then
+     if Length(Fio)<1 then
         begin
              ShowMessage('Фамилия И.О. - не введена.');
              Exit;

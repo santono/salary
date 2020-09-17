@@ -295,11 +295,11 @@ type
 
        PERSON    = RECORD
                        TABNO            : WORD;
-                       FIO              : STRING[20];
+                       FIO              : STRING[50];
                        GRUPPA           : word; {NIS BJDGET,GN,FR}
                        KATEGORIJA       : WORD; {NIS,UWP,PREPOD}
-                       DOLG             : STRING[10];
-                       OKLAD            : REAL48;
+                       DOLG             : STRING[50];
+                       OKLAD            : REAL;
                        WID_RABOTY       : word; {SOWM,OSN}
                        N_TEMY           : STRING[10];
                        MESTO_OSN_RABOTY : WORD;
@@ -309,7 +309,7 @@ type
                        PODOH            : BYTE;
                        MALO             : BYTE;
                        PROFSOJUZ        : BYTE;
-                       DAY              : REAL48;
+                       DAY              : REAL;
                        MAIN             : WORD; {1 - ДЛЯ НАСТОЯЩЕГО ОСНОВНОГО МЕСТА РАБОТЫ}
                                                    {0 - ДЛЯ ПРОШЛОГО ОСНОВНОГО МНСТА РАБОТЫ}
                        TABEL            : TABEL_TYPE;
@@ -340,14 +340,14 @@ type
                        SHIFR      : WORD   ;
                        PERIOD     : BYTE   ;
                        YEAR       : BYTE   ;   {1991 - 1 и т д}
-                       SUMMA      : REAL48   ;
-                       FMP        : REAL48   ;
-                       FZP        : REAL48   ;
-                       OTHER      : REAL48   ;
+                       SUMMA      : REAL   ;
+                       FMP        : REAL   ;
+                       FZP        : REAL   ;
+                       OTHER      : REAL   ;
                        VYPLACHENO : WORD   ;
                        WHO        : WORD   ;    {Получена автоматически или вручную}
                        WORK_DAY   : WORD   ;
-                       WORK_CLOCK : REAL48   ;
+                       WORK_CLOCK : REAL   ;
                        SHIFR_KAT  : BYTE   ;
                        SHIFR_GRU  : BYTE   ;
                        COUNT      : STRING[8];
@@ -357,7 +357,7 @@ type
                        SHIFR      : WORD   ;
                        PERIOD     : BYTE   ;
                        YEAR       : BYTE   ;   {1991 - 1 и т д}
-                       SUMMA      : REAL48 ;
+                       SUMMA      : REAL ;
                        VYPLACHENO : WORD   ;
                        WHO        : WORD   ;   {Получена автоматически или вручную}
                        COUNT      : STRING[8];
@@ -366,12 +366,12 @@ type
       CN        =RECORD
                        SHIFR        : WORD;
                        KOD          : WORD;
-                       SUMMA        : REAL48;
+                       SUMMA        : REAL;
                        PRIM         : word;
-                       PRIM_1       : STRING [8];
+                       PRIM_1       : STRING[50];
                        DEJA_COUNTED : BYTE;       {Флаг "Уже прибавлена сумма для кредита}
-                       FLOW_SUMMA   : REAL48;       {Текущая выплаченная сумма кредита}
-                       LIMIT_SUMMA  : REAL48;       {Требуемая сумма кредита }
+                       FLOW_SUMMA   : REAL;       {Текущая выплаченная сумма кредита}
+                       LIMIT_SUMMA  : REAL;       {Требуемая сумма кредита }
                        AUTOMATIC    : BYTE;
                        ID           : WORD;
                        COUNT        : STRING[8];

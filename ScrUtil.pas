@@ -324,9 +324,9 @@ interface
                                     WantedM:integer):boolean;
 
    //   function GetGUID(var S:String;var Summa:Real):boolean;
-   function GetGUID(var S:String;var Summa1,Summa2,Summa3:Real48):boolean;
+   function GetGUID(var S:String;var Summa1,Summa2,Summa3:Real):boolean;
 //   function  FormatGUID(S:String;Summa:real):string;
-   function  FormatGUID(S:String;Summa1,Summa2,Summa3:real48):string;
+   function  FormatGUID(S:String;Summa1,Summa2,Summa3:real):string;
    procedure MakeGUID(Curr_Person:Person_Ptr);
    function GetGUIDPerson(Curr_Person:Person_ptr; var GUIDS:string):boolean;
    function GetGUIDPersonToString(Curr_Person:Person_ptr):string;
@@ -824,6 +824,7 @@ implementation
      begin
            CurrVersio:=0;
            MKFLNM_BAK_FOR_VERSION(Template);
+           FileAttrs := 0;
            FileAttrs := FileAttrs + faAnyFile;
            if FindFirst(Template, FileAttrs, sr) = 0 then
               repeat
@@ -1293,6 +1294,7 @@ FUNCTION ALLTRIM(T:STRING):STRING;
 
          W_serv:=Shifr_Serv(WN);
          finded:=false;
+         PodrRec:=nil;
          for i:=0 to NameServList.Count-1 do
              begin
                   PodrRec:=NameServList.Items[i];
@@ -4650,16 +4652,18 @@ FUNCTION FIND_CN_BASE(CURR_PERSON:PERSON_PTR;
       FOUND:BOOLEAN;
   BEGIN
        CURR_CNC:=NIL;
-       I_C:=COUNT_CN(CURR_PERSON);
-       I:=0;
-       IF I_C>0 THEN
-       REPEAT
-          I:=I+1;
-          IF I=1 THEN CURR_CN:=CURR_PERSON^.CN
-                 ELSE CURR_CN:=CURR_CN^.NEXT;
-          IF CURR_CN^.SHIFR = WANTED_SHIFR+LIMIT_CN_BASE THEN
-          IF CURR_CN^.PRIM  = WANTED_MONTH THEN CURR_CNC:=CURR_CN;
-       UNTIL (CURR_CNC<>NIL) OR (I=I_C);
+       curr_cn:=CURR_PERSON^.CN;
+       while (curr_cn<>nil) do
+         begin
+               IF CURR_CN^.SHIFR = WANTED_SHIFR+LIMIT_CN_BASE THEN
+               IF CURR_CN^.PRIM  = WANTED_MONTH THEN
+                  begin
+                       CURR_CNC:=CURR_CN;
+                       break;
+                  end;
+               curr_cn:=curr_cn^.Next;
+         end;
+
        FIND_CN_BASE:=CURR_CNC;
   END;
 
@@ -4757,22 +4761,20 @@ FUNCTION IS_TEST_DEKRET(CURR_PERSON:PERSON_PTR):BOOLEAN;
  FUNCTION SUM_VYPLACHENO_ADD_ID(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER;ID:WORD):REAL;
   VAR
       SUMMA:REAL;
-      I,I_A:INTEGER;
       CURR_ADD:ADD_PTR;
       CURR_CNC:CN_PTR;
   BEGIN
        SUMMA:=0;
-       I_A:=COUNT_ADD(CURR_PERSON);
-       IF I_A>0 THEN FOR I:=1 TO I_A DO
-          BEGIN
-               IF I=1 THEN CURR_ADD:=CURR_PERSON^.ADD
-                       ELSE CURR_ADD:=CURR_ADD^.NEXT;
+       CURR_ADD:=CURR_PERSON^.ADD;
+       WHILE (CURR_ADD<>NIL) DO
+         BEGIN
                IF CURR_ADD^.SHIFR=WANTED_SHIFR THEN
                IF CURR_ADD^.VYPLACHENO=GET_OUT THEN
                IF CURR_ADD^.PERIOD=START_MONTH THEN
                IF CURR_ADD^.WHO=ID THEN
                   SUMMA:=SUMMA+CURR_ADD^.SUMMA;
-          END;
+              CURR_ADD:=CURR_ADD^.next;
+         END;
        CURR_CNC:=FIND_CN_BASE(CURR_PERSON,WANTED_SHIFR,NMES);
        IF CURR_CNC<>NIL THEN SUMMA:=SUMMA+CURR_CNC^.SUMMA;
        IF NMES=1 THEN
@@ -5318,7 +5320,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
        if ShifrPod<>NSRV then
           begin
                PutInf;
-               while Head_Person<>Nil do Del_Person(Head_Person);
+               EMPTY_ALL_PERSON;
                Nsrv:=ShifrPod;
                MKFLNM;
                GETINF(TRUE);
@@ -5387,6 +5389,9 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
             Application.ProcessMessages;
             FIB.pFIBQuery.ExecQuery;
             FormWait.Hide;
+            DateFr:=date;
+            DateTo:=date;
+            ShifrSta:=1;
             while not FIB.pFIBQuery.Eof do
              begin
                   ShifrSta := FIB.pFIBQuery.Fields[0].AsInteger;
@@ -5686,6 +5691,9 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
             Application.ProcessMessages;
             FIB.pFIBQuery.ExecQuery;
             FormWait.Hide;
+            DateFr:=date;
+            DateTo:=dateFr;
+            shifrsta:=1;
             while not FIB.pFIBQuery.Eof do
              begin
                   ShifrSta := FIB.pFIBQuery.Fields[0].AsInteger;
@@ -6082,6 +6090,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          SetTemplate:=RetVal;
     end;
   BEGIN
+//<<<<<<< HEAD
         if curr_person^.tabno=7817 then
            isLnr:=true;
         if isLNR then
@@ -6125,6 +6134,14 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 
          ) then
 
+{=======
+        if not SetTemplate then Exit;
+//        U_BOUND:=LENMONTH(EnCodeDate(CurrYear,NMes,1));
+//        IF NMES=MTO  THEN U_BOUND:=DTO;
+//        L_BOUND:=1;
+//        IF NMES=MFR  THEN L_BOUND:=DFR;
+>>>>>>> newio
+}
         for l:=1 to 31 do
             if Template[l]=1 then
             if
@@ -6225,10 +6242,10 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
     end;
  BEGIN
         if not SetTemplate then Exit;
-        U_BOUND:=LENMONTH(EnCodeDate(CurrYear,NMes,1));
-        IF NMES=MTO  THEN U_BOUND:=DTO;
-        L_BOUND:=1;
-        IF NMES=MFR  THEN L_BOUND:=DFR;
+//        U_BOUND:=LENMONTH(EnCodeDate(CurrYear,NMes,1));
+//        IF NMES=MTO  THEN U_BOUND:=DTO;
+//        L_BOUND:=1;
+//        IF NMES=MFR  THEN L_BOUND:=DFR;
         for l:=1 to 31 do
             if Template[l]=1 then
             IF ((GetDayCode(l)=1) OR
@@ -7050,6 +7067,7 @@ end;
        Finded:boolean;
    begin
         Finded:=false;
+        Result:=nil;
         Curr_Person:=HEAD_PERSON;
         while (Curr_Person<>Nil) do
          begin
@@ -7232,6 +7250,9 @@ end;
             Application.ProcessMessages;
             FIB.pFIBQuery.ExecQuery;
             FormWait.Hide;
+            Datefr:=date;
+            DateTo:=DateFr;
+            shifrSta:=1;
             while not FIB.pFIBQuery.Eof do
              begin
                   ShifrSta := FIB.pFIBQuery.Fields[0].AsInteger;
@@ -8023,12 +8044,12 @@ function NeedCodePersonLine(Tabno:integer):boolean;
          end;
    end;
 
- function GetGUID(var S:String;var Summa1,Summa2,Summa3:Real48):boolean;
+ function GetGUID(var S:String;var Summa1,Summa2,Summa3:Real):boolean;
   var hour,min,sec,msec:word;
       year,mon,day:word;
       ir:word;
       dt:TDateTime;
-      a1,a2,a3 : real48;
+      a1,a2,a3 : real;
       i1 :integer absolute a1;
       i2 :integer absolute a2;
       i3 :integer absolute a3;
@@ -8076,10 +8097,10 @@ function NeedCodePersonLine(Tabno:integer):boolean;
         Result:=RetVal;
    end;
 *)
-  function  FormatGUID(S:String;Summa1,Summa2,Summa3:real48):string;
+  function  FormatGUID(S:String;Summa1,Summa2,Summa3:real):string;
    var RetVal:String;
        ir:word;
-       a1,a2,a3 : real48;
+       a1,a2,a3 : real;
        i1 :integer absolute a1;
        i2 :integer absolute a2;
        i3 :integer absolute a3;
@@ -8113,7 +8134,7 @@ function NeedCodePersonLine(Tabno:integer):boolean;
   procedure MakeGUID(Curr_Person:Person_Ptr);
    var Curr_Cn:Cn_Ptr;
        S:String[8];
-       a1,a2,a3:real48;
+       a1,a2,a3:real;
        i:integer;
        finished:boolean;
    begin
@@ -8148,7 +8169,7 @@ function NeedCodePersonLine(Tabno:integer):boolean;
   procedure putGUIDToPerson(Curr_Person:PERSON_PTR;summa1:Real;summa2:Real;summa3:real);
    var Curr_Cn:Cn_Ptr;
        S:String[8];
-       a1,a2,a3:real48;
+       a1,a2,a3:real;
        i:integer;
    begin
       REPEAT
@@ -10109,6 +10130,7 @@ function IsNumericString(S:String):Boolean;
  function SetWorkPlaceKadrySQL(WorkPlace:word;Tabno:integer):boolean;
   var SQLStmnt:string;
   begin
+       Result:=true;
        SQLStmnt:='UPDATE KADRY SET SHIFR_POD='+IntToStr(WorkPlace)+' where tabno='+IntToStr(Tabno);
        FIB.pFIBDataBaseSAL.Execute(SQLStmnt)
   end;
@@ -10116,6 +10138,7 @@ function IsNumericString(S:String):Boolean;
  function ZeroWorkPlaceKadrySQL(Tabno:integer):boolean;
   var SQLStmnt:string;
   begin
+       Result:=true;
        SQLStmnt:='UPDATE KADRY SET SHIFR_POD=0 where tabno='+IntToStr(Tabno);
        FIB.pFIBDataBaseSAL.Execute(SQLStmnt)
   end;
