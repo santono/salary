@@ -117,6 +117,7 @@ type
     procedure ChgTabnoClick(Sender: TObject);
     procedure btSearchDolgClick(Sender: TObject);
     procedure BitBtnDogPodSowmClick(Sender: TObject);
+    procedure PanelListResize(Sender: TObject);
   private
     { Private declarations }
     Curr_Person : Person_Ptr;
@@ -197,7 +198,7 @@ procedure TFormKadry.MakeGrid;
       StringGrid1.Cells[0,0]:='Таб.ном.';
       StringGrid1.Cells[1,0]:='Фамилия И О.';
       StringGrid1.ColWidths[0]:=50;
-      StringGrid1.ColWidths[1]:=200;
+      StringGrid1.ColWidths[1]:=PanelList.Width-StringGrid1.ColWidths[0]-10;
       i:=0;
       while (C_Person<>Nil) do
        begin
@@ -392,6 +393,10 @@ begin
      StringGrid1.Top:=1;
      StringGrid1.width:=PanelList.Width-2;
      StringGrid1.height:=PanelList.Height-2;
+     if isLNR then
+        Label5.Caption:='руб.'
+     else
+        Label5.Caption:='грн.';
 
 end;
 
@@ -497,9 +502,11 @@ begin
 
         end;
      ComboBoxMOR.Text:=NAME_SERV(Curr_Person^.MESTO_OSN_RABOTY);
+     ComboBoxMOR.Hint:=NAME_SERV(Curr_Person^.MESTO_OSN_RABOTY);
   //   ComboBoxMOR.ItemIndex:=Curr_Person^.MESTO_OSN_RABOTY-1;
      ComboBoxMOR.ItemIndex:=getMORItemIndexForShifrPod(Curr_Person^.MESTO_OSN_RABOTY);
      ComboBoxFrom.Text:=NAME_SERV(Curr_Person^.From);
+     ComboBoxFrom.HINT:=NAME_SERV(Curr_Person^.From);
   //     ComboBoxFrom.ItemIndex:=Curr_Person^.From-1;
      ComboBoxFrom.ItemIndex:=getFromItemIndexForShifrPod(Curr_Person^.From);
      if Curr_Person^.PROFSOJUZ=1 then
@@ -541,7 +548,8 @@ begin
         end;
 *)        
      EditRazr.Text:=IntToStr(GetRazrjadPerson(Curr_Person));
-     EditDolg.Text:=Curr_Person^.DOLG;
+     EditDolg.Text :=Curr_Person^.DOLG;
+     EditDolg.Hint := EditDolg.Text;
      DateTimePickerUw.Date:=getDataUwPerson(Curr_Person);
      SetUpDataUwView;
      TABNO:=Curr_Person^.TABNO;
@@ -624,7 +632,11 @@ end;
 
 procedure TFormKadry.EditDolgChange(Sender: TObject);
 begin
-     if Assigned(Curr_Person) then  Curr_Person^.Dolg:=EditDolg.Text;
+     if Assigned(Curr_Person) then
+        begin
+            Curr_Person^.Dolg:=EditDolg.Text;
+        end;
+     EditDolg.Hint:=Trim(EditDolg.Text);       
      TestChangePerson;
 end;
 
@@ -736,7 +748,12 @@ begin
                       s:=Trim(ComboBoxMOR.Items[i]);
                       CURR_PERSON^.MESTO_OSN_RABOTY:=NameServList.findShifrPodByName(S);
                       if CURR_PERSON^.MESTO_OSN_RABOTY=0 then
-                         CURR_PERSON^.MESTO_OSN_RABOTY:=NSRV;
+                         begin
+                             CURR_PERSON^.MESTO_OSN_RABOTY:=NSRV;
+                             ComboBoxMOR.Hint:=Name_Serv(NSRV);
+                         end
+                      else
+                         ComboBoxMOR.Hint:=Trim(S);
                  end;
          end;
   //       CURR_PERSON^.MESTO_OSN_RABOTY:=ComboBoxMOR.ItemIndex+1;
@@ -755,7 +772,15 @@ begin
                       s:=Trim(ComboBoxFrom.Items[i]);
                       CURR_PERSON^.From:=NameServList.findShifrPodByName(S);
                       if CURR_PERSON^.From=0 then
-                         CURR_PERSON^.From:=NSRV;
+                         begin
+                              CURR_PERSON^.From:=NSRV;
+                              ComboBoxFrom.Hint:=Name_Serv(NSRV);
+                         end
+                      else
+                         begin
+                              ComboBoxFrom.Hint:=Trim(s);
+                         end
+
                  end;
          end;
 
@@ -1726,6 +1751,14 @@ begin
         end;
      FormSelDogPodSowm.Free;
     
+end;
+
+procedure TFormKadry.PanelListResize(Sender: TObject);
+begin
+      StringGrid1.Width:=PanelList.Width-4;
+      StringGrid1.ColWidths[1]:=PanelList.Width-StringGrid1.ColWidths[0]-10;
+
+      Application.ProcessMessages;
 end;
 
 end.

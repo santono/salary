@@ -31,6 +31,7 @@ object FormKadry: TFormKadry
     Align = alLeft
     Caption = 'PanelList'
     TabOrder = 0
+    OnResize = PanelListResize
     DesignSize = (
       200
       580)
@@ -57,7 +58,7 @@ object FormKadry: TFormKadry
       OnSelectCell = StringGrid1SelectCell
       ColWidths = (
         64
-        64)
+        125)
     end
   end
   object PanelForm: TPanel
@@ -312,6 +313,8 @@ object FormKadry: TFormKadry
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 5
       Text = 'EditDolg'
       OnChange = EditDolgChange
@@ -379,6 +382,8 @@ object FormKadry: TFormKadry
       Width = 233
       Height = 28
       ItemHeight = 20
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 11
       Text = 'ComboBoxMOR'
       OnChange = ComboBoxMORChange
@@ -421,6 +426,8 @@ object FormKadry: TFormKadry
       Width = 233
       Height = 28
       ItemHeight = 20
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 14
       Text = 'ComboBoxFrom'
       OnChange = ComboBoxFromChange
