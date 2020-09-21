@@ -140,6 +140,7 @@ interface
                procedure ClearSelected(WS:integer);
                procedure UpdatePodrName(NAME:string;ShifrPod:integer);
                function findShifrPodByName(name:String):Integer;
+               function findShifrPodByFilter(filter:String;StartPoint:Integer=0;Direction:Integer=0):Integer;
                function IsSelected(WS:integer)    : boolean;
                function IsCorrectNsrv(WS:integer) : boolean;
                function IS_MO_BUD(WS:integer)     : boolean;
@@ -584,6 +585,62 @@ implementation
               end;
        findShifrPodByName:=retVal;
   end;
+
+function TServList.findShifrPodByFilter(filter:String;StartPoint:Integer=0;Direction:Integer=0):Integer;
+  var retVal:Integer;
+      i,iPos:Integer;
+      f ,s : string;
+      StartPosition:Integer;
+  begin
+       retVal:=0;
+       f:=UPPER_STRING(filter);
+       if Self.Count<1 then  Exit;
+       if (StartPoint=0) then
+          for i:=0 to Self.Count-1 do
+              begin
+                   s:= UPPER_STRING(Trim(PPodrRec(Self.Items[i])^.Name));
+                   iPos:=Pos(f,s);
+                   if (iPos>0) then
+                      begin
+                           retVal:=PPodrRec(Self.Items[i])^.Shifr;
+                          Break;
+                      end;
+              end
+       else
+       if (StartPoint>0) and ((StartPoint+1)<=Self.Count) and (Direction=0)then
+          begin
+               StartPosition:=getLinenoByCode(startPoint);
+               if (StartPosition>0) and ((StartPosition+1)<=Self.Count) and (Direction=0)then
+                  for i:=startPosition+1 to Self.Count-1 do
+                      begin
+                           s:= UPPER_STRING(Trim(PPodrRec(Self.Items[i])^.Name));
+                           iPos:=Pos(f,s);
+                           if (iPos>0) then
+                              begin
+                                   retVal:=PPodrRec(Self.Items[i])^.Shifr;
+                                   Break;
+                              end;
+                      end
+          end
+       else
+       if (StartPoint>0) and (Direction=1)then
+          begin
+               StartPosition:=getLinenoByCode(startPoint);
+               if (StartPosition>=2) and (Direction=1)then
+                  for i:=startPosition-2 downto 0 do
+                      begin
+                           s := UPPER_STRING(Trim(PPodrRec(Self.Items[i])^.Name));
+                           iPos := Pos(f,s);
+                           if (iPos>0) then
+                              begin
+                                   retVal:=PPodrRec(Self.Items[i])^.Shifr;
+                                   Break;
+                              end;
+                      end;
+          end;
+       findShifrPodByFilter:=retVal;
+  end;
+
 
  function TServList.getCodeByLinenoForActiveOnly(lineno:integer):Integer;
   var retVal:Integer;

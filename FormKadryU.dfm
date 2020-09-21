@@ -540,7 +540,7 @@ object FormKadry: TFormKadry
       OnClick = BitBtn2Click
     end
     object BitBtn1: TBitBtn
-      Left = 400
+      Left = 408
       Top = 496
       Width = 88
       Height = 24

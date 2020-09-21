@@ -20,9 +20,22 @@ object FormPodr: TFormPodr
     456)
   PixelsPerInch = 96
   TextHeight = 20
+  object Label1: TLabel
+    Left = 8
+    Top = 0
+    Width = 61
+    Height = 20
+    Caption = #1060#1080#1083#1100#1090#1088
+  end
+  object LabelFilter: TLabel
+    Left = 72
+    Top = 0
+    Width = 4
+    Height = 20
+  end
   object StringGrid1: TStringGrid
     Left = 4
-    Top = 4
+    Top = 28
     Width = 509
     Height = 423
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -38,5 +51,35 @@ object FormPodr: TFormPodr
     ColWidths = (
       64
       542)
+  end
+  object BitBtnClearFilter: TBitBtn
+    Left = 448
+    Top = 0
+    Width = 65
+    Height = 25
+    Anchors = [akTop, akRight]
+    Caption = #1057#1073#1088#1086#1089
+    TabOrder = 1
+    OnClick = BitBtnClearFilterClick
+  end
+  object BitBtnUp: TBitBtn
+    Left = 416
+    Top = 0
+    Width = 27
+    Height = 25
+    Anchors = [akTop, akRight]
+    Caption = '<'
+    TabOrder = 2
+    OnClick = BitBtnUpClick
+  end
+  object BitBtnDown: TBitBtn
+    Left = 384
+    Top = 0
+    Width = 27
+    Height = 25
+    Anchors = [akTop, akRight]
+    Caption = '>'
+    TabOrder = 3
+    OnClick = BitBtnDownClick
   end
 end

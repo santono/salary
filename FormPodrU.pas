@@ -9,11 +9,19 @@ uses
 type
   TFormPodr = class(TForm)
     StringGrid1: TStringGrid;
+    Label1: TLabel;
+    BitBtnClearFilter: TBitBtn;
+    LabelFilter: TLabel;
+    BitBtnUp: TBitBtn;
+    BitBtnDown: TBitBtn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn2Click(Sender: TObject);
     procedure StringGrid1DblClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SetNSRV(I:Integer);
+    procedure SetNSRVByFilter;
+    procedure SetNSRVByFilterForward;
+    procedure SetNSRVByFilterBackward;
     function GetNSRV:Integer;
     function Execute: boolean;
     procedure FormCreate(Sender: TObject);
@@ -22,8 +30,13 @@ type
       var CanSelect: Boolean);
     procedure StringGrid1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure BitBtnClearFilterClick(Sender: TObject);
+    procedure BitBtnDownClick(Sender: TObject);
+    procedure BitBtnUpClick(Sender: TObject);
   private
     Locator:integer;
+    LocatorSaved:Integer;
+    FilterString:string;
     SelectedPodr:Integer;
     MaxPodrNo:Integer;
     procedure MakeGrid;
@@ -68,7 +81,14 @@ end;
 
 procedure TFormPodr.FormShow(Sender: TObject);
 begin
-     Locator := 0;
+      Locator := 0;
+      FilterString:='';
+      LabelFilter.Caption:=FilterString;
+      BitBtnUp.Hide;
+      BitBtnDown.Hide;
+      BitBtnUp.Enabled:=false;
+      BitBtnDown.Enabled:=False;
+
      Self.MakeGrid;
      StringGrid1.SetFocus;
 end;
@@ -76,7 +96,11 @@ end;
 procedure TFormPodr.SetNSRV(I:Integer);
  begin
        SelectedPodr:=shifr_serv(I);
-       Caption:='Подразделение '+IntToStr(SelectedPodr);
+       if isLNR then
+          Caption:='Подразделение '+IntToStr(SelectedPodr)
+       else
+          Caption:='Пiдроздiл '+IntToStr(SelectedPodr)
+
  end;
 function TFormPodr.GetNSRV:Integer;
  begin
@@ -86,6 +110,61 @@ function TFormPodr.GetNSRV:Integer;
           StringGrid1.Row:=SelectedPodr;
 }          
  end;
+procedure TFormPodr.SetNSRVByFilter;
+ var i:Integer;
+ begin
+       i := NameServList.findShifrPodByFilter(FilterString);
+       if i<1 then
+          Caption:=''
+       else
+          begin
+               SelectedPodr:=shifr_serv(I);
+     //          Locator:=selectedPodr;
+               if isLNR then
+                  Caption:='Подразделение '+IntToStr(SelectedPodr)
+               else
+                  Caption:='Пiдроздiл '+IntToStr(SelectedPodr);
+          end;
+
+ end;
+procedure TFormPodr.SetNSRVByFilterForward;
+ var i:Integer;
+ begin
+       if SelectedPodr<1 then Exit;
+       if length(trim(FilterString))<1 then exit;
+       i := NameServList.findShifrPodByFilter(FilterString,SelectedPodr);
+       if i<1 then
+          Caption:=''
+       else
+          begin
+               SelectedPodr:=shifr_serv(I);
+      //         Locator:=SelectedPodr;
+               if isLNR then
+                  Caption:='Подразделение '+IntToStr(SelectedPodr)
+               else
+                  Caption:='Пiдроздiл '+IntToStr(SelectedPodr);
+          end;
+
+ end;
+
+procedure TFormPodr.SetNSRVByFilterBackward;
+ var i:Integer;
+ begin
+       if SelectedPodr<1 then Exit;
+       i := NameServList.findShifrPodByFilter(FilterString,SelectedPodr,1);
+       if i<1 then
+          Caption:=''
+       else
+          begin
+               SelectedPodr:=shifr_serv(I);
+               if isLNR then
+                  Caption:='Подразделение '+IntToStr(SelectedPodr)
+               else
+                  Caption:='Пiдроздiл '+IntToStr(SelectedPodr);
+          end;
+
+ end;
+
 function TFormPodr.getLineNoByShifrPod(shifrPod:integer):Integer;
  var Rec,i,iVal,iErr,retVal:Integer;
      s:string;
@@ -126,7 +205,13 @@ begin
       Height := 572;
       StringGrid1.Height := 501;
       StringGrid1.Width  := 509;
-}      
+}
+      FilterString:='';
+      LabelFilter.Caption:=FilterString;
+      BitBtnUp.Hide;
+      BitBtnDown.Hide;
+      BitBtnUp.Enabled:=false;
+      BitBtnDown.Enabled:=False;
 end;
 
 procedure TFormPodr.MakeGrid;
@@ -176,7 +261,11 @@ procedure TFormPodr.MakeGrid;
               Width:=StringGrid1.Width+10;
               Height:=StringGrid1.Height+100;
               StringGrid1.Cells[0,0]:='Номер';
-              StringGrid1.Cells[1,0]:='Название';
+              if isLNR then
+                 StringGrid1.Cells[1,0]:='Название'
+              else
+                 StringGrid1.Cells[1,0]:='Назва';
+
 //              I:=GetShifrWrk;
               FIB.pFIBQuery.SQL.Clear;
 //              FIB.pFIBQuery.SQL.Add('SELECT ShifrPod FROM TB_BUH_ACCESS WHERE ShifrBuh='+IntToSTr(I)+' ORDER BY SHIFRPOD');
@@ -257,42 +346,87 @@ procedure TFormPodr.StringGrid1KeyPress(Sender: TObject; var Key: Char);
  var i,j:integer;
 begin
       i:=ord(Key);
-      if not ((key in ['0'..'9']) or (i=8) or (i=13)) then Exit;
+      if not ((key in ['0'..'9']) or (i=8) or (i=13) or (key in ['А'..'Я']) or (key in ['а'..'я']) or (Key=' ')) then Exit;
       if (i=13) then
          begin
               StringGrid1DblClick(Sender);
               Exit;
          end
       else
-          if (i=8) and (Locator>0) then
-              begin
-                Locator:=Locator div 10;
-        {        if Locator<1 then Locator:=0;}
-                LocatePodr;
-              end
-          else
-              begin
-                  if Locator>MaxPodrNo then Exit;
-                  if key in ['0'..'9'] then
-                     begin
-                          val(Key,i,j);
-                          Locator := Locator*10 + i;
-                          LocatePodr;
-                     end;
-          end;
+     if (i=8) and (Locator>0) then
+         begin
+              Locator:=Locator div 10;
+     {        if Locator<1 then Locator:=0;}
+              LocatePodr;
+         end
+     else
+     if (i=8) and (Length(FilterString)>0) then
+         begin
+              FilterString:=Copy(FilterString,1,Length(FilterString)-1);
+              LabelFilter.Caption:=FilterString;
+              LocatePodr;
+         end
+     else
+     if (key in ['0'..'9']) then
+         begin
+              if Locator>MaxPodrNo then Exit;
+              if key in ['0'..'9'] then
+                 begin
+                      FilterString:='';
+                      LabelFilter.Caption:=FilterString;
+                      val(Key,i,j);
+                      Locator := Locator*10 + i;
+                      FilterString:=Trim(IntToStr(Locator));
+                      LabelFilter.Caption:=FilterString;
+                      LocatePodr;
+                 end;
+         end
+     else
+     if ((key in ['А'..'Я']) or (key in ['а'..'я']) or (Key=' ')) then
+        begin
+             if (locator>0) then
+                 LocatorSaved:=Locator;
+             Locator:=0;
+             FilterString:=FilterString+key;
+             LabelFilter.Caption:=FilterString;
+             LocatePodr;
+        end;
+     if Length(Trim(FilterString))>0 then
+        begin
+             BitBtnUp.Show;
+             BitBtnDown.Show;
+             BitBtnUp.Enabled:=true;
+             BitBtnDown.Enabled:=true;
+        end
+     else
+        begin
+             BitBtnUp.Hide;
+             BitBtnDown.Hide;
+             BitBtnUp.Enabled:=false;
+             BitBtnDown.Enabled:=False;
+        end;
+
 end;
 
 procedure TFormPodr.LocatePodr;
  var lineno:Integer;
 begin
-      if (Locator>=0) and (Locator<=MaxPodrNo)then
+      if (Locator>0) and (Locator<=MaxPodrNo)then
          begin
        //       lineno:=getLineNoByShifrPod(locator);
               if Locator=0 then SetNSRV(1)
                            else SetNSRV(Locator);
               FocusRow;
               Application.ProcessMessages;
+         end
+      else
+      if ((Length(Trim(FilterString))>0) and (Locator=0))  then
+         begin
+              SetNSRVByFilter;
+              FocusRow;
+              Application.ProcessMessages;
          end;
+
 end;
 
 procedure TFormPodr.FocusRow;
@@ -325,6 +459,39 @@ procedure TFormPodr.StringGrid1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
      Locator:=0;
+end;
+
+procedure TFormPodr.BitBtnClearFilterClick(Sender: TObject);
+begin
+     FilterString:='';
+     LabelFilter.Caption:='';
+     Caption:='';
+     StringGrid1.SetFocus;
+     Application.ProcessMessages;
+end;
+
+procedure TFormPodr.BitBtnDownClick(Sender: TObject);
+begin
+      if (Length(Trim(FilterString))>0)  then
+         begin
+              SetNSRVByFilterForward;
+              FocusRow;
+              Application.ProcessMessages;
+         end;
+      StringGrid1.SetFocus;
+
+end;
+
+procedure TFormPodr.BitBtnUpClick(Sender: TObject);
+begin
+      if (Length(Trim(FilterString))>0)  then
+         begin
+              SetNSRVByFilterBackward;
+              FocusRow;
+              Application.ProcessMessages;
+         end;
+      StringGrid1.SetFocus;
+
 end;
 
 end.

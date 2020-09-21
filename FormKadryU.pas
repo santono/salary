@@ -959,7 +959,7 @@ begin
      if Curr_Person^.Tabno<1 then Exit;
      if not YesNo('Удалить работника?') then Exit;
      if Curr_Person^.Wid_Raboty=OSN_WID_RABOTY then
-        if Count_Sowm(Curr_Person)>0 then
+        if ((Count_Sowm(Curr_Person)>0) and (Curr_person^.main=0))  then
            begin
                 ShowMessage('У этого сотрудника есть совмещения. Вначале удалите их');
                 Exit;
