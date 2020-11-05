@@ -200,7 +200,8 @@ procedure TFormRepWordkers.CreateReport;
                 curr_person:=HEAD_PERSON;
                 while (curr_person<>nil) do
                   begin
-                       fillPerson(Curr_person);
+                       if curr_person^.gruppa=1 then
+                          fillPerson(Curr_person);
                        curr_person:=curr_person^.NEXT;
                   end;
                 EMPTY_ALL_PERSON;
@@ -225,11 +226,26 @@ procedure TFormRepWordkers.CreateReport;
        getinf(true);
   end;
 procedure TFormRepWordkers.fillPerson(curr_person:person_ptr);
+  const lenArray=9;
+  const forbiddenDolg:array[1..lenArray] of integer=(4,5,6,7,8,9,1500,1510,1520);
   var rec:pRec;
       shifrDol:integer;
       shifrKat:integer;
       i:integer;
       summaAdd,summaNal:real;
+    function inForbiddenDolgList(shifrDol:integer):Boolean;
+     var i:Integer;
+         finded:Boolean;
+     begin
+           finded:=False;
+           for i:=1 to lenArray do
+               if shifrDol=forbiddenDolg[i] then
+                  begin
+                       finded:=True;
+                       Break;
+                  end;
+           inForbiddenDolgList := finded;
+     end;
     procedure insertIntoDistinct(tabno:integer;shifrLine:integer);
       var i:integer;
           finded:boolean;
@@ -287,6 +303,7 @@ procedure TFormRepWordkers.fillPerson(curr_person:person_ptr);
 
   begin
        shifrDol:=GET_DOL_CODE(curr_person);
+       if inForbiddenDolgList(shifrDol) then Exit;
        shifrKat:=0;
        if listInitRecs.Count=0 then exit;
        for i:=0 to listInitRecs.Count-1 do
@@ -362,6 +379,8 @@ procedure TFormRepWordkers.moveToExcel;
                     wbs.Cells[ExRow,6]:=pRec(list.Items[i]).dolg;
                     wbs.Cells[ExRow,7]:=pRec(list.Items[i]).summaAdd;
                     wbs.Cells[ExRow,8]:=pRec(list.Items[i]).summaUd;
+                    wbs.Cells[ExRow,9]:=pRec(list.Items[i]).shifrpod;
+                    wbs.Cells[ExRow,10]:=pRec(list.Items[i]).shifrdol;
                end
             else
             if (modeSort=1) then
@@ -425,6 +444,7 @@ procedure TFormRepWordkers.moveToExcel;
   end;
 
 procedure TFormRepWordkers.SwodToExcel;
+const maxKat=10;
 var
     S:String;
     SummaTot,SummaClear,nmbOfSt,avgChisl:real;
@@ -439,7 +459,7 @@ begin
      h:='Показатель средней заработной платы бюджетных учреждений за '+GetMonthRus(NMES)+' '+intToStr(CurrYear)+' года';
      wbs:=E.WorkBooks[1].WorkSheets[1];
      wbs.Cells[2,1] := h;
-     for k:=1 to 8 do
+     for k:=1 to maxKat do
         begin
              SummaTot   := 0;
              SummaClear := 0;

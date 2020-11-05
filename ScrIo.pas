@@ -14,6 +14,7 @@ CONST LOW_IO_BUF_PTR = 2;
 //                  buf :pByteArray;
 //               end;
 const versionSignature:array[1..8]of char=('V','e','r','s','i','o','n',' ');
+      upperYear=2050;
 TYPE tVersionRec=record
                   fraza:array[1..8] of char;
                   versionNo:array[1..2] of char;
@@ -1273,7 +1274,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
               WHILE (CURR_ADD<>NIL) AND (DONE) DO
                IF NOT ((CURR_ADD^.SHIFR>0) and (CURR_ADD^.Shifr<=TOTAL_UD_SHIFR)) OR
                   NOT (CURR_ADD^.PERIOD IN [1..12])            OR
-                  NOT (CURR_ADD^.YEAR   IN [0..30])            OR
+                  NOT (CURR_ADD^.YEAR   IN [0..upperYear-1990])            OR
                       (ABS (CURR_ADD^.SUMMA)>1E17)         THEN
                      BEGIN
                           DEL_ADD(CURR_ADD,CURR_PERSON);
@@ -1292,8 +1293,8 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
               CURR_UD:=CURR_PERSON^.UD;
               WHILE (CURR_UD<>NIL) AND (DONE) DO
                IF NOT ((CURR_UD^.SHIFR>0) AND (CURR_UD^.SHIFR<=MAXSHIFR)) OR
-                  NOT (CURR_UD^.PERIOD IN [1..12])          OR
-                  NOT (CURR_UD^.YEAR IN [0..30])            OR
+                  NOT (CURR_UD^.PERIOD IN [1..12])           OR
+                  NOT (CURR_UD^.YEAR IN [0..upperYear-1990]) OR
                       (ABS (CURR_UD^.SUMMA)>1E17)         THEN
                      BEGIN
                           DEL_UD(CURR_UD,CURR_PERSON);

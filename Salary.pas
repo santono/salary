@@ -1203,7 +1203,7 @@ procedure TMainForm.InitRusMessages;
      N30.Caption:='Утилиты';
      N42.Caption:='Справки';
      N59.Caption:='Плановый отдел';
-     N85.Caption:='Виход';
+     N85.Caption:='Выход';
  end;
 
 procedure TMainForm.FormCreate(Sender: TObject);

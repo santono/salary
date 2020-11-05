@@ -43,6 +43,7 @@ type
     { Private declarations }
      procedure ExecuteMovePrem10_2018;
      procedure ExecuteMovePrem12_2019;
+     procedure ExecuteMovePrem10_2020;
 
   public
     { Public declarations }
@@ -58,9 +59,9 @@ implementation
 
 procedure TFormMovePremFromSQL.BitBtn1Click(Sender: TObject);
 begin
-     if not ((nmes=12) and (CURRYEAR=2019)) then
+     if not ((nmes=10) and (CURRYEAR=2020)) then
         begin
-             ShowMessage('Перенос возможен только в декабре 2019 г.');
+             ShowMessage('Перенос возможен только в октябре 2020 г.');
              exit;
         end;
      if NameServList.CountSelected<=0 then
@@ -79,11 +80,12 @@ begin
              Exit;
         end;
 
-     if MessageDlg('Выполнить перенос премии в декабре 2019 г.?',
+     if MessageDlg('Выполнить перенос премии в октябре 2020 г.?',
         mtConfirmation, [mbYes, mbNo], 0) = mrYes  then
         begin
 //             ExecuteMovePrem10_2018;
-             ExecuteMovePrem12_2019;
+//             ExecuteMovePrem12_2019;
+             ExecuteMovePrem10_2020;
              showMessage('Перенос закончен');
         end;
 end;
@@ -428,7 +430,7 @@ begin
               if Maked then PUTINF;
               EMPTY_ALL_PERSON;
          end;
-     showMessage('Перенесено '+intToStr(amntOfMoved)+' строк ');    
+     showMessage('Перенесено '+intToStr(amntOfMoved)+' строк ');
      NMES:=NMES_Sav;
      NSRV:=NSRV_Sav;
      MKFLNM;
@@ -436,6 +438,142 @@ begin
 
 end;
 
+procedure TFormMovePremFromSQL.ExecuteMovePrem10_2020;
+const wantedShifr=46;
+      id=37;
+      wantedPeriod=10;
+      wantedYear=2020;
+var NMES_Sav,NSRV_Sav:Integer;
+    I_NSRV,SC:Integer;
+    Curr_Person:Person_Ptr;
+    Maked:Boolean;
+    I:Integer;
+    shifrDol:integer;
+    amntOfMoved:integer;
+        procedure Delete_Prem_Person(Curr_person:person_ptr);
+         var Finished:Boolean;
+             Curr_Add:Add_PTR;
+         begin
+              while True do
+               begin
+                     Finished:=True;
+                     Curr_Add:=Curr_Person^.Add;
+                     while (Curr_Add<>Nil) do
+                       begin
+                            if Curr_Add^.SHIFR  = WantedShifr then
+                            if Curr_Add^.Period = wantedPeriod      then
+                            if Curr_Add^.YEAR   = wantedYear-1990   then
+                            if Curr_Add^.WHO    = Id          then
+                               begin
+                                    DEL_Add(Curr_Add,Curr_Person);
+                                    Finished:=False;
+                                    break;
+                               end;
+                            Curr_Add:=Curr_Add^.NEXT;
+                       end;
+                     if Finished then Break;
+               end;
+         end;
+        procedure Delete_Prem_Pod;
+         var Curr_Person:Person_Ptr;
+         begin
+              curr_person:=head_person;
+              while (curr_person<>nil) do
+                begin
+                     Delete_Prem_person(curr_person);
+                     curr_person:=curr_person^.NEXT;
+                end;
+         end;
+
+   function fillPersons:boolean;
+     var Curr_Person:Person_Ptr;
+         tabno     : integer;
+         retVal    : boolean;
+         curr_add  : add_ptr;
+         guid      : string;
+         SQLStmnt  : string;
+         GUIDString : string;
+         v,vv:Variant;
+         npp:integer;
+         Summa_40:real;
+     begin
+         retVal:=false;
+         tabno:=0;
+         Curr_Person:=Head_Person;
+         while (Curr_Person<>NIl) do
+           begin
+                GUIDString:=GetGUIDPersonToString(curr_person);
+                if curr_person^.tabno=1356 then
+                   curr_person^.TABNO:=1356;
+                SQLStmnt:='select first 1 npp,summa from  tb_prem_2020 where tabno='+intToSTr(Curr_Person^.tabno)+' and (trim(coalesce(guid_bud,''''))='''+GUIDString+''' or trim(coalesce(guid_vne,''''))='''+GUIDString+''')  and coalesce(moved,0)=0 and npp>0 and tabno>0';
+                v:=SQLQueryRecValues(SQLSTmnt);
+                if not VarIsArray(v) then
+                   begin
+                        curr_person:=curr_person^.NEXT;
+                        continue;
+                   end;
+                if not VarIsNumeric(v[0]) then
+                   begin
+                        curr_person:=curr_person^.NEXT;
+                        continue;
+                   end;
+                npp:=v[0];
+                if not VarIsFloat(v[1]) then
+                   begin
+                        curr_person:=curr_person^.NEXT;
+                        continue;
+                   end;
+                summa_40:=v[1];
+                Make_add(Curr_add,curr_person);
+                curr_ADD^.SHIFR  := wantedShifr;
+                curr_add^.period := wantedPeriod;
+                curr_add^.year   := wantedYear-1990;
+                curr_add^.summa  := summa_40;
+                curr_add^.fzp    := summa_40;
+                curr_add^.who    := id;
+                retVal           := true;
+                inc(amntofmoved);
+                maked:=true;
+                sqlStmnt:='update tb_prem_2020 set moved=1 where npp='+intToStr(npp);
+                SQLExecute(sqlStmnt);
+                Curr_Person:=Curr_Person^.Next;
+           end;
+          fillPersons:=retVal;
+     end;
+
+begin
+     NMES_Sav  := NMES;
+     NSRV_Sav  := NSRV;
+     EMPTY_ALL_PERSON;
+     ProgressBar1.Max := Count_SERV;
+     ProgressBar1.Min := 0;
+     ProgressBar1.Position := 0;
+     SC:=0;
+     amntOfMoved:=0;
+     for I_NSRV:=1 to COUNT_SERV do
+         begin
+              Sc:=Sc+1;
+              ProgressBar1.Position:=Sc;
+              NSRV:=I_NSRV;
+              if not NameServList.IsSelected(NSRV) then continue;
+              mkflnm;
+              LabelPodr.Caption:=Name_Serv(NSRV);
+              Application.ProcessMessages;
+              if not FileExists(fninf) then Continue;
+              GetInf(False);
+              Maked:=false;
+              Delete_Prem_Pod;
+              fillPersons;
+              if Maked then PUTINF;
+              EMPTY_ALL_PERSON;
+         end;
+     showMessage('Перенесено '+intToStr(amntOfMoved)+' строк ');
+     NMES:=NMES_Sav;
+     NSRV:=NSRV_Sav;
+     MKFLNM;
+     GETINF(TRUE);
+
+end;
 
 procedure TFormMovePremFromSQL.BitBtn3Click(Sender: TObject);
 begin
