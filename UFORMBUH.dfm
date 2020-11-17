@@ -14,8 +14,20 @@ object FormOpe: TFormOpe
   Position = poDesktopCenter
   OnClose = FormClose
   OnShow = FormShow
+  DesignSize = (
+    971
+    509)
   PixelsPerInch = 96
   TextHeight = 20
+  object DBTextOpe: TDBText
+    Left = 368
+    Top = 480
+    Width = 353
+    Height = 17
+    Anchors = [akLeft, akBottom]
+    DataField = 'FIOOP'
+    DataSource = DataSourceOpe
+  end
   object dxDBGridOpe: TdxDBGrid
     Left = 8
     Top = 8
@@ -30,10 +42,12 @@ object FormOpe: TFormOpe
     SummaryGroups = <>
     SummarySeparator = ', '
     TabOrder = 0
-    DataSource = DataSourceSal
+    DataSource = DataSourceOpe
     Filter.Criteria = {00000000}
     OptionsDB = [edgoCanAppend, edgoCancelOnExit, edgoCanDelete, edgoCanInsert, edgoCanNavigation, edgoConfirmDelete, edgoLoadAllRecords, edgoUseBookmarks]
+    Anchors = [akLeft, akTop, akBottom]
     object dxDBGridOpeSHIFRWRK: TdxDBGridMaskColumn
+      Caption = #1053#1086#1084#1077#1088' '#1087'.'#1087'.'
       Width = 26
       BandIndex = 0
       RowIndex = 0
@@ -51,6 +65,12 @@ object FormOpe: TFormOpe
       RowIndex = 0
       FieldName = 'NAMEOP'
     end
+    object dxDBGridOpeNomerOpe: TdxDBGridCalcColumn
+      Caption = #1053#1086#1084#1077#1088
+      BandIndex = 0
+      RowIndex = 0
+      FieldName = 'NOMEROP'
+    end
     object dxDBGridOpeLOGIN: TdxDBGridMaskColumn
       Width = 108
       BandIndex = 0
@@ -58,22 +78,18 @@ object FormOpe: TFormOpe
       FieldName = 'LOGIN'
     end
     object dxDBGridOpePSSWD: TdxDBGridMaskColumn
+      Caption = #1055#1072#1088#1086#1083#1100
       Width = 108
       BandIndex = 0
       RowIndex = 0
       FieldName = 'PSSWD'
     end
     object dxDBGridOpeSHIFRPRA: TdxDBGridMaskColumn
+      Caption = #1050#1086#1076' '#1087#1088#1072#1074
       Width = 94
       BandIndex = 0
       RowIndex = 0
       FieldName = 'SHIFRPRA'
-    end
-    object dxDBGridOpeNomerOpe: TdxDBGridCalcColumn
-      Caption = #1053#1086#1084#1077#1088
-      BandIndex = 0
-      RowIndex = 0
-      FieldName = 'NOMEROP'
     end
   end
   object PageControl1: TPageControl
@@ -257,6 +273,15 @@ object FormOpe: TFormOpe
       end
     end
   end
+  object DBNavigatorOpe: TDBNavigator
+    Left = 0
+    Top = 448
+    Width = 240
+    Height = 25
+    DataSource = DataSourceOpe
+    Anchors = [akLeft, akBottom]
+    TabOrder = 2
+  end
   object pFIBDataSetOpe: TpFIBDataSet
     UpdateSQL.Strings = (
       'UPDATE OPERATORY'
@@ -324,7 +349,9 @@ object FormOpe: TFormOpe
       '    OPERATORY OPE'
       'WHERE OPE.SHIFRWRK>1'
       'ORDER BY OPE.SHIFRWRK')
+    AfterInsert = pFIBDataSetOpeAfterInsert
     AfterScroll = pFIBDataSetOpeAfterScroll
+    BeforeInsert = pFIBDataSetOpeBeforeInsert
     Transaction = FIB.pFIBTransactionSAL
     Database = FIB.pFIBDatabaseSal
     Left = 8
@@ -366,8 +393,9 @@ object FormOpe: TFormOpe
       FieldName = 'NOMEROP'
     end
   end
-  object DataSourceSal: TDataSource
+  object DataSourceOpe: TDataSource
     DataSet = pFIBDataSetOpe
+    OnStateChange = DataSourceOpeStateChange
     Left = 40
     Top = 8
   end
@@ -417,7 +445,7 @@ object FormOpe: TFormOpe
     BeforePost = pFIBDataSetPodrBeforePost
     Transaction = FIB.pFIBTransactionSAL
     Database = FIB.pFIBDatabaseSal
-    DataSource = DataSourceSal
+    DataSource = DataSourceOpe
     Left = 368
     Top = 104
     WaitEndMasterScroll = True
@@ -517,7 +545,7 @@ object FormOpe: TFormOpe
     OnCalcFields = pFIBDataSetAccCalcFields
     Transaction = FIB.pFIBTransactionSAL
     Database = FIB.pFIBDatabaseSal
-    DataSource = DataSourceSal
+    DataSource = DataSourceOpe
     Left = 364
     Top = 143
     object pFIBDataSetAccSHIFRPOD: TFIBIntegerField
@@ -589,7 +617,7 @@ object FormOpe: TFormOpe
     OnCalcFields = pFIBDataSetDopCalcFields
     Transaction = FIB.pFIBTransactionSAL
     Database = FIB.pFIBDatabaseSal
-    DataSource = DataSourceSal
+    DataSource = DataSourceOpe
     Left = 364
     Top = 183
     object pFIBDataSetDopSHIFRPOD: TFIBIntegerField

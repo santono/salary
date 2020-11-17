@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, FIBDataSet, pFIBDataSet, dxExEdtr, dxTL, dxDBCtrl, dxDBGrid,
-  dxCntner, dxDBTLCl, dxGrClms, ExtCtrls, DBCtrls, FIBSQLMonitor, ComCtrls;
+  dxCntner, dxDBTLCl, dxGrClms, ExtCtrls, DBCtrls, FIBSQLMonitor, ComCtrls,
+  StdCtrls;
 
 type
   TFormOpe = class(TForm)
@@ -16,7 +17,7 @@ type
     pFIBDataSetOpeSHIFRPRA: TFIBIntegerField;
     pFIBDataSetOpeFIOOP: TFIBStringField;
     pFIBDataSetOpeNAMEOP: TFIBStringField;
-    DataSourceSal: TDataSource;
+    DataSourceOpe: TDataSource;
     dxDBGridOpe: TdxDBGrid;
     dxDBGridOpeSHIFRWRK: TdxDBGridMaskColumn;
     dxDBGridOpeLOGIN: TdxDBGridMaskColumn;
@@ -67,6 +68,8 @@ type
     dxDBGridDopShifrIdDop: TdxDBGridColumn;
     pFIBDataSetOpeNOMEROP: TFIBSmallIntField;
     dxDBGridOpeNomerOpe: TdxDBGridCalcColumn;
+    DBNavigatorOpe: TDBNavigator;
+    DBTextOpe: TDBText;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure pFIBDataSetOpeAfterScroll(DataSet: TDataSet);
@@ -75,6 +78,9 @@ type
     procedure pFIBDataSetAccCalcFields(DataSet: TDataSet);
     procedure pFIBDataSetSelPodrCalcFields(DataSet: TDataSet);
     procedure pFIBDataSetDopCalcFields(DataSet: TDataSet);
+    procedure pFIBDataSetOpeBeforeInsert(DataSet: TDataSet);
+    procedure DataSourceOpeStateChange(Sender: TObject);
+    procedure pFIBDataSetOpeAfterInsert(DataSet: TDataSet);
   private
     { Private declarations }
   public
@@ -85,7 +91,7 @@ var
   FormOpe: TFormOpe;
 
 implementation
- USES UFibModule;
+ USES UFibModule,USQLUnit;
 
 {$R *.dfm}
 
@@ -174,6 +180,87 @@ end;
 procedure TFormOpe.pFIBDataSetDopCalcFields(DataSet: TDataSet);
 begin
       pFIBDataSetDopShifrIdDop.Value:= pFIBDataSetDopSHIFRPOD.Value + pFIBDataSetDopSHIFRBUH.Value*10000;
+end;
+
+procedure TFormOpe.pFIBDataSetOpeBeforeInsert(DataSet: TDataSet);
+var newShifrWrk:Integer;
+    newNomerOp:Integer;
+    SQlStmnt:String;
+    v:Variant;
+begin
+  (*
+     newShifrWrk:=0;
+     newNomerOp:=0;
+     SQlStmnt:='select max(coalesce(shifrwrk,0)) from operatory';
+     v:=SQLQueryValue(SQlStmnt);
+     if VarIsNumeric(v) then
+        newShifrWrk:=v;
+     SQlStmnt:='select max(coalesce(nomerOp,0)) from operatory';
+     v:=SQLQueryValue(SQlStmnt);
+     if VarIsNumeric(v) then
+        newNomerOP:=v;
+     if NewShifrWrk>0 then
+        pFIBDataSetOpeSHIFRWRK.Value:=newShifrWrk+1;
+     if NewNomerOp>0 then
+        pFIBDataSetOpeNomerOP.Value:=newNomerOp+1;
+     pFIBDataSetOpeSHIFRPRA.Value:=2;
+ //    pFIBDataSetOpeSecretRight.Value:=0;
+ *)
+ end;
+
+procedure TFormOpe.DataSourceOpeStateChange(Sender: TObject);
+var newShifrWrk:Integer;
+    newNomerOp:Integer;
+    SQlStmnt:String;
+    v:Variant;
+begin
+  (*
+     if pFIBDataSetOpe.State<>dsInsert then Exit;
+     newShifrWrk:=0;
+     newNomerOp:=0;
+     SQlStmnt:='select max(coalesce(shifrwrk,0)) from operatory';
+     v:=SQLQueryValue(SQlStmnt);
+     if VarIsNumeric(v) then
+        newShifrWrk:=v;
+     SQlStmnt:='select max(coalesce(nomerOp,0)) from operatory';
+     v:=SQLQueryValue(SQlStmnt);
+     if VarIsNumeric(v) then
+        newNomerOP:=v;
+     if NewShifrWrk>0 then
+        pFIBDataSetOpeSHIFRWRK.Value:=newShifrWrk+1;
+     if NewNomerOp>0 then
+        pFIBDataSetOpeNomerOP.Value:=newNomerOp+1;
+     pFIBDataSetOpeSHIFRPRA.Value:=2;
+     *)
+
+end;
+
+procedure TFormOpe.pFIBDataSetOpeAfterInsert(DataSet: TDataSet);
+var newShifrWrk:Integer;
+    newNomerOp:Integer;
+    SQlStmnt:String;
+    v:Variant;
+begin
+   //  if pFIBDataSetOpe.State<>dsInsert then Exit;
+     newShifrWrk:=0;
+     newNomerOp:=0;
+     SQlStmnt:='select max(coalesce(shifrwrk,0)) from operatory';
+     v:=SQLQueryValue(SQlStmnt);
+     if VarIsNumeric(v) then
+        newShifrWrk:=v;
+     SQlStmnt:='select max(coalesce(nomerOp,0)) from operatory';
+     v:=SQLQueryValue(SQlStmnt);
+     if VarIsNumeric(v) then
+        newNomerOP:=v;
+     if NewShifrWrk>0 then
+        pFIBDataSetOpeSHIFRWRK.Value:=newShifrWrk+1;
+     if NewNomerOp>0 then
+        pFIBDataSetOpeNomerOP.Value:=newNomerOp+1;
+     pFIBDataSetOpeSHIFRPRA.Value:=2;
+     pFIBDataSetOpeFIOOP.Value:='‘»Œ'+IntToStr(pFIBDataSetOpeSHIFRWRK.Value);
+     pFIBDataSetOpeNAMEOP.Value:='»Ãﬂ'+IntToStr(pFIBDataSetOpeSHIFRWRK.Value);
+
+
 end;
 
 end.
