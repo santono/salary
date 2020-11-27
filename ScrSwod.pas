@@ -745,14 +745,17 @@ BEGIN
 
            case ModeIllSS of
             1 :                   // не включать больничные
-                if Get_Dol_Code(Curr_Person)=1500 then
+                if ((Get_Dol_Code(Curr_Person)=1500)
+                  or (IsBolnSSOnlyNach(curr_person))) then
                    begin
                         Curr_Person:=Curr_Person^.NEXT;
                         continue;
                    end;
             2 :                   // включать только больничные +
                                   //   165
-                if not ((Get_Dol_Code(Curr_Person)=1500) or
+                if not (((Get_Dol_Code(Curr_Person)=1500) or
+                         (IsBolnSSOnlyNach(curr_person)))
+                   or
                    (NSRV=165)) then
                    begin
                         Curr_Person:=Curr_Person^.NEXT;

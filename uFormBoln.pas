@@ -1085,8 +1085,9 @@ var E,WB,XLS,WC:Variant;
     oklad:Real;
     shifrPod:integer;
     FIO:string;
+    monName : string;
 begin
-     limitMonth:=6;
+     limitMonth:=12;  // c 01 11 2020 расчет за 12 мес.
      if isSVDN then
        limitMonth:=12;
      if ShifrIdBoln<1 then
@@ -1105,7 +1106,7 @@ begin
              Exit;
         end;
 
-     FName:=TemplateDIR+'BolListM.xls';
+     FName:=TemplateDIR+'BolListM.xlt';
      if isSVDN then
         FName:=TemplateDIR+'BolListM_SV.xlt';
      if not FileExists(FName) then
@@ -1267,12 +1268,24 @@ begin
                 else oklad:=v[0];
                 if VarIsNull(v[3]) then shifrPod:=0
                 else shifrPod:=v[3];
-                E.WorkBooks[1].WorkSheets[1].Cells[5,1]:='Процент '+FloatToStr(Procent)+'%.      Категорія '+trim(GET_KAT_NAME(shifrKat))+
+                if isSVDN then
+                   begin
+                        E.WorkBooks[1].WorkSheets[1].Cells[5,1]:='Процент '+FloatToStr(Procent)+'%.      Категорія '+trim(GET_KAT_NAME(shifrKat))+
                           '     Посада '+dolg;
-                E.WorkBooks[1].WorkSheets[1].Cells[6,1]:='Стаття '+IntToStr(ShifrSta)+' '+trim(ShifrList.GetName(ShifrSta))+
+                        E.WorkBooks[1].WorkSheets[1].Cells[6,1]:='Стаття '+IntToStr(ShifrSta)+' '+trim(ShifrList.GetName(ShifrSta))+
                           '     Оклад '+FormatFloat(F2,oklad)+getShortCurrencyName;
-                E.WorkBooks[1].WorkSheets[1].Cells[7,1]:='Середня денна з/п '+FormatFloat(F4,Mean_Day)+getShortCurrencyName+
+                        E.WorkBooks[1].WorkSheets[1].Cells[7,1]:='Середня денна з/п '+FormatFloat(F4,Mean_Day)+getShortCurrencyName+
                            '    Підрозділ '+Name_Serv(shifrPod);
+                   end
+                else
+                   begin
+                        E.WorkBooks[1].WorkSheets[1].Cells[5,1]:='Процент '+FloatToStr(Procent)+'%.      Категория '+trim(GET_KAT_NAME(shifrKat))+
+                          '     Должность '+dolg;
+                        E.WorkBooks[1].WorkSheets[1].Cells[6,1]:='Стаття '+IntToStr(ShifrSta)+' '+trim(ShifrList.GetName(ShifrSta))+
+                          '     Оклад '+FormatFloat(F2,oklad)+getShortCurrencyName;
+                        E.WorkBooks[1].WorkSheets[1].Cells[7,1]:='Среднедневная з/п '+FormatFloat(F4,Mean_Day)+getShortCurrencyName+
+                           '    Подразделение '+Name_Serv(shifrPod);
+                   end;
 
            end;
 
@@ -1293,7 +1306,11 @@ begin
                   inc(i_Count);
                   if i_Count>limitMonth then break;
                   inc(ExRow);
-                  E.WorkBooks[1].WorkSheets[1].Cells[ExRow,7]:=Trim(GetMonthShortUkr(FIB.pFIBQuerySecond.FieldByName('MONTH_ZA').AsInteger));
+                  if isSVDN then
+                     monName:=Trim(GetMonthShortUkr(FIB.pFIBQuerySecond.FieldByName('MONTH_ZA').AsInteger))
+                  else
+                     monName:=Trim(GetMonthShortRus(FIB.pFIBQuerySecond.FieldByName('MONTH_ZA').AsInteger));
+                  E.WorkBooks[1].WorkSheets[1].Cells[ExRow,7]:=Trim(monName);
 //                  E.WorkBooks[1].WorkSheets[1].Cells[ExRow,7]:=FIB.pFIBQuerySecond.FieldByName('MONTH_ZA').AsInteger;
                   E.WorkBooks[1].WorkSheets[1].Cells[ExRow,8]:=FIB.pFIBQuerySecond.FieldByName('B_DAY').AsInteger;
                   if abs(FIB.pFIBQuerySecond.Fields[2].AsFloat)>0.005 then
@@ -1343,7 +1360,11 @@ begin
                   Inc(ExRow);
  //                 if FIB.pFIBQuerySecond.FieldByName('SEL').AsInteger>0 then
  //                    E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1]:='+';
-                  E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1]:=Trim(GetMonthShortUkr(FIB.pFIBQuerySecond.FieldByName('MONTH_ZA').AsINTEGER));
+                   if isSVDN then
+                     monName:=Trim(GetMonthShortUkr(FIB.pFIBQuerySecond.FieldByName('MONTH_ZA').AsInteger))
+                  else
+                     monName:=Trim(GetMonthShortRus(FIB.pFIBQuerySecond.FieldByName('MONTH_ZA').AsInteger));
+                 E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1]:=Trim(monName);
  //                 E.WorkBooks[1].WorkSheets[1].Cells[ExRow,1]:=FIB.pFIBQuerySecond.FieldByName('MONTH_ZA').AsInteger;
                   if abs(FIB.pFIBQuerySecond.FieldByName('SUMMA_BUD').AsFloat)>0.005 then
                      E.WorkBooks[1].WorkSheets[1].Cells[ExRow,2]:=FIB.pFIBQuerySecond.FieldByName('Summa_Bud').AsFloat;

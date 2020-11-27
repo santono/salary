@@ -416,6 +416,8 @@ begin
               ComboBoxGNGru.ItemIndex  := 2;
               ComboBoxNISGru.ItemIndex := 5;
          end;
+      BtnMove.Enabled:=true;
+
 end;
 
 procedure TFormMovBol.FillPersonList;
@@ -614,7 +616,7 @@ function TFormMovBol.IsMovedBol(ShifrIdBoln:integer):boolean;
 procedure TFormMovBol.BtnMoveClick(Sender: TObject);
 var i,j:integer;
 begin
-
+      BtnMove.Enabled:=False;
       if IsMovedBol(ShifrIdBoln) then
          begin
               ShowMessage('Больничный уже перенесен.');

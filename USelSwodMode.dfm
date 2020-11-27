@@ -1,6 +1,6 @@
 object FormSwodMode: TFormSwodMode
   Left = 373
-  Top = 158
+  Top = 57
   Width = 590
   Height = 640
   Caption = #1056#1077#1078#1080#1084' '#1089#1074#1086#1076#1072

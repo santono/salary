@@ -1575,10 +1575,14 @@ PROCEDURE PUTINF;
            BEGIN
                 L:=ord(Curr_Cn^.PRIM_1[0]);
                 if ((L<0) or (L>SizeOf(Curr_Cn^.PRIM_1)-1)) then L:=SizeOf(Curr_Cn^.PRIM_1)-1;
-                if L<SizeOf(Curr_CN^.Prim_1)-1 then for i:=L+1 to SizeOf(Curr_CN^.PRIM_1)-1 do Curr_Cn^.PRIM_1[i]:=' ';
+                if L<SizeOf(Curr_CN^.Prim_1)-1 then
+                   for i:=L+1 to SizeOf(Curr_CN^.PRIM_1)-1 do
+                       Curr_Cn^.PRIM_1[i]:=' ';
                 Curr_cn^.PRIM_1:=WinToDos(Curr_cn^.PRIM_1);
+                Curr_cn^.PRIM_1:=Trim(Curr_cn^.PRIM_1);
                 PUT_TO_BUF(CURR_CN^,SIZEOF(CURR_CN^)-sizeof(curr_cn^.next));
                 Curr_cn^.PRIM_1:=DosToWin(Curr_cn^.PRIM_1);
+                Curr_cn^.PRIM_1:=Trim(Curr_cn^.PRIM_1);
                 CURR_CN:=CURR_CN^.NEXT;
            END;
    END;

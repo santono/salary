@@ -183,7 +183,7 @@ procedure TFormMemBud.MakeOrder;
                    begin
                         HideRow     :=  16;
                         StartCol    :=  16;
-                        EndCol      := 112;
+                        EndCol      := 117;
                         HideModeRow :=   5;
                    end
                 else
@@ -199,10 +199,10 @@ procedure TFormMemBud.MakeOrder;
            begin
                 if isSVDN then
                    begin
-                        HideRow     := 30; {29;} {32;} {29;}
+                        HideRow     := 31; {30;} {29;} {32;} {29;}
                         HideModeRow :=  5;
                         StartCol    := 20;
-                        EndCol      := 118;{74;}
+                        EndCol      := 123; {118}{74;}
                    end
                 else
                    begin
@@ -368,7 +368,7 @@ procedure TFormMemBud.MakeOrder;
                  if isSVDN then
                     begin
                          StartCol     :=  4;
-                         EndCol       :=112;
+                         EndCol       :=117;
                          HeaderRow    :=  4;
                          HideModeRow  :=  5;
                          StartRow     := 11;
@@ -396,13 +396,13 @@ procedure TFormMemBud.MakeOrder;
                 if isSVDN then
                    begin
                         StartCol    :=  4;
-                        EndCol      := 118; {74}
+                        EndCol      := 123 ; {118} {74}
                         HeaderRow   :=  4;
                         HideModeRow :=  5;
                         StartRow    := 11;
-                        EndRow      := 30; {29;} {32;} {29;}
-                        StartRowInv := 33; {35;} {32;}
-                        EndRowInv   := 51; {48;}
+                        EndRow      := 31; {30;} {29;} {32;} {29;}
+                        StartRowInv := 34; {33;} {35;} {32;}
+                        EndRowInv   := 54; {51;}{48;}
                         HeaderCol   :=  1;
                    end
                 else
@@ -698,6 +698,8 @@ procedure TFormMemBud.MakeOrder;
  procedure DefineRowColAddMemLera;
   begin
         ShifrRow:=Curr_Person^.Gruppa;
+        if isSVDN then
+           if NSRV=106 then ShifrRow:=43;
         if (Curr_Add^.Shifr=BOL_5_SHIFR) then
             ShifrCol:=12
         else if IsBolnShifr(Curr_Add^.Shifr)  THEN
@@ -718,7 +720,10 @@ procedure TFormMemBud.MakeOrder;
             case  Curr_Person^.Kategorija of
                 1:ShifrCol:=1101;   { œœ—  }
                 2:ShifrCol:=1105;   { ”¬œ }
-                3:ShifrCol:=11061;   { Õ¿”◊Õ≤≈ —Œ“–”ƒÕ» » }
+                3: begin
+                        ShifrCol:=11061;   { Õ¿”◊Õ≤≈ —Œ“–”ƒÕ» » }
+
+                   end;
               4,6:ShifrCol:=1104;   { ¿ƒÃ ’Œ« }
               5,7:ShifrCol:=1103;   { ¿”œ }
             else
@@ -1049,6 +1054,11 @@ procedure TFormMemBud.MakeOrder;
                                         if (isGKH and (curr_person^.Gruppa<>1)) then
                                            shifrRow:=0;
 
+                                       if NSRV=106 then
+                                          if gruppyList.IS_MO_VNE(Curr_Person^.Gruppa) then
+                                                       NSRV:=106;
+
+
                                         if ((MemMode=MemBudMode)     and (GruppyList.IS_MO_BUD(Curr_Person^.Gruppa)))     or
                                            ((MemMode=MemLeraMode)    and (GruppyList.IS_MO_VNE(Curr_Person^.Gruppa)))     or
                                            ((MemMode=memColBudMode)  and (GruppyList.IS_MO_KOL_BUD(Curr_Person^.Gruppa))) or
@@ -1063,6 +1073,8 @@ procedure TFormMemBud.MakeOrder;
                                                 Curr_Add:=Curr_Person^.Add;
                                                 while (Curr_Add<>Nil) do
                                                   begin
+                                                       if NSRV=106 then
+                                                          NSRV:=106;
                                                        if MemMode=MemBudMode then
                                                           if GruppyList.IS_MO_BUD(Curr_Person^.Gruppa) then
                                                              if isSVDN then

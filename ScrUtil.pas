@@ -33,6 +33,7 @@ interface
    FUNCTION SHIFR_SERV(WN:INTEGER):INTEGER;
    function Name_Serv(WN:integer):String;
    function GetMonthRus(N:Integer):string;
+   function GetMonthShortRus(N:Integer):string;
    function GetMonthUkr(N:Integer):string;
    function GetMonthShortUkr(N:Integer):string;
    FUNCTION SHORT_FIO(FFIO:STRING):STRING;
@@ -188,6 +189,7 @@ interface
    function  IsKassaShifr(I:Integer):boolean;
    function  IsOnHandShifr(I:Integer):boolean;
    function  isDogPodOnlyNach(Curr_Person:Person_Ptr):Boolean;
+   function  isBolnSSOnlyNach(Curr_Person:Person_Ptr):Boolean;
 //   function IsOtherPeriodECBShifr(I:Integer):boolean;
    FUNCTION  IS_ALIMENTY_SHIFR(SHIFR:INTEGER):BOOLEAN;
    FUNCTION  SUM(SUMMA:REAL):REAL;
@@ -2854,6 +2856,25 @@ function GetMonthRus(N:Integer):string;
       12: GetMonthRus:='декабрь';
       else
           GetMonthRus:='неверный';
+     end;
+ end;
+ function GetMonthShortRus(N:Integer):string;
+ begin
+      case N of
+       1: GetMonthShortRus:='янв';
+       2: GetMonthShortRus:='фев';
+       3: GetMonthShortRus:='мар';
+       4: GetMonthShortRus:='апр';
+       5: GetMonthShortRus:='май';
+       6: GetMonthShortRus:='июн';
+       7: GetMonthShortRus:='июл';
+       8: GetMonthShortRus:='авг';
+       9: GetMonthShortRus:='сен';
+      10: GetMonthShortRus:='окт';
+      11: GetMonthShortRus:='ноя';
+      12: GetMonthShortRus:='дек';
+      else
+          GetMonthShortRus:='неверный';
      end;
  end;
 
@@ -6054,7 +6075,9 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 
 
  //               SQLStmnt:=SQLStmnt + ' and (CHAR_LENGTH(coalesce(a.guid,''1''))>5 and coalesce(a.guid,''1'')='''+GUIDPerson+''') ';
-            end;
+            end
+         else
+             SQLStmnt:=Trim(SQLStmnt)+')';
 
 //         SQLStmnt='select first 1 s from pr_bld_otp_tabel('+IntToStr(Curr_Person^.Tabno)+','+ys+','+IntToStr
          IsStarted:=false;
@@ -11291,6 +11314,27 @@ function  isDogPodOnlyNach(Curr_Person:Person_Ptr):Boolean;
         end;
        if i=0 then retVal:=False;
        isDogPodOnlyNach:=retVal;
+  end;
+function  isBolnSSOnlyNach(Curr_Person:Person_Ptr):Boolean;
+  var retVal:Boolean;
+      Curr_Add:ADD_PTR;
+      i:integer;
+  begin
+       retVal:=true;
+       curr_Add:=Curr_Person.ADD;
+       i:=0;
+       while (Curr_Add<>nil) do
+        begin
+             inc(i);
+             if  not (Curr_Add^.SHIFR in [BOL_TEK_SHIFR ,BOL_PROSHL_SHIFR ]) then
+                begin
+                     retVal:=False;
+                     Break;
+                end;
+             Curr_Add:=Curr_Add^.NEXT;
+        end;
+       if i=0 then retVal:=False;
+       isBolnSSOnlyNach:=retVal;
   end;
 
  procedure getDifferencesForPersonNalogi(Curr_Person:PERSON_PTR;y:Integer;m:integer);

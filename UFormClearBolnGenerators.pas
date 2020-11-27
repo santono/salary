@@ -34,6 +34,8 @@ begin
      FIB.pFIBDatabaseSal.Execute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GBOLNATMP RESTART WITH 1';
      FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLStmnt:='ALTER SEQUENCE GBOLNTMPRES RESTART WITH 1';
+     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GOTP_SUMMY_TMP RESTART WITH 1';
      FIB.pFIBDatabaseSal.Execute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GOTP_ADD_TMP RESTART WITH 1';
