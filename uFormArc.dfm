@@ -56,7 +56,7 @@ object FormArc: TFormArc
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ImeMode = imAlpha
-    MaxDate = 44129.000000000000000000
+    MaxDate = 51434.000000000000000000
     MinDate = 32874.000000000000000000
     ParentFont = False
     ParentShowHint = False

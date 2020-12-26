@@ -18,6 +18,7 @@ type
     procedure BitBtn3Click(Sender: TObject);
   private
     procedure MoveCompensIn071025;
+    procedure CorrectKompTabelSVDN122020;
     { Private declarations }
   public
     { Public declarations }
@@ -27,7 +28,7 @@ var
   FormMakeOtpTableFromSQL: TFormMakeOtpTableFromSQL;
 
 implementation
-   uses ScrLists,ScrDef,ScrIO,ScrUtil,uFibModule,DateUtils;
+   uses ScrLists,ScrDef,ScrIO,ScrUtil,uFibModule,DateUtils,USQLUnit,ScrNalog;
 
 {$R *.dfm}
 
@@ -140,7 +141,7 @@ begin
                            SQLStmnt:=trim(SQLStmnt)+'  and b.month_vy=6';
                            SQLStmnt:=trim(SQLStmnt)+'  and b.shifrsta<>13';
                            SQLStmnt:=trim(SQLStmnt)+'  )';
-                           v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+                           v:=SQLQueryValue(SQLStmnt);
                            if not VarIsNull(v) then
                               begin
                                    dty:=0;
@@ -171,10 +172,131 @@ begin
 
 end;
 
+procedure TFormMakeOtpTableFromSQL.CorrectKompTabelSVDN122020;
+ var WantedShifr : integer;
+     S           :  string;
+     i           : integer;
+     savnsrv     : integer;
+     Curr_Person : Person_ptr;
+     done        : boolean;
+     i_nsrv      : integer;
+     SQLStmnt    : string;
+     v           : Variant;
+     dt          : TDateTime;
+     dty,dtm,dtd : Word;
+     dtFr, dtTo  : TDate;
+     dtCurrS     : String;
+     dtFrS, dtToS: String;
+     dtCurr      : TDate;
+     maked       : boolean;
+     maked_person : Boolean;
+   function isOtpInTabel(curr_person:person_ptr):Boolean;
+    var retVal:Boolean;
+        i:Integer;
+    begin
+         retVal:=False;
+         for i:=1 to 31 do
+             if curr_person^.TABEL[i] = TARIFN_OTPUSK then
+                begin
+                     retVal:=True;
+                     Break;
+                end;
+         isOtpInTabel:=retVal;
+    end;
+begin
+     if not isSVDN then Exit;
+     if not YesNo('Выполнить корректировку табеля в связи с неправильной компенсацией в 12 2020?'+#10+#13+'(Можно испортить данные, подумайте)?') then Exit;
+
+    ProgressBar1.Min      := 0;
+    ProgressBar1.Max      := Count_Serv;
+    ProgressBar1.Position := 0;
+    savnsrv               := nsrv;
+    putinf;
+    EMPTY_ALL_PERSON;
+    for i_nsrv:=1 to count_serv do
+        begin
+             nsrv:=i_nsrv;
+             mkflnm;
+             ProgressBar1.Position := i_nsrv;
+             Application.ProcessMessages;
+             if not fileexists(fninf) then continue;
+             maked := false;
+             getinf(true);
+             curr_Person:=head_Person;
+             while (curr_person<>nil) do
+              begin
+
+                   if Curr_Person^.Automatic=automatic_mode then
+                   if  isOtpInTabel(curr_person) then
+                      begin
+                           SQLStmnt:='select first 1 a.l_data,a.f_data from otpuska a';
+                           SQLStmnt:=trim(SQLStmnt)+' where year_vy=2020';
+                           SQLStmnt:=trim(SQLStmnt)+'  and tabno='+IntToStr(Curr_Person^.tabno);
+                           SQLStmnt:=trim(SQLStmnt)+'  and month_vy>=10';
+                           SQLStmnt:=trim(SQLStmnt)+'  and shifrsta=13';
+                           v:=SQLQueryRecValues(SQLStmnt);
+                           if not VarIsNull(v) then
+                           if not VarIsNull(v[0]) then
+                           if not VarIsNull(v[1]) then
+//                           if varis
+                              begin
+                                   dty:=0;
+                                   dtm:=0;
+                                   dtd:=0;
+//                                   dt:=v;
+                                   dtFr:=v[1];
+                                   dtTo:=v[0];
+                                   dtFrS:=IntToStr(DayOf(dtFr))+'-'+IntToStr(monthOf(dtFr))+'-'+IntToStr(yearOf(dtFr));
+                                   dtToS:=IntToStr(DayOf(dtTo))+'-'+IntToStr(monthOf(dtTo))+'-'+IntToStr(yearOf(dtTo));
+                                   maked_person:=false;
+                                   for i:=1 to 31 do
+                                       begin
+                                            dtCurr:=EncodeDate(CURRYEAR,NMES,i);
+                                           dtCurrS:=IntToStr(DayOf(dtCurr))+'-'+IntToStr(monthOf(dtCurr))+'-'+IntToStr(yearOf(dtCurr));
+
+                                            if curr_person^.TABEL[i] in [TARIFN_OTPUSK] then
+                                            if DateBetween(dtCurr, dtFr, dtTo) then
+                                               begin
+                                                    maked:=True;
+                                                    maked_person:=True;
+                                                    if MONTH_DAY[2,NMES,i]=1 then
+                                                      curr_person^.TABEL[i] := jawka
+                                                    else
+                                                    if MONTH_DAY[2,NMES,i]=2 then
+                                                      curr_person^.TABEL[i] := VYHODN
+                                                    else
+                                                    if MONTH_DAY[2,NMES,i]=3 then
+                                                      curr_person^.TABEL[i] := VYHODN
+                                                    else
+                                                    if MONTH_DAY[2,NMES,i]=4 then
+                                                      curr_person^.TABEL[i] := VYHODN;
+//                                                    curr_person^.TABEL[i] := MONTH_DAY[2,NMES,i];
+                                               end;
+
+   //                                         Curr_Person.Tabel[i]:=nezapoln;
+                                       end;
+                                   if maked_person then
+                                      CALC_NAUD_PERSON(Curr_person,31);
+                              end;
+                    //       MAKE_OTP_TABEL_FROM_SQL(CURR_PERSON);
+                      end;
+                   Curr_Person:=Curr_Person^.Next;
+              end;
+             if MAKEd then putinf;
+             EMPTY_ALL_PERSON;
+       end;
+    nsrv:=savnsrv;
+    mkflnm;
+    getinf(true);
+    Self.Close;
+
+end;
+
+
 
 procedure TFormMakeOtpTableFromSQL.FormCreate(Sender: TObject);
 begin
-     if not ((NMES=7) and (CURRYEAR=2015)) then
+     if not ((NMES=12) and (CURRYEAR=2020) and isSVDN) then
         begin
               BitBtn3.Enabled:=False;
               BitBtn3.Hide;
@@ -188,7 +310,8 @@ end;
 
 procedure TFormMakeOtpTableFromSQL.BitBtn3Click(Sender: TObject);
 begin
-     MoveCompensIn071025;
+//     MoveCompensIn071025;
+     CorrectKompTabelSVDN122020;
 end;
 
 end.

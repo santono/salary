@@ -14,8 +14,8 @@ object FormDolg: TFormDolg
   OnClose = FormClose
   OnCreate = FormCreate
   DesignSize = (
-    757
-    516)
+    749
+    522)
   PixelsPerInch = 96
   TextHeight = 20
   object dxDBGridDolg: TdxDBGrid
@@ -36,7 +36,7 @@ object FormDolg: TFormDolg
     Filter.Criteria = {00000000}
     OptionsDB = [edgoCancelOnExit, edgoCanDelete, edgoCanInsert, edgoCanNavigation, edgoConfirmDelete, edgoLoadAllRecords, edgoUseBookmarks]
     OptionsView = [edgoAutoWidth, edgoBandHeaderWidth, edgoUseBitmap]
-    Anchors = [akLeft, akBottom]
+    Anchors = [akLeft, akTop, akRight, akBottom]
     object dxDBGridDolgSHIFRDOL: TdxDBGridCalcColumn
       BandIndex = 0
       RowIndex = 0

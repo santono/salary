@@ -355,6 +355,7 @@ var Year,Month,Day:word;
     S:String;
     SA:AnsiString;
     SS:Array[1..9] of String;
+    maxDate:TDate;
 begin
       i:=FIB.pFIBDatabaseSal.ActiveTransactionCount;
       j:=FIB.pFIBDatabaseArc.ActiveTransactionCount;
@@ -407,6 +408,9 @@ begin
                dxDBGridYearZa11WS.Visible    := False;
                dxDBGridYearVy20114WS.Visible := False;
          end;
+     maxDate:=EncodeDate(WORK_YEAR_VAL,NMES,1);
+     maxDate:=EncodeDate(WORK_YEAR_VAL,NMES,LenMonth(maxDate));
+     DateTimePicker1.MaxDate:=MaxDate;
 
 
 end;

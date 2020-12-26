@@ -1096,6 +1096,10 @@ object MainForm: TMainForm
       Caption = #1042#1099#1093#1086#1076
       OnClick = N85Click
     end
+    object N187: TMenuItem
+      Caption = '?'
+      OnClick = N187Click
+    end
   end
   object PopupMenu1: TPopupMenu
     Left = 144

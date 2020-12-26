@@ -335,8 +335,8 @@ type
                        WHERE : WORD;
                        NEXT  : SOWM_PTR;
 
-                  END;
-       Add       =RECORD
+                   END;
+       Add       = RECORD
                        SHIFR      : WORD   ;
                        PERIOD     : BYTE   ;
                        YEAR       : BYTE   ;   {1991 - 1 è ò ä}

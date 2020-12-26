@@ -15,6 +15,8 @@ type
     dtIn: TDateTimePicker;
     Label2: TLabel;
     ProgressBar1: TProgressBar;
+    cbListToExcel: TCheckBox;
+    LabelFio: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -66,6 +68,8 @@ implementation
       modeSort     : Integer;
       listDistinctTabno : TList;
       E:Variant;
+      FName:String;
+
 {$R *.dfm}
 
 procedure TFormRepWordkers.FormClose(Sender: TObject;
@@ -136,7 +140,11 @@ end;
 procedure TFormRepWordkers.FormCreate(Sender: TObject);
 begin
      dtIn.Date        := IncMonth(Date,-1);
-
+     BitBtn1.Enabled  := True;
+     LabelFio.Caption := '';
+     cbListToExcel.Checked:=True;
+     caption:='Свод по рабочим должностям за '+GetMonthRus(MonthOf(dtIn.date))+ ' '+IntToStr(YearOf(dtIn.date))+' г.';
+     Application.ProcessMessages;
 end;
 
 procedure TFormRepWordkers.BitBtn1Click(Sender: TObject);
@@ -146,6 +154,8 @@ begin
              error('Ошибка чтения исходного файла PlanWorkers.txt');
              exit;
         end;
+     BitBtn1.Enabled  := false;
+     Application.ProcessMessages;
      CreateReport;
 end;
 function compare(Item1:Pointer;Item2:pointer):Integer;
@@ -175,13 +185,16 @@ function compare(Item1:Pointer;Item2:pointer):Integer;
  end;
 
 procedure TFormRepWordkers.CreateReport;
-  var savNMES,savNSRV:integer;
+  var savNMES,savNSRV,savYear:integer;
       iNSRV,i:Integer;
       curr_person:PERSON_PTR;
   begin
        savNMES:=NMES;
        savNSRV:=NSRV;
+       savYear:=CURRyEAR;
        EMPTY_ALL_PERSON;
+       NMES:=MonthOf(dtIn.Date);
+       CurrYear:=yearOf(dtIn.Date);
        list:=TList.Create;
        listDistinctTabno:=TList.Create;
        ProgressBar1.Min:=0;
@@ -196,6 +209,9 @@ procedure TFormRepWordkers.CreateReport;
                 if IsColedgPodr(NSRV) then continue;
                 if not fileexists(FNINF) then Continue;
                 if not nameservlist.IS_MO_BUD(nsrv) then continue;
+                LabelFio.Caption:=Name_Serv(NSRV);
+                Application.ProcessMessages;
+
                 getinf(false);
                 curr_person:=HEAD_PERSON;
                 while (curr_person<>nil) do
@@ -208,7 +224,24 @@ procedure TFormRepWordkers.CreateReport;
            end;
        Application.ProcessMessages;
        list.Sort(@Compare);
-       moveToExcel;
+     FName:=TemplateDIR+'WorkersPlan_2020.xlt';
+     if not FileExists(FName) then
+        begin
+             ShowMessage('Отсутствует шаблон '+FName);
+             Exit;
+        end;
+     try
+        E:=CreateOleObject('Excel.Application');
+     except
+        ShowMessage('Ошибка запуска Excel');
+        Exit;
+     end;
+     E.WorkBooks.Open(FName);
+//     E.WorkBooks.add;
+     E.Visible:=true;
+       
+       if cbListToExcel.Checked then 
+          moveToExcel;
        swodToExcel;
        if list.count>0 then
           for i:=0 to list.count-1 do
@@ -220,10 +253,13 @@ procedure TFormRepWordkers.CreateReport;
               dispose(pDistinctTabnoRec(listDistinctTabno.Items[i]));
        listDistinctTabno.Free;
        listDistinctTabno:=nil;
+       CURRyEAR:=savYear;
        NMES:=savNMES;
        NSRV:=savNSRV;
        MKFLNM;
        getinf(true);
+       ShowMessage('Свод по рабочим создан.');
+       Self.Close;
   end;
 procedure TFormRepWordkers.fillPerson(curr_person:person_ptr);
   const lenArray=9;
@@ -339,34 +375,26 @@ procedure TFormRepWordkers.moveToExcel;
     lineno:Integer;
     currdol:Integer;
     currGru:Integer;
-    FName:String;
     wbs:variant;
   begin
+   //  if not cbListToExcel.Checked then Exit;
      currPod:=0;
      currDol:=0;
      currGru:=0;
-     FName:=TemplateDIR+'WorkersPlan_2020.xlt';
-     if not FileExists(FName) then
-        begin
-             ShowMessage('Отсутствует шаблон '+FName);
-             Exit;
-        end;
-     try
-        E:=CreateOleObject('Excel.Application');
-     except
-        ShowMessage('Ошибка запуска Excel');
-        Exit;
-     end;
-     E.WorkBooks.Open(FName);
-//     E.WorkBooks.add;
-     E.Visible:=true;
      FormWait.Show;
      Application.ProcessMessages;
      exRow:=5;
      wbs:=E.WorkBooks[1].WorkSheets[2];
      wbs.Cells[ExRow-2,1]:='Список работников для свода за '+getMonthRus(NMES)+' '+intToStr(CurrYear)+' г.';
+     ProgressBar1.Max:=list.Count;
+     ProgressBar1.Min:=0;
+     ProgressBar1.Position:=0;
+     Application.ProcessMessages;
      for i:=0 to list.Count-1 do
        begin
+            ProgressBar1.StepIt;
+            LabelFio.Caption:=Trim(pRec(list.Items[i]).fio);
+            Application.ProcessMessages;
             Inc(exRow);
             lineno:=0;
             if modeSort=0 then
@@ -456,7 +484,10 @@ var
 begin
 //     FName:=TemplateDIR+'WorkersPlan.xlt';
 //     s:='Показатель средней заработной платы бюджетных учреждений за март 2018 года';
-     h:='Показатель средней заработной платы бюджетных учреждений за '+GetMonthRus(NMES)+' '+intToStr(CurrYear)+' года';
+     caption:='Свод по рабочим должностям за '+GetMonthRus(MonthOf(dtIn.date))+ ' '+IntToStr(YearOf(dtIn.date))+' г.';
+     Application.ProcessMessages;
+
+     h:='Показатель средней заработной платы бюджетных учреждений за '+GetMonthRus(MonthOf(dtIn.date))+' '+intToStr(yearOf(dtIn.date))+' года';
      wbs:=E.WorkBooks[1].WorkSheets[1];
      wbs.Cells[2,1] := h;
      for k:=1 to maxKat do

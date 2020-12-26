@@ -10,9 +10,11 @@ uses
   Dialogs, ComCtrls, DB, FIBDataSet, pFIBDataSet, dxExEdtr, ExtCtrls,
   DBCtrls, dxCntner, dxTL, dxDBCtrl, dxDBGrid, dxDBTLCl, dxGrClms,
   FIBDatabase, pFIBDatabase, Menus, frxClass, frxDBSet, FIBQuery, pFIBQuery,
-  frxExportPDF, frxExportRTF, frxExportXLS, DBClient;
+  frxExportPDF, frxExportRTF, frxExportXLS, DBClient, StdCtrls;
 
 type
+  tKindPodr=(UnivAll,Alchevsk,SelHoz,UnivBezAS);
+
   TForm1DF = class(TForm)
     DateTimePicker1: TDateTimePicker;
     pFIBDataSet1DF: TpFIBDataSet;
@@ -100,6 +102,7 @@ type
     cds1DFoznaka: TStringField;
     frxDBPrint: TfrxDBDataset;
     N12: TMenuItem;
+    cbKindPodr: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
@@ -121,8 +124,14 @@ type
     procedure N12Click(Sender: TObject);
     procedure frxReportFullGetValue(const VarName: String;
       var Value: Variant);
+    procedure cbKindPodrChange(Sender: TObject);
   private
     { Private declarations }
+    listAlchevsk,
+    listSelHoz:TList;
+    listAlchevskString,
+    listSelHozString:string;
+    kindPodr:tKindPodr;
     summaWarSbor:Real;
     procedure ShowTable;
     function MakeDBFFile(FNameDBF:String):string;
@@ -130,6 +139,8 @@ type
     procedure FillXLSTable(outMode:integer ; pageNo:integer=1);
     procedure FillXMLDocumentJ0500105;
     procedure executePrint1DF;
+    procedure initLists;
+    function makeFilterString:string;
 
   public
       Y : integer;
@@ -145,11 +156,12 @@ var
 
 implementation
   uses ScrDef,UFibModule,DBF,DateUtils,IniFiles,ScrUtil,UFormProgress,
-  uFormWait, UForm1DFStipToXML,ComObj;
+  uFormWait, UForm1DFStipToXML,ComObj,USQLUnit;
 
 {$R *.dfm}
 
 procedure TForm1DF.FormClose(Sender: TObject; var Action: TCloseAction);
+ var i:Integer;
 begin
      if pFibDataSet1DF.Active then
         pFibDataSet1DF.Active:=false;
@@ -157,6 +169,17 @@ begin
         pFibDataSet1DF.Transaction.Commit;
      if pFibDataSet1DF.UpdateTransaction.Active then
         pFibDataSet1DF.UpdateTransaction.Commit;
+     if isLNR then
+        begin
+             if listAlchevsk.Count>0 then
+                for i:=0 to listAlchevsk.Count-1 do
+                    Dispose(pInteger(listAlchevsk.Items[i]));
+             listAlchevsk.Free;
+             if listSelHoz.Count>0 then
+                for i:=0 to listSelHoz.Count-1 do
+                    Dispose(pInteger(listSelHoz.Items[i]));
+             listSelHoz.Free;
+        end;
      Action:=caFree;
 end;
 
@@ -165,6 +188,7 @@ var yw,mw : word;
 begin
      y := CurrYear;
      M := NMES;
+     kindPodr:=UnivAll;
      case m of
       1,2,3: CurrKw:=1;
       4,5,6: CurrKw:=2;
@@ -180,20 +204,33 @@ begin
      yw:=y;
      mw:=m;
      DateTimePicker1.Date:=EnCodeDate(yw,mw,10);
-     ShowTable;
      if isLNR then
         begin
              Excel1.visible:=true;
              Excel1.Enabled:=true;
+             initLists;
         end
      else
         begin
              Excel1.visible:=false;
              Excel1.Enabled:=False;
         end;
+     if isLNR then
+        begin
+             cbKindPodr.show;
+             cbKindPodr.Enabled:=true;
+             cbKindPodr.ItemIndex:=0;
+        end
+     else
+        begin
+             cbKindPodr.Hide;
+             cbKindPodr.Enabled:=false;
+        end;
+     ShowTable;
 end;
 
 procedure TForm1DF.ShowTable;
+ var SQLStmnt:string;
  begin
      if pFibDataSet1DF.Active then
         pFibDataSet1DF.Active:=false;
@@ -201,8 +238,60 @@ procedure TForm1DF.ShowTable;
         pFibDataSet1DF.Transaction.Commit;
      if pFibDataSet1DF.UpdateTransaction.Active then
         pFibDataSet1DF.UpdateTransaction.Commit;
-     pFIBDataSet1DF.Params[0].AsInteger:=y;
-     pFIBDataSet1DF.Params[1].AsInteger:=m;
+     if isLNR then
+        begin
+             SQlStmnt:='SELECT SHIFRID'   +
+                       '     , TABNO'     +
+                       '     , NAL_CODE'  +
+                       '     , FIO'       +
+                       '     , W_R'       +
+                       '     , SUMMAADD'  +
+                       '     , SUMMAPOD'  +
+                       '     , DATAPRI'   +
+                       '     , DATAUW'    +
+                       '     , CODE_PRIZ' +
+                       '     , OZN_PILG'  +
+                       '     , INVALID'   +
+                       '     FROM TB_1DF a' +
+                       '     where '  +
+                       '        y=' + IntToStr(y) +
+                       '    and m=' + IntToStr(m);
+             if kindPodr = Alchevsk then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       '    and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17))'+
+                       '  )'
+             else
+             if kindPodr = SelHoz then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       '    and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (18))'+
+                       '  )'
+
+             else
+             if kindPodr = UnivBezAS then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       '    and not exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17,18))'+
+                       '  )';
+
+             SQlStmnt:=Trim(SQLStmnt)+
+                       '     order by nal_code';
+
+             pFIBDataSet1DF.SQLs.SelectSQL.Clear;
+             pFIBDataSet1DF.SQLs.SelectSQL.Add(SQLStmnt);
+        end
+     else
+        begin
+             pFIBDataSet1DF.Params[0].AsInteger:=y;
+             pFIBDataSet1DF.Params[1].AsInteger:=m;
+        end;
      pFibDataSet1DF.Transaction.StartTransaction;
      pFibDataSet1DF.Open;
 
@@ -231,9 +320,57 @@ begin
 end;
 
 procedure TForm1DF.N1Click(Sender: TObject);
+ var SQLStmnt:string;
 begin
-     pFIBDataSetSwodUd.Params[0].AsInteger:=y;
-     pFIBDataSetSwodUd.Params[1].AsInteger:=CurrKw;
+     if False then
+//     if isLNR then
+        begin
+             SQLStmnt:='select a.tabno,a.fio,a.summaadd,a.summapod,a.datapri,a.datauw   from tb_1df a'+
+                       ' where char_length(trim(coalesce(nal_code,'')))<>10'+
+                       ' and y='+Trim(IntToStr(y))+
+                       ' and m='+Trim(IntToStr(m));
+             if kindPodr <> UnivAll then
+                SQLStmnt:=Trim(SQLStmnt)+makeFilterString;
+(*
+             if kindPodr = Alchevsk then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       ' and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17))'+
+                       '  )'
+             else
+             if kindPodr = SelHoz then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       ' and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (18))'+
+                       '  )'
+
+             else
+             if kindPodr = UnivBezAS then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       ' and not exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17,18))'+
+                       '  )';
+ *)
+             SQLStmnt:=Trim(SQLStmnt)+
+                       ' order by fio';
+
+
+             pFIBDataSetSwodUd.SQLs.SelectSQL.Clear;
+             pFIBDataSetSwodUd.SQLs.SelectSQL.Add(SQLStmnt);
+
+
+        end
+     else
+        begin
+             pFIBDataSetSwodUd.Params[0].AsInteger:=y;
+             pFIBDataSetSwodUd.Params[1].AsInteger:=CurrKw;
+        end;
      pFibDataSetSwodUd.Transaction.StartTransaction;
      pFibDataSetSwodUd.Open;
      frxReportSwodUd.ShowReport();
@@ -524,9 +661,54 @@ begin
 end;
 
 procedure TForm1DF.N2Click(Sender: TObject);
+var SQLStmnt:string;
 begin
-     pFIBDataSetBK.Params[0].AsInteger:=y;
-     pFIBDataSetBK.Params[1].AsInteger:=m;
+     if isLNR then
+        begin
+             SQLStmnt:='select a.tabno,a.fio,a.summaadd,a.summapod,a.datapri,a.datauw   from tb_1df a'+
+                       ' where char_length(trim(coalesce(nal_code,'''')))<>10'+
+                       ' and y='+Trim(IntToStr(y))+
+                       ' and m='+Trim(IntToStr(m));
+             if kindPodr<>UnivAll then
+                SQLStmnt:=Trim(SQLStmnt)+makeFilterString;
+(*
+             if kindPodr = Alchevsk then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       ' and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17))'+
+                       '  )'
+             else
+             if kindPodr = SelHoz then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       ' and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (18))'+
+                       '  )'
+
+             else
+             if kindPodr = UnivBezAS then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       ' and not exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17,18))'+
+                       '  )';
+*)
+             SQLStmnt:=Trim(SQLStmnt)+
+                       ' order by fio';
+
+
+             pFibDataSetBK.SQLs.SelectSQL.Clear;
+             pFibDataSetBK.SQLs.SelectSQL.Add(SQLStmnt);
+        end
+     else
+      begin
+           pFIBDataSetBK.Params[0].AsInteger:=y;
+           pFIBDataSetBK.Params[1].AsInteger:=m;
+      end;
      pFibDataSetBK.Transaction.StartTransaction;
      pFibDataSetBK.Open;
      frxReportBK.ShowReport();
@@ -1085,6 +1267,7 @@ var
     CurrRow       : Integer   ;
     E             : Variant   ;
     needPrint     : Boolean   ;
+    v             : Variant   ;
 
 function GetName:string;
  const FNameINI='DScroll.Ini';
@@ -1134,9 +1317,40 @@ function GetName:string;
        yearS:=IntToStr(y);
   end;
 function BuildSQLStmnt:string;
+ var SQLStmnt:string;
  begin
  //     result:='select nal_code,summaadd,summapod,code_priz,ozn_pilg,datapri,datauw from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and nal_code is not null and char_length(trim(nal_code))=10 order by nal_code' ;
-        result:='select nal_code,summaadd,summapod,code_priz,ozn_pilg,datapri,datauw,tabno from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' order by nal_code' ;
+        SQlStmnt:='select nal_code,summaadd,summapod,code_priz,ozn_pilg,datapri,datauw,tabno from tb_1df a where y='+IntToStr(Y)+' and m='+IntToStr(M);
+        if kindPodr<>UnivAll then
+           SQLStmnt:=Trim(SQLStmnt)+makeFilterString;
+(*
+        if kindPodr = Alchevsk then
+           SQLStmnt:=Trim(SQLStmnt)+
+                       '    and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17))'+
+                       '  )'
+        else
+        if kindPodr = SelHoz then
+           SQLStmnt:=Trim(SQLStmnt)+
+                       '    and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (18))'+
+                       '  )'
+
+        else
+        if kindPodr = UnivBezAS then
+                SQLStmnt:=Trim(SQLStmnt)+
+                       '    and not exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17,18))'+
+                       '  )';
+*)
+        SQlStmnt:=Trim(SQlStmnt)+' order by nal_code' ;
+        BuildSQLStmnt:=SQLStmnt;
  end;
 
  procedure getItogiFromSQL(var NmbOfRec:Integer;var nmbOfTabno:Integer;var nmbOfSal:Integer;var nmbOfDog:Integer);
@@ -1148,9 +1362,13 @@ function BuildSQLStmnt:string;
        nmbOfSal   := 0;
        nmbOfDog   := 0;
        if pageNo=1 then
-          SQLStmnt:='select count(*) cnt, count(distinct tabno) ctn,sum(case when (code_priz=102) then 0 else 1 end),sum(case when (code_priz=102) then 1 else 0 end) from ( select first 1000 * from tb_1df a where a.y='+intToStr(y)+' and a.m='+intToStr(m)+' order by a.nal_code)'
+          SQLStmnt:='select count(*) cnt, count(distinct tabno) ctn,sum(case when (code_priz=102) then 0 else 1 end),sum(case when (code_priz=102) then 1 else 0 end) from ( select first 1000 * from tb_1df a where a.y='+intToStr(y)+' and a.m='+intToStr(m)
        else
-          SQLStmnt:='select count(*) cnt, count(distinct tabno) ctn,sum(case when (code_priz=102) then 0 else 1 end),sum(case when (code_priz=102) then 1 else 0 end) from (select first 1000 skip 1000 * from tb_1df a where a.y='+intToStr(y)+' and a.m='+intToStr(m)+' order by a.nal_code)';
+          SQLStmnt:='select count(*) cnt, count(distinct tabno) ctn,sum(case when (code_priz=102) then 0 else 1 end),sum(case when (code_priz=102) then 1 else 0 end) from (select first 1000 skip 1000 * from tb_1df a where a.y='+intToStr(y)+' and a.m='+intToStr(m);
+
+       if kindPodr<>UnivAll then
+          SQLStmnt:=trim(SQlStmnt)+makeFilterString;
+       SQlStmnt:=Trim(SQLStmnt)+' order by a.nal_code)';
 
        v:=FIB.pFIBDatabaseSal.QueryValues(SQLStmnt);
        if VarIsArray(v) then
@@ -1318,7 +1536,10 @@ begin
         pFIBQuery1DF.Close;
      if pFIBQuery1DF.Transaction.Active then
         pFIBQuery1DF.Transaction.Commit;
-     SQLStmnt:='select count(*) from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M);
+     SQLStmnt:='select count(*) from tb_1df a where a.y='+IntToStr(Y)+' and a.m='+IntToStr(M);
+     if isLNR and (kindPodr<>UnivAll) then
+       SQLStmnt:=trim(SQLStmnt)+makeFilterString;
+(*
      pFIBQuery1DF.Transaction.StartTransaction;
      pFIBQuery1DF.SQL.Clear;
 
@@ -1330,6 +1551,16 @@ begin
              ShowMessage('Нет записей в таблице');
              pFIBQuery1DF.Close;
              pFIBQuery1DF.Transaction.Commit;
+             Exit;
+        end;
+*)
+     RecordBound:=0;
+     v:=SQLQueryValue(SQLStmnt);
+     if VarIsNumeric(v) then
+        RecordBound:=v;
+     if RecordBound=0 then
+        begin
+             ShowMessage('Нет записей в таблице');
              Exit;
         end;
      try
@@ -1344,9 +1575,12 @@ begin
      E.WorkBooks.Open(FNameXLS);
      E.WorkBooks[1].WorkSheets[1].Activate;
      pFIBQuery1DF.Close;
+     if pFIBQuery1DF.Transaction.Active then
+        pFIBQuery1DF.Transaction.Commit;
      SQLStmnt:=BuildSQLStmnt;
      pFIBQuery1DF.SQL.Clear;
      pFIBQuery1DF.SQL.Add(SQLStmnt);
+     pFIBQuery1DF.Transaction.StartTransaction;
      pFIBQuery1DF.ExecQuery;
 //     ProgressBarPFU.Min:=0;
 //     ProgressBarPFU.Max:=RecordBound;
@@ -1543,5 +1777,113 @@ begin
               value:=summaWarSbor;
          end;
 end;
+
+procedure TForm1DF.initLists;
+ var SQLStmnt:string;
+     shifrbay,shifrpod:Integer;
+     PInt:PInteger;
+ begin
+      listAlchevsk := nil;
+      listSelHoz   := nil;
+      listAlchevskString := '';
+      listSelHozString   := '';
+      if not isLNR then Exit;
+      listAlchevsk:=TList.Create;
+      listSelHoz:=TList.Create;
+      if pFIBQuery1DF.Open then
+         pFIBQuery1DF.Close;
+      if pFIBQuery1DF.Transaction.Active then
+         pFIBQuery1DF.Transaction.Commit;
+      SQLStmnt:='select shifrbuh,shifrpod from bay where shifrbuh in (17,18)';
+      pFIBQuery1DF.SQL.Clear;
+      pFIBQuery1DF.SQL.Add(SQLStmnt);
+      pFIBQuery1DF.Transaction.StartTransaction;
+      pFIBQuery1DF.ExecQuery;
+      while (not pFIBQuery1DF.eof) do
+        begin
+             shifrbay:=pFIBQuery1DF.Fields[0].AsInteger;
+             shifrpod:=pFIBQuery1DF.Fields[1].AsInteger;
+             New(PInt);
+             PInt^:=shifrpod;
+             if shifrbay=17 then
+                begin
+                     if listAlchevsk.Count>0 then
+                        listAlchevskString:=Trim(listAlchevskString)+',';
+                     listAlchevskString:=Trim(listAlchevskString)+Trim(IntToStr(shifrPod));
+                     listAlchevsk.Add(PInt);
+                end
+             else
+                begin
+                     if listSelHoz.Count>0 then
+                        listSelHozString:=Trim(listSelHozString)+',';
+                     listSelHozString:=Trim(listSelHozString)+Trim(IntToStr(shifrPod));
+                     listSelHoz.Add(pInt);
+                end;
+            pFIBQuery1DF.Next;
+        end;
+
+ end;
+
+
+procedure TForm1DF.cbKindPodrChange(Sender: TObject);
+ var kindPodrSav:tKindPodr;
+begin
+     kindPodrSav := kindPodr;
+     case cbKindPodr.ItemIndex of
+      0:
+        if kindPodr<>UnivAll then
+           kindPodr:=UnivAll;
+      1:
+        if kindPodr<>Alchevsk then
+           kindPodr:=Alchevsk;
+      2:
+        if kindPodr<>SelHoz then
+           kindPodr:=SelHoz;
+      3:
+        if kindPodr<>UnivBezAS then
+           kindPodr:=UnivBezAS;
+     end;
+     if kindPodrSav <> kindPodr then
+        ShowTable;
+
+end;
+
+function TForm1DF.makeFilterString:string;
+ var retVal:string;
+     SQLSTmnt:string;
+ begin
+      retVal:='';
+      SQlStmnt:='';
+      if not isLNR then
+         begin
+              makeFilterString:='';
+              Exit;
+         end;
+      if kindPodr = Alchevsk then
+         SQLStmnt:=
+                   '    and exists (' +
+                   ' select * from tb_1df_add b'+
+                   ' where b.shifrid1df=a.shifrid'+
+                   ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17))'+
+                   '  )'
+      else
+      if kindPodr = SelHoz then
+         SQLStmnt:=
+                       '    and exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (18))'+
+                       '  )'
+
+      else
+      if kindPodr = UnivBezAS then
+         SQLStmnt:=
+                       '    and not exists (' +
+                       ' select * from tb_1df_add b'+
+                       ' where b.shifrid1df=a.shifrid'+
+                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17,18))'+
+                       '  )';
+      makeFilterString:=SQLSTmnt;
+ end;
 
 end.

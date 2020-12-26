@@ -425,6 +425,8 @@ begin
                   Mode_V_Z    := 1; // в
                   if Self.WantedMode=10 then
                      Mode_V_Z    := 0; // за - для командировочных
+                  if isLNR then
+                     Mode_V_Z    := 0; // за - для больничных с 01 11 2020
 
                   if Act=1 then
                      begin

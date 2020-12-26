@@ -1,6 +1,6 @@
 object Form1DF: TForm1DF
-  Left = 253
-  Top = 136
+  Left = 264
+  Top = 215
   Width = 696
   Height = 480
   Anchors = [akLeft, akBottom]
@@ -138,6 +138,21 @@ object Form1DF: TForm1DF
     DataSource = DataSource1DF
     Anchors = [akLeft, akBottom]
     TabOrder = 2
+  end
+  object cbKindPodr: TComboBox
+    Left = 144
+    Top = 0
+    Width = 313
+    Height = 28
+    ItemHeight = 20
+    TabOrder = 3
+    Text = 'cbKindPodr'
+    OnChange = cbKindPodrChange
+    Items.Strings = (
+      #1059#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090' '#1074#1077#1089#1100
+      #1040#1083#1095#1077#1074#1089#1082
+      #1057#1077#1083#1100#1093#1086#1079
+      #1059#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090' '#1073#1077' '#1040#1083' '#1080' '#1057#1061)
   end
   object pFIBDataSet1DF: TpFIBDataSet
     SelectSQL.Strings = (

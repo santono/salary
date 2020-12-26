@@ -52,7 +52,7 @@ begin
       begin
            readln(devi,s);
            inc(i);
-           s1:='::B '+trim(intToStr(i))+'::'+trim(s)+'{}';
+           s1:='::TRBDZ '+trim(intToStr(i))+'::'+trim(s)+'{}';
            writeln(devo,s1);
            writeln(devo);
            writeln(devo);

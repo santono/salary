@@ -102,6 +102,7 @@ type
     dsPerevodyNAMEPROF_OLD: TFIBStringField;
     dsPerevodyDATABEG: TFIBDateField;
     dsPerevodyDATAEND: TFIBDateField;
+    qBolDay: TpFIBQuery;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -109,7 +110,7 @@ type
     shifrBk:integer;   // Счетчик работников без кода 
     { Private declarations }
     procedure CreateReport6;
-    procedure fillPerson(curr_person:person_ptr);
+    procedure fillPersonBad(curr_person:person_ptr);
     procedure fillOsnPerson(curr_person:person_ptr);
     procedure fillSowmPerson(curr_person:person_ptr);
     procedure fillIllPerson(curr_person:person_ptr);
@@ -143,9 +144,13 @@ type
     function  isSciPedOsnInList(tabno:integer):boolean;
     procedure emptyIllOtpLists;
     procedure getDataKdPtv(tabno:integer;var start_d:integer;var end_d:integer;var kd_ptv:integer);
-    function  getBolDay(tabno:integer;payYear:integer;payMnth:integer):integer;
+    function  getBolDay(tabno:integer;payYear:integer;payMnth:integer;
+                              var amntOfbDayOsn: Integer; var summaBolOsn:Real;
+                              var amntOfbDaySowm: Integer; var summaBolSowm:Real):integer;
     function  getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer):integer;
     function  getOtpDay(tabno:integer;payYear:integer;payMnth:integer):integer;
+    function  getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;M:integer):Integer;
+
     procedure fillBolDay;
     function  isSciPedForSwod(curr_person:person_ptr):boolean;
     procedure calculateSumNarahInBD;
@@ -227,10 +232,13 @@ implementation
             end;
         pRecIll=^TRecIll;
         tRecIll=record
+                 tabno    : Integer;
                  summa    : real;
+                 amntOfBDay:Integer;
                  pay_mnth : integer;
                  pay_Year : integer;
                  kdNp     : integer;
+                 shifrwr  : Integer;
                 end;
         pRec7 = ^tRec7;
         tRec7 = record
@@ -304,10 +312,11 @@ implementation
                          end;
   var list5,list6,list7 : TList;
       listIll,listOtp   : TList;
+      listIllSowm,listOtpSowm : TList;
       listCheck         : TList;
       listCPH           : TList;
       listSowmVne       : TList;
-      E:Variant;
+      E                 : Variant;
 {$R *.dfm}
 (*
  function checkPerson(TABNO:integer;zo,payTp,payMnth,payYear,w_r:integer):real;
@@ -509,6 +518,8 @@ procedure TFormRepF4.CreateReport6;
   var savNMES,savNSRV:integer;
       iNSRV,i:Integer;
       curr_person:PERSON_PTR;
+      curr_add:ADD_PTR;
+      maked:Boolean;
       summa6:real;
   begin
        savNMES:=NMES;
@@ -520,10 +531,50 @@ procedure TFormRepF4.CreateReport6;
        listCheck:=TList.Create;
        listCPH:=TList.Create;
        listSowmVne:=TList.Create;
+//       listIll:=TList.Create;
        ProgressBar1.Min:=0;
-       ProgressBar1.Max:=Count_Serv * 8;
+       ProgressBar1.Max:=Count_Serv * 9;
        ProgressBar1.Step:=1;
        MAKEPENSLIST(2);   // Список инвалидов
+       // 0 Основная
+       // Пометить все начисления, как пока не участвовашие в отчета
+       // установить '0' в поледние байте поля count[8] в add
+       for iNSRV:=1 to Count_Serv do
+           begin
+                NSRV:=iNSRV;
+                MKFLNM;
+                ProgressBar1.StepIt;
+                Application.ProcessMessages;
+//                if IsColedgPodr(NSRV) then continue;
+//                if nsrv in [11,102] then continue;
+                if not fileexists(FNINF) then Continue;
+//                if not nameservlist.IS_MO_BUD(nsrv) then continue;
+                getinf(false);
+                curr_person := HEAD_PERSON;
+                maked := False;
+                while (curr_person<>nil) do
+                  begin
+                       curr_add:=curr_person^.ADD;
+                       while (curr_add<>nil) do
+                         begin
+                              curr_add^.COUNT:=Trim(curr_add^.COUNT);
+                              i:=Length(curr_add^.count);
+                              i:=(SizeOf(curr_Add^.Count)-1)-(i+1);
+                              if i>0 then
+                                 curr_add^.COUNT:=SPACE(i)+'0'
+                              else
+                                 curr_add^.COUNT[8]:='0';
+                              maked:=True;
+                              curr_add:=curr_add^.next;
+                         end;
+                       curr_person:=curr_person^.NEXT;
+                  end;
+                if not maked then
+                   EMPTY_ALL_PERSON
+                else
+                   PUTINF;
+           end;
+
        // 1 Основная
        for iNSRV:=1 to Count_Serv do
            begin
@@ -732,13 +783,19 @@ procedure TFormRepF4.CreateReport6;
               dispose(pRecSowmVne(listSowmVne.Items[i]));
        listSowmVne.Free;
        listSowmVne:=nil;
+//       if listIll.count>0 then
+//          for i:=0 to listIll.count-1 do
+//              dispose(pRecIll(listIll.Items[i]));
+//       listIll.Free;
+//       listIll:=nil;
        NMES:=savNMES;
        NSRV:=savNSRV;
        MKFLNM;
        getinf(true);
        showMessage('Отчет сформирован. Сумма в таблице 6 '+FormatSummaForPlt(summa6));
   end;
-procedure TFormRepF4.fillPerson(curr_person:person_ptr);
+procedure TFormRepF4.fillPersonBad(curr_person:person_ptr);
+(*
   var rec6:pRec6;
       shifrDol:integer;
       shifrKat:integer;
@@ -803,6 +860,14 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
                     listIll.Free;
                     listIll:=nil;
               end;
+           if listIllSowm<>Nil then
+              begin
+                    if listIllSowm.count>0 then
+                       for i:=0 to listIllSowm.Count-1 do
+                           dispose(pRecIll(listIllSowm.Items[i]));
+                    listIllSowm.Free;
+                    listIllSowm:=nil;
+              end;
            if listOtp<>Nil then
               begin
                     if listOtp.count>0 then
@@ -811,12 +876,21 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
                     listOtp.Free;
                     listOtp:=nil;
               end;
+           if listOtpSowm<>Nil then
+              begin
+                    if listOtpSowm.count>0 then
+                       for i:=0 to listOtpSowm.Count-1 do
+                           dispose(pRecIll(listOtpSowm.Items[i]));
+                    listOtpSowm.Free;
+                    listOtpSowm:=nil;
+              end;
       end;
-    procedure fillIllPerson;
+    procedure fillIllPersonBad;
       var curr_add:add_ptr;
           recIll:pRecIll;
           i:integer;
           finded:boolean;
+          shifrWr:Integer;
       begin
            curr_add:=curr_person^.ADD;
            while (curr_add<>nil) do
@@ -832,6 +906,7 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
                                           and
                                           (pRecIll(listIll.Items[i]).pay_year=curr_add^.year+1990)) then
                                           begin
+                                   //            shifrWr:=getShifrWrForBoln(curr_person^.tabno,curr_add^.summa,Curr_add^.year,curr_add^.period);
                                                pRecIll(listIll.Items[i])^.summa:=pRecIll(listIll.Items[i])^.summa + curr_add^.SUMMA;
                                                finded := true;
                                                break;
@@ -844,6 +919,8 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
                                   recIll^.pay_mnth := curr_Add^.PERIOD;
                                   recIll^.pay_Year := curr_add^.YEAR+1990;
                                   recIll^.kdNp     := 0;
+//                                  recIll^.shifrwr  := curr_person.WID_RABOTY; //  основная
+                                  recIll^.shifrwr  := OSN_WID_RABOTY; //  основная
                                   listIll.Add(recIll);
                              end;
                      end;
@@ -883,6 +960,7 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
                                   recIll^.pay_mnth := curr_Add^.PERIOD;
                                   recIll^.pay_Year := curr_add^.YEAR+1990;
                                   recIll^.kdNp     := 0;
+                                  recIll^.shifrwr  := OSN_WID_RABOTY;
                                   listOtp.Add(recIll);
                              end;
                      end;
@@ -906,11 +984,15 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
            else
               summaNotSciPedAdd:=summaAdd;
       end;
-
+*)
   begin
+    // Это старый вариант программы и уже неиспользуется
+(*
        emptyIllOtpLists;
-       listIll:=TList.Create;
-       listOtp:=TList.Create;
+       listIll     := TList.Create;
+       listIllSowm := TList.Create;
+       listOtp     := TList.Create;
+       listOtpSowm := TList.Create;
        fillSciPerson;
        fillNotSciPerson;
        fillIllPerson;
@@ -941,6 +1023,7 @@ procedure TFormRepF4.fillPerson(curr_person:person_ptr);
                    zo:=25;
               end;
        nzp:=OTPUSK_BEZ_DAY(1,CURR_PERSON);
+*)       
  //      if nzp>0 then
           
   end;
@@ -1352,14 +1435,15 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
 procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
   var i:integer;
       zo,payTp,payYear,payMnth:integer;
-      otk:integer;
+      otk,nrc:integer;
       kd_np:integer;
       rec6:pRec6;
-    procedure fillIllPerson;
+    procedure fillIllPersonInner;
       var curr_add:add_ptr;
           recIll:pRecIll;
           i:integer;
           finded:boolean;
+          shifrwr:Integer;
       begin
            kd_np:=ILL_DAY(1,curr_person);
            curr_add:=curr_person^.ADD;
@@ -1367,16 +1451,28 @@ procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
              begin
                   if IsBolnShifrForECB(curr_add^.SHIFR) then
                      begin
+                          if curr_person^.tabno=939 then
+                             shifrwr:=1;
+                          shifrWr := 1;
+                          shifrWr := getShifrWrForBoln(curr_person^.TABNO,curr_add^.summa,curr_add^.YEAR,curr_add^.period);
+                          if shifrWr=2 then
+                             shifrWr:=2;
                           finded:=false;
                           if listIll.Count>0 then
                              for i:=0 to listIll.Count-1 do
                                  begin
                                       if (
+                                          (pRecIll(listIll.Items[i]).tabno=curr_person^.tabno)
+                                          and
                                           (pRecIll(listIll.Items[i]).pay_mnth=curr_add^.PERIOD)
                                           and
-                                          (pRecIll(listIll.Items[i]).pay_year=curr_add^.year+1990)) then
+                                          (pRecIll(listIll.Items[i]).pay_year=curr_add^.year+1990)
+                                          and
+                                          (pRecIll(listIll.Items[i]).shifrwr=shifrwr)) then
                                           begin
                                                pRecIll(listIll.Items[i])^.summa:=pRecIll(listIll.Items[i])^.summa + curr_add^.SUMMA;
+                                               if ((curr_add^.WORK_DAY>0) and (curr_add^.WORK_DAY<32)) then
+                                                  pRecIll(listIll.Items[i])^.amntOfBDay:=pRecIll(listIll.Items[i])^.amntOfBDay + curr_add^.WORK_DAY;
                                                finded := true;
                                                break;
                                           end;
@@ -1384,10 +1480,19 @@ procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
                           if not finded then
                              begin
                                   new(recIll);
+                                  recIll^.tabno    := curr_person^.TABNO;
                                   recIll^.summa    := curr_add^.SUMMA;
                                   recIll^.pay_mnth := curr_Add^.PERIOD;
                                   recIll^.pay_Year := curr_add^.YEAR+1990;
                                   recIll^.kdNp     := kd_np;
+                                  recIll^.shifrwr  := shifrwr;
+                                  if ((curr_add^.WORK_DAY>0) and (curr_add^.WORK_DAY<32)) then
+                                      begin
+                                           recIll.amntOfBDay:= curr_add^.WORK_DAY;
+                                           recIll^.kdNp     := recIll.amntOfBDay;
+                                      end
+                                  else
+                                      recIll.amntOfBDay:= 0;
                                   listIll.Add(recIll);
                              end;
                      end;
@@ -1398,7 +1503,8 @@ procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
  begin
        emptyIllOtpLists;
        listIll:=TList.Create;
-       fillIllPerson;
+       listIllSowm:=TList.Create;
+       fillIllPersonInner;
        otk:=1;
        if curr_person^.MESTO_OSN_RABOTY in [82,121] then otk:=0;
        if listIll.count>0 then
@@ -1407,9 +1513,28 @@ procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
               begin
                    zo:=29;
                    payTp:=0;
+                   otk:=1;
+                   nrc:=0;
+                   if precIll(listIll.Items[i])^.shifrwr=2 then
+                      begin
+                           otk:=0;
+                           nrc:=1;
+                      end;
                    payYear:=precIll(listIll.Items[i])^.pay_Year;
                    payMnth:=precIll(listIll.Items[i])^.pay_mnth;
-                   rec6:=addToF6(curr_person^.TABNO,zo,payTp,payMnth,payYear,precIll(listIll.Items[i])^.summa,false,otk);
+                 //addToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0;nrc:Integer=0):pRec6;
+                   if precIll(listIll.Items[i])^.shifrwr<>2 then
+                      rec6:=addToF6(curr_person^.TABNO,zo,payTp,payMnth,payYear,precIll(listIll.Items[i])^.summa,false,otk)
+                   else
+                      rec6:=addToF6(curr_person^.TABNO,zo,payTp,payMnth,payYear,precIll(listIll.Items[i])^.summa,false,otk,0,0,precIll(listIll.Items[i])^.shifrwr,nrc);
+                   rec6^.nrc:=nrc;
+                   rec6^.otk:=otk;
+                   if ((precIll(listIll.Items[i])^.amntOfBDay>0) and
+                       (precIll(listIll.Items[i])^.amntOfBDay<31)) then
+                       rec6^.kdNp := precIll(listIll.Items[i])^.amntOfBDay;
+                   if precIll(listIll.Items[i])^.shifrwr=2 then
+                       rec6^.w_r:=2;
+
 
               end;
        emptyIllOtpLists;
@@ -1418,17 +1543,33 @@ procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
 procedure TFormRepF4.fillBolDay;
   var i:integer;
       bolDays,dekrBolDays:integer;
+      listIllSowm6:TList;
+      bolDaySwom:Integer;
+      bolSummaSowm:Real;
+      amntOfbDayOsn: Integer;
+      summaBolOsn:Real;
+      amntOfbDaySowm: Integer;
+      summaBolSowm:Real;
+      rec6:pRec6;
+
   begin
+       listIllSowm6:=TList.Create;
        if list6.Count>0 then
           for i:=0 to list6.Count-1 do
               // Декретные больничные 42 - б 43 - инв
+              // ZO 29 - больничный
+              //    36 - больничный инвалидов
+              //    42 - декретный
+              //    43 - декретный инвалидов
               if pRec6(list6.items[i]).zo in [29,36,42] then
+              if pRec6(list6.items[i]).kdnp<1 then
                  begin
                       if pRec6(list6.items[i])^.tabno=12023 then
                          bolDays:=0;
                       bolDays:=0;
                       dekrBolDays:=0;
-                      bolDays:=getBolDay(pRec6(list6.items[i]).tabno,pRec6(list6.items[i]).payYear,pRec6(list6.items[i]).payMnth);
+                      bolDays:=getBolDay(pRec6(list6.items[i]).tabno,pRec6(list6.items[i]).payYear,pRec6(list6.items[i]).payMnth,
+                            amntOfbDayOsn,summaBolOsn,amntOfbDaySowm,summaBolSowm);
                       dekrBolDays:=getDekrBolDay(pRec6(list6.items[i]).tabno,pRec6(list6.items[i]).payYear,pRec6(list6.items[i]).payMnth);
                       if (dekrBolDays>0) then
                          begin
@@ -1437,19 +1578,67 @@ procedure TFormRepF4.fillBolDay;
                               else
                                  pRec6(list6.items[i]).zo:=43;
                          end;
+//                      splitBilList(pRec6(list6.items[i]).tabno,pRec6(list6.items[i]).payYear,pRec6(list6.items[i]).payMnth,bolDaySwom,bolSummaSowm);
                       if (bolDays>0) then
                          pRec6(list6.items[i]).kdNp:=bolDays;
+                      if Abs(summaBolOsn)>0.01 then
+                         begin
+                              pRec6(list6.items[i]).sumTotal:=summaBolOsn;
+                              pRec6(list6.items[i]).sumMax:=summaBolOsn;
+                         end;
+                      if amntOfbDaySowm>0 then
+                         begin
+                              New(rec6);
+                              Move(pRec6(list6.items[i])^,rec6^,SizeOf(rec6^));
+//                              rec6.id:= pRec6(list6.items[i]).id;
+//                              rec6.yearVy:=pRec6(list6.items[i]).yearVy
+//                              rec6.MonthVy:=pRec6(list6.items[i]).monthVy;
+//                              rec6.tabno:=pRec6(list6.items[i]).tabno;
+//                              rec6.periodM:=pRec6(list6.items[i]).periodM;
+//                              rec6.periodY:=pRec6(list6.items[i]).periodY;
+//                              rec6.rowNum:=pRec6(list6.items[i]).rowNum;
+//                              rec6.ukrGromad:=pRec6(list6.items[i]).ukrGromad;
+//                              rec6.st:=pRec6(list6.items[i]).st;
+//                              rec6.numIdent:=pRec6(list6.items[i]).st;
+//                              fillChar
+                              rec6.id:=FormRepF4.GetMaxId6+1;
+                              rec6.otk:=0;
+                              rec6.nrc:=1;
+                              rec6.kdNp:=amntOfbDaySowm;
+                              rec6.sumMax:=summaBolSowm;
+                              rec6.sumTotal:=summaBolSowm;
+                              listillSowm6.Add(rec6);
+                         end;
                       if (dekrBolDays>0) then
                           begin
                                pRec6(list6.items[i]).kdVp:=bolDays+dekrBolDays;
                                pRec6(list6.items[i]).kdPtv:=pRec6(list6.items[i]).kdVp;
                           end;
                  end;
+       if listIllSowm6.count>0 then
+          begin
+               for i:=0 to listIllSowm6.Count-1 do
+                   begin
+                         New(rec6);
+                         Move(pRec6(listIllSowm.items[i])^,rec6^,SizeOf(rec6^));
+//                         list6.Add(rec6);
+                   end;
+          end;
+       if listIllSowm6.count>0 then
+          for i:=0 to listIllSowm6.count-1 do
+              begin
+                   dispose(pRec6(listIllSowm6.Items[i]));
+              end;
+
+       listIllSowm6.Free;
+       listIllSowm6:=nil;
+
   end;
+
 procedure TFormRepF4.fillOtpPerson(curr_person:person_ptr);
   var i:integer;
       zo,payTp,payYear,payMnth:integer;
-      otk:integer;
+      otk,nrc:integer;
       rec6:pRec6;
     function getZOForOtp:integer;
       var retVal:integer;
@@ -1468,7 +1657,11 @@ procedure TFormRepF4.fillOtpPerson(curr_person:person_ptr);
           recIll:pRecIll;
           i:integer;
           finded:boolean;
+          shifrwr:Integer;
       begin
+           shifrwr:=curr_person^.WID_RABOTY;
+           if shifrwr<> 2 then
+              shifrwr:=1;
            curr_add:=curr_person^.ADD;
            while (curr_add<>nil) do
              begin
@@ -1481,7 +1674,9 @@ procedure TFormRepF4.fillOtpPerson(curr_person:person_ptr);
                                       if (
                                           (pRecIll(listOtp.Items[i]).pay_mnth=curr_add^.PERIOD)
                                           and
-                                          (pRecIll(listOtp.Items[i]).pay_year=curr_add^.year+1990)) then
+                                          (pRecIll(listOtp.Items[i]).pay_year=curr_add^.year+1990)
+                                          and
+                                          (pRecIll(listOtp.Items[i]).shifrwr=shifrwr)) then
                                           begin
                                                pRecIll(listOtp.Items[i])^.summa:=pRecIll(listOtp.Items[i])^.summa + curr_add^.SUMMA;
                                                finded := true;
@@ -1495,6 +1690,7 @@ procedure TFormRepF4.fillOtpPerson(curr_person:person_ptr);
                                   recIll^.pay_mnth := curr_Add^.PERIOD;
                                   recIll^.pay_Year := curr_add^.YEAR+1990;
                                   recIll^.kdNp     := 0;
+                                  recIll^.shifrwr  := shifrwr;
                                   listOtp.Add(recIll);
                              end;
                      end;
@@ -1504,10 +1700,23 @@ procedure TFormRepF4.fillOtpPerson(curr_person:person_ptr);
  begin
        emptyIllOtpLists;
        listOtp:=TList.Create;
+       if curr_person^.tabno=3977 then
+          otk:=0;
        fillOtpPerson;
        otk:=1;
+       nrc:=0;
        if curr_person^.MESTO_OSN_RABOTY in [82,121] then
           otk:=0;
+       if curr_person^.WID_RABOTY=2 then
+          begin
+               otk:=0;
+               nrc:=1;
+          end
+       else
+          begin
+               otk:=1;
+               nrc:=0;
+          end;
        if listOtp.count>0 then
           for i:=0 to listOtp.count-1 do
              if abs(precIll(listOtp.Items[i])^.summa)>0.007 then
@@ -1516,7 +1725,12 @@ procedure TFormRepF4.fillOtpPerson(curr_person:person_ptr);
                    payTp:=10;
                    payYear:=precIll(listOtp.Items[i])^.pay_Year;
                    payMnth:=precIll(listOtp.Items[i])^.pay_mnth;
-                   rec6:=addToF6(curr_person^.TABNO,zo,payTp,payMnth,payYear,precIll(listOtp.Items[i])^.summa,false,otk);
+                   if precIll(listOtp.Items[i])^.shifrwr<>2 then
+                      rec6:=addToF6(curr_person^.TABNO,zo,payTp,payMnth,payYear,precIll(listOtp.Items[i])^.summa,false,otk)
+                   else
+      //                rec6:=addToF6(curr_person^.TABNO,zo,payTp,payMnth,payYear,precIll(listIll.Items[i])^.summa,false,otk,0,0,precIll(listIll.Items[i])^.shifrwr,nrc);
+                      rec6:=addToF6(curr_person^.TABNO,zo,payTp,payMnth,payYear,precIll(listOtp.Items[i])^.summa,false,otk,0,0,2,nrc);
+
               end;
        emptyIllOtpLists;
 
@@ -1563,7 +1777,7 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
        summaAdd:=getSummaOsnAddForPerson(curr_person);
        if abs(summaAdd)>0.01  then
           begin
-               zo       := 26;
+               zo       := 26;     //
                summaAdd := summaAdd;
                payTp    := 0;
                payYear  := currYear;
@@ -1573,6 +1787,11 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
                   zo:=26;
 
                shifrDogDetId:=GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON);
+               if shifrDogDetId<=0 then
+                  shifrDogDetId:=GET_IDDOGPODFORSOWM_PERSON_FROM_SQL(CURR_PERSON);
+              if curr_person^.MESTO_OSN_RABOTY<>82 then
+                  shifrDogDetId:=0;
+
                if ((NMES=4) and (currYear=2020)) then
                   begin
                         if curr_person^.tabno=11986 then
@@ -3018,6 +3237,14 @@ procedure TFormRepF4.fillTable7Dekr;
                 listIll.Free;
                 listIll:=nil;
            end;
+       if listIllSowm<>Nil then
+           begin
+                if listIllSowm.count>0 then
+                   for i:=0 to listIllSowm.Count-1 do
+                       dispose(pRecIll(listIllSowm.Items[i]));
+                listIllSowm.Free;
+                listIllSowm:=nil;
+           end;
        if listOtp<>Nil then
           begin
                if listOtp.count>0 then
@@ -3025,6 +3252,14 @@ procedure TFormRepF4.fillTable7Dekr;
                       dispose(pRecIll(listOtp.Items[i]));
                listOtp.Free;
                listOtp:=nil;
+          end;
+       if listOtpSowm<>Nil then
+          begin
+               if listOtpSowm.count>0 then
+                  for i:=0 to listOtpSowm.Count-1 do
+                      dispose(pRecIll(listOtpSowm.Items[i]));
+               listOtpSowm.Free;
+               listOtpSowm:=nil;
           end;
   end;
 
@@ -3672,25 +3907,154 @@ procedure TFormRepF4.getDataKdPtv(tabno:integer;var start_d:integer;var end_d:in
 
 
  end;
-function TFormRepF4.getBolDay(tabno:integer;payYear:integer;payMnth:integer):integer;
+function TFormRepF4.getBolDay(tabno:integer;payYear:integer;payMnth:integer;
+                              var amntOfbDayOsn: Integer; var summaBolOsn:Real;
+                              var amntOfbDaySowm: Integer; var summaBolSowm:Real):integer;
+ type TRecBolDay=record
+                      fDate:TDate;
+                      lDate:TDate;
+                      anmtOfBDay:Integer;
+                      summa:real;
+                      shifrWr:Integer;
+                 end;
+     PRecBolDay=^TRecBolDay;
  var SQLStmnt        : string;
      v               : variant;
      retVal          : integer;
+     recBolDay       : PRecBolDay;
+     list            : TList;
+     finded          : Boolean;
+     activated       : Boolean;
+     i               : Integer;
  begin
       if tabno=11978 then
          retVal:=0;
+
+     retVal         := 0;
+     amntOfbDayOsn  := 0;
+     summaBolOsn    := 0.0;
+     amntOfbDaySowm := 0;
+     summaBolSowm   := 0.0;
+
+     list:=TList.Create;
+//     SQLStmnt:='select coalesce(sum(coalesce(br.b_day,0)),0) b_day from boln_res br';
+//     SQLStmnt:=trim(SQLStmnt)+' join boln b on b.shifrid=br.shifridboln';
+//     SQLStmnt:=trim(SQLStmnt)+' where br.year_za='+intToStr(payYear)+' and br.month_za='+intToStr(payMnth);
+//     SQLStmnt:=trim(SQLStmnt)+' and b.year_vy='+intToStr(currYear)+' and b.month_vy='+intToStr(NMES);
+//     SQLStmnt:=trim(SQLStmnt)+' and b.shifr_sta in (12,14)';
+//     SQLStmnt:=trim(SQLStmnt)+' and b.tabno='+intToStr(tabno);
+//     v:=SQLQueryValue(SQLStmnt);
+//     SQLStmnt:='select b.modewr,b.f_data,b.l_data, coalesce(br.b_day,0) b_day from boln_res br';
+//     SQLStmnt:=trim(SQLStmnt)+' join boln b on b.shifrid=br.shifridboln';
+//     SQLStmnt:=trim(SQLStmnt)+' where br.year_za='+intToStr(payYear)+' and br.month_za='+intToStr(payMnth);
+//     SQLStmnt:=trim(SQLStmnt)+' and b.year_vy='+intToStr(currYear)+' and b.month_vy='+intToStr(NMES);
+//     SQLStmnt:=trim(SQLStmnt)+' and b.shifr_sta in (12,14)';
+//     SQLStmnt:=trim(SQLStmnt)+' and b.tabno='+intToStr(tabno);
+     activated:=False;
+     if not qBolDay.Transaction.Active then
+        activated:=True;
+     if activated then
+        qBolDay.Transaction.StartTransaction;
+     qBolDay.Params[0].Value:=payYear;
+     qBolDay.Params[1].Value:=payMnth;
+     qBolDay.Params[2].Value:=currYear;
+     qBolDay.Params[3].Value:=NMES;
+     qBolDay.Params[4].Value:=tabno;
+     qBolDay.Prepare;
+     qBolDay.ExecQuery;
+     while not qBolDay.Eof do
+       begin
+            if qBolDay.Fields[0].IsNull then Break;
+            if qBolDay.Fields[1].IsNull then Break;
+            if qBolDay.Fields[2].IsNull then Break;
+            if qBolDay.Fields[3].IsNull then Break;
+            if qBolDay.Fields[4].IsNull then Break;
+            if qBolDay.fields[3].value>0 then
+               begin
+                    New(recBolDay);
+                    recBolDay.shifrWr:=qBolDay.Fields[0].AsInteger;
+                    if recBolDay.shifrWr<>2 then
+                       recBolDay.shifrWr:=1;
+                    recBolDay.fDate:=qBolDay.Fields[1].AsDate;
+                    recBolDay.lDate:=qBolDay.Fields[2].AsDate;
+                    recBolDay.anmtOfBDay:=qBolDay.fields[3].AsInteger;
+                    recBolDay.summa:=qBolDay.fields[4].AsFloat;
+                    finded:=False;
+                    if list.count>0 then
+                       for i:=0 to list.Count-1 do
+                           if (CompareDate(PRecBolDay(list.items[i]).fDate,recBolDay.fDate)=1)
+                              and
+                              (CompareDate(PRecBolDay(list.items[i]).lDate,recBolDay.lDate)=1)
+                              and
+                              (PRecBolDay(list.items[i]).shifrwr=recBolDay.shifrWr) then
+                              begin
+                                   finded := True;
+                                   Break;
+                              end;
+                    if not finded then
+                       list.Add(recBolDay);
+               end;
+            qBolDay.Next;
+       end;
+     qBolDay.Close;
+     if activated then
+        qBolDay.Transaction.Commit;
+//     v:=SQLQueryValue(SQLStmnt);
+//     if VarIsNumeric(v) then
+//     retVal := v;
      retVal := 0;
-     SQLStmnt:='select coalesce(sum(coalesce(br.b_day,0)),0) b_day from boln_res br';
+     if list.count>0 then
+        for i:=0 to list.Count-1 do
+            if PRecBolDay(list.items[i]).shifrWr=1 then
+               begin
+                    retVal:=retVal + PRecBolDay(list.items[i]).anmtOfBDay;
+                    amntOfbDayOsn:=amntOfbDayOsn + PRecBolDay(list.items[i]).anmtOfBDay;
+                    summaBolOsn:=summaBolOsn + PRecBolDay(list.items[i]).summa;
+               end
+            else
+               begin
+                    amntOfbDaySowm:=amntOfbDaySowm + PRecBolDay(list.items[i]).anmtOfBDay;
+                    summaBolSowm:=summaBolSowm + PRecBolDay(list.items[i]).summa;
+               end;
+
+     list.Free;
+     getBolDay:=retVal;
+ end;
+function  TFormRepF4.getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;m:integer):Integer;
+ var SQLStmnt        : string;
+     v               : variant;
+     retVal          : integer;
+//     recBolDay       : PRecBolDay;
+     list            : TList;
+     finded          : Boolean;
+     activated       : Boolean;
+     i               : Integer;
+     formatSumma     : string;
+ begin
+      if tabno=11978 then
+         retVal:=0;
+     if y<1900 then
+        y:=y+1990;
+
+     retVal := 1;
+     formatSumma := Trim(FormatFloatPoint(summa));
+//     list:=TList.Create;
+     SQLStmnt:='select coalesce(b.modewr,0) from boln_res br';
      SQLStmnt:=trim(SQLStmnt)+' join boln b on b.shifrid=br.shifridboln';
-     SQLStmnt:=trim(SQLStmnt)+' where br.year_za='+intToStr(payYear)+' and br.month_za='+intToStr(payMnth);
+     SQLStmnt:=trim(SQLStmnt)+' where br.year_za='+intToStr(Y)+' and br.month_za='+intToStr(M);
      SQLStmnt:=trim(SQLStmnt)+' and b.year_vy='+intToStr(currYear)+' and b.month_vy='+intToStr(NMES);
      SQLStmnt:=trim(SQLStmnt)+' and b.shifr_sta in (12,14)';
      SQLStmnt:=trim(SQLStmnt)+' and b.tabno='+intToStr(tabno);
+ //    SQLStmnt:=trim(SQLStmnt)+' and coalesce(modewr,0)=2';
+     SQLStmnt:=trim(SQLStmnt)+' and abs(abs(coalesce(br.summa_b_bud,0.00)+coalesce(br.summa_b_vne,0.00)+coalesce(br.summa_b_gn,0.00)+coalesce(br.summa_b_nis,0.00))-abs('+FormatSumma+'))<0.01';
      v:=SQLQueryValue(SQLStmnt);
      if VarIsNumeric(v) then
         retVal := v;
-     getBolDay:=retVal;
+     if retVal<>2 then
+        retVal:=1;
+     getShifrWrForBoln:=retVal;
  end;
+
 
 function TFormRepF4.getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer):integer;
  var SQLStmnt        : string;

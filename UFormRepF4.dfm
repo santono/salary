@@ -572,4 +572,22 @@ object FormRepF4: TFormRepF4
     Left = 336
     Top = 96
   end
+  object qBolDay: TpFIBQuery
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    SQL.Strings = (
+      
+        'select b.modewr,b.f_data,b.l_data, sum(coalesce(br.b_day,0)) b_d' +
+        'ay, sum(coalesce(br.summa_b_bud,0.00)+coalesce(br.summa_b_vne,0.' +
+        '00)+coalesce(br.summa_b_gn,0.00)+coalesce(br.summa_b_nis,0.00)) ' +
+        'b_summa from boln_res br'
+      '     join boln b on b.shifrid=br.shifridboln'
+      '     where br.year_za=:yearza and br.month_za=:monthza'
+      '     and b.year_vy=:yearvy and b.month_vy=:monthvy'
+      '     and b.shifr_sta in (12,14)'
+      '     and b.tabno=:tabno '
+      'group by 1,2,3')
+    Left = 368
+    Top = 96
+  end
 end

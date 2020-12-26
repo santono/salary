@@ -425,6 +425,7 @@ type
     NCheckKassBank: TMenuItem;
     ActionMove156LNR: TAction;
     NMove156LNR: TMenuItem;
+    N187: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -699,6 +700,7 @@ type
     procedure ActionRepBolnPlanExecute(Sender: TObject);
     procedure ActionCheckKassaBankExecute(Sender: TObject);
     procedure ActionMove156LNRExecute(Sender: TObject);
+    procedure N187Click(Sender: TObject);
 
 
   private
@@ -793,7 +795,7 @@ implementation
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
   UFormRptPremGM, UFormSumLimitForCarantine,
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
-  UFormTestKassaBank, UFormMakeVypl156082020;
+  UFormTestKassaBank, UFormMakeVypl156082020, SplashForm;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -4888,6 +4890,13 @@ procedure TMainForm.ActionMove156LNRExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormMakeVypl156082020,FormMakeVypl156082020);
      FormMakeVypl156082020.showModal;
+
+end;
+
+procedure TMainForm.N187Click(Sender: TObject);
+begin
+     Application.CreateForm(TAboutBox,AboutBox);
+     AboutBox.showModal;
 
 end;
 

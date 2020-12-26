@@ -81,6 +81,7 @@ interface
    PROCEDURE MAKE_DOL_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
    PROCEDURE MAKE_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
    FUNCTION GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR):INTEGER;
+   FUNCTION GET_IDDOGPODFORSOWM_PERSON_FROM_SQL(CURR_PERSON:PERSON_PTR):INTEGER;
    FUNCTION NAME_DOLG(WANTED_DOLG:INTEGER):STRING;
    FUNCTION NAME_DOLG_BY_SHIFR(WANTED_DOLG:INTEGER):STRING;
    FUNCTION RAZR_DOLG(WANTED_DOLG:INTEGER):INTEGER;
@@ -1410,8 +1411,12 @@ FUNCTION ALLTRIM(T:STRING):STRING;
         All:=RetVal;
    end;
    FUNCTION SPACE(L:INTEGER):STRING;
+    var retVal:string;
     begin
-         SPACE:=All(' ',L);
+         retVal:='';
+         if l>0 then
+            retVal:=All(' ',L);
+         space:=retVal;
     end;
 
  FUNCTION SHORT_FIO(FFIO:STRING):STRING;
@@ -3392,8 +3397,26 @@ FUNCTION GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR):INTEGER;
               end;
           curr_cn:=curr_cn^.next;
        end;
-     {$ENDIF}    
+     {$ENDIF}
      GET_IDDOGPODFORSOWM_PERSON:=retval;
+ END;
+FUNCTION GET_IDDOGPODFORSOWM_PERSON_FROM_SQL(CURR_PERSON:PERSON_PTR):INTEGER;
+ VAR
+     RETVAL:integer;
+     SQLStmnt:string;
+     v:Variant;
+ BEGIN
+     RETVAL:=-1;
+     {$IFDEF SVDN}
+     SQLStmnt:='select first 1 coalesce(id,0) from TB_DOGOVORA_GN_DET';
+     SQLStmnt:=trim(SQLStmnt)+' where tabno='+trim(intToStr(curr_person^.tabno));
+     SQLStmnt:=trim(SQLStmnt)+' order by id desc';
+     v:=SQLQueryValue(SQLStmnt);
+     if VarIsNumeric(v) then
+        if v>0 then
+           retVal:=v;
+     {$ENDIF}
+     GET_IDDOGPODFORSOWM_PERSON_FROM_SQL:=retval;
  END;
 
  FUNCTION GET_PERSON_OKLAD(CURR_PERSON:PERSON_PTR):REAL;
@@ -6055,6 +6078,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          SQLStmnt:=SQLStmnt+' from otpuska a';
          SQLStmnt:=SQLStmnt+' where not ((a.f_data>'''+DataToS+''') or (a.l_data<'''+DataFrS+'''))';
          SQLStmnt:=SQLStmnt+' and a.tabno='+IntToStr(Curr_Person^.Tabno);
+         SQLStmnt:=SQLStmnt+' and coalesce(a.mode,0)<>1' ; //Компенсация на табель не должна влиять
          SQLStmnt:=SQLStmnt+' and exists (select  * from otp_res b where b.shifridotp=a.shifrid';
 //         if not (isLNR and (NMES=8) and (CURRYEAR=2020) and (NSRV<>162)) then
 //            begin

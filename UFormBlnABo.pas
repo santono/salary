@@ -409,7 +409,9 @@ begin
 
               //    if Self.WantedMode<>10 then // оставить за для командировочных
               //                                // 23 01 2011
-                     Mode_V_Z   := 1;  // в - с 19 12 2010
+                  Mode_V_Z   := 1;  // в - с 19 12 2010
+                  if isLNR then
+                     Mode_V_Z   := 0;  // за - с 01 10 2020
 
                   Mode_Ill_GLO   := 0;
                   ModeDC     := 0;
