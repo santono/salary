@@ -1776,6 +1776,9 @@ PROCEDURE PUTINF;
         NmbOfAttemptCurr:=NmbOfAttempt;
      finished:=false;
      ReWriteExecuted:=False;
+  //------02 01 2021---------------------
+     receiveIOSemaphoreForWrite;
+  //---------------------------
      for i_attempt:=1 to NmbOfAttemptCurr do
          begin
               try
@@ -1869,7 +1872,7 @@ PROCEDURE PUTINF;
                        if  (UseIOSQLMonitorLevel>0) then
                            unLockServFile(NSRV);
                        IF NOT SAFE_PUTINF THEN
-                          WHILE(HEAD_PERSON<>NIL) DO DEL_PERSON(HEAD_PERSON);
+                          EMPTY_ALL_PERSON;
                   end
                else
                    ShowMessage('Ошибка записи. Данные не сохранены.');
@@ -1894,6 +1897,10 @@ PROCEDURE PUTINF;
                            end;
                    end;
            end;
+  //------02 01 2021---------------------
+     freeIOSemaphore;
+  //---------------------------
+
       putNSRVFeaturesToSQLAfterPutInf;
 
 
@@ -1930,6 +1937,67 @@ PROCEDURE BLOCKWRITE_NET(VAR F:FILE ;VAR BUF;COUNT:INTEGER;VAR RESULTIO:INTEGER)
               end;
               {$I+}
               KOD:=0;
+          //    sleep
+              IF (KOD=0) and (COUNT=RESULTIO) THEN
+                 DONE:=TRUE
+              ELSE
+                 BEGIN
+                       ic:=time;
+                       jc:=DateTimeToTimeStamp(ic);
+                       CurrTime:=jc.time;
+                       OTR:=CURRTIME-STARTTIME;
+                       IF OTR>LIMIT_NET_TIME*100 THEN
+                          BEGIN
+                               ShowMessage('При записи сетевого файла '+ALLTRIM(FNINF)+
+                                     ' превышен лимит ожидания в '+INTTOSTR(LIMIT_NET_TIME)+' сек');
+                               IF YESNO('Сделать еще одну попытку записи ?') THEN
+                                  BEGIN
+                                       ist:=time;
+                                       jst:=DateTimeToTimeStamp(ist);
+                                       StartTime:=jst.time;
+                                  END
+                                                                             ELSE
+                                  HALT(5);
+                          END
+                       ELSE
+                          DELAY(DELAY_NET);
+                 END;
+        END;
+ END;
+
+PROCEDURE BLOCKWRITE_NET_IO_SEMAPHORE(VAR F:FILE ;VAR BUF;COUNT:INTEGER;VAR RESULTIO:INTEGER);
+ VAR
+     KOD:WORD;
+     DONE:BOOLEAN;
+     ist,ic:TDateTime;
+     jst,jc:TTimeStamp;
+     Otr,StartTime,CurrTime:integer;
+
+ BEGIN
+        DONE:=FALSE;
+        ist:=time;
+        jst:=DateTimeToTimeStamp(ist);
+        StartTime:=jst.time;
+        
+
+        WHILE NOT DONE DO
+         BEGIN
+              {$I-}
+              try
+                 BLOCKWRITE(F,BUF,COUNT,RESULTIO);
+                 KOD:=IORESULT;
+              except
+                 else
+                   begin
+                        if DebugMemoryCorruption then
+                           begin
+                                showMessage('Ошибка записи блока.');
+                           end;
+                   end;
+              end;
+              {$I+}
+              KOD:=0;
+          //    sleep
               IF (KOD=0) and (COUNT=RESULTIO) THEN
                  DONE:=TRUE
               ELSE

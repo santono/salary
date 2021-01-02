@@ -13,8 +13,8 @@ interface
 
 implementation
 uses
-  WinSock,NB30,SysUtils,UFibModule, Variants,ScrUtil,ScrDef;
-
+  WinSock,NB30,SysUtils,UFibModule, Variants,ScrUtil,ScrDef,
+  USQLUnit;
 function GetIPAddress:string;
 var
   WSAData: TWSAData;
@@ -137,7 +137,7 @@ function isIOFileFree(NSERV:integer):Boolean;
         end;
 
      SQLStmnt:='select first 1 retval from pr_io_isfree('+IntToStr(NSERV)+')';
-     v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+     v:=SQLQueryValue(SQLStmnt);
      if  VarIsNumeric(v) then
          retval:=v
      else
@@ -168,7 +168,7 @@ function lockServFile(NSERV:integer):Boolean;
      ip:=GetLocalIPAddress;
      mac:=GetMACAdress;
      SQLStmnt:='select first 1 retval from pr_io_lock('+IntToStr(NSERV)+','''+ip+''','''+mac+''')';
-     v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+     v:=SQLQueryValue(SQLStmnt);
      if  VarIsNumeric(v) then
          retval:=v
      else
@@ -198,7 +198,7 @@ function unLockServFile(NSERV:integer):Boolean;
      ip:=GetLocalIPAddress;
      mac:=GetMACAdress;
      SQLStmnt:='select first 1 retval from pr_io_unlock('+IntToStr(NSERV)+','''+ip+''','''+mac+''')';
-     v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+     v:=SQLQueryValue(SQLStmnt);
      if  VarIsNumeric(v) then
          retval:=v
      else
@@ -255,7 +255,7 @@ function unLockAllMy:Boolean;
      ip:=GetLocalIPAddress;
      mac:=GetMACAdress;
      SQLStmnt:='select first 1 retval from pr_io_unlock_all_my('''+ip+''','''+mac+''')';
-     v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+     v:=SQLQueryValue(SQLStmnt);
      unLockAllMy:=True;
 
  end;

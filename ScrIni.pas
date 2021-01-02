@@ -81,6 +81,7 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
        BANK_DIR := MAINDIR+'\BANK\';
        CMEM     := CDIR+'MEMORY\';
        TemplateDIR := MAINDIR+'\TEMPLATE\';
+       tmpDir   := ddir;
        Local_Dir:= CDIR;
        NET_DIR := DDIR;
        GETDIR(0,CURR_DIR);
@@ -190,6 +191,7 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
 
                 END;
                CLOSE(DEV);
+               tmpDir:=DDIR;
           END
                                   ELSE
           BEGIN
@@ -1459,6 +1461,20 @@ PROCEDURE InitInitialParamentersFromIniFile;
                          Val(ValS,iVal,iErr);
                          if iErr=0 then
                          if iVal=1 then bolnLNRMode2016:=True;
+                    end;
+                 ValS := Ini.ReadString('Parameters','needServerAppData','0');
+                 if Length(Trim(ValS))>0 then
+                    begin
+                         Val(ValS,iVal,iErr);
+                         if iErr=0 then
+                         if iVal=1 then needServerAppData:=True;
+                    end;
+                 ValS := Ini.ReadString('Parameters','needUseIOSemaphore','0');
+                 if Length(Trim(ValS))>0 then
+                    begin
+                         Val(ValS,iVal,iErr);
+                         if iErr=0 then
+                         if iVal=1 then needUseIOSemaphore:=True;
                     end;
 
 

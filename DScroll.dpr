@@ -375,7 +375,8 @@ uses
   UFormRepBolnPlan in 'UFormRepBolnPlan.pas' {FormRepBolnPlan},
   UFormTestKassaBank in 'UFormTestKassaBank.pas' {FormTestKassaBank},
   UFormMakeVypl082020 in 'UFormMakeVypl082020.pas' {FormMakeVypl082020},
-  UFormMakeVypl156082020 in 'UFormMakeVypl156082020.pas' {FormMakeVypl156082020};
+  UFormMakeVypl156082020 in 'UFormMakeVypl156082020.pas' {FormMakeVypl156082020},
+  UFormTestIOSemaphore in 'UFormTestIOSemaphore.pas' {FormTestIOSemaphore};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -343,12 +343,18 @@ procedure TFormGener.makeNextData;
       
   end;
 procedure TFormGener.BitBtnStartClick(Sender: TObject);
+var  s:string;
+     ny,nm:Integer;
 begin
      if not YesNo('Начать генерация данных за '+getNameNextData) then
         exit;
      if not yesNo('Архивы за '+getMonthRus(NMES)+' сделаны?') then
         exit;
-     if not yesNo('Файлы DAY.TXT, MONTH18.TXT и MNTHС18.TXT подготовлены?') then
+     nm:=NMES;
+     ny:=CURRYEAR;
+     getNextMY(nm,ny);
+     s:=IntToStr(ny-2000);
+     if not yesNo('Файлы DAY.TXT, MONTH'+s+'.TXT и MNTHС'+s+'.TXT подготовлены?') then
         exit;
      if cbNeedArc.Checked  then
         if not makeArchives then Exit;

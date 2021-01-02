@@ -409,6 +409,9 @@ const
          NIGHT_PROC   = 40.00;
 {$ENDIF}
 
+   const limitSemaphoreTime=2 * 1000;
+
+
 
 var
     HEAD_PERSON,TAIL_PERSON:PERSON_PTR;
@@ -425,6 +428,7 @@ var
     CUDIR,       {Директория для хранения данных по выплаченным купонам  }
     IDIR,        {Директория для хранения реестра больничных листов      }
     FLAG_DIR,    {Директория для сетевых флагов                          }
+    tmpDir,      {Директория для сохранения файлов в кажмл месяце        }
     TemplateDIR,
     OTP_DIR,
     CLAR_DIR,
@@ -561,6 +565,8 @@ var
     needAllPodr:boolean;      // Указать в меню все подразд даже резервы для СВДН
     needHideGenerMessages:boolean;
     TYP_PRIKAZA_PEREVOD:Integer;
+    needServerAppData:Boolean;
+    needUseIOSemaphore:Boolean;
 
     SVDNfooterRec:record
                        summaAdd         : Real;
@@ -704,6 +710,8 @@ begin
     needHideGenerMessages:=false;
     FillChar(NSRVarr,SIZEOF(NSRVARR),0);
     TYP_PRIKAZA_PEREVOD:=7;
+    needServerAppData:=False;
+    needUseIOSemaphore:=false;
 {$IFDEF SVDN}
     isSVDN := True  ;
     isLNR  := False ;

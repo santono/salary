@@ -1214,6 +1214,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
      WantedDolg:string;
      AUserName, APassword:Ansistring;
      i,j : integer;
+     escPressed:Boolean;
  begin
   // i:=FIB.pFIBDatabaseSal.ActiveTransactionCount;
   // j:=FIB.pFIBDatabaseArc.ActiveTransactionCount;
@@ -1241,6 +1242,13 @@ procedure TMainForm.FormCreate(Sender: TObject);
    InitInitialParamentersFromIniFile;
    if kz<0 then
       raise Exception.Create('DirList initialization error');
+
+   if isLNR then
+   if needServerAppData then
+      begin
+           makeServerBDir(escPressed);
+           makeServerTmpDir(escPressed);
+      end;
    Fill_Podr;
    if kz<0 then
       raise Exception.Create('Fill_Podr initialization error');

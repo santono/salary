@@ -846,7 +846,7 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
       object Label1: TLabel
         Left = 328
         Top = 216
-        Width = 4
+        Width = 48
         Height = 20
         Caption = 'Label1'
       end
@@ -860,7 +860,7 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
       object lblMatHelpMustObl: TLabel
         Left = 248
         Top = 334
-        Width = 57
+        Width = 31
         Height = 20
         Caption = '0.00'
       end
@@ -874,7 +874,7 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
       object Label3: TLabel
         Left = 336
         Top = 224
-        Width = 4
+        Width = 48
         Height = 20
         Caption = 'Label3'
       end
@@ -959,7 +959,6 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
             Caption = #1042'. '#1089#1073#1086#1088
           end>
         DefaultLayout = False
-        HeaderPanelRowCount = 1
         KeyField = 'id'
         ShowSummaryFooter = True
         SummaryGroups = <>
@@ -1074,7 +1073,7 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
     Time = 40670.578828657410000000
     DateFormat = dfLong
     DateMode = dmUpDown
-    MaxDate = 44196.000000000000000000
+    MaxDate = 47848.000000000000000000
     MinDate = 40544.000000000000000000
     TabOrder = 1
   end

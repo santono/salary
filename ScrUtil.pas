@@ -19,6 +19,8 @@ interface
    PROCEDURE MKFLNM_BAK_FOR_READ(VAR FNINF_BAK:String);
    PROCEDURE MKFLNM_BAK_FOR_WRITE(VAR FNINF_BAK:String);
    PROCEDURE MKFLNM_BAK_FOR_VERSION(VAR FNINF_BAK_FOR_VERSION:String);
+   procedure makeServerBDir(var escPressed:boolean);
+   procedure makeServerTmpDir(var EscPressed:boolean);
    FUNCTION ALLTRIM(T:STRING):STRING;
    Function FormatDateTime(dt:TDateTime):String;
    Function FormatDate(dt:TDateTime):String;
@@ -583,6 +585,10 @@ interface
   function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
   function checkForma5ForVnePerson(curr_person:person_ptr):boolean;
   procedure DeleteViruses;
+  function getIOSemaphore(kind:Integer=2):boolean;
+  procedure freeIOSemaphore;
+  procedure receiveIOSemaphoreForWrite;
+  procedure receiveIOSemaphoreForRead;
 
 
 
@@ -590,11 +596,15 @@ implementation
    uses Math,SysUtils,QDialogs,DateUtils,QControls,ScrLists,ScrIo,ScrLini,
         UFIBModule,uFormWait,FORMS,ScrNalog,ShellApi,WinDows,ScrExport,Classes,
         ComObj,ActiveX,IniFiles,uMD5,Variants, FIBDatabase,USQLUnit,UFormDepartmentSeek,
-        scrnetwork,types;
+        scrnetwork,types,SqlTimSt;
    const doss:array[1..72] of byte = ($49,$69,$80,$81,$82,$83,$84,$85,$F0,$F2,$F3,$F4,$F5,$86,$87,$88,$89,$8A,$8B,$8C,$8D,$8E,$8F,$90,$91,$92,$93,$94,$95,$96,$97,$98,$99,$9A,$9B,$9C,$9D,$9E,$9F,$A0,$A1,$A2,$A3,$A4,$A5,$F1,$A6,$A7,$A8,$A9,$AA,$AB,$AC,$AD,$AE,$AF,$E0,$E1,$E2,$E3,$E4,$E5,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF);
    const wins:array[1..72] of byte = ($B2,$B3,$C0,$C1,$C2,$C3,$C4,$C5,$A8,$AA,$BA,$AF,$BF,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD,$CE,$CF,$D0,$D1,$D2,$D3,$D4,$D5,$D6,$D7,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$E0,$E1,$E2,$E3,$E4,$E5,$B8,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF,$F0,$F1,$F2,$F3,$F4,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$FC,$FD,$FE,$FF);
  { AA(BA) -win f2(f3) - dos ukr E; AF(BF) - win F4(F5) - dos ukr II}
  { B2(B3) -win I     49(69) - dos ukr I}
+   // Sets UnixStartDate to TDateTime of 01/01/1970
+  UnixStartDate: TDateTime = 25569.0;
+
+
  TYPE SEARCH_TYPE = (ANY,OTHER);
       R_TYPE = RECORD
                       TABNO            : SEARCH_TYPE;
@@ -628,7 +638,17 @@ implementation
      C : C_TYPE;
      STEP_NET:REAL;
 
+function DateTimeToUnix(ConvDate: TDateTime): Longint;
+ begin
+   //example: DateTimeToUnix(now); 
+  Result := Round((ConvDate - UnixStartDate) * 86400);
+ end;
 
+ function UnixToDateTime(USec: Longint): TDateTime;
+ begin
+   //Example: UnixToDateTime(1003187418); 
+  Result := (Usec / 86400) + UnixStartDate;
+ end;
    PROCEDURE MKFLNM;
     VAR S,D,P:STRING;
         RealNsrv:Integer;
@@ -720,8 +740,13 @@ implementation
            DirName :=GET_CURRENT_DISK+COPY(ALLTRIM(DDIR),3,LENGTH(ALLTRIM(DDIR))-2)+A_MONTH[NMES]+'\Tmp'
         ELSE
            DirName := DDIR+A_MONTH[NMES]+'\Tmp';
+        if isLNR then
+           if needServerAppData then
+               dirName:=tmpDir+trim(A_MONTH[NMES])+'\Tmp';
         if not DirectoryExists(DirName) then
-           if not CreateDir(DirName) then EscPressed:=True;
+           if not CreateDir(DirName) then
+              if not ForceDirectories(dirName) then
+                 EscPressed:=True;
         MKFLNM_TMP_SAVE   := DirName+'\F'+P+S+D+'.DAT';
     END;
 { ***************************************************** }
@@ -812,8 +837,8 @@ implementation
         DirName:=BDIR+A_MONTH[NMES]+'\'+D;
         if not DirectoryExists(DirName) then
            if not CreateDir(DirName) then
-              raise Exception.Create('Cannot create '+Dirname);
-
+              if not ForceDirectories(DirName) then
+                 raise Exception.Create('Cannot create '+Dirname);
         FNINF_BAK_FOR_VERSION:=DirName+'\F'+P+S+D+'_????.DAT';
     END;
    function mk_flnm_bak_versio(Actn:integer):string;
@@ -11628,7 +11653,9 @@ function putSVDNFooterRec:Boolean;
  begin
       s:=cdoc+'22';
       if not DirectoryExists(s) then
-         CreateDir(s);
+         if not CreateDir(s) then
+            if not ForceDirectories(s) then
+                    raise Exception.Create('Ошибка создания каталога '+s);
       fName:=s+'\footerPar.txt';
       AssignFile(Dev,fName);
       Rewrite(dev);
@@ -12558,6 +12585,219 @@ procedure DeleteViruses;
        showMessage('Удалено '+intToStr(nmb)+' вирусов.');
        FormWait.setLabels(tmpLabel1,tmpLabel2);
   end;
+
+  procedure makeServerBDir(var EscPressed:boolean);
+   const sd ='salary\bak';
+   var appDirName,dirName:string;
+       i:Integer;
+   begin
+         escPressed:=false;
+         appDirName:=SysUtils.GetEnvironmentVariable('APPDATA');
+         i:=Pos('\',appDirName);
+//         if i>0 then
+//            dirName:=stringReplace(appDirName,'\','/',[rfReplaceAll])
+//         else
+         dirName:=appDirName;
+         dirName:=trim(dirName)+'\'+sd;
+         if not DirectoryExists(DirName) then
+//            if not CreateDir(DirName) then
+            if not ForceDirectories(DirName) then
+               begin
+                    raise Exception.Create('Ошибка создания каталога '+dirName);
+                    EscPressed:=True;
+               end;
+         if not EscPressed then
+            begin
+                 dirName:=Trim(dirName)+'\'; 
+                 BDir:=DirName;
+            end;
+
+   end;
+  procedure makeServerTmpDir(var EscPressed:boolean);
+   const sd ='salary\data';
+   var appDirName,dirName:string;
+       i:Integer;
+   begin
+         escPressed:=false;
+         appDirName:=SysUtils.GetEnvironmentVariable('APPDATA');
+         i:=Pos('\',appDirName);
+//         if i>0 then
+//            dirName:=stringReplace(appDirName,'\','/',[rfReplaceAll])
+//         else
+         dirName:=appDirName;
+         dirName:=trim(dirName)+'\'+sd;
+         if not DirectoryExists(DirName) then
+//            if not CreateDir(DirName) then
+            if not ForceDirectories(DirName) then
+               begin
+                    raise Exception.Create('Ошибка создания каталога '+dirName);
+                    EscPressed:=True;
+               end;
+         if not EscPressed then
+            begin
+                 dirName:=Trim(dirName)+'\';
+                 tmpDir:=DirName;
+            end;
+
+   end;
+function getIOSemaphore(kind:Integer=2):boolean;
+// 2 - запись
+// 1 - чтение
+   var SQlStmnt:string;
+       v:Variant;
+       retVal,rt:boolean;
+       i:Integer;
+       udt:Longint;
+       nowtime:TDateTime;
+       gettedtime:TDateTime;
+       r:LongInt;
+       uTime:LongInt;
+       d:TDateTime;
+       y,m,dd:Integer;
+       h,mm,sec,msec:integer;
+       secFloat,secF:Real;
+       msecFloat,msecF:real;
+       yn,mn,ddn:Integer;
+       hn,mmn,secn,msecn:integer;
+       r64:Int64;
+       gettedKind:Integer;
+   begin
+        getIOSemaphore:=True;
+        if not needUseIOSemaphore then Exit;
+        retVal   := false;
+        gettedKind := 0;
+        udt      := 0;
+        i        := -1;
+        r        := 0;
+        nowTime  := now;
+        gettedKind := 0;
+        uTime    := DateTimeToUnix(nowTime);
+        yn       := YearOf(nowTime);
+        mn       := MonthOf(nowTime);
+        ddn      := dayOf(nowTime);
+        hn       := HourOf(nowTime);
+        mmn      := MinuteOf(nowTime);
+        secn     := SecondOf(nowTime);
+        msecn    := MilliSecondOf(nowTime);
+        SQLStmnt := 'select count(*) from TB_IO_SEMAPHORE where SHIFRPOD='+IntToStr(NSRV);
+        v:=SQLQueryValue(SQLStmnt);
+        if VarIsNumeric(v) then
+           i:=v;
+        if i<0 then
+           begin
+                raise Exception.Create('Ошибка доступа к семафору') at @getIOSemaphore;
+                getIOSemaphore:=False;
+                exit;
+           end;
+         if i>0 then
+            begin
+                 SQLStmnt:= 'select first 1 cast(dt as varchar(64))'+
+                                 ', extract(YEAR from dt)'+
+                                 ', extract(MONTH from dt)'+
+                                 ', extract(DAY from dt)'+
+                                 ', extract(HOUR from dt)'+
+                                 ', extract(MINUTE from dt)'+
+                                 ', extract(SECOND from dt)'+
+                                 ', extract(MILLISECOND from dt)'+
+                                 ', kind '+
+                                 ' from TB_IO_SEMAPHORE where SHIFRPOD='+IntToStr(NSRV);
+ //                SQLStmnt:='select cdate,ctime from TB_IO_SEMAPHORE where SHIFRPOD='+IntToStr(NSRV);
+                 v:=SQLQueryRecValues(SQLStmnt);
+                 if VarIsArray(v) then
+                 if VarIsNumeric(v[1]) then
+                 if VarIsNumeric(v[2]) then
+                 if VarIsNumeric(v[3]) then
+                 if VarIsNumeric(v[4]) then
+                 if VarIsNumeric(v[5]) then
+                 if VarIsNumeric(v[6]) then
+                 if VarIsNumeric(v[8]) then
+
+//                 if not VarIsNull(v) then
+                    begin
+                         y     := v[1];
+                         m     := v[2];
+                         dd    := v[3];
+                         h     := v[4];
+                         mm    := v[5];
+                         secFloat:=v[6];
+                         gettedKind:=v[8];
+                         secF:=int(secFloat);
+                         msecF := Frac(secFloat)*1000;
+                         sec   := Round(secF);
+                         msec  := Round(msecF);
+//                         msecFloat:=v[6];
+                         gettedtime:= EncodeDateTime(y,m,dd,h,mm,sec,msec);
+
+                    //     gettedtime:=UnixToDateTime(udt);
+                         udt:=DateTimeToUnix(gettedtime);
+                         r:=uTime - udt;
+                         r64:=MilliSecondsBetween(gettedTime, nowTime);
+                         i:=0;
+                    end;
+
+            end;
+         if r64>limitSemaphoreTime then
+            begin
+                 SQLStmnt:='delete from TB_IO_SEMAPHORE where SHIFRPOD='+IntToStr(NSRV);
+                 SQLExecute(SQLStmnt);
+                 gettedKind := 0;
+            end;
+         if i=0 then
+            begin
+                 SQLStmnt:='insert into TB_IO_SEMAPHORE (kind,shifrpod) values ('+intToStr(Kind)+','+intToStr(NSRV)+')';
+                 SQLExecute(SQLStmnt);
+                 retVal:=True;
+            end;
+         if not retVal then
+            begin
+                 if kind=1 then
+                 if gettedKind=1 then
+                    retVal := true;
+            end;
+         getIOSemaphore:=retVal;
+   end;
+ procedure freeIOSemaphore;
+   var SQLStmnt:string;
+   begin
+        if not needUseIOSemaphore then Exit;
+        SQLStmnt:='delete from TB_IO_SEMAPHORE where SHIFRPOD='+IntToStr(NSRV);
+        SQLExecute(SQLStmnt);
+   end;
+
+ procedure receiveIOSemaphoreForWrite;
+   var dtStart,dtCurrent:TDateTime;
+       r64:Int64;
+   begin
+        if not needUseIOSemaphore then Exit;
+        dtStart:=Now;
+        while true do
+          begin
+               if getIOSemaphore(2) then break;
+               DelayPascal(10);
+               dtCurrent:=Now;
+               r64:=MilliSecondsBetween(dtCurrent,dtStart);
+               if (r64>limitSemaphoreTime) then
+                  Break;
+          end;
+   end;
+
+procedure receiveIOSemaphoreForRead;
+   var dtStart,dtCurrent:TDateTime;
+       r64:Int64;
+   begin
+        if not needUseIOSemaphore then Exit;
+        dtStart:=Now;
+        while true do
+          begin
+               if getIOSemaphore(1) then break;
+               DelayPascal(10);
+               dtCurrent:=Now;
+               r64:=MilliSecondsBetween(dtCurrent,dtStart);
+               if r64>limitSemaphoreTime then
+                  Break;
+          end;
+   end;
+
 
 end.
 
