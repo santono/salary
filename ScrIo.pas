@@ -1191,9 +1191,18 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                     end;
                  lockServFile(NSRV);
              end;
+//--------- 02 01 2021 ---------
+          if (needUseIOSemaphore  and (NMES=FLOW_MONTH)) then
+             receiveIOSemaphoreForRead;
+//------------------------------
           GETINF_BLOCK(NEED_NET);
           if (NMES=FLOW_MONTH)  and (UseIOSQLMonitorLevel>1)then
              unLockServFile(NSRV);
+//--------- 02 01 2021 ---------
+          if (needUseIOSemaphore   and (NMES=FLOW_MONTH)) then
+             freeIOSemaphore;
+//------------------------------
+
           if NMES=FLOW_MONTH then
           if not NameServList.IS_CANBEEMPTY(NSRV) then
           if COUNT_PERSON=0 then
