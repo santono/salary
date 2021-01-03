@@ -123,7 +123,7 @@ procedure TFormProfsojuzList.makeList;
        tmpNMES := NMES;
        tmpNSRV := NSRV;
        putinf;
-       while HEAD_PERSON<>nil do DEL_PERSON(head_person);
+       EMPTY_ALL_PERSON;
        pb1.Max      := Count_Serv;
        pb1.Min      := 0;
        pb1.Position := 0;
@@ -146,7 +146,7 @@ procedure TFormProfsojuzList.makeList;
                           AddPersonToList(Curr_Person);
                        Curr_Person:=Curr_Person.NEXT;
                   end;
-                while HEAD_PERSON<>nil do DEL_PERSON(head_person);
+                EMPTY_ALL_PERSON;
 
            end;
        if List.Count>0 then

@@ -251,7 +251,7 @@ begin
      savnmes := nmes;
      savnsrv := nsrv;
      putinf;
-     while (head_person<>nil) do del_person(Head_person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_Serv;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -378,7 +378,7 @@ begin
                          end;
                      Curr_Person:=Curr_Person^.NEXT;
                 end;
-              while (head_person<>nil) do del_person(Head_person);
+              EMPTY_ALL_PERSON;
          end;
      if Assigned(ListYM) then
         begin
@@ -607,7 +607,7 @@ begin
              UFormRptTstEcb.ListOth.Free;
              UFormRptTstEcb.ListOth:=nil;
         end;
-     while (head_person<>nil) do del_person(Head_person);
+     EMPTY_ALL_PERSON;
      nsrv    := savnsrv;
      nmes    := savnmes;
      mkflnm;

@@ -126,7 +126,7 @@ function TFormRestorePodrFromDrive.GetCountPersonInFile(Tmpl:string;FName:string
       fninf:=f;
       getinf(false);
       i:=Count_Person;
-      while (Head_Person<>Nil) do DEL_PERSON(Head_Person);
+      EMPTY_ALL_PERSON;
       select(1);
       fninf:=s;
       GetCountPersonInFile:=i;
@@ -169,7 +169,7 @@ begin
      L1:=Length(S);
      F:=copy(D,1,L-L1);
      F:=F+S;
-     while (HEAD_PERSON<>nil) do DEL_PERSON(Head_Person);
+     EMPTY_ALL_PERSON;
      sv:=fninf;
      fninf:=f;
      getinf(true);

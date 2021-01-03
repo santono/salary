@@ -58,7 +58,7 @@ begin
      if not YesNo('Все данные из 179 подр будут потеряны и созданы новые. Уверены?') then
         Exit;
 
-     while (HEAD_PERSON<>nil) do DEL_PERSON(Head_Person);
+     EMPTY_ALL_PERSON;
      MoveIskra;
      PUTINF;
 end;
@@ -117,7 +117,7 @@ begin
      if NSRV<>179 then Exit;
      nsrv:=3;
      MKFLNM;
-     while HEAD_PERSON<>nil do DEL_PERSON(Head_Person);
+     EMPTY_ALL_PERSON;
      GETINF(true);
      while (true) do
        begin
@@ -144,11 +144,11 @@ begin
                while (Curr_Person.Ud<>Nil) do DEL_Ud(Curr_Person.Ud,Curr_Person);
                PUTINF;
           end;
-     while HEAD_PERSON<>nil do DEL_PERSON(Head_Person);
+     EMPTY_ALL_PERSON;
      nsrv:=82;
      MKFLNM;
      GETINF(true);
-     while HEAD_PERSON<>nil do DEL_PERSON(Head_Person);
+     EMPTY_ALL_PERSON;
      PUTINF;
      nsrv:=179;
      GETINF(true);

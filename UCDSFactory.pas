@@ -536,7 +536,7 @@ implementation
         FormProgress.Caption:='Запись всех подразделений';
         FormProgress.Show;
 
-        while (HEAD_PERSON<>NIL) do DEL_PERSON(Head_Person);
+        EMPTY_ALL_PERSON;
         BCS:=TBatchCopierToSql.Create(CurrentYear,NMES);
         for i:=1 to Count_Serv do
             begin
@@ -559,7 +559,7 @@ implementation
                          BPC.Free;
                          Curr_Person:=Curr_Person^.NEXT;
                     end;
-                 while (HEAD_PERSON<>NIL) do DEL_PERSON(Head_Person);
+                 EMPTY_ALL_PERSON;
                  if i mod 30 = 0 then
                     BCS.CopyCDSToSQL;
             end;

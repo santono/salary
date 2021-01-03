@@ -60,7 +60,7 @@ procedure TFormDelAllCN.DeleteAllCN(wantedshifr:integer);
       CountRec:=0;
       NsrvTmp:=Nsrv;
       Putinf;
-      while (head_person<>nil) do del_person(Head_Person);
+      EMPTY_ALL_PERSON;
       ProgressBar1.Max:=count_serv;
       ProgressBar1.Min:=0;
       ProgressBar1.Position:=0;
@@ -98,7 +98,7 @@ procedure TFormDelAllCN.DeleteAllCN(wantedshifr:integer);
               end;
              if IsDeleted then
                 PutInf;
-             while (head_person<>nil) do del_person(Head_Person);
+             EMPTY_ALL_PERSON;
         end;
       Nsrv:=NsrvTmp;
       mkflnm;

@@ -169,7 +169,7 @@ begin
      NmesSav  := NMES;
      ListDblVpl := TList.Create;
      putinf;
-     while (Head_Person<>Nil) do del_person(Head_Person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_Serv;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -234,7 +234,7 @@ begin
                             Dispose(PCmpRecord(list.Items[i]));
                     list.Free;
                 end;
-              while (Head_Person<>Nil) do del_person(Head_Person);
+              EMPTY_ALL_PERSON;
          end;
      if ListDblVpl.Count>0 then
         begin

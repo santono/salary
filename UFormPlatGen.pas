@@ -566,7 +566,7 @@ procedure MakeYellowAll;
 
       NSRVT := NSRV;
       PutInf;
-      WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+      EMPTY_ALL_PERSON;
       for I_GRUPPY:=1 to MAX_GRUPPA do
           begin
                if not CURR_GRUPPA[I_GRUPPY] then
@@ -636,7 +636,7 @@ procedure MakeYellowAll;
                                 if MakedHeader then MakeItogiPodrPlat;
                                 if Modified then PUTINF;
                            end;
-                        WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                        EMPTY_ALL_PERSON;
                         if ModeDel=None then break;
                    END;    { end of count_serv}
           end;             { end of cycle by gruppy} 

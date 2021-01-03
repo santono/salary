@@ -79,7 +79,7 @@ procedure TFormTestIO.PerformTest;
       ProgressBar1.Max      := NmbOfSteps;
       ProgressBar1.Position :=0 ;
       PUTINF;
-      while (HEAD_PERSON<>Nil) do DEL_PERSON(head_person);
+      EMPTY_ALL_PERSON;
       MKFLNM;
       StartNSRV:=1;
       EndNSRV:=179;
@@ -128,7 +128,7 @@ procedure TFormTestIO.PerformTest;
                               Curr_Person:=Curr_Person.NEXT;
                          end;
                        PUTINF;
-                       while (HEAD_PERSON<>Nil) do DEL_PERSON(head_person);
+                       EMPTY_ALL_PERSON;
                           end;
                        Inc(NSRV);
                        if (NSRV>EndNSRV) then

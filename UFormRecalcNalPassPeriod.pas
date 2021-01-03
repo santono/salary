@@ -110,7 +110,7 @@ begin
      else
         NeedBlockRecalcedNalogi:=False;
      putinf;
-     while (head_person<>nil) do del_Person(head_person);
+     EMPTY_ALL_PERSON;
 
    //  DeleteCurrDataFromSQl;
 //     for WM:=2 to 12 do

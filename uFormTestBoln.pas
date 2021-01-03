@@ -33,7 +33,7 @@ begin
     nsrv_save:=nsrv;
     nmes_save:=nmes;
     putinf;
-    while (head_person<>Nil) do Del_person(Head_Person);
+    EMPTY_ALL_PERSON;
     summa:=0;
     for i:=1 to count_serv do
         begin
@@ -54,7 +54,7 @@ begin
                       end;
                      Curr_Person:=Curr_Person^.Next;
                end;
-              while (head_person<>Nil) do Del_person(Head_Person);
+              empty_all_person;
         end;
     nsrv:=nsrv_save;
     MKFLNM;

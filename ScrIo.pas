@@ -1053,7 +1053,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                      iii:=count_person;
                      IF KZ<0 THEN
                         BEGIN
-                             WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                             EMPTY_ALL_PERSON;
                              EXIT;
                         END;
                      IF NEED_EXIT THEN EXIT;
@@ -1687,7 +1687,7 @@ PROCEDURE PUTINF;
      IF (NOT BUH^.MAY_BE_PUT(NSRV)) AND (NOT MAY_ALL_CORRECT) THEN
         BEGIN
              ERROR('Вам разрешен для '+ALLTRIM(NAME_SERV(NSRV))+' только просмотр');
-             WHILE(HEAD_PERSON<>NIL) DO DEL_PERSON(HEAD_PERSON);
+             EMPTY_ALL_PERSON;
              EXIT;
         END;
 }

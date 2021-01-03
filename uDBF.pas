@@ -179,7 +179,7 @@ begin
      ProgressBar2.Max:=12;
      ProgressBar2.Step:=1;
      NSRVT:=NSRV;
-     WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+     EMPTY_ALL_PERSON;
 {     CurrYear:=20001999;}
      nmes_t:=nmes;
      nmes:=1;
@@ -201,7 +201,7 @@ begin
               Label1.ReFresh;
               Label1.RePaint;
               PUTnsrvTODBF;
-              WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+              EMPTY_ALL_PERSON;
          END;
          END;
      NMES:=NMES_t;

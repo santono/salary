@@ -222,7 +222,7 @@ begin
                        end;
                      Curr_Person:=Curr_Person^.NEXT;
                 end;
-              while (head_person<>nil) do del_person(Head_person);
+              EMPTY_ALL_PERSON;
          end;
      if List.Count>0 then
         begin

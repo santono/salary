@@ -212,7 +212,7 @@ begin
                       Curr_Person:=Curr_Person^.NEXT;
                  end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       NMES     := SavMonth;
@@ -286,7 +286,7 @@ begin
                       Curr_Person:=Curr_Person^.NEXT;
                  end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       NMES     := SavMonth;
@@ -349,7 +349,7 @@ begin
                       Curr_Person:=Curr_Person^.NEXT;
                  end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       ShowMessage('Готово. Изменено '+intToStr(countChanged)+' дат' );
@@ -420,7 +420,7 @@ begin
                       Curr_Person:=Curr_Person^.NEXT;
                  end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       ShowMessage('Готово. Изменено '+intToStr(countChanged)+' дат' );

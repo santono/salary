@@ -99,7 +99,7 @@ procedure TFormFindPerson.FindPerson;
 begin
      tmpNSRV:=NSRV;
      PUTINF;
-     while (HEAD_PERSON<>nil) do DEL_PERSON(head_person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_Serv;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -129,7 +129,7 @@ begin
                         end;
                      curr_person:=curr_person.NEXT;
                 end;
-              while (HEAD_PERSON<>nil) do DEL_PERSON(head_person);
+              EMPTY_ALL_PERSON;
 
          end;
      if not finded then

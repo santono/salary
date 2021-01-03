@@ -107,7 +107,7 @@ begin
      NmesSav  := NMES;
      ListTst  := TList.Create;
      putinf;
-     while (Head_Person<>Nil) do del_person(Head_Person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_Serv;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -183,7 +183,7 @@ begin
                      Curr_Person:=Curr_Person^.NEXT;
                 end;
               if NeedPut then putinf;
-              while (Head_Person<>Nil) do del_person(Head_Person);
+              EMPTY_ALL_PERSON;
          end;
      if ListTst.Count>0 then
         begin

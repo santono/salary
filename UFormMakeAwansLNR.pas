@@ -248,7 +248,7 @@ begin
                 end
         end;
 
-     while (head_Person<>Nil) do Del_Person(head_Person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max      := COUNT_SERV;
      ProgressBar1.Min      := 0;
      ProgressBar1.Position := 0;
@@ -278,7 +278,7 @@ begin
                            Curr_Person:=Curr_Person^.NEXT;
                      end;
               if ChangedPodr then PutInf;
-              while (Head_Person<>nil) do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          end;
      NSRV := SAVE_NSRV;
      MKFLNM;
@@ -356,7 +356,7 @@ function TFormMakeAwansLNR.getProc:Real;
      end;
 begin
      summaKVypl:=0;
-     while (head_Person<>Nil) do Del_Person(head_Person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max      := COUNT_SERV;
      ProgressBar1.Min      := 0;
      ProgressBar1.Position := 0;
@@ -388,7 +388,7 @@ begin
                                end;
                            Curr_Person:=Curr_Person^.NEXT;
                      end;
-              while (Head_Person<>nil) do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          end;
      NSRV := SAVE_NSRV;
      MKFLNM;

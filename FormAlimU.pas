@@ -329,7 +329,7 @@ var NMESTemp,NSRVTemp:integer;
 begin
      NSRVTemp:=NSRV;
      PUTINF;
-     while head_Person<>Nil do Del_Person(Head_Person);
+     empty_all_person;
      FOR I:=1 to Count_Serv do
          begin
               NSRV:=i;
@@ -354,7 +354,7 @@ begin
                      end;
                     Curr_Person:=Curr_Person^.NEXT;
                end;
-              while head_Person<>Nil do Del_Person(Head_Person);
+              empty_all_person;
          end;
      NSRV:=NSRVTemp;
      MKFLNM;

@@ -232,7 +232,7 @@ BEGIN
                 BEGIN
                      GETINF(TRUE);
                      FIRST_STEP;
-                     WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                     EMPTY_ALL_PERSON;
                 END;
         END; {Конец цикла по NSRV}
     IF LIST.COUNT>0 THEN
@@ -256,7 +256,7 @@ BEGIN
                             BEGIN
                                 GETINF(TRUE);
                                 SECOND_STEP;
-                                WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                                EMPTY_ALL_PERSON;
                             END;
                      END; {Конец цикла по NSRV}
                 PRINT_FOOTER;

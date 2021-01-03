@@ -142,7 +142,7 @@ implementation
                          getinf(true);
                          AddFromPodr;
                          MakeListPodr;
-                         while HEAD_PERSON<>nil do Del_Person(Head_Person);
+                         EMPTY_ALL_PERSON;
                          SELECT(1);
                          NSRV:=nsrvOld;
                          MKFLNM;
@@ -155,7 +155,7 @@ implementation
                              SELECT(2);
                              GetInf(true);
                              AddFromPodr;
-                             while HEAD_PERSON<>nil do Del_Person(Head_Person);
+                             EMPTY_ALL_PERSON;
                              SELECT(1);
                              nsrv:=nsrvOld;
                              MKFLNM;

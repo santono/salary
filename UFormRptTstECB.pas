@@ -491,7 +491,7 @@ procedure TFormRptTstECB.PerformTest;
                             CalcPodPerson(Curr_Person);
                          Curr_Person:=Curr_Person^.NEXT;
                     end;
-                  while (Head_Person<>Nil) do del_Person(Head_Person);
+                  EMPTY_ALL_PERSON;
 
              end;
          nsrv    := savnsrv;
@@ -509,7 +509,7 @@ begin
      savnmes := nmes;
      savnsrv := nsrv;
      putinf;
-     while (head_person<>nil) do del_person(Head_person);
+     EMPTY_ALL_PERSON;
      Application.ProcessMessages;
      NeedSeparateSwodyByPeriods:=CheckBoxOtherPeriod.Checked;
      List:=TStringList.Create;
@@ -670,7 +670,7 @@ begin
                          end;
                      Curr_Person:=Curr_Person^.NEXT;
                 end;
-              while (head_person<>nil) do del_person(Head_person);
+              EMPTY_ALL_PERSON;
          end;
 
      if Assigned(ListYM) then
@@ -937,7 +937,7 @@ begin
                     Dispose(PItemYM(ListYMForSwod.Items[i]));
              ListYMForSwod.Free;
         end;
-     while (head_person<>nil) do del_person(Head_person);
+     EMPTY_ALL_PERSON;
      nsrv    := savnsrv;
      nmes    := savnmes;
      mkflnm;

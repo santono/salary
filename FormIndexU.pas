@@ -436,7 +436,7 @@ begin
                     Application.ProcessMessages;
                end;
               PutInf;
-              while Head_Person<>Nil do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          END;
      LabelTimer.Hide;
      nsrv:=Nsrvt;
@@ -513,7 +513,7 @@ begin
      GaugePerson.Progress :=  1;
 
      NSRVT := NSRV;
-     WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+     EMPTY_ALL_PERSON;
      nmes_t := nmes;
 
 {     Установить параметры расчета индексации в FireBird}
@@ -592,7 +592,7 @@ begin
                     Application.ProcessMessages;
                end;
               PutInf;
-              while Head_Person<>Nil do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          END;
      if pFIBQuery.Transaction.Active then
         pFIBQuery.Transaction.Commit;
@@ -633,7 +633,7 @@ begin
     nmessave:=nmes;
     nsrvsave:=nsrv;
     putinf;
-    while (head_person<>nil) do del_person(head_person);
+    EMPTY_ALL_PERSON;
     List:=TList.Create;
     GaugePodr.MinValue   := 0;
     GaugePodr.MaxValue   := Count_Serv;
@@ -695,7 +695,7 @@ begin
                        end;
                     Curr_Person:=Curr_Person^.NEXT;
                end;
-             while (head_person<>nil) do del_person(head_person);
+             EMPTY_ALL_PERSON;
         end;
     if List.Count>0 then
        begin
@@ -814,7 +814,7 @@ begin
      nmessave:=nmes;
      nsrvsave:=nsrv;
      putinf;
-     while (head_person<>nil) do del_person(head_person);
+     EMPTY_ALL_PERSON;
      GaugePodr.MinValue   := 0;
      GaugePodr.MaxValue   := Count_Serv;
      GaugePodr.Progress   :=  0;
@@ -863,7 +863,7 @@ begin
                     Curr_Person:=Curr_Person^.NEXT;
                end;
              if Maked then PutInf;
-             while (head_person<>nil) do del_person(head_person);
+             EMPTY_ALL_PERSON;
          end;
 
     GaugePodr.MinValue   := 0;
@@ -904,7 +904,7 @@ begin
      nmessave:=nmes;
      nsrvsave:=nsrv;
      putinf;
-     while (head_person<>nil) do del_person(head_person);
+     EMPTY_ALL_PERSON;
      GaugePodr.MinValue   := 0;
      GaugePodr.MaxValue   := Count_Serv;
      GaugePodr.Progress   :=  0;
@@ -939,7 +939,7 @@ begin
                     Curr_Person:=Curr_Person^.NEXT;
                end;
              if Maked then PutInf;
-             while (head_person<>nil) do del_person(head_person);
+             EMPTY_ALL_PERSON;
          end;
 
     GaugePodr.MinValue   := 0;
@@ -1015,7 +1015,7 @@ begin
      GaugePerson.Progress :=  1;
 
      NSRVT := NSRV;
-     WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+     EMPTY_ALL_PERSON;
      nmes_t := nmes;
 
 {     Установить параметры расчета индексации в FireBird}
@@ -1078,7 +1078,7 @@ begin
                     Application.ProcessMessages;
                end;
               PutInf;
-              while Head_Person<>Nil do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          END;
      LabelTimer.Hide;
      nsrv:=Nsrvt;
@@ -1924,7 +1924,7 @@ procedure TFormIndex.MoveRclc122015;
                     Application.ProcessMessages;
                end;
               if needput then PutInf;
-              while Head_Person<>Nil do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          END;
      LabelTimer.Hide;
      nsrv:=Nsrvt;
@@ -2132,7 +2132,7 @@ procedure TFormIndex.FormIndAfterRclc122015;
                     Application.ProcessMessages;
                end;
               if needput then PutInf;
-              while Head_Person<>Nil do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          END;
      LabelTimer.Hide;
      nsrv:=Nsrvt;
@@ -2274,7 +2274,7 @@ procedure TFormIndex.FormIndFromCNIn122015;
                     Application.ProcessMessages;
                end;
               if needput then PutInf;
-              while Head_Person<>Nil do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          END;
      LabelTimer.Hide;
      nsrv:=Nsrvt;

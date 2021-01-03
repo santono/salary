@@ -160,7 +160,7 @@ begin
      nsrvsav:=NSRV;
      nmessav:=NMES;
      putinf;
-     while(Head_Person<>Nil) do DEL_PERSON(head_person);
+     EMPTY_ALL_PERSON;
      for nsrv_i:=1 to Count_Serv do
          begin
               nsrv:=nsrv_i;
@@ -188,7 +188,7 @@ begin
                     Curr_Person:=Curr_Person^.NEXT;
                end;
               if isChanged then PUTINF;
-              while(Head_Person<>Nil) do DEL_PERSON(head_person);
+              EMPTY_ALL_PERSON;
          end;
      if List.Count>0 then
         for i:=0 to List.Count-1 do

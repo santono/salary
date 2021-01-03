@@ -17,21 +17,21 @@ object FormMakePens: TFormMakePens
   object Label1: TLabel
     Left = 16
     Top = 72
-    Width = 633
+    Width = 32
     Height = 13
     Caption = 'Label1'
   end
   object Label2: TLabel
     Left = 16
     Top = 8
-    Width = 657
+    Width = 32
     Height = 13
     Caption = 'Label2'
   end
   object Label3: TLabel
     Left = 216
     Top = 48
-    Width = 193
+    Width = 32
     Height = 13
     Caption = 'Label3'
   end

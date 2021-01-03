@@ -70,7 +70,7 @@ begin
      savnmes := nmes;
      savnsrv := nsrv;
      putinf;
-     while (head_person<>nil) do del_person(Head_person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_Serv*2;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -110,7 +110,7 @@ begin
                          end;
                      Curr_Person:=Curr_Person^.NEXT;
                 end;
-              while (head_person<>nil) do del_person(Head_person);
+              EMPTY_ALL_PERSON;
          end;
 
      for i_nsrv:=1 to count_serv do
@@ -161,7 +161,7 @@ begin
                      Curr_Person:=Curr_Person^.NEXT;
                 end;
               PUTINF;
-              while (head_person<>nil) do del_person(Head_person);
+              EMPTY_ALL_PERSON;
          end;
 
      if Assigned(List) then

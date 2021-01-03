@@ -382,7 +382,7 @@ procedure TFormMovRecalc08.MovMonth(M:integer);
       SavMonth := NMES;
       SavPodr  := NSRV;
       PUTINF;
-      while (head_person<>nil) do del_person(head_person);
+      EMPTY_ALL_PERSON;
       ProgressBar1.Max:=Count_Serv;
       ProgressBar1.Min:=0;
       ProgressBar1.Position:=0;
@@ -483,7 +483,7 @@ procedure TFormMovRecalc08.MovMonth(M:integer);
                        pFIBQueryR.Next;
                    end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       if pFIBQueryR.Open then
@@ -671,7 +671,7 @@ procedure TFormMovRecalc08.MovMonth(M:integer);
       AssignFile(Dev,FName);
       ReWrite(Dev);
       PUTINF;
-      while (head_person<>nil) do del_person(head_person);
+      EMPTY_ALL_PERSON;
       ProgressBar1.Max:=Count_Serv;
       ProgressBar1.Min:=0;
       ProgressBar1.Position:=0;
@@ -763,7 +763,7 @@ procedure TFormMovRecalc08.MovMonth(M:integer);
                        pFIBQueryR.Next;
                    end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       CloseFile(Dev);    
@@ -925,7 +925,7 @@ procedure TFormMovRecalc08.MovMonthInd(M:integer);
       SavMonth := NMES;
       SavPodr  := NSRV;
       PUTINF;
-      while (head_person<>nil) do del_person(head_person);
+      EMPTY_ALL_PERSON;
       ProgressBar1.Max:=Count_Serv;
       ProgressBar1.Min:=0;
       ProgressBar1.Position:=0;
@@ -1021,7 +1021,7 @@ procedure TFormMovRecalc08.MovMonthInd(M:integer);
                        pFIBQueryR.Next;
                    end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       if pFIBQueryR.Open then
@@ -1315,7 +1315,7 @@ begin
       SavMonth := NMES;
       SavPodr  := NSRV;
       PUTINF;
-      while (Head_Person<>nil) do Del_Person(Head_Person);
+      EMPTY_ALL_PERSON;
       ProgressBar1.Max      := Count_Serv;
       ProgressBar1.Min      := 0;
       ProgressBar1.Position := 0;
@@ -1459,7 +1459,7 @@ begin
                       Curr_Person:=Curr_Person^.Next;
                  end;
                 PutInf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
           end;
       NMES     := SavMonth;
       NSRV     := SavPodr;
@@ -1505,7 +1505,7 @@ begin
       SavMonth := NMES;
       SavPodr  := NSRV;
       PUTINF;
-      while (head_person<>nil) do del_person(head_person);
+      EMPTY_ALL_PERSON;
       ProgressBar1.Max:=Count_Serv;
       ProgressBar1.Min:=0;
       ProgressBar1.Position:=0;
@@ -1551,7 +1551,7 @@ begin
                        Curr_Person:=Curr_pERSON^.nEXT;
                   end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       NMES     := SavMonth;
@@ -1589,7 +1589,7 @@ begin
       SavMonth := NMES;
       SavPodr  := NSRV;
       PUTINF;
-      while (head_person<>nil) do del_person(head_person);
+      EMPTY_ALL_PERSON;
       ProgressBar1.Max:=Count_Serv;
       ProgressBar1.Min:=0;
       ProgressBar1.Position:=0;
@@ -1665,7 +1665,7 @@ begin
                        Curr_Person:=Curr_pERSON^.nEXT;
                   end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
 
           end;
       NMES     := SavMonth;

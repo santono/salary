@@ -431,7 +431,7 @@ BEGIN
                          BEGIN
                               GETINF(TRUE);
                               MAKE_FOND_FOR_ALL;
-                              WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                              EMPTY_ALL_PERSON;
                          END;
                  END; { END OF IS_SELECTED [NSRV]}
         END; {Конец цикла по NSRV}

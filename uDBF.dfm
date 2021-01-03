@@ -7,61 +7,57 @@ object FormDBF: TFormDBF
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 13
   object Label1: TLabel
-    Left = 104
-    Top = 256
-    Width = 41
-    Height = 16
+    Left = 85
+    Top = 208
+    Width = 32
+    Height = 13
     Caption = 'Label1'
   end
   object Label2: TLabel
-    Left = 112
-    Top = 96
-    Width = 41
-    Height = 16
+    Left = 91
+    Top = 78
+    Width = 32
+    Height = 13
     Caption = 'Label2'
   end
   object BitBtn1: TBitBtn
-    Left = 48
-    Top = 336
-    Width = 75
-    Height = 25
+    Left = 39
+    Top = 273
+    Width = 61
+    Height = 20
     Caption = #1055#1077#1088#1077#1085#1086#1089
     TabOrder = 0
     OnClick = BitBtn1Click
   end
   object BitBtn2: TBitBtn
-    Left = 384
-    Top = 328
-    Width = 75
-    Height = 25
+    Left = 312
+    Top = 267
+    Width = 61
+    Height = 20
     TabOrder = 1
     Kind = bkClose
   end
   object ProgressBar1: TProgressBar
-    Left = 96
-    Top = 224
-    Width = 489
-    Height = 20
-    Min = 0
-    Max = 100
+    Left = 78
+    Top = 182
+    Width = 397
+    Height = 16
     TabOrder = 2
   end
   object ProgressBar2: TProgressBar
-    Left = 104
-    Top = 120
-    Width = 489
-    Height = 20
-    Min = 0
-    Max = 100
+    Left = 85
+    Top = 98
+    Width = 397
+    Height = 16
     TabOrder = 3
   end
   object dbfPerson: TTable

@@ -108,7 +108,7 @@ begin
      SavNmes:=NMES;
      SavNSRV:=NSRV;
      PutInf;
-     while (Head_Person<>Nil) do Del_Person(Head_Person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_Serv;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -152,7 +152,7 @@ begin
                       end;
                    Curr_Person:=Curr_Person^.NEXT;
               end;
-            while (Head_Person<>Nil) do Del_Person(Head_Person);
+            EMPTY_ALL_PERSON;
             CloseFile(DevRL);
        end;
      NMES:=SavNmes;

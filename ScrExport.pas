@@ -2544,7 +2544,6 @@ begin
                                                  cc_person:=cc_person^.next;
                                             end;
                                            EMPTY_ALL_PERSON;
-                                           //while (head_person<>nil) do Del_Person(Head_person);
                                            select(2);
                                       end;
                                    Curr_Sowm:=Curr_Sowm^.Next;
@@ -2887,7 +2886,7 @@ begin
 {                                                    put_person}
                                                  cc_person:=cc_person^.next;
                                             end;
-                                           while (head_person<>nil) do Del_Person(Head_person);
+                                           EMPTY_ALL_PERSON;
                                            select(2);
                                       end;
                                    Curr_Sowm:=Curr_Sowm^.Next;
@@ -2896,7 +2895,7 @@ begin
                    end;
                 c_person:=c_person^.next;
            end;
-     while (Head_Person<>Nil) do Del_Person(Head_Person);
+     EMPTY_ALL_PERSON;
      select(1);
 (*
  // Записать в БД текущее подр 24 12 2010
@@ -3402,7 +3401,7 @@ begin
                                                     end;
                                                  cc_person:=cc_person^.next;
                                             end;
-                                           while (head_person<>nil) do Del_Person(Head_person);
+                                           EMPTY_ALL_PERSON;
                                            select(2);
                                       end;
                                    Curr_Sowm:=Curr_Sowm^.Next;

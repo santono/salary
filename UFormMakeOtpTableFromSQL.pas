@@ -115,7 +115,7 @@ begin
     ProgressBar1.Position := 0;
     savnsrv               := nsrv;
     putinf;
-    while (head_person<>nil) do del_person(Head_Person);
+    EMPTY_ALL_PERSON;
     for i_nsrv:=1 to count_serv do
         begin
              nsrv:=i_nsrv;
@@ -163,7 +163,7 @@ begin
                    Curr_Person:=Curr_Person^.Next;
               end;
              putinf;
-             while (head_person<>nil) do del_person(Head_Person);
+             EMPTY_ALL_PERSON;
        end;
     nsrv:=savnsrv;
     mkflnm;

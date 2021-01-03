@@ -18,7 +18,7 @@ object FormTestIO: TFormTestIO
   object Label1: TLabel
     Left = 16
     Top = 40
-    Width = 193
+    Width = 32
     Height = 13
     Caption = 'Label1'
   end

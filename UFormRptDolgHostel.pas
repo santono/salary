@@ -207,7 +207,7 @@ begin
      savnmes := nmes;
      savnsrv := nsrv;
      putinf;
-     while (head_person<>nil) do del_person(Head_person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_Serv;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -267,7 +267,7 @@ begin
                         RecDS.NmbOfStawok:=RecDS.NmbOfStawok+GET_KOEF_OKLAD_PERSON(curr_PERSON);
                      Curr_Person:=Curr_Person^.NEXT;
                 end;
-              while (head_person<>nil) do del_person(Head_person);
+              EMPTY_ALL_PERSON;
          end;
      if List.Count>0 then
         begin

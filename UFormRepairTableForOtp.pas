@@ -88,7 +88,7 @@ procedure TFormRepairTableForOtp.RepairTabelForOtp;
       SavNmes := NMES;
       SavNSRV := NSRV;
       PutInf;
-      while (Head_Person<>Nil) do Del_Person(Head_Person);
+      EMPTY_ALL_PERSON;
       List:=TList.Create;
       NMES:=5;
       ProgressBar1.Max:=Count_Serv*2;
@@ -132,7 +132,7 @@ procedure TFormRepairTableForOtp.RepairTabelForOtp;
                            end;
                         Curr_Person:=Curr_Person^.NEXT;
                    end;
-                while (Head_Person<>Nil) do Del_Person(Head_Person);
+                EMPTY_ALL_PERSON;
           end;
       ShowMessage('Найдено '+IntToStr(List.Count)+' записей');
       if List.Count>0 then
@@ -206,7 +206,7 @@ procedure TFormRepairTableForOtp.RepairTabelForOtp;
                    end;
                 if Need_Put then
                    PutInf;
-                while (Head_Person<>Nil) do Del_Person(Head_Person);
+                EMPTY_ALL_PERSON;
           end;
          end;      // if count>0
       List.Free;
@@ -242,7 +242,7 @@ procedure TFormRepairTableForOtp.RepairTabelForOtpFromOtp;
       SavNmes := NMES;
       SavNSRV := NSRV;
       PutInf;
-      while (Head_Person<>Nil) do Del_Person(Head_Person);
+      EMPTY_ALL_PERSON;
       List:=TList.Create;
       NMES:=7;
       ProgressBar1.Max:=Count_Serv;
@@ -337,7 +337,7 @@ procedure TFormRepairTableForOtp.RepairTabelForOtpFromOtp;
                    end;
                 if Need_Put then
                    PutInf;
-                while (Head_Person<>Nil) do Del_Person(Head_Person);
+                EMPTY_ALL_PERSON;
           end;
       List.Free;
       Nmes    := SavNMES;
@@ -458,7 +458,7 @@ procedure TFormRepairTableForOtp.RepairTabelSowmForOtpVers2013;
       SavNmes := NMES;
       SavNSRV := NSRV;
       PutInf;
-      while (Head_Person<>Nil) do Del_Person(Head_Person);
+      EMPTY_ALL_PERSON;
       List:=TList.Create;
       FillList;
       ProgressBar1.Max:=Count_Serv;
@@ -555,7 +555,7 @@ procedure TFormRepairTableForOtp.RepairTabelSowmForOtpVers2013;
                         if CheckBoxCorr.Checked then
                         if Need_Put then
                            PutInf;
-                        while (Head_Person<>Nil) do Del_Person(Head_Person);
+                        EMPTY_ALL_PERSON;
                   end;
          end;      // if count>0
       if List.Count>0 then

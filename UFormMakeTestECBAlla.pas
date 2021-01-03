@@ -55,7 +55,7 @@ begin
     ProgressBar1.Position := 0;
     savnsrv               := nsrv;
     putinf;
-    while (head_person<>nil) do del_person(Head_Person);
+    EMPTY_ALL_PERSON;
     ListPrsn := TList.Create;
     ListDP   := TList.Create;
     ListIll  := TList.Create;
@@ -82,7 +82,7 @@ begin
                    Curr_Person:=Curr_Person^.NEXT;
               end;
              putinf;
-             while (head_person<>nil) do del_person(Head_Person);
+             EMPTY_ALL_PERSON;
         end;
     if ListPrsn.Count>0 then
        for i:=0 to ListPrsn.Count-1 do

@@ -367,7 +367,6 @@ PROCEDURE MODI_INF;
                      IF FILEEXIST(FNINF) THEN
                         BEGIN
                              EMPTY_ALL_PERSON;
-        //                      HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
                              GETINF(TRUE);
                              SEL:=false;
                              REPEAT

@@ -194,7 +194,7 @@ procedure TFormMoveOtpHelp2010.MoveAllDataFor2010;
       savNSRV:=NSRV;
       savFlow_MOnth:=Flow_MOnth;
       PUTINF;
-      while (Head_Person<>NIL) do DEL_PERSON(Head_Person);
+      EMPTY_ALL_PERSON;
       ProgressBarMonth.Max:=12;
       ProgressBarMOnth.Min:=0;
       ProgressBarMonth.Position:=0;
@@ -225,7 +225,7 @@ procedure TFormMoveOtpHelp2010.MoveAllDataFor2010;
                                 FLOW_MONTH:=NMES;
                                 PUTINF;
                            end;
-                        while (Head_Person<>NIL) do DEL_PERSON(Head_Person);
+                        EMPTY_ALL_PERSON;
 
                    end;
           end;

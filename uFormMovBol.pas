@@ -521,13 +521,13 @@ procedure AddCreateNewPersonRec;
            if Curr_Sowm^.Where<1000 then
            if IsCorrectPodrForBoln(Curr_Sowm^.Where) then
               begin
-                   while (Head_Person<>Nil) do Del_Person(Head_Person);
+                   empty_all_person;
                    nsrv:=Curr_Sowm^.Where;
                    MKFLNM;
                    GETINF(TRUE);
                    FillPersonFromPodr;
                    MarkSowm(Curr_Sowm^.Where);
-                   while head_person<>Nil do Del_Person(Head_person);
+                   EMPTY_ALL_PERSON;
               end;
               Curr_Sowm:=Curr_Sowm^.Next;
       end;

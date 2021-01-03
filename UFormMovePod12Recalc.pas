@@ -159,7 +159,7 @@ var NMES_Sav,NSRV_Sav:Integer;
 begin
      NMES_Sav:=NMES;
      NSRV_Sav:=NSRV;
-     while (Head_Person<>Nil) do Del_Person(Head_Person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_SERV;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -186,7 +186,7 @@ begin
                     Curr_Person:=Curr_Person^.Next;
                end;
               if Maked then PUTINF;
-              while (Head_Person<>Nil) do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
 
          end;
      if List.Count>0 then

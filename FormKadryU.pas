@@ -1066,7 +1066,7 @@ procedure TFormKadry.SetUpSowmKadry(Tabno,W_P:integer);
                end;
 
               PUTINF;
-              while HEAD_PERSON<>NIL do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
               Head_Person:=TempHeadPerson;
               NSRV:=TempNSRV;
               MKFLNM;

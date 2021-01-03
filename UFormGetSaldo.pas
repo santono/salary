@@ -100,7 +100,7 @@ begin
         end;
 
      putinf;
-     while (head_person<>nil) do del_Person(head_person);
+     EMPTY_ALL_PERSON;
 
    //  DeleteCurrDataFromSQl;
      ProgressBarPdr.Min       :=  0;
@@ -127,7 +127,7 @@ begin
               ImportPodr(needPut);
               if needPut then
                  Putinf;
-              while (head_person<>nil) do del_Person(head_person);
+              EMPTY_ALL_PERSON;
          end;
      nmes:=nmesSav;
      nsrv:=nsrvSav;

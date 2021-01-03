@@ -107,7 +107,7 @@ var Curr_Sowm : Sowm_Ptr;
          end;
        if (Sav_Nsrv<>NSRV) then
           begin
-               While (Head_Person<>Nil) do Del_Person(Head_Person);
+               EMPTY_ALL_PERSON;
                Select(1);
                Nsrv := Sav_Nsrv;
                MKFLNM;

@@ -304,7 +304,7 @@ begin
              FIB.pFIBTransactionSAL.StartTransaction;
 
              NSRVT := NSRV;
-             WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+             EMPTY_ALL_PERSON;
              nmes_t := nmes;
 
              FOR I:=1 TO COUNT_SERV DO
@@ -415,7 +415,7 @@ begin
                              Application.ProcessMessages;
                         end;
                       PutInf;
-                      while Head_Person<>Nil do Del_Person(Head_Person);
+                      EMPTY_ALL_PERSON;
                  END; { Конец цикла по подразд }
 
              LabelTimer.Hide;

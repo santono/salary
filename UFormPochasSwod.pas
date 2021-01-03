@@ -172,7 +172,7 @@ begin
      nmestmp:=nmes;
      nsrvtmp:=nsrv;
      PutInf;
-     while (Head_Person<>Nil) do DEL_PERSON(Head_Person);
+     EMPTY_ALL_PERSON;
      if not modeSwodUch then
         SetAllPodrSelected
      else
@@ -260,7 +260,7 @@ begin
                        end;
                      Curr_Person:=Curr_Person^.NEXT;
                 end;
-              while (Head_Person<>Nil) do DEL_PERSON(Head_Person);
+              EMPTY_ALL_PERSON;
          end;
      case RadioGroupSort.ItemIndex of
       1 :  begin

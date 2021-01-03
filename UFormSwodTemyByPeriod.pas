@@ -489,7 +489,7 @@ PROCEDURE PRINT_SWOD;
      NSRV_TEMP:=NSRV;
      NMES_TEMP:=NMES;
      PUTINF;
-     while (HEAD_PERSON<>Nil) do DEL_PERSON(head_person);
+     EMPTY_ALL_PERSON;
      COUNTLIST:=TList.Create;
      PREPARE_PRINTER;
      ASSIGNFILE(DEV_GN  , CDOC+'GN_LIST.TXT');
@@ -512,7 +512,7 @@ PROCEDURE PRINT_SWOD;
                  BEGIN
                       GETINF(FALSE);
                       MK_SWOD;
-                      WHILE(HEAD_PERSON<>NIL) DO DEL_PERSON(HEAD_PERSON);
+                      EMPTY_ALL_PERSON;
                  END
          END;
 
@@ -680,7 +680,7 @@ FUNCTION TFormSwodTemyByPeriod.IS_NEED(N_TEMY:STRING):BOOLEAN;
      NSRV_TEMP:=NSRV;
      NMES_TEMP:=NMES;
      PUTINF;
-     while (HEAD_PERSON<>Nil) do DEL_PERSON(head_person);
+     EMPTY_ALL_PERSON;
      PeriodsList:=TList.Create;
      ProgressBar.Min:=1;
      ProgressBar.Max:=COUNT_SERV;
@@ -696,7 +696,7 @@ FUNCTION TFormSwodTemyByPeriod.IS_NEED(N_TEMY:STRING):BOOLEAN;
                  BEGIN
                       GETINF(FALSE);
                       AnalyzePodrForPeriod;
-                      WHILE(HEAD_PERSON<>NIL) DO DEL_PERSON(HEAD_PERSON);
+                      EMPTY_ALL_PERSON;
                  END
          END;
      NSRV:=NSRV_TEMP;

@@ -638,7 +638,7 @@ BEGIN
 *)
     NSRV_TEMP:=NSRV;
     PUTINF;
-    while (HEAD_PERSON<>Nil) do DEL_PERSON(Head_Person);
+    EMPTY_ALL_PERSON;
     NMES_TEMP := NMES;
     LIST:=TItemLIST.Create;
     SUMMA_POCHAS_PPS := 0;
@@ -673,7 +673,7 @@ BEGIN
                         BEGIN
                              GETINF(TRUE);
                              MAKE_FOND_FOR_ALL;
-                             WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                             EMPTY_ALL_PERSON;
                         END
                                          else
                         BEGIN

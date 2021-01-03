@@ -304,7 +304,7 @@ procedure TFormMovRecalc0416.MovMonth(M:integer);
       SavMonth := NMES;
       SavPodr  := NSRV;
       PUTINF;
-      while (head_person<>nil) do del_person(head_person);
+      EMPTY_ALL_PERSON;
       ProgressBar1.Max:=Count_Serv;
       ProgressBar1.Min:=0;
       ProgressBar1.Position:=0;
@@ -390,7 +390,7 @@ procedure TFormMovRecalc0416.MovMonth(M:integer);
                        pFIBQueryR.Next;
                    end;
                 if NeedPut then putinf;
-                while (head_person<>nil) do del_person(head_person);
+                EMPTY_ALL_PERSON;
           end;
       if pFIBQueryR.Open then
          pFIBQueryR.Close;

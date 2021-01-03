@@ -55,7 +55,7 @@ begin
               CurrYear := TempYear;
               NMES     := TempNmes;
               MKFLNM;
-              while (Head_Person<>NIL) do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
               GETINF(TRUE);
          end
       else
@@ -198,7 +198,7 @@ begin
      TempYear:=CurrYear;
      TempNMES:=NMES;
      TempNSRV:=NSRV;
-     while (Head_Person<>nil) do del_person(Head_Person);
+     EMPTY_ALL_PERSON;
      listAlim:=TList.Create;
      ProgressBar1.Min:=0;
      ProgressBar1.Max:=NameServList.Count;
@@ -215,7 +215,7 @@ begin
                         BEGIN
                              GETINF(TRUE);
                              MAKE_ALIM_FOR_ALL;
-                             WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                             EMPTY_ALL_PERSON;
                         END;
                 END
         END; {Конец цикла по NSRV}

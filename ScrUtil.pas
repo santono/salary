@@ -2477,18 +2477,20 @@ FUNCTION THIS_PERSON(CURR_PERSON:PERSON_PTR):BOOLEAN;
        end;
        Curr_Person:=nil;
    END;
+
+  PROCEDURE EMPTY_ALL_PERSON;
+   BEGIN
+      WHILE (HEAD_PERSON<>NIL) DO DEL_PERSON(HEAD_PERSON);
+   END;
+
+
   PROCEDURE LDEL_PERSON_OLD;
    BEGIN
       IF SELECTED_FIELD=1 THEN BEGIN
          ShowMessage('IN LDEL_PERSON_OLD ENTERED WITH SELECTED_FIELD=1');
          EXIT;
                                END;
-      WHILE (HEAD_PERSON<>NIL) DO DEL_PERSON(HEAD_PERSON);
-   END;
-
-  PROCEDURE EMPTY_ALL_PERSON;
-   BEGIN
-      WHILE (HEAD_PERSON<>NIL) DO DEL_PERSON(HEAD_PERSON);
+      EMPTY_ALL_PERSON;
    END;
 
 
@@ -3816,7 +3818,7 @@ function GetOsnKateg(Curr_Person:Person_Ptr):integer;
                                      c_person:=c_person^.next;
                                 end;
 
-                              while head_person<>nil do del_person(Head_Person);
+                              EMPTY_ALL_PERSON;
                               select(Save_Selected);
                          end;
                       nsrv:=save_nsrv;
@@ -3884,7 +3886,7 @@ function IsOsnPensioner(Curr_Person:Person_Ptr):boolean;
                                      c_person:=c_person^.next;
                                 end;
 
-                              while head_person<>nil do del_person(Head_Person);
+                              EMPTY_ALL_PERSON;
                               select(Save_Selected);
                          end;
                       nsrv:=save_nsrv;
@@ -5639,7 +5641,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
        if ShifrPod<>NSRV_Temp then
           begin
                PutInf;
-               while head_person<>Nil do Del_Person(Head_Person);
+               EMPTY_ALL_PERSON;
                Nsrv:=NSRV_TEMP;
                MKFLNM;
                GETINF(TRUE);
@@ -9797,7 +9799,7 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
                           getinf(false);
                           BasePtr:=Head_Person;
                           MakeCopyCN(147);
-                          while head_Person<>Nil do Del_Person(Head_Person);
+                          EMPTY_ALL_PERSON;
                           select(savselected);
                           nsrv:=savnsrv;
                           mkflnm;

@@ -443,7 +443,7 @@ BEGIN
                 BEGIN
                      GETINF(TRUE);
                      CALC_S_S_ALL_PERSON;
-                     WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                     EMPTY_ALL_PERSON;
                 END; {IF FILEEXIST}
         END; {Конец цикла по NSRV}
     Nmes:=Nmes_Temp;
@@ -648,7 +648,7 @@ BEGIN
                 BEGIN
                      GetInf(TRUE);
                      Fill_Person;
-                     WHILE HEAD_PERSON<>NIL DO DEL_PERSON(HEAD_PERSON);
+                     EMPTY_ALL_PERSON;
                 END; {IF FILEEXIST}
         END; {Конец цикла по NSRV}
     for i:=0 to ListSumma.Count-1 do AddToGt2660(ListSumma.Items[i]);

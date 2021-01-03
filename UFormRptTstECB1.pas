@@ -368,7 +368,7 @@ begin
      savnmes := nmes;
      savnsrv := nsrv;
      putinf;
-     while (head_person<>nil) do del_person(Head_person);
+     EMPTY_ALL_PERSON;
      ProgressBar1.Max:=Count_Serv;
      ProgressBar1.Min:=0;
      ProgressBar1.Position:=0;
@@ -389,7 +389,7 @@ begin
               else
                   Filter1;
               end;
-              while (head_person<>nil) do del_person(Head_person);
+              EMPTY_ALL_PERSON;
          end;
      ShowMessage('K-wo '+IntToStr(List.Count));
 

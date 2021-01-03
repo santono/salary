@@ -175,7 +175,7 @@ begin
     savnsrv               := nsrv;
     putinf;
     CntDeleted            := 0;
-    while (head_person<>nil) do del_person(Head_Person);
+    EMPTY_ALL_PERSON;
     for i_nsrv:=1 to count_serv do
         begin
              nsrv:=i_nsrv;
@@ -191,7 +191,7 @@ begin
                 FilterPererasECB(WantedPeriod,CntDeleted);
              end;   
              putinf;
-             while (head_person<>nil) do del_person(Head_Person);
+             EMPTY_ALL_PERSON;
        end;
     if CntDeleted>0 then
        ShowMessage('Удалено '+IntToStr(CntDeleted)+' строк')

@@ -105,7 +105,7 @@ begin
      ProgressBar1.Max:=Rec;
      ProgressBar1.Position:=0;
      SavPodr:=NSRV;
-     while (Head_Person<>Nil) do Del_Person(Head_Person);
+     EMPTY_ALL_PERSON;
      for I_NSRV:=1 to REC do
          begin
               Inc(Sc);
@@ -128,7 +128,7 @@ begin
                end;
               if NeedPut then
                  PutInf;
-              while (Head_Person<>Nil) do Del_Person(Head_Person);
+              EMPTY_ALL_PERSON;
          end;
      NSRV:=SavPodr;
      MKFLNM;

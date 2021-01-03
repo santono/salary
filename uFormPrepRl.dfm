@@ -18,14 +18,14 @@ object FormPrepRl: TFormPrepRl
   object LabelFio: TLabel
     Left = 56
     Top = 104
-    Width = 313
+    Width = 61
     Height = 20
     Caption = 'LabelFio'
   end
   object LabelPodr: TLabel
     Left = 8
     Top = 136
-    Width = 417
+    Width = 72
     Height = 20
     Caption = 'LabelPodr'
   end
