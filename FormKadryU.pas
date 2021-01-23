@@ -377,9 +377,9 @@ begin
         Label5f.Show;
      if isLNR then
         begin
-             LabelTemy.Hide;
-             ComboBoxTemy.Hide;
-             ComboBoxTemy.Enabled:=False;
+//             LabelTemy.Hide;
+//             ComboBoxTemy.Hide;
+//             ComboBoxTemy.Enabled:=False;
              BitBtnDogPodSowm.Enabled:=false;
              BitBtnDogPodSowm.Hide;
 

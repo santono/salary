@@ -21,6 +21,8 @@ interface
    PROCEDURE MKFLNM_BAK_FOR_VERSION(VAR FNINF_BAK_FOR_VERSION:String);
    procedure makeServerBDir(var escPressed:boolean);
    procedure makeServerTmpDir(var EscPressed:boolean);
+   procedure makeServerDataDirs;
+
    FUNCTION ALLTRIM(T:STRING):STRING;
    Function FormatDateTime(dt:TDateTime):String;
    Function FormatDate(dt:TDateTime):String;
@@ -847,7 +849,7 @@ function DateTimeToUnix(ConvDate: TDateTime): Longint;
         FileAttrs  : Integer;
         CurrVersio : Integer;
         Template   : string;
-        S,ss          : string;
+        S,ss       : string;
         i,j        : Integer;
      begin
            CurrVersio:=0;
@@ -12590,7 +12592,10 @@ procedure DeleteViruses;
 
   procedure makeServerBDir(var EscPressed:boolean);
    const sd ='salary\bak';
+         localDirS='salary';
+         cdocDirS='salary\rpt';
    var appDirName,dirName:string;
+       appDirNameTmp:string;
        i:Integer;
    begin
          escPressed:=false;
@@ -12600,6 +12605,7 @@ procedure DeleteViruses;
 //            dirName:=stringReplace(appDirName,'\','/',[rfReplaceAll])
 //         else
          dirName:=appDirName;
+         appDirNameTmp:=dirName;
          dirName:=trim(dirName)+'\'+sd;
          if not DirectoryExists(DirName) then
 //            if not CreateDir(DirName) then
@@ -12612,6 +12618,14 @@ procedure DeleteViruses;
             begin
                  dirName:=Trim(dirName)+'\'; 
                  BDir:=DirName;
+                 local_dir:=appDirNameTmp+'\'+localDirS;
+                 CDOC:=appDirNameTmp+'\'+cdocDirS;
+                 if not DirectoryExists(CDOC) then
+                 if not ForceDirectories(DirName) then
+                    begin
+                          raise Exception.Create('Ошибка создания каталога '+CDOC);
+                          EscPressed:=True;
+                    end;
             end;
 
    end;
@@ -12642,6 +12656,39 @@ procedure DeleteViruses;
             end;
 
    end;
+
+  procedure makeServerDataDirs;
+   var appDirName:string;
+     function makeServerDataDir(needDir:string):string;
+      var tmpS,dirName:string;
+          i:integer;
+      begin
+         makeServerDataDir:=needDir;
+         i:=Pos('C:',UpperCase(needDir));
+         if i<1 then Exit;
+         i:=Pos('\',appDirName);
+         tmpS:=UpperCase(needDir);
+         dirName:=stringReplace(tmpS,'C:',appDirName,[rfReplaceAll, rfIgnoreCase]);
+         makeServerDataDir:=dirName;
+      end;
+   begin
+       appDirName:=SysUtils.GetEnvironmentVariable('APPDATA');
+       BDIR:=makeServerDataDir(BDIR);
+       CDOC:=makeServerDataDir(CDOC);
+       IDIR:=makeServerDataDir(IDIR);
+       BDIR:=makeServerDataDir(CLAR_DIR);
+       WDIR:=makeServerDataDir(WDIR);
+       ADIR:=makeServerDataDir(ADIR);
+       CUDIR:=makeServerDataDir(CUDIR);
+       OTP_DIR:=makeServerDataDir(OTP_DIR);
+       POD_DIR:=makeServerDataDir(POD_DIR);
+       BANK_DIR:=makeServerDataDir(BANK_DIR);
+       CMEM:=makeServerDataDir(CMEM);
+       TemplateDIR:=makeServerDataDir(TemplateDIR);
+
+   end;
+
+
 function getIOSemaphore(kind:Integer=2):boolean;
 // 2 - запись
 // 1 - чтение

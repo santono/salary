@@ -172,6 +172,8 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
 {                                     CHDIR(ALLTRIM(DIR));}
                                      {$i+}
 {                                     IF IORESULT<>0 THEN }
+                                     IF (needServerAppData and (Pos('C:',Trim(UpperCase(DIR)))>0)) then
+                                        Continue; // LocalDir не провер€ть дл€ сервера
                                      IF not DirectoryExists(Dir) THEN
                                          BEGIN
                                              ShowMessage('Ќеверный путь ->'+alltrim(dir));
@@ -184,7 +186,7 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
                                                      CHDIR(CURR_DIR);
                                                      HALT;
                                                 END;
-                                        END;
+                                         END;
                                         CHDIR(CURR_DIR);
                                 END;
                         END

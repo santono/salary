@@ -1235,11 +1235,11 @@ procedure TMainForm.FormCreate(Sender: TObject);
               showMessage('На сервері знаходиться нова версія програми.'+^M+'Завантажте нову версію програми з серверу.');
       end;
 
+   InitInitialParamentersFromIniFile;
 
    Init_Dir_Name;
  //  testSVDNRec;
 
-   InitInitialParamentersFromIniFile;
    if kz<0 then
       raise Exception.Create('DirList initialization error');
 
@@ -1248,6 +1248,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
       begin
            makeServerBDir(escPressed);
            makeServerTmpDir(escPressed);
+           makeServerDataDirs;
       end;
    Fill_Podr;
    if kz<0 then

@@ -153,7 +153,8 @@ procedure TFormMakeAllChain.ProcessAllChain;
 procedure TFormMakeAllChain.BitBtn1Click(Sender: TObject);
 begin
      ProcessAllChain;
-     ShowMessage('Формирование цепочек закончено!');
+     if not needHideGenerMessages then
+        ShowMessage('Формирование цепочек закончено!');
      Self.Close;
 end;
 
