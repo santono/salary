@@ -21,6 +21,7 @@ object FormRepF4: TFormRepF4
     Width = 11
     Height = 20
     Caption = #1042
+    Visible = False
   end
   object BitBtn1: TBitBtn
     Left = 16
@@ -49,6 +50,7 @@ object FormRepF4: TFormRepF4
     Time = 42103.810000277780000000
     DateFormat = dfLong
     TabOrder = 2
+    Visible = False
   end
   object ProgressBar1: TProgressBar
     Left = 16

@@ -149,10 +149,10 @@ type
                               var amntOfbDaySowm: Integer; var summaBolSowm:Real):integer;
     function  getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer):integer;
     function  getOtpDay(tabno:integer;payYear:integer;payMnth:integer):integer;
-    function  getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;M:integer):Integer;
+//    function  getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;M:integer):Integer;
 
     procedure fillBolDay;
-    function  isSciPedForSwod(curr_person:person_ptr):boolean;
+//    function  isSciPedForSwod(curr_person:person_ptr):boolean;
     procedure calculateSumNarahInBD;
     procedure moveToBD;
 
@@ -166,7 +166,7 @@ var
 implementation
   uses
       uFIBModule,UFormWait,ScrUtil,DateUtils,ComObj,ScrIO,
-      scrLists,uFormMkPensList,uSqlUnit,math;
+      scrLists,uFormMkPensList,uSqlUnit,math,UCrc32;
   type
        pRec5=^TRec5;
        TRec5=record
@@ -310,6 +310,17 @@ implementation
            TRecSowmVne = record
                           tabno : integer;
                          end;
+      pCardinal = ^Cardinal;                   
+      tAddCash=class
+                constructor create;
+                destructor free;
+                procedure addToCash(curr_person:person_ptr;curr_add:ADD_PTR);
+                function isInCash(curr_person:person_ptr;curr_add:ADD_PTR):boolean;
+                private
+                    list:TList;
+                    function isCRC32InCash(pcrc32:pCardinal):boolean;
+
+               end;
   var list5,list6,list7 : TList;
       listIll,listOtp   : TList;
       listIllSowm,listOtpSowm : TList;
@@ -317,6 +328,7 @@ implementation
       listCPH           : TList;
       listSowmVne       : TList;
       E                 : Variant;
+      AddCashObject     : tAddCash;
 {$R *.dfm}
 (*
  function checkPerson(TABNO:integer;zo,payTp,payMnth,payYear,w_r:integer):real;
@@ -350,6 +362,52 @@ implementation
 
  end;
 *)
+ constructor tAddCash.create;
+   begin
+        list:=TList.Create;
+   end;
+ destructor tAddCash.free;
+   var i:Integer;
+   begin
+        if list.Count>0 then
+           for i:=0 to list.Count-1 do
+               Dispose(pCardinal(list.Items[i]));
+        list.Clear;       
+        list.Free;
+   end;
+ procedure tAddCash.addToCash(curr_person:person_ptr;curr_add:ADD_PTR);
+   var crc32:Cardinal;
+       pcrc32:PCardinal;
+   begin
+        new(pcrc32);
+        pcrc32^:=PersonAddCRC32(Curr_Person,curr_add);
+        if not isCRC32InCash(pcrc32) then
+           list.Add(pcrc32);
+
+   end;
+ function tAddCash.isInCash(curr_person:person_ptr;curr_add:ADD_PTR):boolean;
+   var retVal:Boolean;
+       p:pCardinal;
+       crc32:Cardinal;
+   begin
+        retVal:=False;
+        crc32:=PersonAddCRC32(Curr_Person,curr_add);
+        retVal:= isCRC32InCash(@crc32);
+        isInCash:=retVal;
+   end;
+
+ function tAddCash.isCRC32InCash(pcrc32:pCardinal):boolean;
+   var retVal:Boolean;
+       i:Integer;
+   begin
+        retVal:=False;
+        i:=list.IndexOf(pcrc32);
+        if i>=0 then
+           retVal:=true;
+        isCRC32InCash:=retVal;
+   end;
+
+
  function addSummaToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0;nrc:Integer=0):pRec6;
  var finded:boolean;
      i:integer;
@@ -533,47 +591,48 @@ procedure TFormRepF4.CreateReport6;
        listSowmVne:=TList.Create;
 //       listIll:=TList.Create;
        ProgressBar1.Min:=0;
-       ProgressBar1.Max:=Count_Serv * 9;
+       ProgressBar1.Max:=Count_Serv * 8;
        ProgressBar1.Step:=1;
        MAKEPENSLIST(2);   // Список инвалидов
+       AddCashObject:=tAddCash.create;
        // 0 Основная
        // Пометить все начисления, как пока не участвовашие в отчета
-       // установить '0' в поледние байте поля count[8] в add
-       for iNSRV:=1 to Count_Serv do
-           begin
-                NSRV:=iNSRV;
-                MKFLNM;
-                ProgressBar1.StepIt;
-                Application.ProcessMessages;
-//                if IsColedgPodr(NSRV) then continue;
-//                if nsrv in [11,102] then continue;
-                if not fileexists(FNINF) then Continue;
-//                if not nameservlist.IS_MO_BUD(nsrv) then continue;
-                getinf(false);
-                curr_person := HEAD_PERSON;
-                maked := False;
-                while (curr_person<>nil) do
-                  begin
-                       curr_add:=curr_person^.ADD;
-                       while (curr_add<>nil) do
-                         begin
-                              curr_add^.COUNT:=Trim(curr_add^.COUNT);
-                              i:=Length(curr_add^.count);
-                              i:=(SizeOf(curr_Add^.Count)-1)-(i+1);
-                              if i>0 then
-                                 curr_add^.COUNT:=SPACE(i)+'0'
-                              else
-                                 curr_add^.COUNT[8]:='0';
-                              maked:=True;
-                              curr_add:=curr_add^.next;
-                         end;
-                       curr_person:=curr_person^.NEXT;
-                  end;
-                if not maked then
-                   EMPTY_ALL_PERSON
-                else
-                   PUTINF;
-           end;
+       // установить '0' в поcледний байте поля count[8] в add
+//       for iNSRV:=1 to Count_Serv do
+//           begin
+//                NSRV:=iNSRV;
+//                MKFLNM;
+//                ProgressBar1.StepIt;
+//                Application.ProcessMessages;
+////                if IsColedgPodr(NSRV) then continue;
+////                if nsrv in [11,102] then continue;
+//                if not fileexists(FNINF) then Continue;
+////                if not nameservlist.IS_MO_BUD(nsrv) then continue;
+//                getinf(false);
+//                curr_person := HEAD_PERSON;
+//                maked := False;
+//                while (curr_person<>nil) do
+//                  begin
+//                       curr_add:=curr_person^.ADD;
+//                       while (curr_add<>nil) do
+//                         begin
+//                              curr_add^.COUNT:=Trim(curr_add^.COUNT);
+//                              i:=Length(curr_add^.count);
+//                              i:=(SizeOf(curr_Add^.Count)-1)-(i+1);
+//                              if i>0 then
+//                                 curr_add^.COUNT:=SPACE(i)+'0'
+//                              else
+//                                 curr_add^.COUNT[8]:='0';
+//                              maked:=True;
+//                              curr_add:=curr_add^.next;
+//                         end;
+//                       curr_person:=curr_person^.NEXT;
+//                  end;
+//                if not maked then
+//                   EMPTY_ALL_PERSON
+//                else
+//                   PUTINF;
+//           end;
 
        // 1 Основная
        for iNSRV:=1 to Count_Serv do
@@ -783,6 +842,7 @@ procedure TFormRepF4.CreateReport6;
               dispose(pRecSowmVne(listSowmVne.Items[i]));
        listSowmVne.Free;
        listSowmVne:=nil;
+       AddCashObject.free;
 //       if listIll.count>0 then
 //          for i:=0 to listIll.count-1 do
 //              dispose(pRecIll(listIll.Items[i]));
@@ -1063,7 +1123,10 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
                       or
                       (curr_add^.shifr=dogPodShifr)
                       ) then
-                     retVal:=retVal+curr_add^.SUMMA;
+                      begin
+                           retVal:=retVal+curr_add^.SUMMA;
+                           AddCashObject.addToCash(curr_person,curr_add);
+                      end;
                   curr_add:=curr_add.NEXT;
              end;
           getSummaOsnAddForPerson:=retVal;
@@ -1190,7 +1253,10 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
                       or
                       (curr_add^.shifr=dogPodShifr)
                       ) then
-                     retVal:=retVal+curr_add^.SUMMA;
+                      begin
+                           retVal:=retVal+curr_add^.SUMMA;
+                           AddCashObject.addToCash(curr_person,curr_add);
+                      end;
                   curr_add:=curr_add.NEXT;
              end;
           getSummaOsnAddForPerson:=retVal;
@@ -1493,6 +1559,7 @@ procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
                                       end
                                   else
                                       recIll.amntOfBDay:= 0;
+                                  AddCashObject.addToCash(curr_person,curr_add);
                                   listIll.Add(recIll);
                              end;
                      end;
@@ -1692,6 +1759,7 @@ procedure TFormRepF4.fillOtpPerson(curr_person:person_ptr);
                                   recIll^.kdNp     := 0;
                                   recIll^.shifrwr  := shifrwr;
                                   listOtp.Add(recIll);
+                                  AddCashObject.addToCash(curr_person,curr_add);
                              end;
                      end;
                   curr_add:=curr_add^.NEXT;
@@ -1766,7 +1834,10 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
                       or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
                       ) then
-                     retVal:=retVal+curr_add^.SUMMA;
+                      begin
+                           retVal:=retVal+curr_add^.SUMMA;
+                           AddCashObject.addToCash(curr_person,curr_add);
+                      end;
                   curr_add:=curr_add.NEXT;
              end;
           getSummaOsnAddForPerson:=retVal;
@@ -1859,7 +1930,10 @@ procedure TFormRepF4.fillPremPerson(curr_person:person_ptr);
           while (curr_add<>nil) do
              begin
                   if not (isotpshifr(curr_add^.shifr)) then
-                     retVal:=retVal+curr_add^.SUMMA;
+                     begin
+                          retVal:=retVal+curr_add^.SUMMA;
+                          AddCashObject.addToCash(curr_person,curr_add);
+                     end;
                   curr_add:=curr_add.NEXT;
              end;
           getSummaOsnAddForPerson:=retVal;
@@ -1895,7 +1969,7 @@ procedure TFormRepF4.fillPremPerson(curr_person:person_ptr);
                if not finded then
                   begin
                        rec6:=addToF6(curr_Person^.TABNO,zo,0,nmes,currYear,summaAdd);
-                       rec6.w_r:=curr_person^.WID_RABOTY;;
+                       rec6.w_r:=curr_person^.WID_RABOTY;
                        if curr_person^.MESTO_OSN_RABOTY=82 then
                           begin
                                rec6.otk:=0;
@@ -4020,12 +4094,13 @@ function TFormRepF4.getBolDay(tabno:integer;payYear:integer;payMnth:integer;
      list.Free;
      getBolDay:=retVal;
  end;
+(*
 function  TFormRepF4.getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;m:integer):Integer;
  var SQLStmnt        : string;
      v               : variant;
      retVal          : integer;
 //     recBolDay       : PRecBolDay;
-     list            : TList;
+//     list            : TList;
      finded          : Boolean;
      activated       : Boolean;
      i               : Integer;
@@ -4054,7 +4129,7 @@ function  TFormRepF4.getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;m:inte
         retVal:=1;
      getShifrWrForBoln:=retVal;
  end;
-
+*)
 
 function TFormRepF4.getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer):integer;
  var SQLStmnt        : string;
@@ -4177,7 +4252,7 @@ procedure  TFormRepF4.calculateSumNarahInBD;
       SQLExecute(SQLStmnt);
 
  end;
-
+(*
 function TFormRepF4.isSciPedForSwod(curr_person:person_ptr):boolean;
  var retVal:boolean;
  begin
@@ -4196,5 +4271,5 @@ function TFormRepF4.isSciPedForSwod(curr_person:person_ptr):boolean;
          retVal:=True;
       isSciPedForSwod:=retVal;
  end;
-
+*)
 end.

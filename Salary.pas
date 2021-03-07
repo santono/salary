@@ -426,6 +426,8 @@ type
     ActionMove156LNR: TAction;
     NMove156LNR: TMenuItem;
     N187: TMenuItem;
+    ActionFormECBPerson: TAction;
+    NECBPerson: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -701,6 +703,7 @@ type
     procedure ActionCheckKassaBankExecute(Sender: TObject);
     procedure ActionMove156LNRExecute(Sender: TObject);
     procedure N187Click(Sender: TObject);
+    procedure ActionFormECBPersonExecute(Sender: TObject);
 
 
   private
@@ -795,7 +798,7 @@ implementation
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
   UFormRptPremGM, UFormSumLimitForCarantine,
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
-  UFormTestKassaBank, UFormMakeVypl156082020, SplashForm;
+  UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1417,6 +1420,10 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NMove156LNR.Visible:=false;
           NMove156LNR.Enabled:=false;
           ActionMove156LNR.enabled:=False;
+          ActionFormECBPerson.Enabled:=True;
+          NECBPerson.visible:=TRUE;
+          NECBPerson.enabled:=true;
+
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
 
@@ -1499,7 +1506,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NMove156LNR.Visible:=true;
           NMove156LNR.Enabled:=true;
           ActionMove156LNR.enabled:=true;
-
+          ActionFormECBPerson.Enabled:=false;
+          NECBPerson.visible:=False;
+          NECBPerson.enabled:=False;
 
 
    //       if DirectoryExists('Y:') then
@@ -4907,6 +4916,31 @@ begin
      Application.CreateForm(TAboutBox,AboutBox);
      AboutBox.showModal;
 
+end;
+
+procedure TMainForm.ActionFormECBPersonExecute(Sender: TObject);
+var curr_person:PERSON_PTR;
+    i,j:Integer;
+begin
+     if isSVDN then
+      begin
+        j:=count_person;
+        if StringGrid1.Row<=j+1 then
+           begin
+              i:=0;
+              Curr_Person:=Head_Person;
+              while (Curr_Person<>Nil) do
+                 begin
+                      inc(i);
+                      if (i=StringGrid1.Row-1) then
+                          Break;
+                      Curr_Person:=Curr_Person^.NEXT;
+                 end;
+           end;
+
+        FormECBPerson:=TFormECBPerson.myCreate(Self,curr_person);
+        FormECBPerson.showModal;
+      end;
 end;
 
 end.

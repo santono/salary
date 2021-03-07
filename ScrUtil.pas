@@ -591,6 +591,8 @@ interface
   procedure freeIOSemaphore;
   procedure receiveIOSemaphoreForWrite;
   procedure receiveIOSemaphoreForRead;
+  function  getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;m:integer):Integer;
+  function isSciPedForSwod(curr_person:person_ptr):boolean;
 
 
 
@@ -1715,6 +1717,8 @@ FUNCTION WORK_CLOCK_LERA(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_P
                               if curr_person^.kategorija=1 then A:=A+7.2
                                                       ELSE  A:=A+8;
 
+      if a>CLOCKS[nmes] then
+         a:=clocks[nmes];
       koef:=GET_KOEF_OKLAD_PERSON(curr_person);
       a:=a*koef;
       if abs(curr_person^.oklad)<1.00 then a:=0;
@@ -12846,7 +12850,59 @@ procedure receiveIOSemaphoreForRead;
                   Break;
           end;
    end;
+function  getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;m:integer):Integer;
+ var SQLStmnt        : ansistring;
+     v               : variant;
+     retVal          : integer;
+//     recBolDay       : PRecBolDay;
+//     list            : TList;
+     finded          : Boolean;
+     activated       : Boolean;
+     i               : Integer;
+     formatSumma     : string;
+ begin
+      if tabno=11978 then
+         retVal:=0;
+     if y<1900 then
+        y:=y+1990;
 
+     retVal := 1;
+     formatSumma := Trim(FormatFloatPoint(summa));
+//     list:=TList.Create;
+     SQLStmnt:='select coalesce(b.modewr,0) from boln_res br';
+     SQLStmnt:=trim(SQLStmnt)+' join boln b on b.shifrid=br.shifridboln';
+     SQLStmnt:=trim(SQLStmnt)+' where br.year_za='+intToStr(Y)+' and br.month_za='+intToStr(M);
+     SQLStmnt:=trim(SQLStmnt)+' and b.year_vy='+intToStr(currYear)+' and b.month_vy='+intToStr(NMES);
+     SQLStmnt:=trim(SQLStmnt)+' and b.shifr_sta in (12,14)';
+     SQLStmnt:=trim(SQLStmnt)+' and b.tabno='+intToStr(tabno);
+ //    SQLStmnt:=trim(SQLStmnt)+' and coalesce(modewr,0)=2';
+     SQLStmnt:=trim(SQLStmnt)+' and abs(abs(coalesce(br.summa_b_bud,0.00)+coalesce(br.summa_b_vne,0.00)+coalesce(br.summa_b_gn,0.00)+coalesce(br.summa_b_nis,0.00))-abs('+FormatSumma+'))<0.01';
+     v:=SQLQueryValue(SQLStmnt);
+     if VarIsNumeric(v) then
+        retVal := v;
+     if retVal<>2 then
+        retVal:=1;
+     getShifrWrForBoln:=retVal;
+ end;
+
+function isSciPedForSwod(curr_person:person_ptr):boolean;
+ var retVal:boolean;
+ begin
+      retVal:=isSciPed(curr_person);
+      if (curr_person^.tabno=3719) then           // Зеленко
+      if (curr_person^.WID_RABOTY=1) then
+         retVal:=true;
+      if ((curr_person^.WID_RABOTY=2) and
+          (curr_person^.MESTO_OSN_RABOTY=82)) then
+         retVal:=false;
+      if ((curr_person^.tabno =4424)
+         or
+         (curr_person^.tabno= 11761)) then // Белоусов  и Варченко из бухгальтерии
+         retVal:=false;
+      if curr_person^.tabno=11626  then // Заика
+         retVal:=True;
+      isSciPedForSwod:=retVal;
+ end;
 
 end.
 

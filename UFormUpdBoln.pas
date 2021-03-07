@@ -141,6 +141,7 @@ type
     procedure ComboBoxCodeIllChange(Sender: TObject);
     procedure ComboBoxBuhChange(Sender: TObject);
     procedure rgModeWRClick(Sender: TObject);
+    procedure RadioGroupModeZaVyClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -1393,6 +1394,15 @@ begin
      else
      if rgModeWR.ItemIndex=2 then modeWr:=2
      else modeWR:=0;
+
+end;
+
+procedure TFormUpdBoln.RadioGroupModeZaVyClick(Sender: TObject);
+begin
+     if RadioGroupModeZaVy.ItemIndex=0 then
+        MODE_V_Z:=1  //Â
+     else
+        MODE_V_Z:=0;
 
 end;
 

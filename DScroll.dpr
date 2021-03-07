@@ -376,7 +376,10 @@ uses
   UFormTestKassaBank in 'UFormTestKassaBank.pas' {FormTestKassaBank},
   UFormMakeVypl082020 in 'UFormMakeVypl082020.pas' {FormMakeVypl082020},
   UFormMakeVypl156082020 in 'UFormMakeVypl156082020.pas' {FormMakeVypl156082020},
-  UFormTestIOSemaphore in 'UFormTestIOSemaphore.pas' {FormTestIOSemaphore};
+  UFormTestIOSemaphore in 'UFormTestIOSemaphore.pas' {FormTestIOSemaphore},
+  ScrECB in 'ScrECB.pas',
+  ScrECBService in 'ScrECBService.pas',
+  UFormECBPerson in 'UFormECBPerson.pas' {FormECBPerson};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -19,14 +19,15 @@ unit UCrc32;
 interface
 
 uses
-  classes, Sysutils, Dialogs;
+  classes, Sysutils, Dialogs, ScrDef;
 
 function FileCRC32(const FileName: string): Cardinal;
 function UpdateCRC32(InitCRC: Cardinal; BufPtr: Pointer; Len: Word): Cardinal;
 function PodrCRC32: Cardinal;
+function PersonAddCRC32(Curr_Person : Person_Ptr;curr_add:Add_ptr): Cardinal;
 
 implementation
-  uses ScrDef;
+ // uses ScrDef;
 
 type
   CRCTable = array[0..255] of Cardinal;
@@ -260,6 +261,43 @@ function PodrCRC32: Cardinal;
        end;
       Result := not crc32;
  end;
+
+function PersonAddCRC32(Curr_Person : Person_Ptr;curr_add:Add_ptr): Cardinal;
+ var
+  crc32  : Cardinal;
+  LenBuf : Integer;
+  BufPtr : Pointer;
+  PersonRec   : Person;
+  AddRec      : Add;
+  i:integer;
+ begin
+      crc32 := $FFFFFFFF;
+      i:=sizeOf(PersonRec.NEXT);
+      fillChar(PersonRec,SizeOf(personRec),0);
+      Move(Curr_Person^,PersonRec,SizeOf(Curr_Person^)-5*sizeOf(curr_Person^.NEXT));
+      FillChar(PersonRec.FIO,sizeOf(PersonRec.FIO),0);
+      move(Curr_Person.fio,PersonRec.FIO,length(trim(Curr_person^.fio))+1);
+      FillChar(PersonRec.Dolg,sizeOf(PersonRec.Dolg),0);
+      move(Curr_Person.Dolg,PersonRec.Dolg,length(trim(Curr_person^.Dolg))+1);
+      FillChar(PersonRec.N_Temy,sizeOf(PersonRec.N_Temy),0);
+      move(Curr_Person.N_Temy,PersonRec.N_Temy,length(trim(Curr_person^.N_Temy))+1);
+      FillChar(PersonRec.NAL_CODE,sizeOf(PersonRec.NAL_CODE),0);
+      move(Curr_Person.NAL_CODE,PersonRec.NAL_CODE,length(trim(Curr_person^.NAL_CODE))+1);
+      BufPtr := @PersonRec;
+      LenBuf := SizeOf(PersonRec)-5*sizeOf(personRec.NEXT);
+      crc32  := UpdateCrc32(crc32, BufPtr, LenBuf);
+      fillChar(AddRec,sizeOf(AddRec),0);
+      Move(Curr_Add^,AddRec,SizeOf(Curr_Add^)-sizeOf(curr_Add^.NEXT));
+      FillChar(AddRec.Count,sizeOf(AddRec.Count),0);
+      move(Curr_Add.Count,AddRec.Count,length(trim(Curr_Add^.Count))+1);
+//                   AddRec.NEXT := nil;
+      BufPtr := @AddRec;
+      LenBuf := SizeOf(AddRec)-sizeOf(addRec.NEXT);
+      crc32  := UpdateCrc32(crc32, BufPtr, LenBuf);
+
+      Result := not crc32;
+ end;
+
 end.
 
 

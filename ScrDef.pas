@@ -212,6 +212,9 @@ CONST
 { *}     DIFFER_SHIFR              = 169;
 { *}     DOG_POD_VNESH_SOWM_SHIFR  = 173;
 { *}     PROSTOY_SHIFR             = 175;
+{ *}     REC6CN_SHIFR              = 998;
+{ *}     REC5CN_SHIFR              = 997;
+{ *}     REC7CN_SHIFR              = 999;
 {$ELSE}
 { *}     NeedToPersSwod            = 999; { Включать в свод по персонофикации без сумм  }
 { *}     INNERSOWM_SHIFR           = 999;
@@ -712,6 +715,7 @@ begin
     TYP_PRIKAZA_PEREVOD:=7;
     needServerAppData:=False;
     needUseIOSemaphore:=false;
+    DDIR:='';
 {$IFDEF SVDN}
     isSVDN := True  ;
     isLNR  := False ;

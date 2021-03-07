@@ -45,6 +45,11 @@ PROCEDURE INIT_DIR_NAME(wantedMainDir:string='');
      SavPath,S,SS:string;
      neededDrive:string;
  BEGIN
+       if Length(Trim(ddir))>3 then
+// ≈сли произошла инициализаци€ в
+// InitInitialParamentersFromIniFile
+//  то выйти
+          Exit;
        neededDrive:=getMainDataDrive;
        s:=getIniFileName;
        kz:=0;

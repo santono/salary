@@ -97,7 +97,7 @@ object FormUpdBoln: TFormUpdBoln
     Top = 80
     Width = 737
     Height = 409
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     TabOrder = 6
     object TabSheet1: TTabSheet
       Caption = #1048#1089#1093'.'#1076#1072#1085#1085#1099#1077
@@ -427,6 +427,7 @@ object FormUpdBoln: TFormUpdBoln
     ParentShowHint = False
     ShowHint = True
     TabOrder = 11
+    OnClick = RadioGroupModeZaVyClick
   end
   object BitBtnDelNotSel: TBitBtn
     Left = 624

@@ -1160,6 +1160,9 @@ object MainForm: TMainForm
         OnClick = N167Click
       end
     end
+    object NECBPerson: TMenuItem
+      Action = ActionFormECBPerson
+    end
   end
   object ActionList1: TActionList
     Left = 80
@@ -1687,6 +1690,10 @@ object MainForm: TMainForm
     object ActionMove156LNR: TAction
       Caption = #1055#1077#1088#1077#1085#1086#1089' '#1089#1090#1072#1090#1100#1080' 156 '#1080#1079' '#1072#1074#1075#1091#1089#1090#1072' '#1074' '#1089#1077#1085#1090#1103#1073#1088#1100' 2020'
       OnExecute = ActionMove156LNRExecute
+    end
+    object ActionFormECBPerson: TAction
+      Caption = #1044#1083#1103' '#1086#1090#1095#1077#1090#1072' '#1087#1086' '#1087#1077#1088#1089#1086#1085#1086#1092#1080#1082#1072#1094#1080#1080
+      OnExecute = ActionFormECBPersonExecute
     end
   end
   object ImageList1: TImageList

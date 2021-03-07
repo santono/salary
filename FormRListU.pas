@@ -110,17 +110,20 @@ end;
 
 procedure TFormRList.FormCreate(Sender: TObject);
 var Y,M,D:word;
+    dtMax:Tdate;
 begin
      RetCode:=0;
      y:=CurrYear;
      m:=NMES;
      d:=10;
+     dtMax:=EncodeDate(y,m,d);
      Dec(m);
      if (M<1) then
         begin
              m:=12;
              dec(Y);
         end;
+     DateTimePickerRList.MaxDate:=dtMax;
      DateTimePickerRList.Date:=EnCodeDate(y,m,d);
      {$IFDEF SVDN}
        cbDopPodr.Checked:=False;

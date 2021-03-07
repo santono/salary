@@ -1,6 +1,6 @@
 object FormBolnA: TFormBolnA
-  Left = 264
-  Top = 185
+  Left = 391
+  Top = 263
   Width = 696
   Height = 495
   Caption = 'FormBolnA'
