@@ -103,6 +103,9 @@ type
     frxDBPrint: TfrxDBDataset;
     N12: TMenuItem;
     cbKindPodr: TComboBox;
+    pFIBDataSet1DFSUMMAWS: TFIBBCDField;
+    dxDBGrid1DFSummaWs: TdxDBGridColumn;
+    iDFECB: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
@@ -125,6 +128,7 @@ type
     procedure frxReportFullGetValue(const VarName: String;
       var Value: Variant);
     procedure cbKindPodrChange(Sender: TObject);
+    procedure iDFECBClick(Sender: TObject);
   private
     { Private declarations }
     listAlchevsk,
@@ -156,7 +160,8 @@ var
 
 implementation
   uses ScrDef,UFibModule,DBF,DateUtils,IniFiles,ScrUtil,UFormProgress,
-  uFormWait, UForm1DFStipToXML,ComObj,USQLUnit;
+  uFormWait, UForm1DFStipToXML,ComObj,USQLUnit,
+  UFormCMP1DFECB;
 
 {$R *.dfm}
 
@@ -226,6 +231,11 @@ begin
              cbKindPodr.Hide;
              cbKindPodr.Enabled:=false;
         end;
+     if isSVDN then
+        iDFECB.Visible:=True
+     else
+        iDFECB.Visible:=False;
+
      ShowTable;
 end;
 
@@ -1885,5 +1895,12 @@ function TForm1DF.makeFilterString:string;
                        '  )';
       makeFilterString:=SQLSTmnt;
  end;
+
+procedure TForm1DF.iDFECBClick(Sender: TObject);
+begin
+     if not isSVDN then Exit;
+     FormCMP1DFECB:=TFormCMP1DFECB.myCreate(Self,Y,M);
+     FormCMP1DFECB.ShowModal;
+end;
 
 end.

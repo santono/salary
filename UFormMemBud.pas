@@ -1111,7 +1111,7 @@ procedure TFormMemBud.MakeOrder;
                                                              DefineRowColAddIskra;
                                                        if (ShifrRow>0) and (ShifrCol>0) then
                                                            begin
-                                                              SQLSwodClass.AddItemAdd(CURR_ADD,NSRV);
+                                                              SQLSwodClass.AddItemAdd(Curr_Person,CURR_ADD,NSRV);
 
                                                               if needTestMem then
                                                                  TestListClass.findAddRec(curr_add,curr_person);

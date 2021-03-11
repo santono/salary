@@ -47,11 +47,14 @@ type
     { Public declarations }
   end;
 
+
+
 var
   FormECBPerson: TFormECBPerson;
 
 
 implementation
+(*
  const lenZO6=9;
  const lenPayTp=3;
  const zo6Items:array[1..lenZO6] of string=(
@@ -69,7 +72,7 @@ implementation
  );
  const PayTpNo:array[1..lenPayTp] of integer=(
   0,10,13);
-
+*)
 
 
 {$R *.dfm}
@@ -241,6 +244,7 @@ begin
      for i:=1 to lenZO6 do
          begin
               cbZO6.Items.Add(zo6Items[i]);
+              if Assigned(personRec6) then
               if personRec6.zo=zo6ItemsNo[i] then
                  cbZO6.ItemIndex := i-1;
          end;
@@ -249,16 +253,20 @@ begin
      for i:=1 to lenPayTp do
          begin
               cbPayTP.Items.Add(PayTpItems[i]);
+              if Assigned(personRec6) then
               if personRec6.payTp=PayTpNo[i] then
                  cbPayTP.ItemIndex:=i-1;
          end;
      cbOTK.Checked:=false;
+     if Assigned(personRec6) then
      if personRec6.otk > 0 then
         cbOTK.Checked:=True;
      cbEXP.Checked:=false;
+     if Assigned(personRec6) then
      if personRec6.exp > 0 then
         cbEXP.Checked:=True;
      cbNRC.Checked:=false;
+     if Assigned(personRec6) then
      if personRec6.nrc > 0 then
         cbNRC.Checked:=True;
 

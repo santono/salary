@@ -1,6 +1,6 @@
 object FormECBPerson: TFormECBPerson
-  Left = 192
-  Top = 124
+  Left = 260
+  Top = 204
   Width = 696
   Height = 480
   Caption = 'FormECBPerson'

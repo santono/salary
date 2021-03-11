@@ -26,7 +26,7 @@ interface
            function fillSowmPerson:Boolean;
            function existsZO(ZO:Integer;payTp:Integer=0;payYear:Integer=0;payMnth:Integer=0):Boolean;
 //           function addZO(ZO:Integer;payTp:Integer=0;payYear:Integer=0;payMnth:Integer=0;otk:Integer=1;kdNp:Integer=0):Boolean;
-           function addZO(ZO:Integer;payTp:Integer=0;payYear:Integer=0;payMnth:Integer=0;otk:Integer=1;kdNp:Integer=0;Exp:integer=0;nrc:Integer=0):Boolean;
+           function addZO(ZO:Integer;payTp:Integer=0;payYear:Integer=0;payMnth:Integer=0;otk:Integer=1;kdNp:Integer=0;Exp:integer=0;nrc:Integer=0; KDPTV:Integer=0):Boolean;
            function countNotMarked:Integer;
 
           public
@@ -38,7 +38,7 @@ interface
 implementation
 {$IFDEF  SVDN}
 
-  uses ScrUtil;
+  uses ScrUtil, SysUtils;
   constructor TPersonRec6Service.init(newCurrPerson:PERSON_PTR);
     var curr_add:ADD_PTR;
         recAdd:pRecAdd;
@@ -107,7 +107,7 @@ implementation
            end;
     end;
 
-  function TPersonRec6Service.addZO(ZO:Integer;payTp:Integer=0;payYear:Integer=0;payMnth:Integer=0;otk:Integer=1;kdNp:Integer=0;Exp:integer=0;NRC:Integer=0):Boolean;
+  function TPersonRec6Service.addZO(ZO:Integer;payTp:Integer=0;payYear:Integer=0;payMnth:Integer=0;otk:Integer=1;kdNp:Integer=0;Exp:integer=0;NRC:Integer=0; KDPTV:Integer=0):Boolean;
     var curr_cn:CN_PTR;
         PersonRec6:TPersonRec6;
     begin
@@ -120,6 +120,7 @@ implementation
          personRec6.setExp(exp);
          personRec6.setKdNp(kdNp);
          PersonRec6.setNrc(Nrc);
+         PersonRec6.setKdPtv(kdptv);
          if ZO in [25,32] then
             personRec6.setExp(1);
 
@@ -137,7 +138,7 @@ implementation
             curr_cn:=curr_person^.CN;
             while (curr_cn<>nil) do
               begin
-                   if curr_cn^.shifr=rec6cn_shifr then
+                   if curr_cn^.shifr=rec6cn_shifr+LIMIT_CN_BASE then
                       begin
                            PersonRec6:=TPersonRec6.CreateFromCN(curr_cn^.PRIM_1);
                            if (PersonRec6.getZo=ZO)
@@ -210,8 +211,8 @@ implementation
                             if ((pRecAdd(listAdd.Items[i]).workDay>0) and (pRecAdd(listAdd.Items[i]).workDay<32)) then
                               kdNp:=pRecAdd(listAdd.Items[i]).workDay;
 //                            addZO(ZO,10,y,m,otk,kdNp);
-                           //       PayTp PayYear PayMnth otk kdNp  Exp  NRC
-                            addZO(ZO, 0  ,   y   ,   m   ,otk,  kdNp  , exp, nrc);
+                           //       PayTp PayYear PayMnth otk   kdNp    Exp  NRC, KDPTV
+                            addZO(ZO, 0  ,   y   ,   m   ,otk,  kdNp  , exp, nrc,  0  );
 
                         end;
                      pRecAdd(listAdd.Items[i]).marked:=True;
@@ -226,7 +227,7 @@ implementation
     var i,shifr,y,m:integer;
         retVal:boolean;
         zo,exp:Integer;
-        shifrWr,otk,kdNp:Integer;
+        shifrWr,otk,kdNp,nrc:Integer;
     function getZOForOtp:integer;
       var retVal:integer;
       begin
@@ -243,6 +244,7 @@ implementation
 
     begin
         retVal:=False;
+        nrc:=0;
         if countNotMarked<1 then
            begin
                 fillOtpPerson:=false;
@@ -269,15 +271,22 @@ implementation
                      if not existsZO(zo,10,y,m) then
                         begin
                             otk:=1;
-                            shifrWr := getShifrWrForBoln(curr_person^.TABNO,pRecAdd(listAdd.Items[i]).summa,y-1990,m);
+//                            shifrWr := getShifrWrForBoln(curr_person^.TABNO,pRecAdd(listAdd.Items[i]).summa,y-1990,m);
+                            if IS_OSN_WID_RABOTY(curr_person) then
+                               shifrwr:=1
+                            else
+                               shifrwr:=2;
                             if shifrWr=2 then
-                               otk:=0;
+                               begin
+                                    otk:=0;
+                                    nrc:=1;
+                               end;
                             kdNp:=0;
 //                            if ((pRecAdd(listAdd.Items[i]).workDay>0) and (pRecAdd(listAdd.Items[i]).workDay<32)) then
 //                              kdNp:=pRecAdd(listAdd.Items[i]).workDay;
 //                            addZO(ZO,10,y,m,otk,kdNp);
-                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC
-                            addZO(ZO, 10  ,   y   ,   m   ,otk,  0  , 0, 0);
+                           //       PayTp PayYear PayMnth otk  kbNp  Exp  NRC KDPtv
+                            addZO(ZO, 10  ,   y   ,   m   ,otk,  0  , 0,   0,   0);
                         end;
                      pRecAdd(listAdd.Items[i]).marked:=True;
                 end;
@@ -328,8 +337,8 @@ implementation
                             if curr_Person.mesto_osn_raboty in [82,121] then
                                otk:=0;
 //                            addZO(ZO);
-                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC
-                            addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , 0, 0);
+                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC KDPTV
+                            addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , 0,   0, 0);
                         end;
                      pRecAdd(listAdd.Items[i]).marked:=True;
                 end;
@@ -373,8 +382,8 @@ implementation
                             if curr_Person.mesto_osn_raboty=82 then
                                otk:=0;
 //                            addZO(ZO);
-                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC
-                            addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , 0, 0);
+                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC KDPTV
+                            addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , 0,   0,   0);
                         end;
                      pRecAdd(listAdd.Items[i]).marked:=True;
                 end;
@@ -441,8 +450,8 @@ implementation
                             if curr_Person.mesto_osn_raboty in [82,121] then
                                otk:=0;
              //               addZO(ZO);
-                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC
-                            addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , Exp, 0);
+                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC KDPTV
+                            addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , Exp, 0, 0);
 
                         end;
                      pRecAdd(listAdd.Items[i]).marked:=True;
@@ -461,7 +470,10 @@ implementation
         otk:Integer;
         exp:Integer;
         kdPtv:Integer;
+        dt:TDateTime;
     begin
+        dt:=encodeDate(CURRYEAR,NMES,1);
+        kdPtv:=LenMonth(dt);
         retVal := False;
         otk    := 0;
         Exp    := 0;
@@ -476,6 +488,7 @@ implementation
                 fillOsnPerson:=false;
                 Exit;
            end;
+        if not IS_OSN_WID_RABOTY(Curr_Person) then Exit;
         for i:=0 to listAdd.Count-1 do
            begin
              if pRecAdd(listAdd.Items[i]).marked then continue;
@@ -510,8 +523,8 @@ implementation
                             if curr_Person.mesto_osn_raboty=82 then
                                otk:=0;
                   //          addZO(ZO:Integer;payTp:Integer=0;payYear:Integer=0;payMnth:Integer=0;otk:Integer=1;kdNp:Integer=0;Exp:integer=0):Boolean;
-                             //       PayTp PayYear PayMnth otk kbNp  Exp  NRC
-                              addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , Exp, 0);
+                             //       PayTp PayYear PayMnth otk kbNp  Exp  NRC  KDPTV
+                              addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , Exp, 0,  KDPTV);
 
                   //          addZO(ZO);
                         end;
@@ -541,6 +554,7 @@ implementation
                 fillSowmPerson:=false;
                 Exit;
            end;
+        if IS_OSN_WID_RABOTY(Curr_Person) then Exit;
         for i:=0 to listAdd.Count-1 do
            begin
              if pRecAdd(listAdd.Items[i]).marked then continue;
@@ -573,8 +587,8 @@ implementation
 //                            if curr_Person.mesto_osn_raboty=82 then
                             otk:=0;
                   //          addZO(ZO);
-                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC
-                            addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , 0, 1);
+                           //       PayTp PayYear PayMnth otk kbNp  Exp  NRC KDPTV
+                            addZO(ZO, 0  ,   0   ,   0   ,otk,  0  , 0,   1,   0);
                         end;
                      pRecAdd(listAdd.Items[i]).marked:=True;
                 end;
@@ -588,12 +602,13 @@ implementation
 
   procedure TPersonRec6Service.fillRec6Person;
     begin
+         if curr_person^.add=nil then Exit;
          deleteRec6CNRecs;
          if NSRV in [82,121] then Exit;
          if DOG_POD_PODRAZD(nsrv) then
             fillDPPerson
          else
-         if not (nsrv in [11,102]) then
+         if nsrv in [11,102] then
             fillPremPerson
          else
            begin

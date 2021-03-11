@@ -20,6 +20,7 @@ type
     pFIBTransaction1: TpFIBTransaction;
     btnExportExcel: TBitBtn;
     Button1: TButton;
+    BitBtn7: TBitBtn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
@@ -27,6 +28,7 @@ type
     procedure BitBtn3Click(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure BitBtn5Click(Sender: TObject);
+    procedure BitBtn7Click(Sender: TObject);
     procedure btnExportExcelClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private
@@ -44,7 +46,8 @@ var
 
 implementation
   uses ScrDef,ScrUtil,UFormGetDRFO,UFormMovECBToDBF, uFormWait, DateUtils,
-  UFormTestE4, UFormMovECBtoExcel, UFormRepF4;
+  UFormTestE4, UFormMovECBtoExcel, UFormRepF4,
+  UFormCmpSwodECBDetail;
 
 {$R *.dfm}
 
@@ -144,6 +147,12 @@ begin
      FormTestE4.Caption:=Trim(FormTestE4.Caption)+' '+IntToStr(FormTestE4.M)+' '+IntToStr(FormTestE4.Y);
 
      FormTestE4.ShowModal;
+
+end;
+procedure TFormECBMonthMenu.BitBtn7Click(Sender: TObject);
+begin
+     FormCmpSwodECBDetail:=TFormCmpSwodECBDetail.myCreate(Self,wantedYear,wantedMonth);
+     FormCmpSwodECBDetail.ShowModal;
 
 end;
 

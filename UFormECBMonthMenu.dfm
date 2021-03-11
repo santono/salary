@@ -1,6 +1,6 @@
 object FormECBMonthMenu: TFormECBMonthMenu
-  Left = 387
-  Top = 209
+  Left = 396
+  Top = 253
   Width = 341
   Height = 282
   Caption = #1045#1057#1042' '#1077#1078#1077#1084#1077#1089#1103#1095#1085#1099#1081
@@ -95,6 +95,15 @@ object FormECBMonthMenu: TFormECBMonthMenu
     Caption = #1043#1077#1085#1077#1088#1072#1094#1080#1103' 2.0'
     TabOrder = 7
     OnClick = Button1Click
+  end
+  object BitBtn7: TBitBtn
+    Left = 8
+    Top = 168
+    Width = 153
+    Height = 25
+    Caption = #1057#1088#1072#1074#1085#1080#1090#1100' '#1089#1086' '#1089#1074#1086#1076#1086#1084
+    TabOrder = 8
+    OnClick = BitBtn7Click
   end
   object pFIBQuery1: TpFIBQuery
     Transaction = pFIBTransaction1

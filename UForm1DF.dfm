@@ -52,19 +52,19 @@ object Form1DF: TForm1DF
     Anchors = [akLeft, akTop, akRight, akBottom]
     object dxDBGrid1DFSHIFRID: TdxDBGridMaskColumn
       Visible = False
-      Width = 90
+      Width = 99
       BandIndex = 0
       RowIndex = 0
       FieldName = 'SHIFRID'
     end
     object dxDBGrid1DFTABNO: TdxDBGridCalcColumn
-      Width = 31
+      Width = 27
       BandIndex = 0
       RowIndex = 0
       FieldName = 'TABNO'
     end
     object dxDBGrid1DFNAL_CODE: TdxDBGridMaskColumn
-      Width = 52
+      Width = 46
       BandIndex = 0
       RowIndex = 0
       FieldName = 'NAL_CODE'
@@ -72,59 +72,66 @@ object Form1DF: TForm1DF
     object dxDBGrid1DFFIO: TdxDBGridMaskColumn
       Caption = #1060#1048#1054
       HeaderAlignment = taCenter
-      Width = 165
+      Width = 144
       BandIndex = 0
       RowIndex = 0
       FieldName = 'FIO'
     end
     object dxDBGrid1DFW_R: TdxDBGridMaskColumn
       MinWidth = 16
-      Width = 49
+      Width = 43
       BandIndex = 0
       RowIndex = 0
       FieldName = 'W_R'
     end
     object dxDBGrid1DFSUMMAADD: TdxDBGridCalcColumn
-      Width = 47
+      Sorted = csUp
+      Width = 41
       BandIndex = 0
       RowIndex = 0
       FieldName = 'SUMMAADD'
     end
     object dxDBGrid1DFSUMMAPOD: TdxDBGridCalcColumn
-      Width = 47
+      Width = 41
       BandIndex = 0
       RowIndex = 0
       FieldName = 'SUMMAPOD'
     end
+    object dxDBGrid1DFSummaWs: TdxDBGridColumn
+      Caption = #1042'.'#1089#1073#1086#1088
+      Width = 59
+      BandIndex = 0
+      RowIndex = 0
+      FieldName = 'SUMMAWS'
+    end
     object dxDBGrid1DFDATAPRI: TdxDBGridDateColumn
-      Width = 44
+      Width = 43
       BandIndex = 0
       RowIndex = 0
       FieldName = 'DATAPRI'
     end
     object dxDBGrid1DFDATAUW: TdxDBGridDateColumn
-      Width = 44
+      Width = 43
       BandIndex = 0
       RowIndex = 0
       FieldName = 'DATAUW'
     end
     object dxDBGrid1DFCODE_PRIZ: TdxDBGridMaskColumn
       MinWidth = 16
-      Width = 69
+      Width = 66
       BandIndex = 0
       RowIndex = 0
       FieldName = 'CODE_PRIZ'
     end
     object dxDBGrid1DFOZN_PILG: TdxDBGridMaskColumn
-      Width = 44
+      Width = 43
       BandIndex = 0
       RowIndex = 0
       FieldName = 'OZN_PILG'
     end
     object dxDBGrid1DFINVALID: TdxDBGridMaskColumn
       MinWidth = 16
-      Sorted = csUp
-      Width = 69
+      Width = 65
       BandIndex = 0
       RowIndex = 0
       FieldName = 'INVALID'
@@ -164,6 +171,7 @@ object Form1DF: TForm1DF
       ' W_R,'
       ' SUMMAADD,'
       ' SUMMAPOD,'
+      ' SUMMAWS,'
       ' DATAPRI,'
       ' DATAUW,'
       ' CODE_PRIZ,'
@@ -234,6 +242,12 @@ object Form1DF: TForm1DF
       FieldName = 'INVALID'
       MaxValue = 1
     end
+    object pFIBDataSet1DFSUMMAWS: TFIBBCDField
+      DisplayLabel = 'D'#1042'.'#1089#1073#1086#1088
+      FieldName = 'SUMMAWS'
+      Size = 2
+      RoundByScale = True
+    end
   end
   object DataSource1DF: TDataSource
     DataSet = pFIBDataSet1DF
@@ -285,6 +299,10 @@ object Form1DF: TForm1DF
     object N12: TMenuItem
       Caption = #1055#1077#1095#1072#1090#1100' '#1089#1087#1088#1072#1074#1082#1080' 1'#1044#1060
       OnClick = N12Click
+    end
+    object iDFECB: TMenuItem
+      Caption = #1055#1086#1088'i'#1074#1085#1103#1090#1080' 1'#1044#1060' '#1090#1072' '#1058#1072#1073#1083#1080#1094#1102' 6'
+      OnClick = iDFECBClick
     end
   end
   object pFIBDataSetSwodUd: TpFIBDataSet
@@ -623,7 +641,7 @@ object Form1DF: TForm1DF
     DefaultDatabase = FIB.pFIBDatabaseSal
     TimeoutAction = TARollback
     Left = 320
-    Top = 80
+    Top = 88
   end
   object pFIBDataSetBK: TpFIBDataSet
     SelectSQL.Strings = (

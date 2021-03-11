@@ -57,12 +57,13 @@ var
   FormCN: TFormCN;
 implementation
   uses ScrLists,ScrExport,ScrUtil,Qt,Salary,FormUpdCnU,UFormUpdateCn,
-  UFormParNadb;
+  UFormParNadb, UFormECBTable6RecPerson, ScrECB;
 
 procedure TFormCN.MakeGrid;
   var I_C,I,JJ:Integer;
       Curr_CN:CN_Ptr;
-      S:string;
+      S,ss:string;
+      personRec6:TPersonRec6;
  begin
        Caption:=Alltrim(Curr_Person^.Fio)+' '+AllTrim(Curr_Person^.Dolg)+' '+Get_Kat_Name(Curr_Person^.Kategorija)+' '+Get_Ist_Name(Curr_Person^.Gruppa);
        I_C:=Count_Cn(Curr_Person);
@@ -101,7 +102,17 @@ procedure TFormCN.MakeGrid;
                     StringCn.Cells[0,i]:=IntToStr(Curr_Cn^.Shifr-Limit_Cn_Base)
                                                  else
                     StringCn.Cells[0,i]:=IntToStr(Curr_Cn^.Shifr);
-                 StringCn.Cells[1,i]:=ShifrList.GetNameCN(Curr_Cn^.Shifr);
+//                 StringCn.Cells[1,i]:=ShifrList.GetNameCN(Curr_Cn^.Shifr);
+                 S:=ShifrList.GetNameCN(Curr_Cn^.Shifr);
+                 if curr_cn^.SHIFR = REC6CN_SHIFR+Limit_CN_Base then
+                    begin
+                         personRec6:=TPersonRec6.CreateFromCN(curr_cn^.prim_1);
+                         ss:=personRec6.getShortNameForCn;
+                         if Length(Trim(ss))>1 then
+                            s:=s+' '+ss;
+                         personRec6.Free;
+                    end;
+                 StringCn.Cells[1,i]:=S;
                  StringCn.Cells[2,i]:=IntToStr(Curr_Cn^.Kod);
                  StringCn.Cells[3,i]:=FloatToStrF(Curr_Cn^.Summa,ffFixed,12,2);
                  StringCn.Cells[4,i]:=IntToStr(Curr_Cn^.Prim);
@@ -301,6 +312,23 @@ begin
      if Curr_Cn^.Shifr=GUIDShifr+Limit_CN_Base then
         begin
              ShowMessage('Уникальный код '+#13+#10+FormatGUID(Curr_CN^.PRIM_1,Curr_CN^.SUMMA,Curr_CN^.FLOW_SUMMA,Curr_CN^.LIMIT_SUMMA));
+             Exit;
+        end;
+     if Curr_Cn^.Shifr=REC5CN_SHIFR+Limit_CN_Base then
+        begin
+             ShowMessage('Таблица 5 отчета по ЕСВ');
+             Exit;
+        end;
+     if Curr_Cn^.Shifr=REC6CN_SHIFR+Limit_CN_Base then
+        begin
+             FormECBTable6RecPerson:=TFormECBTable6RecPerson.myCreate(self,curr_cn);
+             FormECBTable6RecPerson.ShowModal;
+ //            ShowMessage('Таблица 6 отчета по ЕСВ');
+             Exit;
+        end;
+     if Curr_Cn^.Shifr=REC7CN_SHIFR+Limit_CN_Base then
+        begin
+             ShowMessage('Таблица 7 отчета по ЕСВ');
              Exit;
         end;
 

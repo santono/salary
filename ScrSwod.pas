@@ -42,9 +42,15 @@ type PSwodDetRec=^TSwodDetRec;
                   summafmp : Real;
                   summaoth : Real;
                  end;
+     PSwodDetPersonRec=^TSwodDetPersonRec;
+     TSwodDetPersonRec=record
+                  tabno : integer;
+                  summa : real;
+                 end;
       TSQLSwodClass=class
                      private
                       list        : TList;
+                      personList  : TList;
                       ShifrIdSwod : Integer;
                       Y,M         : Integer;
                       public
@@ -72,7 +78,7 @@ type PSwodDetRec=^TSwodDetRec;
                                          SwodSowmMode : Integer    ;
                                          ChernobMode  : integer);
 
-                      procedure AddItemAdd(Curr_Add:Add_Ptr;ShifrPod:Integer);
+                      procedure AddItemAdd(Curr_person:PERSON_PTR;Curr_Add:Add_Ptr;ShifrPod:Integer);
                       procedure AddItemUd(Curr_ud:Ud_Ptr;ShifrPod:Integer;Curr_Person:person_ptr);
                     end;
 
@@ -100,6 +106,7 @@ TYPE
     constructor TSQLSwodClass.init(Y,M:integer);
       begin
            Self.List:=TList.Create;
+           Self.PersonList:=TList.Create;
          //  Self.ShifrIdSwod:=ShifrIdSwod;
            Self.Y:=Y;
            Self.M:=M;
@@ -110,8 +117,13 @@ TYPE
            if list.Count>0 then
               for i:=0 to list.Count-1 do
                   Dispose(PSwodDetRec(list.Items[i]));
+           if personlist.Count>0 then
+              for i:=0 to personList.Count-1 do
+                  Dispose(PSwodDetPersonRec(personList.Items[i]));
            List.Free;
            List:=nil;
+           personList.Free;
+           personList:=nil;
       end;
 //    procedure TSQLSwodClass.PutToSQL(name:string;NameSQL:WideString);
       procedure TSQLSwodClass.PutToSQLBad(NameSwod     : String;
@@ -234,13 +246,24 @@ TYPE
                        SQLExecute(SQLStmnt);
                   end;
 
+           if personList.Count>0 then
+              for i:=0 to personList.count-1 do
+                  begin
+                       SQLStmnt:='insert into tb_swody_det_person_add(shifridswod,tabno,summa)';
+                       SQLStmnt:=Trim(SQLStmnt)+' values (';
+                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(Shifrid)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(PSwodDetPersonRec(personList.Items[i]).tabno)+',';
+                       SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetPersonRec(personlist.Items[i]).Summa)+')';
+                       SQLExecute(SQLStmnt);
+                  end;
 
 
       end;
-    procedure TSQLSwodClass.AddItemAdd(Curr_Add:Add_Ptr;ShifrPod:Integer);
+    procedure TSQLSwodClass.AddItemAdd(Curr_person:PERSON_PTR;Curr_Add:Add_Ptr;ShifrPod:Integer);
       var i : Integer;
           finded : boolean;
           SwodDetRec : PSwodDetRec;
+          SwodDetPersonRec : PSwodDetPersonRec;
       begin
            finded:=False;
            if list.Count>0 then
@@ -276,6 +299,25 @@ TYPE
                    SwodDetRec.shifrBan := 0; 
                    list.Add(SwodDetRec);
               end;
+            finded:=False;
+            if personList.count>0 then
+               for i:=0 to personList.Count-1 do
+                   begin
+                        if PSwodDetPersonRec(personlist.Items[i]).tabno=Curr_person^.TABNO then
+                           begin
+                                PSwodDetPersonRec(personlist.Items[i]).summa:=
+                                     PSwodDetPersonRec(personlist.Items[i]).summa + curr_add^.SUMMA;
+                                finded:=True;
+                                Break;
+                           end;
+                   end;
+            if not finded then
+               begin
+                    New(swodDetPersonRec);
+                    swodDetPersonRec.tabno:=curr_person^.tabno;
+                    swodDetPersonRec.summa:=curr_add^.SUMMA;
+                    personList.add(swodDetPersonRec);
+               end;
 
       end;
 
@@ -871,7 +913,7 @@ BEGIN
                               SummaTot:=SummaTot;
                            SummaTot:=SummaTot+Sum(Curr_Add^.Summa);
                            ItemAddList.AddItem(Kod,Curr_Add^.PERIOD,Curr_Add^.Summa,Curr_Add^.FZP,Curr_Add^.FMP,Curr_Add^.Other,0);
-                           SQLSwodClass.AddItemAdd(CURR_ADD,NSRV);
+                           SQLSwodClass.AddItemAdd(curr_person,CURR_ADD,NSRV);
 
                            if needTestMem then
                               TestListClass.addaddrec(curr_add,curr_person);

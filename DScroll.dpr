@@ -379,7 +379,11 @@ uses
   UFormTestIOSemaphore in 'UFormTestIOSemaphore.pas' {FormTestIOSemaphore},
   ScrECB in 'ScrECB.pas',
   ScrECBService in 'ScrECBService.pas',
-  UFormECBPerson in 'UFormECBPerson.pas' {FormECBPerson};
+  UFormECBPerson in 'UFormECBPerson.pas' {FormECBPerson},
+  UFormECBTable6RecPerson in 'UFormECBTable6RecPerson.pas' {FormECBTable6RecPerson},
+  UFormCMP1DFECB in 'UFormCMP1DFECB.pas' {FormCMP1DFECB},
+  UFormCMP1DFECBDetail in 'UFormCMP1DFECBDetail.pas' {FormCMP1DFECBDetail},
+  UFormCmpSwodECBDetail in 'UFormCmpSwodECBDetail.pas' {FormCmpSwodECBDetail1};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

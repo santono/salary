@@ -212,15 +212,18 @@ CONST
 { *}     DIFFER_SHIFR              = 169;
 { *}     DOG_POD_VNESH_SOWM_SHIFR  = 173;
 { *}     PROSTOY_SHIFR             = 175;
-{ *}     REC6CN_SHIFR              = 998;
-{ *}     REC5CN_SHIFR              = 997;
-{ *}     REC7CN_SHIFR              = 999;
+{ *}     REC6CN_SHIFR              = 498;
+{ *}     REC5CN_SHIFR              = 497;
+{ *}     REC7CN_SHIFR              = 499;
 {$ELSE}
 { *}     NeedToPersSwod            = 999; { Включать в свод по персонофикации без сумм  }
 { *}     INNERSOWM_SHIFR           = 999;
 { *}     DIFFER_SHIFR              = 999;
 { *}     PROSTOY_SHIFR             = 999;
 { *}     NOMER_PODR_SHIFR          = 170;
+{ *}     REC6CN_SHIFR              = 998;
+{ *}     REC5CN_SHIFR              = 997;
+{ *}     REC7CN_SHIFR              = 999;
 {$ENDIF}
 { *}     POL_SHIFR                 =  96; { Отметка пола                                             * }
 { *}     NMB_STAW_SHIFR            =  98; { Число ставок                                             * }
@@ -594,9 +597,9 @@ var
 
     personList:TList;
 {$IFDEF SVDN}
-const LenBlSta=35;
+const LenBlSta=38;
 {$ELSE}
-const LenBlSta=35;
+const LenBlSta=38;
 {$ENDIF}
 const BlSta:array[1..LenBlSta] of integer = (PENSIJA_SHIFR, STIPENDIJA_SHIFR      , POL_SHIFR       , OSN_MESTO_RABOTY_SHIFR  , SOWMESTIT_CN_SHIFR    ,
                                       PRINAT_UWOLEN_SHIFR , PROC_PODOH_SOWM_SHIFR , PENSIONER_SHIFR , INVALID_SHIFR           , PENS_PROC_ZAKON_SHIFR ,
@@ -611,6 +614,9 @@ const BlSta:array[1..LenBlSta] of integer = (PENSIJA_SHIFR, STIPENDIJA_SHIFR    
                                       {$IFDEF SVDN}
                                        ,DOG_POD_VNESH_SOWM_SHIFR 
                                       {$ENDIF}
+                                       , REC6CN_SHIFR
+                                       , REC5CN_SHIFR
+                                       , REC7CN_SHIFR 
                                       );
 {$IFDEF SVDN}
 const LenProtectedPodr=2;

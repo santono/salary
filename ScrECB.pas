@@ -2,6 +2,7 @@ unit ScrECB;
 
 interface
 {$IFDEF  SVDN}
+  uses ScrDef;
   type
    TPersonRec6=class
           ukrGromad : integer;
@@ -66,8 +67,9 @@ interface
           procedure setNrc(newNrc     : integer);
           function packRec6:string;
           procedure unPackRec6(s:string);
-
+          function getShortNameForCn:string;
      end;
+
 (*
                 // Таблица ZO для таблицы 5
                 // 1 – наймані працівники з трудовою книжкою;
@@ -78,9 +80,78 @@ interface
                 // 6 – особи, яким надано відпустку по догляду за дитиною до досягнення нею трирічного віку.
 
 *)
+ const lenZO6=9;
+ const lenPayTp=3;
+ const zo6Items:array[1..lenZO6] of string=(
+  ' 1 - звичайний','2 - iнвалiд - звичайний',
+  '25 - науковець','26 - договора пiдряда',
+  '29 - лiкарняний','32 - iнвалiд науковець',
+  '36 - лiкарняний iнвалiд','42 - декрет',
+  '43 - декрет - iнвалiд');
+ const zo6ShortItems:array[1..lenZO6] of string=(
+  ' 1 - звичайний','2 - iнвалiд',
+  '25 - науковець','26 - дог.пiдр.',
+  '29 - лiкарнян.','32 - iнв.наук',
+  '36 - iнв.лiкарн.','42 - декрет',
+  '43 - iнв.декрет');
+ const zo6ItemsNo:array[1..lenZO6] of integer=(
+  1,2,25,26,29,32,36,42,43);
+ const PayTpItems:array[1..lenPayTp] of string=(
+  ' 0 - зарплата (PayTP - не указывается)',
+  '10 - отпускные',
+  '13 - разница между мин зп и зп работника'
+ );
+ const PayTpNo:array[1..lenPayTp] of integer=(
+  0,10,13);
+
+// Таблица 5
+  type
+   TPersonRec5=class
+          ukrGromad : integer;
+          shifrid   : Integer;
+          periodY   : INTEGER;
+          periodM   : INTEGER;
+          STARTDT   : Integer;
+          ENDDT     : Integer;
+          ZO        : INTEGER;
+          PIDZV     : string; //150 Підстава припинення трудових відносин
+          NRMDT     :  TDATETime;
+          DOGCPH    : Integer; //Договір ЦПХ за основним місцем роботи або
+                               // за сумісництвом (1 – так, 0 – ні)
+          PNR       : string;  //Професійна назва роботи
+          ZKPP      : string;  // 5 Код классификатора профессий
+          PROF      : string; //8  Код класифікатора професій
+          POS       : string; //250
+          PID       : string; //250
+          VZV       : string; //250
+          VS        : Integer; //Внутрішній сумісник
+                               //(числове значення: 1 - так, 0 - ні)
+          PIR       : Integer; //Переведено, признач. на ін. посаду або
+                               //роботу, переміщ. до інш. підрозд.
+                               //(числове значення: 1 - так, 0 - ні)
+          curr_cn   : cn_ptr;
+        public
+          constructor createFromCN(curr_cn:cn_ptr);
+          procedure packToCn;
+          procedure unPackFromCn;
+
+    end;
+(*
+    Коды ЗО lkz nf,kbws 5
+    1 – наймані працівники з трудовою книжкою;
+    2 – наймані працівники (без трудової книжки);
+    3 – особи, які виконують роботи за договорами цивільно-правового характеру;
+    4 – особи, яким надано відпустку по догляду за дитиною від трирічного віку до досягнення нею шестирічного віку;
+    5 – особи, яким надано відпустку по вагітності і пологах;
+    6 – особи, яким надано відпустку по догляду за дитиною до досягнення нею трирічного віку.
+
+*)
+
+
 {$ENDIF}
 implementation
 {$IFDEF  SVDN}
+   uses SysUtils,ScrUtil;
    constructor TPersonRec6.Init;
      begin
           ukrGromad :=1;
@@ -299,6 +370,131 @@ procedure TPersonRec6.unPackRec6(s:string);
 
     end;
 
+function TPersonRec6.getShortNameForCn:string;
+  var retVal:string;
+      finded:Boolean;
+      i:Integer;
+  begin
+       retVal:='';
+       finded:=false;
+       for i:=1 to lenZO6 do
+           if Self.zo=zo6ItemsNo[i] then
+              begin
+                   finded:=true;
+                   Break;
+              end;
+       if finded then
+          retVal:=trim(zo6ShortItems[i]);
+       if payTp=10 then
+          retVal:=retVal+' вiдпустка'
+       else
+       if payTp=13 then
+          retVal:=retVal+' lдопл.до мiн';
+
+       getShortNameForCn:=retVal;
+  end;
+
+// Таблица 5
+ constructor TPersonRec5.createFromCN(curr_cn:cn_ptr);
+  begin
+       Self.Create;
+       Self.curr_cn:=curr_cn;
+       Self.shifrid:=curr_cn^.PRIM;
+
+  end;
+ procedure TPersonRec5.packToCn;
+  var s:string;
+      ukrGromadS , zoS      , SHIFRIDs ,
+      periodYS   , periodMS , startDtS ,
+      endDtS     , dogCPHS  , ZKPPS    ,
+      PROFS      , vsS      ,
+      pirs       : String ;
+  begin
+      Str(ukrGromad:1,ukrGromadS);
+      Str(zo:1,zoS);
+      Str(shifrid:10,shifrIdS);
+      Str(periodY:4,periodYS);
+      Str(periodM:4,periodMS);
+      Str(startDt:2,startDtS);
+      Str(endDt:2,endDtS);
+      Str(dogCPH:1,dogCPHS);
+      Str(vs:1, vss);
+      Str(PIR:1, pirS);
+      ZKPPS:=Copy(ZKPP+space(10),1,5);
+      PROFS:=Copy(PROF+space(10),1,8);
+      s:= ukrGromadS + zoS      + shifrIdS +
+          periodYS   + periodMS + startDtS +
+          endDtS     + dogCPHS  + vss      +    
+          pirs       + ZKPPS    + PROFS;
+      curr_cn^.prim_1:=S;
+
+  end;
+ procedure TPersonRec5.unPackFromCn;
+  var s:string;
+      b:Integer;
+      ukrGromadS , zoS      , SHIFRIDs ,
+      periodYS   , periodMS , startDtS ,
+      endDtS     , dogCPHS  , ZKPPS    ,
+      PROFS      , vsS      ,
+      pirs       : String ;
+      iVal,iErr:Integer;
+  begin
+      s:=Curr_cn^.PRIM_1;
+      b:=1;
+      ukrGromads:=Copy(s,b,1);
+      b:=b+1;
+      zoS:=Copy(s,b,1);
+      b:=b+1;
+      shifrIdS:=Copy(s,b,10);
+      b:=b+10;
+      periodYS:=Copy(s,b,4);
+      b:=b+4;
+      periodMS:=Copy(s,b,4);
+      b:=b+4;
+      startDtS:=Copy(s,b,2);
+      b:=b+2;
+      endDtS:=Copy(s,b,2);
+      b:=b+2;
+      dogCPHS:=Copy(s,b,1);
+      b:=b+1;
+      vss:=Copy(s,b,1);
+      b:=b+1;
+      pirs:=Copy(s,b,1);
+      b:=b+1;
+      ZKPPS:=Copy(s,b,5);
+      b:=b+5;
+      PROFS:=Copy(s,b,8);
+      Val(ukrGromads,Ival,iErr);
+      if iErr=0 then
+         ukrGromad:=iVal;
+      Val(zoS,Ival,iErr);
+      if iErr=0 then
+         zo:=iVal;
+      Val(periodYS,Ival,iErr);
+      if iErr=0 then
+         periodY:=iVal;
+      Val(periodMS,Ival,iErr);
+      if iErr=0 then
+         periodM:=iVal;
+      Val(startdtS,Ival,iErr);
+      if iErr=0 then
+         startdt:=iVal;
+      Val(enddtS,Ival,iErr);
+      if iErr=0 then
+         enddt:=iVal;
+      Val(dogCPHS,Ival,iErr);
+      if iErr=0 then
+         dogCPH:=iVal;
+      Val(vss,Ival,iErr);
+      if iErr=0 then
+         vs:=iVal;
+      Val(pirs,Ival,iErr);
+      if iErr=0 then
+         pir:=Ival;
+      zkpp:=Trim(zkpps);
+      prof:=Trim(profs);
+
+  end;
 
 {$ENDIF}
 

@@ -305,11 +305,22 @@ implementation
 
    function TShifrList.GetNameCN(Shifr:Word):string;
      var i,jj:integer;
+         retVal:string;
      begin
+           retVal:='';
            GetNameCN:='Не найден';
            jj:=Shifr;
            if jj>Limit_Cn_Base then jj:=jj-Limit_Cn_Base;
-           GetNameCN:=GetName(jj);
+           if isSVDN then
+              case jj OF
+                REC5CN_SHIFR: retVal:='Таблиця 5';
+                REC6CN_SHIFR: retVal:='Таблиця 6';
+                REC7CN_SHIFR: retVal:='Таблиця 7';
+              end;
+           if Length(retVal)<1 then
+              GetNameCN:=Trim(GetName(jj))
+           else
+              GetNameCN:=Trim(retVal);
      end;
 
    function TShifrList.GetNameByNo(Shifr:Word):string;
