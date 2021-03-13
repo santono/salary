@@ -21,6 +21,7 @@ type
     ceValue: TcxCalcEdit;
     Label1: TLabel;
     Label2: TLabel;
+    dsKadryTABNO: TFIBIntegerField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtnExportClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -44,6 +45,7 @@ implementation
 type prec=^trec;
      trec=record
            code:integer;
+           tabno:Integer;
            inn:string;
            fio:string;
           end;
@@ -63,7 +65,7 @@ var i:integer;
 begin
      list      := TList.Create;
      startCode := 0;
-     getOldList;
+   //  getOldList;
      MoveKadryToDBFMedok;
 //     if list.count>0 then
 //     for i:=1 to list.count do
@@ -79,7 +81,9 @@ procedure TFormExportKadryToMedok.MoveKadryToDBFMedok;
      dBase: TDBF;
      fam,nam,otc:shortstring;
      nal_code:string;
+     tabno:Integer;
      pib:string;
+     tabnoS:string;
 //     startcode:Integer;
      ch:Char;
     function existsInList(nal_code:string):boolean;
@@ -87,6 +91,7 @@ procedure TFormExportKadryToMedok.MoveKadryToDBFMedok;
          retVal:boolean;
      begin
           retVal:=false;
+
           if list.count<1 then
              begin
                   result:=retVal;
@@ -123,7 +128,7 @@ begin
      dBase.Open;
 
  //    SqlStmnt:='select count(*)  from kadry where nal_code not in (select num from tb_medok_person) and fio is not null and nal_code is not null and exists (select * from fadd where fadd.year_vy=2014 and fadd.tabno=kadry.tabno)';
-     SqlStmnt:='select count(*)  from kadry where fio is not null and nal_code is not null and exists (select * from fadd where fadd.year_vy>=2014 and fadd.tabno=kadry.tabno)';
+     SqlStmnt:='select count(*)  from kadry where fio is not null and nal_code is not null and exists (select * from fadd where fadd.year_vy>=2020 and fadd.tabno=kadry.tabno)';
      FormWait.Show;
      Application.ProcessMessages;
      v:=FIB.pFIBDatabaseSal.QueryValue(SqlStmnt,0);
@@ -157,7 +162,9 @@ begin
            SplitFIO(pib,fam,nam,otc);
            nal_code:=dsKadryNAL_CODE.Value;
            nal_code:=Trim(nal_code);
-           if not existsInList(nal_code) then
+           tabno:=dsKadryTABNO.Value;
+           Str(tabno:5,tabnos);
+//           if not existsInList(nal_code) then
            if Length(pib)>3 then
            if Length(nal_code)=10 then
            if IsNumericString(nal_code) then
@@ -181,6 +188,7 @@ begin
                    dBASE.SetFieldData(30 , Nam);
                    dBASE.SetFieldData(31 , Otc);
                    dBASE.SetFieldData(32 , '1');
+                   dBASE.SetFieldData(35 , tabnoS);
                    dBase.Post;
 
               end;

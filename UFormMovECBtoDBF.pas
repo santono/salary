@@ -234,7 +234,8 @@ function GetName(ModeDBF:integer):string;
 //        5 :  Result:='e04t05i';
 //        6 :  Result:='e04t06i';
 //        5 :  Result:='j30T405';
-        5 :  Result:='J30401512';
+//        5 :  Result:='J30401512';
+        5 :  Result:='J3040513';
         6 :  Result:='j30T406';
         7 :  Result:='j30T407';
        else
@@ -279,8 +280,8 @@ function BuildSQLStmnt(ModeDBF:integer):string;
     //                        0      1   2  3    4         5       6      7   8        9
            if isLNR then
               result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth)
-           else                                                                             // 10   11   12  13  14
-              result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv,pnr,zkpp,prof,pos,pid from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth);
+           else                                                                             // 10   11   12  13  14  15 16
+              result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv,pnr,zkpp,prof,pos,pid,vs,pir from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth);
 
         6:
      {                        0      1   2  3   4  5            6      7     8   9    10     11       12       13       14  15    16      17    18  19    20        21      22}
@@ -311,6 +312,7 @@ function BuildSQLStmnt(ModeDBF:integer):string;
      kd_np,kd_nzp,kd_ptv,kd_vp,nrm   : Integer   ;
      nrc                             : Integer   ;
      kodkp,kodzkpp,prof,pos,pid      : string    ;
+     vs,pir:Integer;
  begin
        case ModeDBF of
         5:begin
@@ -336,6 +338,8 @@ function BuildSQLStmnt(ModeDBF:integer):string;
                      kodkp   := trim(pFIBQueryECB.Fields[12].AsString);
                      pos     := trim(pFIBQueryECB.Fields[13].AsString);
                      pid     := trim(pFIBQueryECB.Fields[14].AsString);        ;
+                     vs      := pFIBQueryECB.Fields[15].AsInteger;
+                     pir     := pFIBQueryECB.Fields[16].AsInteger;
 
                      dBASE.SetFieldData(1 , IntToStr(WantedMonth));
                      dBASE.SetFieldData(2 , IntToStr(WantedYear));
@@ -379,6 +383,16 @@ function BuildSQLStmnt(ModeDBF:integer):string;
                       dBase.SetFieldData(18, Copy(pid+space(250),1,250))
                     else
                       dBase.SetFieldData(18, space(250));
+                    if ((vs>=0) and (vs<=1)) then
+                       dBASE.SetFieldData(20 , IntToStr(vs))
+                    else
+                       dBASE.SetFieldData(20 , '0');
+                    if ((pir>=0) and (pir<=1)) then
+                       dBASE.SetFieldData(21 , IntToStr(pir))
+                    else
+                       dBASE.SetFieldData(21 , '0');
+
+
                  end
               else
                  begin

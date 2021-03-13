@@ -69,6 +69,10 @@ type
     dsPrikazyNAMEDOL_OLD: TFIBStringField;
     dsPrikazyNAMEPROF_OLD: TFIBStringField;
     dsPrikazyIDCLASSIFICATOR_OLD: TFIBIntegerField;
+    dsPrikazyNEEDT5: TFIBIntegerField;
+    dsPrikazyVS: TFIBIntegerField;
+    dsPrikazyPIR: TFIBIntegerField;
+    dsPrikazyZO: TFIBIntegerField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
     procedure frxReport1GetValue(const VarName: String;
@@ -80,6 +84,7 @@ type
     procedure ActionDelPrikazExecute(Sender: TObject);
     procedure ActionSeacrhPrikazExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure dsPrikazyNEEDT5Change(Sender: TField);
   private
        tabno:Integer;
        fio:string;
@@ -204,6 +209,8 @@ end;
 
 procedure TFormPrikazyBrowseTot.ActionSelPrikazExecute(Sender: TObject);
 begin
+     if dsPrikazyID.IsNull then Exit;
+     if dsPrikazyID.Value<1 then Exit;
      dsPrikazy.Edit;
      Application.CreateForm(TFormPrikazRekvizityTot,FormPrikazRekvizityTot);
      FormPrikazRekvizityTot.ShowModal;
@@ -214,12 +221,18 @@ procedure TFormPrikazyBrowseTot.ActionAddPrikazExecute(Sender: TObject);
 begin
 // Add prikaz
      dsPrikazy.Insert;
+     dsPrikazyZO.Value:=0;
+     dsPrikazyNEEDT5.Value:=0;
+     dsPrikazyVS.Value:=0;
+     dsPrikazyPIR.Value:=0;
      Application.CreateForm(TFormPrikazRekvizityTot,FormPrikazRekvizityTot);
      FormPrikazRekvizityTot.ShowModal;
 end;
 
 procedure TFormPrikazyBrowseTot.ActionDelPrikazExecute(Sender: TObject);
 begin
+     if dsPrikazyID.IsNull then Exit;
+     if dsPrikazyID.Value<1 then Exit;
      if yesNo('Удалить строку приказа') then
         dsPrikazy.Delete;
 // delete prikaz
@@ -308,4 +321,11 @@ begin
      dsPrikazy.Filter:=wantedFilter;
      dsPrikazy.Filtered:=true;
 end;
+procedure TFormPrikazyBrowseTot.dsPrikazyNEEDT5Change(Sender: TField);
+var i,j:Integer;
+begin
+     i:=dsPrikazyNEEDT5.Value;
+     j:=0;
+end;
+
 end.

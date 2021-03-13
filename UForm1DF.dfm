@@ -98,7 +98,6 @@ object Form1DF: TForm1DF
       FieldName = 'SUMMAPOD'
     end
     object dxDBGrid1DFSummaWs: TdxDBGridColumn
-      Caption = #1042'.'#1089#1073#1086#1088
       Width = 59
       BandIndex = 0
       RowIndex = 0
@@ -243,7 +242,7 @@ object Form1DF: TForm1DF
       MaxValue = 1
     end
     object pFIBDataSet1DFSUMMAWS: TFIBBCDField
-      DisplayLabel = 'D'#1042'.'#1089#1073#1086#1088
+      DisplayLabel = #1042'.'#1089#1073#1086#1088
       FieldName = 'SUMMAWS'
       Size = 2
       RoundByScale = True
@@ -1079,6 +1078,10 @@ object Form1DF: TForm1DF
         Value = ''
       end>
     Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
     object Page1: TfrxReportPage
       PaperWidth = 210.000000000000000000
       PaperHeight = 297.000000000000000000
@@ -1090,7 +1093,7 @@ object Form1DF: TForm1DF
       object Header1: TfrxHeader
         Height = 45.354360000000000000
         Top = 18.897650000000000000
-        Width = 718.169912636666600000
+        Width = 718.110700000000000000
         object Memo1: TfrxMemoView
           Left = 173.858380000000000000
           Width = 306.141930000000000000
@@ -1142,7 +1145,7 @@ object Form1DF: TForm1DF
       object MasterData1: TfrxMasterData
         Height = 18.897650000000000000
         Top = 86.929190000000000000
-        Width = 718.169912636666600000
+        Width = 718.110700000000000000
         DataSet = frxDBDatasetSummy
         DataSetName = 'frxDBDatasetSummy'
         RowCount = 0

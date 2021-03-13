@@ -78,7 +78,12 @@ object FormBrowsePrikazyTyp: TFormBrowsePrikazyTyp
       'UPDATE TB_PRIKAZY_TYP'
       'SET '
       ' NAME = :NAME,'
-      ' CONTENT = :CONTENT'
+      ' CONTENT = :CONTENT,'
+      ' NEEDT5  = :NEEDT5,'
+      ' ZO      = :ZO,'
+      ' VS      = :VS,'
+      ' PIR     = :PIR '
+      ''
       'WHERE'
       ' ID = :OLD_ID'
       ' ')
@@ -91,17 +96,30 @@ object FormBrowsePrikazyTyp: TFormBrowsePrikazyTyp
     InsertSQL.Strings = (
       'INSERT INTO TB_PRIKAZY_TYP('
       ' NAME,'
-      ' CONTENT'
+      ' CONTENT,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR '
+      ''
       ')'
       'VALUES('
       ' :NAME,'
-      ' :CONTENT'
+      ' :CONTENT,'
+      ' :NEEDT5,'
+      ' :ZO,'
+      ' :VS,'
+      ' :PIR '
       ')')
     RefreshSQL.Strings = (
       'SELECT'
       ' ID,'
       ' NAME,'
-      ' CONTENT'
+      ' CONTENT,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR'
       'FROM'
       ' TB_PRIKAZY_TYP '
       ''
@@ -112,7 +130,11 @@ object FormBrowsePrikazyTyp: TFormBrowsePrikazyTyp
       'SELECT'
       ' ID,'
       ' NAME,'
-      ' CONTENT'
+      ' CONTENT,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR '
       'FROM'
       ' TB_PRIKAZY_TYP '
       'ORDER BY ID')
@@ -141,6 +163,18 @@ object FormBrowsePrikazyTyp: TFormBrowsePrikazyTyp
       FieldName = 'CONTENT'
       Size = 1024
       EmptyStrToNull = True
+    end
+    object dsPriTypeNEEDT5: TFIBIntegerField
+      FieldName = 'NEEDT5'
+    end
+    object dsPriTypeZO: TFIBIntegerField
+      FieldName = 'ZO'
+    end
+    object dsPriTypeVS: TFIBIntegerField
+      FieldName = 'VS'
+    end
+    object dsPriTypePIR: TFIBIntegerField
+      FieldName = 'PIR'
     end
   end
   object trRead: TpFIBTransaction

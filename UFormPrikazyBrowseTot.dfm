@@ -164,7 +164,11 @@ object FormPrikazyBrowseTot: TFormPrikazyBrowseTot
       ' KODZKPPTR  = :KODZKPPTR,'
       ' NAMEDOL    = :NAMEDOL,'
       ' IDCLASSIFICATOR=:IDCLASSIFIKATOR,'
-      ' NAMEPROF   = :NAMEPROF  '
+      ' NAMEPROF   = :NAMEPROF,'
+      ' NEEDT5     = :NEEDT5,'
+      ' ZO         = :ZO,'
+      ' VS         = :VS,'
+      ' PIR        = :PIR  '
       ''
       'WHERE'
       ' ID = :OLD_ID'
@@ -190,7 +194,11 @@ object FormPrikazyBrowseTot: TFormPrikazyBrowseTot
       ' KODZKPPTR,'
       ' NAMEDOL,'
       ' IDCLASSIFICATOR,'
-      ' NAMEPROF '
+      ' NAMEPROF,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR  '
       ')'
       'VALUES('
       ' :TABNO,'
@@ -206,7 +214,12 @@ object FormPrikazyBrowseTot: TFormPrikazyBrowseTot
       ' :KODZKPPTR,'
       ' :NAMEDOL,'
       ' :IDCLASSIFICATOR,'
-      ' :NAMEPROF '
+      ' :NAMEPROF,'
+      ' :NEEDT5,'
+      ' :ZO,'
+      ' :VS,'
+      ' :PIR  '
+      ' '
       ')')
     RefreshSQL.Strings = (
       'SELECT'
@@ -224,7 +237,11 @@ object FormPrikazyBrowseTot: TFormPrikazyBrowseTot
       ' KODZKPPTR,'
       ' NAMEDOL,'
       ' IDCLASSIFICATOR,'
-      ' NAMEPROF '
+      ' NAMEPROF,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR '
       'FROM'
       ' TB_PRIKAZY'
       'where  TB_PRIKAZY.ID = :OLD_ID'
@@ -251,7 +268,11 @@ object FormPrikazyBrowseTot: TFormPrikazyBrowseTot
       ' KODZKPPTR_OLD,'
       ' NAMEDOL_OLD,'
       ' NAMEPROF_OLD,'
-      ' IDCLASSIFICATOR_OLD'
+      ' IDCLASSIFICATOR_OLD,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR'
       'FROM'
       ' TB_PRIKAZY'
       ''
@@ -368,6 +389,19 @@ object FormPrikazyBrowseTot: TFormPrikazyBrowseTot
     end
     object dsPrikazyIDCLASSIFICATOR_OLD: TFIBIntegerField
       FieldName = 'IDCLASSIFICATOR_OLD'
+    end
+    object dsPrikazyNEEDT5: TFIBIntegerField
+      FieldName = 'NEEDT5'
+      OnChange = dsPrikazyNEEDT5Change
+    end
+    object dsPrikazyVS: TFIBIntegerField
+      FieldName = 'VS'
+    end
+    object dsPrikazyPIR: TFIBIntegerField
+      FieldName = 'PIR'
+    end
+    object dsPrikazyZO: TFIBIntegerField
+      FieldName = 'ZO'
     end
   end
   object trRead: TpFIBTransaction

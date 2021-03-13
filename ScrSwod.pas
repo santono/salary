@@ -106,7 +106,8 @@ TYPE
     constructor TSQLSwodClass.init(Y,M:integer);
       begin
            Self.List:=TList.Create;
-           Self.PersonList:=TList.Create;
+           if needSwodSQLLogByPerson then
+              Self.PersonList:=TList.Create;
          //  Self.ShifrIdSwod:=ShifrIdSwod;
            Self.Y:=Y;
            Self.M:=M;
@@ -117,13 +118,17 @@ TYPE
            if list.Count>0 then
               for i:=0 to list.Count-1 do
                   Dispose(PSwodDetRec(list.Items[i]));
+           if needSwodSQLLogByPerson then
            if personlist.Count>0 then
               for i:=0 to personList.Count-1 do
                   Dispose(PSwodDetPersonRec(personList.Items[i]));
            List.Free;
            List:=nil;
-           personList.Free;
-           personList:=nil;
+           if needSwodSQLLogByPerson then
+              begin
+                   personList.Free;
+                   personList:=nil;
+              end;
       end;
 //    procedure TSQLSwodClass.PutToSQL(name:string;NameSQL:WideString);
       procedure TSQLSwodClass.PutToSQLBad(NameSwod     : String;
@@ -245,7 +250,7 @@ TYPE
                        SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetRec(list.Items[i]).SummaOth)+')';
                        SQLExecute(SQLStmnt);
                   end;
-
+           if needSwodSQLLogByPerson then
            if personList.Count>0 then
               for i:=0 to personList.count-1 do
                   begin
@@ -299,24 +304,29 @@ TYPE
                    SwodDetRec.shifrBan := 0; 
                    list.Add(SwodDetRec);
               end;
-            finded:=False;
-            if personList.count>0 then
-               for i:=0 to personList.Count-1 do
-                   begin
-                        if PSwodDetPersonRec(personlist.Items[i]).tabno=Curr_person^.TABNO then
-                           begin
-                                PSwodDetPersonRec(personlist.Items[i]).summa:=
-                                     PSwodDetPersonRec(personlist.Items[i]).summa + curr_add^.SUMMA;
-                                finded:=True;
-                                Break;
-                           end;
-                   end;
-            if not finded then
+            
+            if needSwodSQLLogByPerson then
                begin
-                    New(swodDetPersonRec);
-                    swodDetPersonRec.tabno:=curr_person^.tabno;
-                    swodDetPersonRec.summa:=curr_add^.SUMMA;
-                    personList.add(swodDetPersonRec);
+
+                 finded:=False;
+                 if personList.count>0 then
+                    for i:=0 to personList.Count-1 do
+                        begin
+                             if PSwodDetPersonRec(personlist.Items[i]).tabno=Curr_person^.TABNO then
+                                begin
+                                     PSwodDetPersonRec(personlist.Items[i]).summa:=
+                                          PSwodDetPersonRec(personlist.Items[i]).summa + curr_add^.SUMMA;
+                                     finded:=True;
+                                     Break;
+                                end;
+                        end;
+                 if not finded then
+                    begin
+                        New(swodDetPersonRec);
+                        swodDetPersonRec.tabno:=curr_person^.tabno;
+                        swodDetPersonRec.summa:=curr_add^.SUMMA;
+                        personList.add(swodDetPersonRec);
+                    end;
                end;
 
       end;

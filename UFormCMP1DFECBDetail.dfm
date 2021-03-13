@@ -19,9 +19,9 @@ object FormCMP1DFECBDetail: TFormCMP1DFECBDetail
   PixelsPerInch = 96
   TextHeight = 13
   object DBGrid1DFECBPerson: TDBGrid
-    Left = 0
+    Left = 32
     Top = 8
-    Width = 537
+    Width = 561
     Height = 409
     Anchors = [akLeft, akTop, akRight, akBottom]
     DataSource = dso1DFECBPerson
@@ -95,6 +95,7 @@ object FormCMP1DFECBDetail: TFormCMP1DFECBDetail
       DisplayLabel = '1'#1044#1060
       FieldName = 'SUMMAADD1DF'
       ReadOnly = True
+      DisplayFormat = '0.00'
       Size = 2
       RoundByScale = True
     end
@@ -102,6 +103,7 @@ object FormCMP1DFECBDetail: TFormCMP1DFECBDetail
       DisplayLabel = #1058#1072#1073#1083#1080#1094#1103' 6'
       FieldName = 'SUMMAADDT6'
       ReadOnly = True
+      DisplayFormat = '0.00'
       Size = 2
       RoundByScale = True
     end
@@ -110,6 +112,7 @@ object FormCMP1DFECBDetail: TFormCMP1DFECBDetail
       FieldKind = fkCalculated
       FieldName = 'summarazn'
       ReadOnly = True
+      DisplayFormat = '0.00'
       Calculated = True
     end
   end

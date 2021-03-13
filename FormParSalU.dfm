@@ -1,6 +1,6 @@
 object FormParSal: TFormParSal
-  Left = 325
-  Top = 167
+  Left = 254
+  Top = 238
   Width = 696
   Height = 453
   Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1088#1072#1073#1086#1090#1099' '#1087#1088#1086#1075#1088#1072#1084#1084#1085#1086#1075#1086' '#1082#1086#1084#1087#1083#1077#1082#1089#1072
@@ -74,7 +74,7 @@ object FormParSal: TFormParSal
   end
   object GroupBoxReCalc: TGroupBox
     Left = 272
-    Top = 40
+    Top = 24
     Width = 281
     Height = 129
     Caption = #1056#1077#1078#1080#1084#1099' '#1088#1072#1089#1095#1077#1090#1086#1074
@@ -201,5 +201,13 @@ object FormParSal: TFormParSal
       TabOrder = 0
       OnClick = ButtonRepECBClick
     end
+  end
+  object cbneedSwodSQLLogByPerson: TCheckBox
+    Left = 264
+    Top = 344
+    Width = 257
+    Height = 17
+    Caption = #1047#1072#1087#1080#1089#1100' '#1076#1072#1085#1085#1099#1093' '#1089#1074#1086#1076#1072'  '#1074'  SQL '#1087#1086' '#1088#1072#1073#1086#1090#1085#1080#1082#1072#1084
+    TabOrder = 12
   end
 end

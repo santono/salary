@@ -117,7 +117,11 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' KODZKPPTR  = :KODZKPPTR,'
       ' NAMEDOL    = :NAMEDOL,'
       ' IDCLASSIFICATOR=:IDCLASSIFIKATOR,'
-      ' NAMEPROF   = :NAMEPROF  '
+      ' NAMEPROF   = :NAMEPROF,'
+      ' NEEDT5     = :NEEDT5,'
+      ' ZO         = :ZO,'
+      ' VS         = :VS,'
+      ' PIR        = :PIR  '
       ''
       'WHERE'
       ' ID = :OLD_ID'
@@ -143,7 +147,11 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' KODZKPPTR,'
       ' NAMEDOL,'
       ' IDCLASSIFICATOR,'
-      ' NAMEPROF '
+      ' NAMEPROF,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR '
       ')'
       'VALUES('
       ' :TABNO,'
@@ -159,7 +167,11 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' :KODZKPPTR,'
       ' :NAMEDOL,'
       ' :IDCLASSIFICATOR,'
-      ' :NAMEPROF '
+      ' :NAMEPROF,'
+      ' :NEEDT5,'
+      ' :ZO,'
+      ' :VS,'
+      ' :PIR '
       ')')
     RefreshSQL.Strings = (
       'SELECT'
@@ -177,7 +189,11 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' KODZKPPTR,'
       ' NAMEDOL,'
       ' IDCLASSIFICATOR,'
-      ' NAMEPROF '
+      ' NAMEPROF,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR '
       'FROM'
       ' TB_PRIKAZY'
       'where  TB_PRIKAZY.ID = :OLD_ID'
@@ -204,7 +220,11 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       ' KODZKPPTR_OLD,'
       ' NAMEDOL_OLD,'
       ' IDCLASSIFICATOR_OLD,'
-      ' NAMEPROF_OLD'
+      ' NAMEPROF_OLD,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR'
       ' FROM'
       ' TB_PRIKAZY'
       'where tabno=:old_tabno'
@@ -315,6 +335,18 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       Size = 512
       EmptyStrToNull = True
     end
+    object dsPrikazyNEEDT5: TFIBIntegerField
+      FieldName = 'NEEDT5'
+    end
+    object dsPrikazyZO: TFIBIntegerField
+      FieldName = 'ZO'
+    end
+    object dsPrikazyVS: TFIBIntegerField
+      FieldName = 'VS'
+    end
+    object dsPrikazyPIR: TFIBIntegerField
+      FieldName = 'PIR'
+    end
   end
   object trRead: TpFIBTransaction
     DefaultDatabase = FIB.pFIBDatabaseSal
@@ -339,7 +371,11 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       'SELECT'
       ' ID,'
       ' NAME,'
-      ' CONTENT'
+      ' CONTENT,'
+      ' NEEDT5,'
+      ' ZO,'
+      ' VS,'
+      ' PIR'
       'FROM'
       ' TB_PRIKAZY_TYP '
       'order by id')
@@ -359,6 +395,18 @@ object FormPrikazyBrowse: TFormPrikazyBrowse
       FieldName = 'CONTENT'
       Size = 1024
       EmptyStrToNull = True
+    end
+    object dsPriTypeNEEDT5: TFIBIntegerField
+      FieldName = 'NEEDT5'
+    end
+    object dsPriTypeZO: TFIBIntegerField
+      FieldName = 'ZO'
+    end
+    object dsPriTypeVS: TFIBIntegerField
+      FieldName = 'VS'
+    end
+    object dsPriTypePIR: TFIBIntegerField
+      FieldName = 'PIR'
     end
   end
   object dsoPriType: TDataSource

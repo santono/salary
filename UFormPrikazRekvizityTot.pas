@@ -7,7 +7,8 @@ uses
   Dialogs, dxExEdtr, dxEdLib, dxDBELib, dxCntner, dxEditor, StdCtrls,
   Buttons, dxExGrEd, dxExELib, cxGraphics, cxControls, cxContainer, cxEdit,
   cxTextEdit, cxMaskEdit, cxDropDownEdit, cxLookupEdit, cxDBLookupEdit,
-  cxDBLookupComboBox, DBCtrls, ComCtrls, ExtCtrls;
+  cxDBLookupComboBox, DBCtrls, ComCtrls, ExtCtrls, cxCheckBox, cxDBEdit,
+  DB, DBClient;
 
 type
   TFormPrikazRekvizityTot = class(TForm)
@@ -55,6 +56,16 @@ type
     dxDBEditProfOld: TdxDBEdit;
     BitBtnKPOld: TBitBtn;
     Panel1: TPanel;
+    cbNeedT5: TcxDBCheckBox;
+    gbT5: TGroupBox;
+    cbVS: TcxDBCheckBox;
+    cbPIR: TcxDBCheckBox;
+    cdsZO: TClientDataSet;
+    cdsZOZO: TIntegerField;
+    cdsZOname: TStringField;
+    cbZO: TcxDBLookupComboBox;
+    dsoZO: TDataSource;
+    Label11: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btn1Click(Sender: TObject);
     procedure dxDBExtLookupEdit1Change(Sender: TObject);
@@ -63,6 +74,9 @@ type
     procedure BitBtnKPOldClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BitBtnFIOClick(Sender: TObject);
+    procedure cbNeedT5PropertiesEditValueChanged(Sender: TObject);
+    procedure cbNeedT5PropertiesChange(Sender: TObject);
+
   private
     { Private declarations }
 //        SQLAction:Integer; // 1=добавить 2-обновить
@@ -80,7 +94,7 @@ var
   FormPrikazRekvizityTot: TFormPrikazRekvizityTot;
 
 implementation
-  uses UFibModule,UFormPrikazyBrowseTot,DB, UFormSearchClassificator,ScrDef, uFrmFindKadryFB, scrUtil;
+  uses UFibModule,UFormPrikazyBrowseTot, UFormSearchClassificator,ScrDef, uFrmFindKadryFB, scrUtil;
 
 {$R *.dfm}
 
@@ -119,6 +133,7 @@ procedure TFormPrikazRekvizityTot.FormClose(Sender: TObject;
 begin
       if FormPrikazyBrowseTot.dsoPrikazy.State in [dsEdit,dsInsert] then
          FormPrikazyBrowseTot.dsPrikazy.Cancel;
+      cdsZO.Close;   
       Action:=caFree;
 end;
 
@@ -298,6 +313,38 @@ begin
           HidePerevodRekvizity;
       BitBtnKPOld.Caption:='Классификатор'+#13#10+'старой'+#13#10+'должности';
       BitBtnKP.Caption:='Классификатор'+#13#10+'новой'+#13#10+'должности';
+      if FormPrikazyBrowseTot.dsPrikazyNEEDT5.Value=1 then
+         gbT5.Show
+      else
+         gbT5.Hide;
+      cdsZO.Append;
+      cdsZOZO.Value:=0;
+      cdsZOname.Value:='Не вказано';
+      cdsZO.Post;
+      cdsZO.Append;
+      cdsZOZO.Value:=1;
+      cdsZOname.Value:='Наймані працівники з трудовою книжкою';
+      cdsZO.Post;
+      cdsZO.Append;
+      cdsZOZO.Value:=2;
+      cdsZOname.Value:='наймані працівники (без трудової книжки)';
+      cdsZO.Post;
+      cdsZO.Append;
+      cdsZOZO.Value:=3;
+      cdsZOname.Value:='Договор ЦПХ';
+      cdsZO.Post;
+      cdsZO.Append;
+      cdsZOZO.Value:=4;
+      cdsZOname.Value:='відпустка за дитиною вiд 3 до 6 років';
+      cdsZO.Post;
+      cdsZO.Append;
+      cdsZOZO.Value:=5;
+      cdsZOname.Value:='особи, яким надано відпустку по вагітності і пологах';
+      cdsZO.Post;
+      cdsZO.Append;
+      cdsZOZO.Value:=6;
+      cdsZOname.Value:='відпустка за дитиною до 3-х років';
+      cdsZO.Post;
 
 end;
 
@@ -317,6 +364,28 @@ begin
          end;
        Self.Repaint;
 end;
+procedure TFormPrikazRekvizityTot.cbNeedT5PropertiesEditValueChanged(Sender: TObject);
+ begin
+   (*
+      if FormPrikazyBrowseTot.dsPrikazyNEEDT5.Value=1 then
+         gbT5.Show
+      else
+         gbT5.Hide;
+      Application.ProcessMessages
+    *)  
+ end;
+procedure TFormPrikazRekvizityTot.cbNeedT5PropertiesChange(
+  Sender: TObject);
+begin
+//     cbNeedT5.Checked;
+//      if FormPrikazyBrowseTot.dsPrikazyNEEDT5.Value=1 then
+      if cbNeedT5.Checked then
+         gbT5.Show
+      else
+         gbT5.Hide;
+      Application.ProcessMessages
 
+end;
 
 end.
+

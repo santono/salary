@@ -23,6 +23,10 @@ type
     dxDBGridPriTypeID: TdxDBGridMaskColumn;
     dxDBGridPriTypeNAME: TdxDBGridMaskColumn;
     dxDBGridPriTypeCONTENT: TdxDBGridMaskColumn;
+    dsPriTypeNEEDT5: TFIBIntegerField;
+    dsPriTypeZO: TFIBIntegerField;
+    dsPriTypeVS: TFIBIntegerField;
+    dsPriTypePIR: TFIBIntegerField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);

@@ -77,15 +77,15 @@ object FormExportKadryToMedok: TFormExportKadryToMedok
   end
   object dsKadry: TpFIBDataSet
     SelectSQL.Strings = (
-      'select nal_code,fio from kadry'
+      'select nal_code,fio,tabno from kadry'
       'where '
       '--nal_code not in (select num from tb_medok_person)'
       '--and '
       'fio is not null'
       'and nal_code is not null'
       
-        'and exists (select * from fadd where fadd.year_vy>=2014 and fadd' +
-        '.tabno=kadry.tabno)'
+        'and exists (select * from fadd where fadd.year_vy>2020 and fadd.' +
+        'tabno=kadry.tabno)'
       'order by fio')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
@@ -100,6 +100,9 @@ object FormExportKadryToMedok: TFormExportKadryToMedok
       FieldName = 'FIO'
       Size = 51
       EmptyStrToNull = True
+    end
+    object dsKadryTABNO: TFIBIntegerField
+      FieldName = 'TABNO'
     end
   end
   object trRead: TpFIBTransaction

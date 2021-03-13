@@ -31,6 +31,7 @@ type
     cbCheckMem: TCheckBox;
     PanelRepECB: TPanel;
     ButtonRepECB: TButton;
+    cbneedSwodSQLLogByPerson: TCheckBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -62,6 +63,9 @@ begin
      needTestMem:=false;
      if cbCheckMem.Checked then
         needTestMem:=true;
+     needSwodSQLLogByPerson:=false;
+     if cbneedSwodSQLLogByPerson.Checked then
+        needSwodSQLLogByPerson:=true;
      if CheckBox5.Checked then
         NeedFileBolnMode:=true
      else
@@ -146,6 +150,10 @@ begin
         cbCheckMem.Checked:=true
      else
         cbCheckMem.Checked:=false;
+     if needSwodSQLLogByPerson then
+        cbneedSwodSQLLogByPerson.Checked:=True
+     else
+        cbneedSwodSQLLogByPerson.Checked:=False;
      if isSVDN then
         begin
             PanelRepECB.Show;

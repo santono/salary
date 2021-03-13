@@ -193,6 +193,8 @@ implementation
               POS        : string;
               PID        : string;
               VZV        : string;
+              VS         : Integer;
+              PIR        : Integer;
              end;
 
        pRec6=^TRec6;
@@ -2401,9 +2403,12 @@ procedure TFormRepF4.fillTable5Perevody;
      nameprof,nameprof_old : string;
      pid:string;
      vzv:string;
+     VS,PIR:Integer;
      datebeg,dateend:TDatetime;
 
  begin
+      VS:=0;
+      PIR:=0;
       dsPerevody.Params[0].Value:=currYear;
       dsPerevody.Params[1].Value:=nmes;
       dsPerevody.Transaction.StartTransaction;
@@ -2572,6 +2577,8 @@ procedure TFormRepF4.fillTable5Perevody;
                      rec5.POS:=trim(ReplQto2Q(namedol));
                      rec5.PID:=trim(pid);
                      rec5.VZV:=trim(vzv);
+                     rec5.VS := VS;
+                     rec5.PIR:=PIR;
                      list5.Add(rec5);
 //                   Вторая запись - о старой должности
                      pid      := trim(copy(pid+space(250),1,250));
@@ -2603,6 +2610,8 @@ procedure TFormRepF4.fillTable5Perevody;
                      rec5.POS:=trim(ReplQto2Q(namedol_old));
                      rec5.PID:=trim(pid);
                      rec5.VZV:=trim(vzv);
+                     rec5.VS := VS;
+                     rec5.PIR:=PIR;
                      list5.Add(rec5);
 
                 end;
@@ -2636,8 +2645,11 @@ procedure TFormRepF4.fillTable5Sowm;
      nameprof : string;
      pid:string;
      vzv:string;
+     Vs,pir:Integer;
 
  begin
+      vs:=0;
+      pir:=0;
       dsSowm.Params[0].Value:=currYear;
       dsSowm.Params[1].Value:=nmes;
       dsSowm.Transaction.StartTransaction;
@@ -2774,6 +2786,8 @@ procedure TFormRepF4.fillTable5Sowm;
                      rec5.POS:=trim(ReplQto2Q(namedol));
                      rec5.PID:=trim(pid);
                      rec5.VZV:=trim(vzv);
+                     rec5.VS := VS;
+                     rec5.PIR:=PIR;
                      list5.Add(rec5);
                 end;
              dsSowm.Next;
@@ -2801,8 +2815,12 @@ procedure TFormRepF4.fillTable5CPH;
      dogovors:string;
      y,m,d:Integer;
      ds,ms,dateFrs:string;
+     vs,pir:Integer;
  begin
+
      if listCPH.count<1 then exit;
+     vs:=0;
+     pir:=0;
      zo:=3;
      for i:=0 to listCPH.Count-1 do
          begin
@@ -2945,6 +2963,8 @@ procedure TFormRepF4.fillTable5CPH;
                      rec5.DOG_CPH:=1;
                      rec5.PID_ZV:=trim(ReplQto2Q(reasonOk));
                      rec5.PID := dogovors;
+                     rec5.VS := VS;
+                     rec5.PIR:=PIR;
                      list5.Add(rec5);
 
                 end;
@@ -2986,8 +3006,10 @@ procedure TFormRepF4.fillTable5Dekr;
      payYear  : integer;
      payMnth  : integer;
      kdPtv    : integer;
-
+     vs,pir:Integer;
  begin
+      vs:=0;
+      pir:=0;
       lm:=lenMonth(encodedate(curryear,nmes,1));
       pm1:=nmes;
       py1:=currYear;
@@ -3105,6 +3127,8 @@ procedure TFormRepF4.fillTable5Dekr;
                                       rec5.POS:=trim(ReplQto2Q(namedol));
                                       rec5.PID:=trim(pid);
                                       rec5.VZV:=trim(vzv);
+                                      rec5.VS := VS;
+                                      rec5.PIR:=PIR;
                                       list5.Add(rec5);
                                  end;
                          end;
@@ -3716,7 +3740,9 @@ procedure TFormRepF4.moveToBD;
               SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec5(list5.Items[i])^.PROF)+''',';
               SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec5(list5.Items[i])^.POS)+''',';
               SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec5(list5.Items[i])^.PID)+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec5(list5.Items[i])^.VZV)+'''';
+              SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec5(list5.Items[i])^.VZV)+''',';
+              SQLStmnt:=trim(SQLStmnt)+Trim(IntToStr(pRec5(list5.Items[i])^.VS))+',';
+              SQLStmnt:=trim(SQLStmnt)+Trim(IntToStr(pRec5(list5.Items[i])^.PIR));
               SQLStmnt:=trim(SQLStmnt)+')';
 
               SQLExecute(SQLStmnt);

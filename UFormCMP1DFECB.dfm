@@ -18,7 +18,7 @@ object FormCMP1DFECB: TFormCMP1DFECB
   object DBGrid1DFECB: TDBGrid
     Left = 8
     Top = 8
-    Width = 409
+    Width = 433
     Height = 105
     DataSource = dso1DFECB
     TabOrder = 0
@@ -99,6 +99,7 @@ object FormCMP1DFECB: TFormCMP1DFECB
       DisplayLabel = '1'#1044#1060
       FieldName = 'SUMMAADD1DF'
       ReadOnly = True
+      DisplayFormat = '0.00'
       Size = 2
       RoundByScale = True
     end
@@ -106,6 +107,7 @@ object FormCMP1DFECB: TFormCMP1DFECB
       DisplayLabel = #1058#1072#1073#1083#1080#1094#1072' 6'
       FieldName = 'SUMMAADDT6'
       ReadOnly = True
+      DisplayFormat = '0.00'
       Size = 2
       RoundByScale = True
     end
@@ -114,6 +116,7 @@ object FormCMP1DFECB: TFormCMP1DFECB
       FieldKind = fkCalculated
       FieldName = 'SUMMARAZN'
       ReadOnly = True
+      DisplayFormat = '0.00'
       Calculated = True
     end
   end

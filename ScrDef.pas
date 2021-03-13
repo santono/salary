@@ -552,6 +552,7 @@ var
     Block_Program : Boolean;
     NeedTestGetPutInf : Boolean;
     needTestMem : boolean;
+    needSwodSQLLogByPerson   : Boolean;
     DebugMemoryCorruption:Boolean;
     needIOSQL:Boolean;
     Data_Pri_Mem : TDateTime; // Дата приказа для ввода отпускных
@@ -695,6 +696,7 @@ begin
     Block_Program         := false;
     NeedTestGetPutInf     := false;
     needTestMem           := false;
+    needSwodSQLLogByPerson:= False;
     DebugMemoryCorruption := false;
     needIOSQL             := false;
     Data_Pri_Mem          := Date;

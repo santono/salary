@@ -21,7 +21,7 @@ object FormCmpSwodECBDetail: TFormCmpSwodECBDetail
   object DBGrid1DFECBPerson: TDBGrid
     Left = 0
     Top = 0
-    Width = 537
+    Width = 577
     Height = 409
     Anchors = [akLeft, akTop, akRight, akBottom]
     DataSource = dso1DFECBPerson
@@ -94,6 +94,7 @@ object FormCmpSwodECBDetail: TFormCmpSwodECBDetail
     object dsSwodECBPersonSUMMAADDSWOD: TFIBBCDField
       DisplayLabel = #1042' '#1089#1074#1086#1076#1077
       FieldName = 'SUMMAADDSWOD'
+      DisplayFormat = '0.00'
       Size = 2
       RoundByScale = True
     end
@@ -101,6 +102,7 @@ object FormCmpSwodECBDetail: TFormCmpSwodECBDetail
       DisplayLabel = #1058#1072#1073#1083#1080#1094#1103' 6'
       FieldName = 'SUMMAADDT6'
       ReadOnly = True
+      DisplayFormat = '0.00'
       Size = 2
       RoundByScale = True
     end
@@ -109,6 +111,7 @@ object FormCmpSwodECBDetail: TFormCmpSwodECBDetail
       FieldKind = fkCalculated
       FieldName = 'summarazn'
       ReadOnly = True
+      DisplayFormat = '0.00'
       Calculated = True
     end
   end
