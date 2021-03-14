@@ -1031,6 +1031,9 @@ object MainForm: TMainForm
         object NMove156LNR: TMenuItem
           Action = ActionMove156LNR
         end
+        object NSVDN610: TMenuItem
+          Action = ActionMakeAllTable6ECBRecs
+        end
       end
       object N170: TMenuItem
         Caption = #1058#1077#1089#1090#1099
@@ -1694,6 +1697,10 @@ object MainForm: TMainForm
     object ActionFormECBPerson: TAction
       Caption = #1044#1083#1103' '#1086#1090#1095#1077#1090#1072' '#1087#1086' '#1087#1077#1088#1089#1086#1085#1086#1092#1080#1082#1072#1094#1080#1080
       OnExecute = ActionFormECBPersonExecute
+    end
+    object ActionMakeAllTable6ECBRecs: TAction
+      Caption = #1057#1086#1079#1076#1072#1090#1100' '#1074#1089#1077#1084' '#1088#1072#1073#1086#1090#1085#1080#1082#1072#1084' '#1079#1072#1087#1080#1089#1080' '#1090#1072#1073#1083#1080#1094#1099' 6'
+      OnExecute = ActionMakeAllTable6ECBRecsExecute
     end
   end
   object ImageList1: TImageList

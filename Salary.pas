@@ -428,6 +428,8 @@ type
     N187: TMenuItem;
     ActionFormECBPerson: TAction;
     NECBPerson: TMenuItem;
+    ActionMakeAllTable6ECBRecs: TAction;
+    NSVDN610: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -704,6 +706,7 @@ type
     procedure ActionMove156LNRExecute(Sender: TObject);
     procedure N187Click(Sender: TObject);
     procedure ActionFormECBPersonExecute(Sender: TObject);
+    procedure ActionMakeAllTable6ECBRecsExecute(Sender: TObject);
 
 
   private
@@ -798,7 +801,8 @@ implementation
   UFormMakeCorrectNagativeVypl, UFormPrikazyBrowseTot, UFormKRUReport,
   UFormRptPremGM, UFormSumLimitForCarantine,
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
-  UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson;
+  UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
+  UFormMakeECBRec6ForAll;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1423,6 +1427,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionFormECBPerson.Enabled:=True;
           NECBPerson.visible:=TRUE;
           NECBPerson.enabled:=true;
+          ActionMakeAllTable6ECBRecs.Enabled:=True;
+          NSVDN610.Enabled:=True;
+          NSVDN610.visible:=True;
 
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
@@ -1509,6 +1516,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionFormECBPerson.Enabled:=false;
           NECBPerson.visible:=False;
           NECBPerson.enabled:=False;
+          ActionMakeAllTable6ECBRecs.Enabled:=false;
+          NSVDN610.Enabled:=false;
+          NSVDN610.visible:=false;
 
 
    //       if DirectoryExists('Y:') then
@@ -4941,6 +4951,12 @@ begin
         FormECBPerson:=TFormECBPerson.myCreate(Self,curr_person);
         FormECBPerson.showModal;
       end;
+end;
+
+procedure TMainForm.ActionMakeAllTable6ECBRecsExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormMakeECBRec6ForAll,FormMakeECBRec6ForAll);
+     FormMakeECBRec6ForAll.showModal;
 end;
 
 end.

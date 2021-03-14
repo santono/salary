@@ -383,7 +383,8 @@ uses
   UFormECBTable6RecPerson in 'UFormECBTable6RecPerson.pas' {FormECBTable6RecPerson},
   UFormCMP1DFECB in 'UFormCMP1DFECB.pas' {FormCMP1DFECB},
   UFormCMP1DFECBDetail in 'UFormCMP1DFECBDetail.pas' {FormCMP1DFECBDetail},
-  UFormCmpSwodECBDetail in 'UFormCmpSwodECBDetail.pas' {FormCmpSwodECBDetail1};
+  UFormCmpSwodECBDetail in 'UFormCmpSwodECBDetail.pas' {FormCmpSwodECBDetail1},
+  UFormMakeECBRec6ForAll in 'UFormMakeECBRec6ForAll.pas' {FormMakeECBRec6ForAll};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

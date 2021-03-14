@@ -1,7 +1,7 @@
 unit ScrECB;
 
 interface
-{$IFDEF  SVDN}
+//{$IFDEF  SVDN}
   uses ScrDef;
   type
    TPersonRec6=class
@@ -82,6 +82,7 @@ interface
 *)
  const lenZO6=9;
  const lenPayTp=3;
+ const lenCodePriz1DF=4;
  const zo6Items:array[1..lenZO6] of string=(
   ' 1 - звичайний','2 - iнвалiд - звичайний',
   '25 - науковець','26 - договора пiдряда',
@@ -101,8 +102,22 @@ interface
   '10 - отпускные',
   '13 - разница между мин зп и зп работника'
  );
+ const PayTpShortItems:array[1..lenPayTp] of string=(
+  ' 0 - зарплата',
+  '10 - отпускные',
+  '13 - разница'
+ );
  const PayTpNo:array[1..lenPayTp] of integer=(
   0,10,13);
+
+ const codePriz1DFItems:array[1..lenCodePriz1DF] of string=(
+  ' 0 - звичайний','126 - МП облагаемая',
+  '169 - МП не облагаемая','128 - декр.болн.');
+ const codePriz1DFShortItems:array[1..lenCodePriz1DF] of string=(
+  ' 0 - звичайний','126 - МП обл',
+  '169 - МП не обл.','128 - декр.болн.');
+ const codePriz1DFNo:array[1..lenCodePriz1DF] of integer=(
+  0,126,169,128);
 
 // Таблица 5
   type
@@ -148,9 +163,9 @@ interface
 *)
 
 
-{$ENDIF}
+//{$ENDIF}
 implementation
-{$IFDEF  SVDN}
+//{$IFDEF  SVDN}
    uses SysUtils,ScrUtil;
    constructor TPersonRec6.Init;
      begin
@@ -496,6 +511,6 @@ function TPersonRec6.getShortNameForCn:string;
 
   end;
 
-{$ENDIF}
+//{$ENDIF}
 
 end.

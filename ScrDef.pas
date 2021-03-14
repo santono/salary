@@ -357,6 +357,11 @@ type
                        SHIFR_KAT  : BYTE   ;
                        SHIFR_GRU  : BYTE   ;
                        COUNT      : STRING[8];
+                       ZO         : Byte   ;
+                       otk        : Byte   ;
+                       nrc        : Byte   ;
+                       PAY_TP     : Byte   ;
+                       CODE_PRIZ_1DF : WORD  ;
                        NEXT       : ADD_PTR;
                   END;
        UD        =RECORD

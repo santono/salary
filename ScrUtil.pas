@@ -12715,6 +12715,7 @@ function getIOSemaphore(kind:Integer=2):boolean;
        r64:Int64;
        gettedKind:Integer;
    begin
+        r64:=0; 
         getIOSemaphore:=True;
         if not needUseIOSemaphore then Exit;
         retVal   := false;

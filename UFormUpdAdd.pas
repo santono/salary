@@ -37,6 +37,14 @@ type
     LabelTotClockForPochas: TLabel;
     LabelClockPrice: TLabel;
     LabelTotForTest: TLabel;
+    Label8: TLabel;
+    cbZO6: TComboBox;
+    cbPayTP: TComboBox;
+    Label9: TLabel;
+    cbOTK: TCheckBox;
+    cbNRC: TCheckBox;
+    cbCodePriz: TComboBox;
+    Label10: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     function Execute(var RetVal:integer): boolean;
@@ -53,6 +61,11 @@ type
     procedure BitBtn4Click(Sender: TObject);
     procedure DateTimePickerZaChange(Sender: TObject);
     procedure dxCalcEditPClockChange(Sender: TObject);
+    procedure cbZO6Change(Sender: TObject);
+    procedure cbPayTPChange(Sender: TObject);
+    procedure cbCodePrizChange(Sender: TObject);
+    procedure cbOTKClick(Sender: TObject);
+    procedure cbNRCClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -61,7 +74,8 @@ type
     procedure CalcNightPrazdn;
     procedure FillTotLineForPochas;
     procedure FillLabelClockPrice;
-
+    procedure showZO;
+    procedure hideZO;
 
 
   public
@@ -75,6 +89,12 @@ type
     Fond       : integer;
     MonthZa    : word;
     YearZa     : word;
+    ZO         : integer;
+    OTK        : integer;
+    NRC        : integer;
+    PAY_TP     : integer;
+    Code_priz_1DF : integer;
+
     WantedTabno : Integer;
     CurrAdd    : Add_Ptr;
     InitialWorkClock: Real;
@@ -89,24 +109,34 @@ type
     SavFond     : integer;
     SavMonthZa  : integer;
     SavYearZa   : integer;
+    SavZO         : integer;
+    SavOTK        : integer;
+    SavNRC        : integer;
+    SavPAY_TP     : integer;
+    SavCode_priz_1DF : integer;
+
   end;
 
 var
   FormUpdAdd: TFormUpdAdd;
 
 implementation
-uses ScrLists,FormSelShifrU,ScrUtil,DateUtils,UGetCurrSummmaTot;
+uses ScrLists,FormSelShifrU,ScrUtil,DateUtils,UGetCurrSummmaTot,
+ ScrECB ;
 {$R *.dfm}
 const F='######0.00';
 
 procedure TFormUpdAdd.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+     cbZO6.Items.Clear;
+     cbPayTP.Items.Clear;
      Action:=caFree;
 end;
 
 procedure TFormUpdAdd.FormCreate(Sender: TObject);
  var Dt:TDateTime;
      Y,M,D:word;
+     i:Integer;
 begin
       Summa      := 0 ;
       Fond       := 0 ;
@@ -128,6 +158,11 @@ begin
       Oklad      := 0;
       MonthZa    := 0 ;
       YearZa     := CurrYear;
+      ZO         := 0;
+      OTK        := 0;
+      NRC        := 0;
+      PAY_TP     := 0;
+      Code_priz_1DF := 0;
       PanelNP.Hide;
       PanelTotClock.Hide;
       if ShifrSta=NOT_USE_HOLIDAY_SHIFR  then
@@ -155,6 +190,28 @@ begin
       TotalAmntOfClockExptCurrent:=0;
       InitialWorkClock:=-1;
       Label2.Caption:=getShortCurrencyName;
+//{$IFDEF  SVDN}
+      cbZO6.Items.Clear;
+      cbZO6.ItemIndex := 0;
+      cbZO6.Items.Add('0 - не указано');
+      for i:=1 to lenZO6 do
+          cbZO6.Items.Add(zo6ShortItems[i]);
+      cbPayTp.Items.Clear;
+      cbPayTp.ItemIndex := 0;
+      for i:=1 to lenPayTp do
+          cbPayTP.Items.Add(PayTpShortItems[i]);
+      cbCodePriz.Items.Clear;
+      cbCodePriz.ItemIndex := 0;
+      for i:=1 to lenPayTp do
+          cbCodePriz.Items.Add(codePriz1DFShortItems[i]);
+      cbOTK.Checked:=false;
+      cbNRC.Checked:=false;
+      if isSVDN then
+         showZO
+      else
+         hideZO;
+//{$ENDIF}
+
 end;
 
 function TFormUpdAdd.Execute(var RetVal:integer): boolean;
@@ -174,6 +231,7 @@ end;
 procedure TFormUpdAdd.FormShow(Sender: TObject);
  var Dt:TDateTime;
      y,m,d:word;
+     i:Integer;
 begin
      RadioGroup1.ItemIndex    := Fond;
      ShifrText.Caption        := IntToStr(ShifrSta)+' '+Trim(ShifrList.GetName(ShifrSta));
@@ -201,6 +259,26 @@ begin
      m:=MonthZa;
      Dt:=EnCodeDate(y,m,1);
      DateTimePickerZa.Date:=Dt;
+//{$IFDEF  SVDN}
+     cbZO6.ItemIndex := 0;
+     for i:=1 to lenZO6 do
+         if zo=zo6ItemsNo[i] then
+            cbZO6.ItemIndex := i;
+     cbPayTp.ItemIndex := 0;
+     for i:=1 to lenPayTp do
+         if pay_Tp=PayTpNo[i] then
+            cbPayTP.ItemIndex:=i-1;
+     cbCodePriz.ItemIndex := 0;
+     for i:=1 to lenCodePriz1DF do
+         if Code_priz_1DF=codePriz1DFNo[i] then
+            cbCodePriz.ItemIndex:=i-1;
+     cbOTK.Checked:=false;
+     if OTK > 0 then
+        cbOTK.Checked:=True;
+     cbNRC.Checked:=false;
+     if nrc > 0 then
+        cbNRC.Checked:=True;
+//{$ENDIF}
 
 end;
 
@@ -306,6 +384,11 @@ procedure TFormUpdAdd.SaveRecord;
     SavYearZa     := YearZa;
     SavWorkClock  := WorkClock;
     SavOklad      := Oklad;
+    SavZO         := ZO;
+    SavOTK        := OTK;
+    SavNRC        := OTK;
+    SavPAY_TP     := PAY_TP;
+    SavCode_priz_1DF := Code_priz_1DF;
  end;
 
 function TFormUpdAdd.NotEqualOldAndNewRecords:boolean;
@@ -317,6 +400,16 @@ function TFormUpdAdd.NotEqualOldAndNewRecords:boolean;
        else if SavMonthZa<>MonthZa then
           RetVal:=true
        else if SavYearZa<>YearZa then
+          RetVal:=true
+       else if SavZO<>ZO then
+          RetVal:=true
+       else if SavOTK<>OTK then
+          RetVal:=true
+       else if SavNRC<>NRC then
+          RetVal:=true
+       else if SavPAY_TP<>PAY_TP then
+          RetVal:=true
+       else if SavCode_priz_1DF<>Code_priz_1DF then
           RetVal:=true;
        NotEqualOldAndNewRecords:=RetVal;
  end;
@@ -447,6 +540,72 @@ begin
               FillLabelClockPrice;
 //              CalcNightPrazdn;
         end;
+end;
+
+procedure TFormUpdAdd.showZO;
+ begin
+      cbZO6.Show;
+      cbOTK.Show;
+      cbNRC.Show;
+      cbPayTP.Show;
+      Label8.Show;
+      Label9.Show;
+  //    Self.Height:=320;
+      Application.ProcessMessages;
+ end;
+procedure TFormUpdAdd.hideZO;
+ begin
+      cbZO6.Hide;
+      cbOTK.Hide;
+      cbNRC.Hide;
+      cbPayTP.Hide;
+      Label8.Hide;
+      Label9.Hide;
+//      Self.Height:=250;
+      Self.Height:=Self.Height - cbZO6.Height-cbPayTP.Height-cbCodePriz.height-10;
+      Application.ProcessMessages;
+
+ end;
+
+
+procedure TFormUpdAdd.cbZO6Change(Sender: TObject);
+begin
+     Self.ZO:=0;
+     if cbZO6.ItemIndex>0 then
+        Self.ZO:=zo6ItemsNo[cbZO6.ItemIndex];
+end;
+
+procedure TFormUpdAdd.cbPayTPChange(Sender: TObject);
+begin
+     Self.PAY_TP:=0;
+     if cbPayTP.ItemIndex>=0 then
+        Self.PAY_TP:=PayTpNo[cbPayTP.ItemIndex+1];
+
+end;
+procedure TFormUpdAdd.cbCodePrizChange(Sender: TObject);
+begin
+     Self.Code_priz_1df:=0;
+     if cbCodePriz.ItemIndex>=0 then
+        Self.Code_priz_1df:=codePriz1DFNo[cbCodePriz.ItemIndex+1];
+
+end;
+
+
+procedure TFormUpdAdd.cbOTKClick(Sender: TObject);
+begin
+     if cbOTK.checked then
+        otk:=1
+     else
+        otk:=0;
+end;
+
+procedure TFormUpdAdd.cbNRCClick(Sender: TObject);
+begin
+     if cbNRC.checked then
+        NRC:=1
+     else
+        NRC:=0;
+
 end;
 
 end.

@@ -1,7 +1,7 @@
 unit ScrECBService;
 
 interface
-{$IFDEF  SVDN}
+//{$IFDEF  SVDN}
     uses ScrECB,ScrDef,classes;
     type pRecAdd=^TRecAdd;
          TRecAdd=record
@@ -34,9 +34,9 @@ interface
            destructor free;
            procedure fillRec6Person;
          end;
-{$ENDIF}
+//{$ENDIF}
 implementation
-{$IFDEF  SVDN}
+//{$IFDEF  SVDN}
 
   uses ScrUtil, SysUtils;
   constructor TPersonRec6Service.init(newCurrPerson:PERSON_PTR);
@@ -49,12 +49,12 @@ implementation
          while (curr_add<>nil) do
            begin
                 New(recAdd);
-                recAdd.shifr:=curr_add^.SHIFR;
-                recAdd.period:=curr_add^.PERIOD;
-                recAdd.year:=curr_add^.YEAR+1990;
-                recAdd.summa:=curr_add^.summa;
-                recAdd.workDay:=curr_add^.WORK_DAY;
-                recAdd.marked:=False;
+                recAdd.shifr   := curr_add^.SHIFR;
+                recAdd.period  := curr_add^.PERIOD;
+                recAdd.year    := curr_add^.YEAR+1990;
+                recAdd.summa   := curr_add^.summa;
+                recAdd.workDay := curr_add^.WORK_DAY;
+                recAdd.marked  := False;
                 listAdd.Add(recAdd);
                 curr_add:=curr_add^.NEXT;
            end;
@@ -70,7 +70,7 @@ implementation
               end;
          listAdd.Free;
          listAdd:=nil;
-         Self.free;
+    //     inherited free;
     end;
 
   function TPersonRec6Service.countNotMarked:Integer;
@@ -126,7 +126,7 @@ implementation
 
          MAKE_CN(curr_cn,curr_person);
          curr_cn^.SHIFR:=REC6CN_SHIFR+LIMIT_CN_BASE;
-         curr_cn^.KOD:=1000;
+         curr_cn^.KOD:=100;
          curr_cn^.PRIM_1:=personRec6.packRec6;
     end;
   function TPersonRec6Service.existsZO(ZO:Integer;payTp:Integer=0;payYear:Integer=0;payMnth:Integer=0):Boolean;
@@ -620,5 +620,5 @@ implementation
 
            end;
     end;
-{$ENDIF}
+//{$ENDIF}
 end.

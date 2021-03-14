@@ -632,6 +632,7 @@ begin
              MonthClock := GetWorkClockForYearMonth(YearZa,MonthZa);
              Oklad    := Curr_Person^.Oklad;
              Fond     := 0;
+
              if abs(Curr_Add^.FMP)>0.001   then Fond:=1
                                            else
              if abs(Curr_Add^.Other)>0.001 then Fond:=2;
@@ -640,6 +641,11 @@ begin
                  CurrAdd:=Curr_Add
              else
                  CurrAdd:=Nil;
+             ZO            := CurrAdd^.ZO;
+             NRC           := curr_add^.nrc;
+             OTK           := curr_add^.otk;
+             PAY_TP        := curr_add^.PAY_TP;
+             CODE_PRIZ_1DF := curr_add^.CODE_PRIZ_1DF;
              SaveRecord;
              if execute(RetVal) then
                 begin
@@ -655,6 +661,12 @@ begin
                      Curr_Add^.Work_Clock := WorkClock;
                      Curr_Add^.PERIOD:=MonthZa;
                      Curr_Add^.YEAR:=YearZa-1990;
+                     Curr_Add^.ZO   := ZO ;
+                     curr_add^.nrc := NRC;
+                     curr_add^.otk := OTK;
+                     curr_add^.PAY_TP := PAY_TP;
+                     curr_add^.CODE_PRIZ_1DF := CODE_PRIZ_1DF;
+
                      if Curr_Person.AUTOMATIC=AUTOMATIC_MODE then
                      if NotEqualOldAndNewRecords then
 //                        if Curr_Add^.PERIOD=NMES then

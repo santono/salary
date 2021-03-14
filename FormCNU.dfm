@@ -1,6 +1,6 @@
 object FormCN: TFormCN
-  Left = 207
-  Top = 210
+  Left = 167
+  Top = 203
   Width = 758
   Height = 480
   Caption = 'FormCN'

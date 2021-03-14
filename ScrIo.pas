@@ -65,7 +65,7 @@ function getVersion:string;
                getVersion:='';
                exit;
           end;
-       if not (s in ['B','C','D','E']) then
+       if not (s in ['B','C','D','E','F','G']) then
           s:='A';
        getVersion:=s;
    end;
@@ -331,6 +331,23 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                        COUNT      : STRING[8];
                        NEXT       : ADD_PTR;
                   END;
+       Add_F     =RECORD
+                       SHIFR      : WORD   ;
+                       PERIOD     : BYTE   ;
+                       YEAR       : BYTE   ;   {1991 - 1 и т д}
+                       SUMMA      : REAL   ;
+                       FMP        : REAL   ;
+                       FZP        : REAL   ;
+                       OTHER      : REAL   ;
+                       VYPLACHENO : WORD   ;
+                       WHO        : WORD   ;    {Получена автоматически или вручную}
+                       WORK_DAY   : WORD   ;
+                       WORK_CLOCK : REAL   ;
+                       SHIFR_KAT  : BYTE   ;
+                       SHIFR_GRU  : BYTE   ;
+                       COUNT      : STRING[8];
+                       NEXT       : ADD_PTR;
+                  END;
 
 
        UD_C      =RECORD
@@ -397,6 +414,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
         WORK_ADD_C  : ADD_C;
         WORK_ADD_D  : ADD_D;
         WORK_ADD_E  : ADD_E;
+        WORK_ADD_F  : ADD_F;
         WORK_UD_C   : UD_C;
         WORK_UD_E   : UD_E;
         WORK_CN_C   : CN_C;
@@ -761,7 +779,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
    END;
   PROCEDURE MAKE_ADD_FROM_ADD_E(VAR WORK_ADD:ADD;WORK_ADD_E:ADD_E;CURR_PERSON:PERSON_PTR);
    BEGIN
-         
+
          WORK_ADD.SHIFR      := WORK_ADD_E.SHIFR      ;
          WORK_ADD.PERIOD     := WORK_ADD_E.PERIOD     ;
          WORK_ADD.YEAR       := WORK_ADD_E.YEAR       ;
@@ -776,6 +794,29 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
          WORK_ADD.SHIFR_KAT  := WORK_ADD_E.SHIFR_KAT;
          WORK_ADD.SHIFR_GRU  := WORK_ADD_E.SHIFR_GRU;
          WORK_ADD.COUNT      := WORK_ADD_E.COUNT;
+   END;
+  PROCEDURE MAKE_ADD_FROM_ADD_F(VAR WORK_ADD:ADD;WORK_ADD_F:ADD_F;CURR_PERSON:PERSON_PTR);
+   BEGIN
+         FillChar(WORK_ADD,SizeOf(work_add),0);
+         WORK_ADD.SHIFR      := WORK_ADD_F.SHIFR      ;
+         WORK_ADD.PERIOD     := WORK_ADD_F.PERIOD     ;
+         WORK_ADD.YEAR       := WORK_ADD_F.YEAR       ;
+         WORK_ADD.SUMMA      := WORK_ADD_F.SUMMA      ;
+         WORK_ADD.FMP        := WORK_ADD_F.FMP        ;
+         WORK_ADD.FZP        := WORK_ADD_F.FZP        ;
+         WORK_ADD.OTHER      := WORK_ADD_F.OTHER      ;
+         WORK_ADD.VYPLACHENO := WORK_ADD_F.VYPLACHENO ;
+         WORK_ADD.WHO        := WORK_ADD_F.WHO        ;
+         WORK_ADD.WORK_DAY   := WORK_ADD_F.WORK_DAY   ;
+         WORK_ADD.WORK_CLOCK := WORK_ADD_F.WORK_CLOCK ;
+         WORK_ADD.SHIFR_KAT  := WORK_ADD_F.SHIFR_KAT  ;
+         WORK_ADD.SHIFR_GRU  := WORK_ADD_F.SHIFR_GRU  ;
+         WORK_ADD.COUNT      := WORK_ADD_F.COUNT      ;
+         WORK_ADD.ZO         := 0   ;
+         WORK_ADD.otk        := 0   ;
+         WORK_ADD.nrc        := 0   ;
+         WORK_ADD.PAY_TP     := 0   ;
+         WORK_ADD.CODE_PRIZ_1DF := 0   ;
    END;
 
 
@@ -823,7 +864,7 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                           ShowMessage('При чтении PERSON номер '+INTTOSTR(NUMBER));
                           EXIT;
                     END;
-                 TEST_PERSON(WORK_PERSON,NUMBER,'F');
+                 TEST_PERSON(WORK_PERSON,NUMBER,Version);
              END;
         END;
         IF ((MUST_FIND_PERSON) AND THIS_PERSON(@WORK_PERSON)) OR
@@ -916,6 +957,15 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                          EXIT;
                    END;
                   MAKE_ADD_FROM_ADD_E(WORK_ADD,WORK_ADD_E,@WORK_PERSON);
+             END;
+         'F':BEGIN
+                GET_FROM_BUF(WORK_ADD_F,SIZEOF(WORK_ADD_F)-sizeOf(work_add_F.NEXT));
+                IF KZ<0 THEN
+                   BEGIN
+                         ShowMessage('При чтении '+INTTOSTR(I)+'-го начисления для '+ALLTRIM(CURR_PERSON^.FIO));
+                         EXIT;
+                   END;
+                  MAKE_ADD_FROM_ADD_F(WORK_ADD,WORK_ADD_F,@WORK_PERSON);
              END;
          ELSE
              BEGIN
@@ -1359,7 +1409,8 @@ PROCEDURE PUTINF;
         fn:string;
     begin
          move(versionSignature,versionRec.fraza,sizeOf(versionRec.fraza));
-         versionRec.versionNo[1]:='F';
+//         versionRec.versionNo[1]:='F';
+         versionRec.versionNo[1]:='G';
          versionRec.versionNo[2]:=' ';
          versionRec.crc32:=PodrCRC32;
          versionRec.nmbOfPerson:=count_person;
