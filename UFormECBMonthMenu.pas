@@ -121,8 +121,7 @@ end;
 procedure TFormECBMonthMenu.BitBtn3Click(Sender: TObject);
 begin
      Application.CreateForm(TFormMovECBToDBF, FormMovECBToDBF);
-     FormMovECBToDBF.WantedYear  := Self.WantedYear;
-     FormMovECBToDBF.WantedMonth := Self.WantedMonth;
+     FormMovECBToDBF:=TFormMovECBToDBF.myCreate(Self,WantedYear,WantedMonth);
      FormMovECBToDBF.ShowModal;
 
 end;

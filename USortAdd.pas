@@ -118,7 +118,12 @@ implementation
      end;
 
    begin
-        if not Assigned(List) then Exit;
+        try
+           if not Assigned(List) then Exit;
+        except   
+        else
+            Exit;
+        end;
         if List.Count<=0 then Exit;
         if Count_Add(Curr_Person)<>List.Count then Exit;
         Tmp_Person:=new(Person_Ptr);

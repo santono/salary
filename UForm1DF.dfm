@@ -1,6 +1,6 @@
 object Form1DF: TForm1DF
-  Left = 264
-  Top = 215
+  Left = 265
+  Top = 216
   Width = 696
   Height = 480
   Anchors = [akLeft, akBottom]

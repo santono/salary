@@ -141,6 +141,7 @@ type
     procedure fillTable5Dekr;
 
     function  getSummaFromF6(tabno:integer):real;
+    function  getSummaFromF6WithoutDolpDoMin(tabno:integer):real;
     function  isSciPedOsnInList(tabno:integer):boolean;
     procedure emptyIllOtpLists;
     procedure getDataKdPtv(tabno:integer;var start_d:integer;var end_d:integer;var kd_ptv:integer);
@@ -580,7 +581,8 @@ procedure TFormRepF4.CreateReport6;
       curr_person:PERSON_PTR;
       curr_add:ADD_PTR;
       maked:Boolean;
-      summa6:real;
+      summa6,summa13:real;
+      summaS6_13,summaS6,summaS13:string;
   begin
        savNMES:=NMES;
        savNSRV:=NSRV;
@@ -816,10 +818,14 @@ procedure TFormRepF4.CreateReport6;
        list5.Free;
        list5:=nil;
        Summa6:=0;
+       Summa13:=0; // Сумма доплат до минимальной (нужна для сравнения со сводом)
        if list6.count>0 then
           for i:=0 to list6.count-1 do
               begin
-                   summa6:=r10(r10(summa6)+r10(pRec6(list6.Items[i]).sumTotal));
+                   if pRec6(list6.Items[i]).payTp=13 then
+                      summa13:=r10(r10(summa13)+r10(pRec6(list6.Items[i]).sumTotal))
+                   else
+                      summa6:=r10(r10(summa6)+r10(pRec6(list6.Items[i]).sumTotal));
                    dispose(pRec6(list6.Items[i]));
               end;
        list6.Free;
@@ -854,7 +860,10 @@ procedure TFormRepF4.CreateReport6;
        NSRV:=savNSRV;
        MKFLNM;
        getinf(true);
-       showMessage('Отчет сформирован. Сумма в таблице 6 '+FormatSummaForPlt(summa6));
+       summaS6_13 :=FormatSummaForPlt(summa6+summa13);
+       summaS6    :=FormatSummaForPlt(summa6);
+       summaS13   :=FormatSummaForPlt(summa13);
+       showMessage('Отчет сформирован.'+#13#10+' Сумма в таблице 6 '+#9#9+Trim(summaS6_13)+#13#10+'Сумма без доплат до мин.з.п.'+#9+Trim(summaS6)+#13#10+'Сумма доплат до мин.з.п.'+#9#9+Trim(summaS13));
   end;
 procedure TFormRepF4.fillPersonBad(curr_person:person_ptr);
 (*
@@ -1519,10 +1528,12 @@ procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
              begin
                   if IsBolnShifrForECB(curr_add^.SHIFR) then
                      begin
-                          if curr_person^.tabno=939 then
+                          if curr_person^.tabno=12280 then
                              shifrwr:=1;
                           shifrWr := 1;
                           shifrWr := getShifrWrForBoln(curr_person^.TABNO,curr_add^.summa,curr_add^.YEAR,curr_add^.period);
+                          if curr_person^.MESTO_OSN_RABOTY=82 then
+                             shifrwr := 2; 
                           if shifrWr=2 then
                              shifrWr:=2;
                           finded:=false;
@@ -1633,7 +1644,7 @@ procedure TFormRepF4.fillBolDay;
               if pRec6(list6.items[i]).zo in [29,36,42] then
               if pRec6(list6.items[i]).kdnp<1 then
                  begin
-                      if pRec6(list6.items[i])^.tabno=12023 then
+                      if pRec6(list6.items[i])^.tabno=12280 then
                          bolDays:=0;
                       bolDays:=0;
                       dekrBolDays:=0;
@@ -1650,6 +1661,8 @@ procedure TFormRepF4.fillBolDay;
 //                      splitBilList(pRec6(list6.items[i]).tabno,pRec6(list6.items[i]).payYear,pRec6(list6.items[i]).payMnth,bolDaySwom,bolSummaSowm);
                       if (bolDays>0) then
                          pRec6(list6.items[i]).kdNp:=bolDays;
+                      if Abs(Abs(summaBolOsn+summaBolSowm)-Abs(pRec6(list6.items[i]).sumTotal))<0.01 then
+                         begin
                       if Abs(summaBolOsn)>0.01 then
                          begin
                               pRec6(list6.items[i]).sumTotal:=summaBolOsn;
@@ -1677,6 +1690,7 @@ procedure TFormRepF4.fillBolDay;
                               rec6.sumMax:=summaBolSowm;
                               rec6.sumTotal:=summaBolSowm;
                               listillSowm6.Add(rec6);
+                         end;
                          end;
                       if (dekrBolDays>0) then
                           begin
@@ -3716,7 +3730,9 @@ procedure TFormRepF4.moveToBD;
               SQLStmnt:=trim(SQLStmnt)+'PROF,';
               SQLStmnt:=trim(SQLStmnt)+'POS,';
               SQLStmnt:=trim(SQLStmnt)+'PID,';
-              SQLStmnt:=trim(SQLStmnt)+'VZV';
+              SQLStmnt:=trim(SQLStmnt)+'VZV,';
+              SQLStmnt:=trim(SQLStmnt)+'VS,';
+              SQLStmnt:=trim(SQLStmnt)+'PIR';              
               SQLStmnt:=trim(SQLStmnt)+') VALUES(';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec5(list5.Items[i])^.yearVy)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec5(list5.Items[i])^.monthVy)+',';
@@ -3905,7 +3921,8 @@ procedure TFormRepF4.fillCheckList;
                            else
                                recPerson.summaAddSal := recPerson.summaAddSal+recAdd^.Summa;
                       end;
-               recPerson.summaAddF6 := getSummaFromF6(recPerson.tabno);
+//               recPerson.summaAddF6 := getSummaFromF6(recPerson.tabno);
+               recPerson.summaAddF6 := getSummaFromF6WithoutDolpDoMin(recPerson.tabno);
                nalCode:=GetNal_CodePerson(recPerson.tabno);
                nalCode:=trim(nalCode);
                if length(nalCode)<>10 then
@@ -3959,6 +3976,19 @@ function TFormRepF4.getSummaFromF6(tabno:integer):real;
              if pRec6(list6.Items[i]).tabno=tabno then
                 retVal:=r10(retVal) + r10(pRec6(list6.Items[i]).sumTotal);
       getSummaFromF6:=retVal;
+ end;
+function TFormRepF4.getSummaFromF6WithoutDolpDoMin(tabno:integer):real;
+ var rec6:pRec6;
+     i:integer;
+     retVal:real;
+ begin
+      retVal:=0;
+      if list6.Count>0 then
+         for i:=0 to list6.Count-1 do
+             if pRec6(list6.Items[i]).tabno=tabno then
+             if pRec6(list6.Items[i]).payTp<>13 then
+                retVal:=r10(retVal) + r10(pRec6(list6.Items[i]).sumTotal);
+      getSummaFromF6WithoutDolpDoMin:=retVal;
  end;
 
 procedure TFormRepF4.getDataKdPtv(tabno:integer;var start_d:integer;var end_d:integer;var kd_ptv:integer);

@@ -53,6 +53,15 @@ object FormMovECBtoDBF: TFormMovECBtoDBF
     TabOrder = 2
     OnClick = BitBtn6Click
   end
+  object cbKwItem: TComboBox
+    Left = 152
+    Top = 104
+    Width = 361
+    Height = 28
+    ItemHeight = 20
+    TabOrder = 3
+    Text = 'cbKwItem'
+  end
   object pFIBQueryECB: TpFIBQuery
     Transaction = pFIBTransactionECBRead
     Database = FIB.pFIBDatabaseSal

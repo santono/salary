@@ -138,8 +138,9 @@ type
     kindPodr:tKindPodr;
     summaWarSbor:Real;
     procedure ShowTable;
-    function MakeDBFFile(FNameDBF:String):string;
-    procedure FillDBFTable;
+    function MakeDBFFile(FNameDBF:String;wantedY:Integer;wantedM:integer):string;
+    procedure FillDBFTable(wantedY:integer;wantedM:Integer;SummaNo:integer);
+    procedure FillDBFTables;
     procedure FillXLSTable(outMode:integer ; pageNo:integer=1);
     procedure FillXMLDocumentJ0500105;
     procedure executePrint1DF;
@@ -418,7 +419,7 @@ begin
 end;
 
 
-procedure TForm1DF.FillDBFTable;
+procedure TForm1DF.FillDBFTable(wantedY:integer;wantedM:Integer;SummaNo:integer);
 var dBase: TDBF;
     RecordBound, ix : integer ;
     fmsFloatPoint : TFormatSettings;
@@ -427,29 +428,61 @@ var dBase: TDBF;
     SQLStmnt      : string    ;
     FNameDBF      : string    ;
     LineNo        : integer   ;
+    v             : variant   ;
 
 function GetName:string;
  begin
-       Result:='1dfdata';
+//       Result:='1dfdata';
+       Result:='J0510406';
  end;
 
 function BuildSQLStmnt:string;
  begin
-      result:='select nal_code,summaadd,summapod,code_priz,ozn_pilg,datapri,datauw from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and nal_code is not null and char_length(trim(nal_code))=10 order by nal_code' ;
+      case SummaNo of
+       1:
+//                          0         1         2         3        4        5      6        7
+         result:='select nal_code,summaadd1,summapod1,code_priz,ozn_pilg,datapri,datauw,summaws1 from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and nal_code is not null and char_length(trim(nal_code))=10 order by nal_code' ;
+       2:
+         result:='select nal_code,summaadd2,summapod2,code_priz,ozn_pilg,datapri,datauw,summaws2 from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and nal_code is not null and char_length(trim(nal_code))=10 order by nal_code' ;
+       3:
+         result:='select nal_code,summaadd3,summapod3,code_priz,ozn_pilg,datapri,datauw,summaws3 from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and nal_code is not null and char_length(trim(nal_code))=10 order by nal_code' ;
+      else
+         result:='select nal_code,summaadd,summapod,code_priz,ozn_pilg,datapri,datauw,summaws from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and nal_code is not null and char_length(trim(nal_code))=10 order by nal_code' ;
+      end;
  end;
 
  function FillDBFRecord:boolean;
   var
-     summaadd,summapod : real;
+     summaadd,summapod,summaws : real;
      nal_code : string;
      code_priz,ozn_pilg:integer;
      datapri,datauw:TDateTime;
      s:string;
+
+// 1	NP 	      Numeric 	   6 	0
+// 2	PERIOD 	  Numeric 	   2 	0
+// 3	RIK 	    Numeric 	   5 	0
+// 4	KOD 	    Character 	10     код едрпо можно оставить пустым
+// 5	TYP 	    Numeric 	   2 	0  ставить 0
+// 6	TIN 	    Character 	10
+// 7	S_NAR 	  Numeric 	  14 	2
+// 8	S_DOX 	  Numeric 	  14 	2
+// 9	S_TAXN 	  Numeric 	  14 	2
+//10	S_TAXP 	  Numeric 	  14 	2
+//11	OZN_DOX 	Numeric 	   4 	0
+//12	D_PRIYN 	Date 	       8
+//13	D_ZVILN 	Date 	       8
+//14	OZN_PILG 	Numeric 	   3 	0
+//15	OZNAKA  	Numeric 	   2 	0
+//16	A051 	    Numeric 	  12 	2
+//17	A05 	    Numeric 	  12 	2
+
  begin
       nal_Code  := pFIBQuery1DF.Fields[0].AsString;
       if length(trim(nal_Code))<10 then Exit;
       summaadd  := pFIBQuery1DF.Fields[1].AsFloat;
       summapod  := pFIBQuery1DF.Fields[2].AsFloat;
+      summaws   := pFIBQuery1DF.Fields[7].AsFloat;
       Code_priz := pFIBQuery1DF.Fields[3].AsInteger;
       Ozn_Pilg  := pFIBQuery1DF.Fields[4].AsInteger;
       datapri   := pFIBQuery1DF.Fields[5].AsDate;
@@ -458,18 +491,20 @@ function BuildSQLStmnt:string;
 
       dBASE.Append;
 
-      dBASE.SetFieldData(1  , '0');
-      dBASE.SetFieldData(2  , IntToStr(LineNo));
-      dBASE.SetFieldData(3  , IntToStr(CurrKw));
-      dBASE.SetFieldData(4  , IntToStr(Y));
-      dBASE.SetFieldData(5  , '02070714');
-      dBASE.SetFieldData(6  , '0');
+//      dBASE.SetFieldData(1  , '0');
+      dBASE.SetFieldData(1  , IntToStr(LineNo));
+      dBASE.SetFieldData(2  , IntToStr(wantedM));
+//      dBASE.SetFieldData(3  , IntToStr(CurrKw));
+      dBASE.SetFieldData(3  , IntToStr(Y));
+      dBASE.SetFieldData(4  , SPACE(10));
+//      dBASE.SetFieldData(5  , '02070714');
+      dBASE.SetFieldData(5  , '0');
     //  dBASE.SetFieldData(6  , IntToStr(Code_priz));
-      dBASE.SetFieldData(7  , NAL_CODE);
-      dBASE.SetFieldData(8  , format('%10.2f',[summaadd]));
-      dBASE.SetFieldData(9  , format('%10.2f',[summaadd]));
-      dBASE.SetFieldData(10 , format('%10.2f',[summapod]));
-      dBASE.SetFieldData(11 , format('%10.2f',[summapod]));
+      dBASE.SetFieldData(6  , NAL_CODE);
+      dBASE.SetFieldData(7  , format('%14.2f',[summaadd]));
+      dBASE.SetFieldData(8  , format('%14.2f',[summaadd]));
+      dBASE.SetFieldData(9 , format('%14.2f',[summapod]));
+      dBASE.SetFieldData(10 , format('%14.2f',[summapod]));
 //      dBASE.SetFieldData(12 , IntToStr(Code_Priz));
       if nal_code='2051609910'  then
          S:='';
@@ -478,25 +513,27 @@ function BuildSQLStmnt:string;
           (code_priz=102) or
           (code_priz=128)
           ) then
-         dBASE.SetFieldData(12 , IntToStr(code_priz))
+         dBASE.SetFieldData(11 , IntToStr(code_priz))
       else
-         dBASE.SetFieldData(12 , '101');
-      if yearof(datapri)=y then
+         dBASE.SetFieldData(11 , '101');
+      if ((yearof(datapri)=y)  and (MonthOf(datapri)=wantedM)) then
          begin
               s:=ConvertDataForDBF(datapri);
-              dBASE.SetFieldData(13 , s);
+              dBASE.SetFieldData(12 , s);
+         end
+      else
+         dBASE.SetFieldData(12 , '       ');
+      if ((yearof(datauw)=y) and (MonthOf(datauw)=wantedM)) then
+         begin
+             s:=ConvertDataForDBF(datauw);
+             dBASE.SetFieldData(13 , S);
          end
       else
          dBASE.SetFieldData(13 , '       ');
-      if yearof(datauw)=y then
-         begin
-             s:=ConvertDataForDBF(datauw);
-             dBASE.SetFieldData(14 , S);
-         end
-      else
-         dBASE.SetFieldData(14 , '       ');
-      dBASE.SetFieldData(15 , IntToStr(Ozn_Pilg));
-      dBASE.SetFieldData(16 , '0');
+      dBASE.SetFieldData(14 , IntToStr(Ozn_Pilg));
+      dBASE.SetFieldData(15 , '0');
+      dBASE.SetFieldData(16  , format('%12.2f',[summaws]));
+      dBASE.SetFieldData(17  , format('%12.2f',[summaws]));
       dBase.Post;
  end;
 
@@ -505,7 +542,15 @@ begin
      if Length(Trim(FNameDBF))<5 then Exit;
   //   LabelUp.Caption:='Перенос таблицы '+FNameDBF;;
   //   Application.ProcessMessages;
-     FName:=MakeDBFFile(FNameDBF);
+     try
+        FName:=MakeDBFFile(FNameDBF,wantedY,wantedM);
+     except
+        on E: Exception do
+           begin
+                ShowMessage(pchar(E.Message));
+           end;
+        else
+     end;
      FName:=trim(FName);
      if Length(FName)<5 then Exit;
      if pFIBQuery1DF.Open then
@@ -513,18 +558,18 @@ begin
      if pFIBQuery1DF.Transaction.Active then
         pFIBQuery1DF.Transaction.Commit;
      SQLStmnt:='select count(*) from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M);
-     pFIBQuery1DF.Transaction.StartTransaction;
-     pFIBQuery1DF.SQL.Clear;
-
-     pFIBQuery1DF.SQL.Add(SQLStmnt);
-     pFIBQuery1DF.ExecQuery;
-     RecordBound:=pFIBQuery1DF.Fields[0].AsInteger;
+     v:=SQLQueryValue(SQLStmnt);
+     if VarIsNumeric(v) then
+        RecordBound:=v
+     else
+        RecordBound:=0;
      if RecordBound<1 then
         begin
              ShowMessage('Нет записей в таблице');
              pFIBQuery1DF.Close;
              pFIBQuery1DF.Transaction.Commit;
-             Exit;
+             raise Exception.Create('Нет записей в таблице');
+//             Exit;
         end;
      fmsFloatPoint.DecimalSeparator := '.';
      try
@@ -533,6 +578,7 @@ begin
        on E: Exception do begin
            messagebox(0,pchar(E.Message),'Ошибка',16);
            dBase.Free;
+           raise Exception.Create(pchar(E.Message));
            Exit;
        end;
      end;
@@ -543,6 +589,8 @@ begin
      SQLStmnt:=BuildSQLStmnt;
      pFIBQuery1DF.SQL.Clear;
      pFIBQuery1DF.SQL.Add(SQLStmnt);
+     if not pFIBQuery1DF.Transaction.Active then
+        pFIBQuery1DF.Transaction.StartTransaction;
      pFIBQuery1DF.ExecQuery;
 //     ProgressBarPFU.Min:=0;
 //     ProgressBarPFU.Max:=RecordBound;
@@ -576,7 +624,35 @@ begin
         pFIBQuery1DF.Transaction.Commit;
 end;
 
-function TForm1DF.MakeDBFFile(FNameDBF:String):String;
+procedure TForm1DF.FillDBFTables;
+var CurrM  : integer;
+
+begin
+     if m<4 then
+        currm:=1
+     else
+     if m<7 then
+        currm:=4
+     else
+     if m<10 then
+        currm:=7
+     else
+        currm:=10;
+     try
+        FillDBFTable(Self.Y,Currm  ,1);
+        FillDBFTable(self.Y,Currm+1,2);
+        FillDBFTable(self.Y,Currm+2,3);
+        showMessage('Перенос закончен');
+     except
+        on E: Exception do
+           begin
+                ShowMessage(pchar(E.Message));
+           end;
+        else
+     end;
+end;
+
+function TForm1DF.MakeDBFFile(FNameDBF:String;wantedY:Integer;wantedM:integer):String;
  const FNameINI='DScroll.Ini';
  var
     Ini      : TIniFile ;
@@ -585,10 +661,11 @@ function TForm1DF.MakeDBFFile(FNameDBF:String):String;
     Ch       : string   ;
     DBFNameE : string   ;
     DBFNameD : string   ;
-    fName    : string;
+    fName    : string   ;
+    ms,ys    : string   ;
  begin
      fName   := getIniFileName;
-     s:=fnAme;
+     s:=fName;
 //     S   := ExtractFilePath(Application.ExeName)+FNameINI;
 //     S   := ExtractFilePath(Application.ExeName)+FNameINI;
      Ini := TIniFile.Create(S);
@@ -602,6 +679,7 @@ function TForm1DF.MakeDBFFile(FNameDBF:String):String;
         begin
              ShowMessage('Не указан параметр 1DFDir в файле DScroll.ini');
              Result:='';
+             raise Exception.Create('Не указан параметр 1DFDir в файле DScroll.ini');
              Exit;
         end;
      if not DirectoryExists(DBFDir) then
@@ -609,6 +687,7 @@ function TForm1DF.MakeDBFFile(FNameDBF:String):String;
         begin
              ShowMessage('Отсутствует каталог '+DBFDir+' и не возможно создать его');
              Result:='';
+             raise Exception.Create('Отсутствует каталог '+DBFDir+' и не возможно создать его');
              Exit;
         end;
      Ch:=copy(DBFDir,Length(DBFDir),1);
@@ -618,28 +697,37 @@ function TForm1DF.MakeDBFFile(FNameDBF:String):String;
               else
               if pos('/',DBFDir)>0 then DBFDir:=DBFDir+'/';
         end;
-     DBFNameE:=DBFDir+FNameDBF+'E.dbf';
+//     DBFNameE:=DBFDir+FNameDBF+'E.dbf';
+     DBFNameE:=TemplateDIR+FNameDBF+'E.dbf';
      if not FileExists(DBFNameE) then
         begin
              ShowMessage('Отсутствует файл '+DBFNameE);
              Result:='';
+             raise   Exception.Create('Отсутствует файл '+DBFNameE);
              Exit;
         end;
-     DBFNameD:=DBFDir+FNameDBF+'.dbf';
+     ms:=Trim(IntToStr(wantedM));
+     if m<10 then
+        ms:='0'+ms;
+     ys:=IntToStr(wantedY);
+     DBFNameD:=DBFDir+FNameDBF+'_'+ms+'_'+ys+'.dbf';
      if FileExists(DBFNameD)     then
      if not DeleteFile(DBFNameD) then
         begin
              ShowMessage('Ошибка удаления файла  '+DBFNameD);
              Result:='';
+             raise   Exception.Create('Ошибка удаления файла '+DBFNameE);
              Exit;
         end;
      if not CopyFile(PChar(DBFNameE),PChar(DBFNameD),true) then
         begin
              ShowMessage('Ошибка копирования файла '+DBFNameE+' в '+ DBFNameD);
              Result:='';
+             raise   Exception.Create('Ошибка копирования файла '+DBFNameE);
              Exit;
         end;
      Result:=DBFNameD;
+(*
      DBFNameE:=DBFDir+FNameDBF+'E.cdx';
      if not FileExists(DBFNameE) then
         begin
@@ -661,13 +749,15 @@ function TForm1DF.MakeDBFFile(FNameDBF:String):String;
              Result:='';
              Exit;
         end;
+*)        
  end;
 
 
 procedure TForm1DF.DBF1Click(Sender: TObject);
 begin
-      if YesNo('Перенести данные в файл 1dfdata.dbf?') then
-         FillDBFTable;
+      if YesNo('Перенести данные в dbf-файл?') then
+//         FillDBFTable;
+         FillDBFTables;
 end;
 
 procedure TForm1DF.N2Click(Sender: TObject);

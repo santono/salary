@@ -1,12 +1,12 @@
 object FIB: TFIB
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Left = 619
-  Top = 155
+  Left = 327
+  Top = 156
   Height = 490
   Width = 697
   object pFIBDatabaseSal: TpFIBDatabase
-    DBName = 'E:\Projects\ZARPLATA\VUGU\SVDN\ib\SAL_SVDN_27_11_2020.FDB'
+    DBName = 'E:\Projects\ZARPLATA\VUGU\SVDN\IB\SAL_SVDN_25_03_2021.FDB'
     DBParams.Strings = (
       'user_name=SYSDBA'
       'password=masterkey'

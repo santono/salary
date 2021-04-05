@@ -957,7 +957,10 @@ implementation
                            S:=trim(SQLStmt)+' (SHIFRIDPERSON,TABNO,'+
                               'W_PLACE,W_R,SHIFRGRU,SHIFRKAT,SHIFRSTA,'+
                               'MONTH_ZA,YEAR_ZA,MONTH_VY,YEAR_VY,SUMMA,'+
-                              'WDAY,WCLOCK,FOND,VYPL,SCH,ZO,OTK,NRC,PAY_TP,CODE_PRIZ_1DF) VALUES(';
+                              'WDAY,WCLOCK,FOND,VYPL,SCH';
+                           if isSVDN then
+                              s:=Trim(S)+',ZO,OTK,NRC,PAY_TP,CODE_PRIZ_1DF';
+                           s:=Trim(s)+') VALUES(';
                            S:=Trim(S)+IntToStr(PersonId)+',';
                            S:=Trim(S)+IntToStr(Curr_Person^.TABNO)+',';
                            S:=Trim(S)+IntToStr(SHIFR_SERV(NSRV))+',';
@@ -982,12 +985,15 @@ implementation
                            C:=Curr_Add^.Count;
                            if Length(Trim(C))=0 then C:=' ';
                            C:=ReplQuot(C);
-                           S:=Trim(S)+Trim(C)+''',';
-                           S:=TRIM (S)+Trim(IntToStr(Curr_add^.ZO))+',';
-                           S:=TRIM (S)+Trim(IntToStr(Curr_add^.OTK))+',';
-                           S:=TRIM (S)+Trim(IntToStr(Curr_add^.NRC))+',';
-                           S:=TRIM (S)+Trim(IntToStr(Curr_add^.PAY_TP))+',';
-                           S:=TRIM (S)+Trim(IntToStr(Curr_add^.CODE_PRIZ_1DF));
+                           S:=Trim(S)+Trim(C)+'''';
+                           if isSVDN then
+                              begin
+                                S:=TRIM (S)+','+Trim(IntToStr(Curr_add^.ZO))+',';
+                                S:=TRIM (S)+Trim(IntToStr(Curr_add^.OTK))+',';
+                                S:=TRIM (S)+Trim(IntToStr(Curr_add^.NRC))+',';
+                                S:=TRIM (S)+Trim(IntToStr(Curr_add^.PAY_TP))+',';
+                                S:=TRIM (S)+Trim(IntToStr(Curr_add^.CODE_PRIZ_1DF));
+                              end;
                            S:=S+')';
                            if NeedLogIb then
                               begin

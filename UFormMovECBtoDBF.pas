@@ -18,6 +18,7 @@ type
     pFIBQueryECB: TpFIBQuery;
     pFIBTransactionECBRead: TpFIBTransaction;
     BitBtn6: TBitBtn;
+    cbKwItem: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn6Click(Sender: TObject);
@@ -30,7 +31,10 @@ type
   public
         WantedYear  : integer;
         WantedMonth : integer;
+        modeRep     : Integer; // 0-за месяц 1 - квартал
+
     { Public declarations }
+        constructor myCreate(AOwner:TComponent;newY:Integer;newM:integer);
   end;
 
 var
@@ -39,11 +43,84 @@ var
 implementation
   uses DBF,UFibModule,IniFiles,ScrUtil,ScrDef;
 
+type pRecKwItem=^TRecKwItem;
+     TRecKwItem=record
+                  Year:Integer;
+                  kw:Integer;
+                end;
+var listKwItems:TList;
+
 {$R *.dfm}
+
+constructor TFormMovECBtoDBF.myCreate(AOwner:TComponent;newY:Integer;newM:integer);
+var y  : Integer;
+    m  : Integer;
+    kw : Integer;
+    i  : Integer;
+    RecKwItem:pRecKwItem;
+    s  : string;
+begin
+
+    inherited Create(AOwner);
+    Self.WantedYear:=newY;
+    Self.WantedMonth:=newM;
+    y:=WantedYear;
+    m:=WantedMonth;
+    if m<4 then
+       kw:=1
+    else
+    if m<7 then
+       kw:=2
+    else
+    if m<10 then
+       kw:=3
+    else
+       kw:=4;
+    listKwItems:=TList.Create;
+    for i:=1 to 5 do
+      begin
+            New(recKwItem);
+            if i=1 then
+               begin
+                    RecKwItem.Year:= y;
+                    RecKwItem.kw  := m;
+               end
+            else
+               begin
+                    RecKwItem.Year:= y;
+                    RecKwItem.kw  := kw;
+                    Dec(kw);
+                    if kw<1 then
+                       begin
+                            kw:=4;
+                            Dec(y);
+                       end;
+
+               end;
+            listKwItems.Add(recKwItem);
+      end;
+    for i:=0 to listKwItems.Count-1 do
+      begin
+           if i=0 then
+              s:=Trim(GetMonthUkr(WantedMonth))+' '+IntToStr(wantedYear)
+           else
+              s:=Trim(IntToStr(pRecKwItem(listKwItems.Items[i])^.kw))+'-й квартал '+Trim(IntToStr(pRecKwItem(listKwItems.Items[i])^.Year));
+           cbKwItem.items.Add(s);
+      end;
+     cbKwItem.itemIndex:=0;
+end;
 
 procedure TFormMovECBtoDBF.FormClose(Sender: TObject;
   var Action: TCloseAction);
+var i:Integer;
 begin
+      if listKwItems<>nil then
+         begin
+      if      listKwItems.count>0 then
+              for i:=0 to listKwItems.Count-1 do
+                  Dispose(pRecKwItem(listKwItems.items[i]));
+              listKwItems.Free;
+         end;
       Action:=caFree;
 end;
 
@@ -57,7 +134,8 @@ function TFormMovECBtoDBF.MakeDBFFile(FNameDBF:String):String;
     Ch       : string   ;
     DBFNameE : string   ;
     DBFNameD : string   ;
-    fName    : string;
+    fName    : string   ;
+    ms, ys   : string   ;
  begin
      fName:=getIniFileName;
      s:=fName;
@@ -89,14 +167,18 @@ function TFormMovECBtoDBF.MakeDBFFile(FNameDBF:String):String;
               else
               if pos('/',DBFDir)>0 then DBFDir:=DBFDir+'/';
         end;
-     DBFNameE:=DBFDir+FNameDBF+'E.dbf';
+     DBFNameE:=templateDir+FNameDBF+'E.dbf';
      if not FileExists(DBFNameE) then
         begin
              ShowMessage('Отсутствует файл '+DBFNameE);
              Result:='';
              Exit;
         end;
-     DBFNameD:=DBFDir+FNameDBF+'.dbf';
+     ms:=Trim(IntToStr(WantedMonth));
+     if WantedMonth<10 then
+        ms:='0'+ms;
+     ys:=IntToStr(WantedYear);
+     DBFNameD:=DBFDir+FNameDBF+'_'+ms+'_'+ys+'.dbf';
      if FileExists(DBFNameD)     then
      if not DeleteFile(DBFNameD) then
         begin
@@ -226,7 +308,7 @@ var dBase: TDBF;
     FName         : string    ;
     SQLStmnt      : string    ;
     FNameDBF,FnameTable      : string    ;
-    RowNum        : Integer;
+    RowNum        : Integer   ;
 function GetName(ModeDBF:integer):string;
  begin
        {$IFDEF SVDN}
@@ -235,9 +317,9 @@ function GetName(ModeDBF:integer):string;
 //        6 :  Result:='e04t06i';
 //        5 :  Result:='j30T405';
 //        5 :  Result:='J30401512';
-        5 :  Result:='J3040513';
-        6 :  Result:='j30T406';
-        7 :  Result:='j30T407';
+        5 :  Result:='J0510506'; //'J3040513';
+        6 :  Result:='J0510106'; //'j30T406';
+        7 :  Result:='J0510606'; //'j30T407';
        else
             Result:='';
        end;
@@ -277,11 +359,15 @@ function BuildSQLStmnt(ModeDBF:integer):string;
 *)
 
         5:
-    //                        0      1   2  3    4         5       6      7   8        9
+    //                           0      1  2   3    4         5       6      7   8        9
            if isLNR then
               result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth)
-           else                                                                             // 10   11   12  13  14  15 16
-              result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv,pnr,zkpp,prof,pos,pid,vs,pir from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth);
+           else
+           if modeRep=0 then                                                                // 10   11   12  13  14  15 16
+              result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv,pnr,zkpp,prof,pos,pid,vs,pir from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy='+IntToStr(WantedMonth)
+           else                                                                                                              // 17
+              result:='select numident,fio,nm,ftn,start_dt,end_dt,ukr_gromad,zo,dog_cph,pid_zv,pnr,zkpp,prof,pos,pid,vs,pir,monthvy from tb_e04t05c where yearvy='+IntToStr(WantedYear)+' and monthvy in ('+IntToStr(WantedMonth)+','+IntToStr(WantedMonth+1)+','+IntToStr(WantedMonth+2)+')';
+
 
         6:
      {                        0      1   2  3   4  5            6      7     8   9    10     11       12       13       14  15    16      17    18  19    20        21      22}
@@ -312,7 +398,86 @@ function BuildSQLStmnt(ModeDBF:integer):string;
      kd_np,kd_nzp,kd_ptv,kd_vp,nrm   : Integer   ;
      nrc                             : Integer   ;
      kodkp,kodzkpp,prof,pos,pid      : string    ;
-     vs,pir:Integer;
+     vs,pir                          : Integer   ;
+     monthvy5                        : Integer   ;
+     datePri                         : TDate     ;
+     S                               : shortString;
+(*   Таблица 5
+ 1	Звітний місяць 	PERIOD_M 	N 	2
+ 2	Звітний рік 	PERIOD_Y 	N 	4
+ 3	Громадянин України (1 - так, 0 - ні) 	UKR_GROMAD 	N 	1
+ 4	Категорія особи (від 1 до 6) 	ZO 	N 	2
+ 5	Договір ЦПХ за основним місцем роботи або за сумісництвом (1 - так, 0 - ні) 	DOG_CPH 	N 	1
+ 6	Податковий номер або серія та номер паспорта	NUMIDENT 	C 	10
+ 7	Прізвище ЗО 	LN 	C 	100
+ 8	Ім'я ЗО 	NM 	C 	100
+ 9	По батькові ЗО 	FTN 	C 	100
+10	Дата початку трудових відносин 	START_DT 	N 	2
+11	Дата закінчення трудових відносин 	END_DT 	N 	2
+12	Дата створення нового робочого місця (числове значення з ведучим нулем) 	NRM_DT 	С 	8
+13	Підстава припинення трудових відносин 	PID_ZV 	C 	150
+14	Професійна назва роботи 	PNR 	C 	250
+15	Код класифікатора професій 	PROF 	C 	6
+16	Посада 	POS 	C 	250
+17	Документ підстава 	PID 	C 	250
+18	Військове звання 	VZV 	C 	250
+19	Внутрішній сумісник (числове значення: 1 - так, 0 - ні)	VS 	N 	1
+20	Переведено, признач. на ін. посаду або роботу, переміщ. до інш. підрозд. (числове значення: 1 - так, 0 - ні)	PIR 	N 	1
+21	Ознака (0, 1) (числове значення: 1 - так, 0 - ні)	OZN 	INTEGER 	1
+*)
+(*   Таблица 6
+ 1	Звітний місяць 	PERIOD_M 	N 	2
+ 2	Звітний рік 	PERIOD_Y 	N 	4
+ 3	Громадянин України (1 - так, 0 - ні) 	UKR_GROMAD 	N 	1
+ 4	Стать (0 - Ж, 1 - М) 	ST 	N 	1
+ 5	Податковий номер або серія та номер паспорта	NUMIDENT 	C 	10
+ 6	Прізвище ЗО 	LN 	C 	100
+ 7	Ім'я ЗО 	NM 	C 	100
+ 8	По батькові ЗО 	FTN 	C 	100
+ 9  Код категорії ЗО 	ZO 	N 	2
+10	Код типу нарахувань (від 1 до 13) 	PAY_TP 	N 	3
+11	Місяць, за який проведено нарахування 	PAY_MNTH 	N 	2
+12	Рік, за який проведено нарахування 	PAY_YEAR 	N 	4
+13	Кількість календарних днів тимчасової непрацездатності (допускаються від'ємні значення)	KD_NP 	N 	3
+14	Кількість календарних днів без збереження заробітної плати (допускаються від'ємні значення)	KD_NZP 	N 	3
+15	Кількість днів перебування у трудових / ЦП відносинах (допускаються від'ємні значення)	KD_PTV 	N 	3
+16	Кількість календарних днів відпустки у зв'язку з вагітністю та пологами 	KD_VP 	N 	3
+17	Загальна сума нарахованої заробітної плати / доходу (усього з початку звітного місяця)	SUM_TOTAL 	N 	16,2
+18	Сума нарахованої заробітної плати / доходу у межах максимальної величини, на яку нараховується єдиний внесок	SUM_MAX 	N 	16,2
+19	Сума різниці між розміром мінімальної заробітної плати та фактично нарахованою заробітною платою за звітний місяць (із заробітної плати / доходу)	SUM_DIFF 	N 	16,2
+20	Сума утриманого єдиного внеску за звітний місяць (із заробітної плати / доходу) 	SUM_INS 	N 	16,2
+21	Сума нарахованого єдиного внеску за звітний місяць (на заробітну плату / доходу)	SUM_NARAH 	N 	16,2
+22	Ознака наявності трудової книжки (1 - так, 0 - ні) 	OTK 	N 	1
+23	Ознака наявності спецстажу (1 - так, 0 - ні) 	EXP 	N 	1
+24	Ознака неповного робочого часу (1 - так, 0 - ні) 	NRC 	N 	1
+25	Ознака нового робочого місця (1 - так, 0 - ні) 	NRM 	N 	1
+26	Ознака (0, 1) (числове значення: 1 - так, 0 - ні)	OZN 	INTEGER 	1
+*)
+(* Таблица 7
+ 1	Звітний місяць 	PERIOD_M 	N 	2
+ 2	Звітний рік 	PERIOD_Y 	N 	4
+ 3	Громадянин України (1 - так, 0 - ні) 	UKR_GROMAD 	N 	1
+ 4	Податковий номер або серія та номер паспорта	NUMIDENT 	C 	10
+ 5	Прізвище ЗО 	LN 	C 	100
+ 6	Ім'я ЗО 	NM 	C 	100
+ 7	По батькові ЗО 	FTN 	C 	100
+ 8	Код підстави для обліку спецтажу 	C_PID 	C 	9
+ 9	Початок періоду 	START_DT 	N 	2
+10	Кінець періоду 	STOP_DT 	N 	2
+11	Кількість днів 	DAYS 	N 	4
+12	Кількість годин 	HH 	N 	4
+13	Кількість хвилин 	MM 	N 	2
+--	Норма тривалості роботи для її зарахування за повний місяць спецстажу:
+14	дні 	NORMA_1 	N 	6
+15	години 	NORMA_2 	N 	6
+16	хвилини 	NORMA_3 	N 	6
+17	№ наказу про проведення атестації робочого місця 	NUM_NAK 	C 	8
+18	Дата наказу про проведення атестації робочого місця 	DT_NAK 	N 	8
+19	Ознака СЕЗОН 	SEAZON 	N 	1
+20	Ознака (0, 1) (числове значення: 1 - так, 0 - ні)	OZN 	INTEGER 	1
+
+*)
+
  begin
        case ModeDBF of
         5:begin
@@ -340,8 +505,11 @@ function BuildSQLStmnt(ModeDBF:integer):string;
                      pid     := trim(pFIBQueryECB.Fields[14].AsString);        ;
                      vs      := pFIBQueryECB.Fields[15].AsInteger;
                      pir     := pFIBQueryECB.Fields[16].AsInteger;
-
-                     dBASE.SetFieldData(1 , IntToStr(WantedMonth));
+                     if modeRep=1 then
+                        monthvy5:=pFIBQueryECB.Fields[17].AsInteger
+                     else
+                        monthvy5:=WantedMonth;
+                     dBASE.SetFieldData(1 , IntToStr(monthVy5));
                      dBASE.SetFieldData(2 , IntToStr(WantedYear));
 //              dBASE.SetFieldData(3 , IntToStr(RowNum));
                     dBASE.SetFieldData(3 , IntToStr(Ukr_Gromad));
@@ -351,10 +519,22 @@ function BuildSQLStmnt(ModeDBF:integer):string;
                     dBASE.SetFieldData(7 , Fam);
                     dBASE.SetFieldData(8 , Nam);
                     dBASE.SetFieldData(9 , Otc);
+//                    if Start_Dt>0 then
+//                       dBASE.SetFieldData(10 , IntToStr(Start_Dt));
+//                    if End_Dt>0 then
+//                       dBASE.SetFieldData(11 , IntToStr(End_Dt));
                     if Start_Dt>0 then
-                       dBASE.SetFieldData(10 , IntToStr(Start_Dt));
+                       begin
+                            datePri:=EncodeDate(WantedYear,monthvy5,Start_dt);
+                            s:=ConvertDataForDBF(datepri);
+                            dBASE.SetFieldData(10 , s);
+                       end;
                     if End_Dt>0 then
-                       dBASE.SetFieldData(11 , IntToStr(End_Dt));
+                       begin
+                            datePri:=EncodeDate(WantedYear,monthvy5,end_dt);
+                            s:=ConvertDataForDBF(datepri);
+                            dBASE.SetFieldData(11 , s);
+                       end;
                     dBASE.SetFieldData(12 , SPACE(8));  //NRM_DT дата створення робочого місця всегда пустое
                     if Length(pid_zv)>0  then
                       dBase.SetFieldData(13, Copy(pid_zv+space(150),1,150))
@@ -365,32 +545,33 @@ function BuildSQLStmnt(ModeDBF:integer):string;
                     else
                       dBase.SetFieldData(14 , space(250));
 
-                    if length(kodzkpp)>0 then
-                      dBase.SetFieldData(15, Copy(kodzkpp+space(5),1,5))
-                    else
-                      dBase.SetFieldData(15, space(5));
+//                    if length(kodzkpp)>0 then
+//                      dBase.SetFieldData(15, Copy(kodzkpp+space(5),1,5))
+//                    else
+//                      dBase.SetFieldData(15, space(5));
 
                     if length(kodkp)>0 then
-                      dBase.SetFieldData(16, Copy(kodkp+space(6),1,6))
+                      dBase.SetFieldData(15, Copy(kodkp+space(6),1,6))
                     else
-                      dBase.SetFieldData(16, space(6));
+                      dBase.SetFieldData(15, space(6));
 
                     if length(pos)>0 then
-                      dBase.SetFieldData(17, Copy(pos+space(250),1,250))
+                      dBase.SetFieldData(16, Copy(pos+space(250),1,250))
+                    else
+                      dBase.SetFieldData(16, space(250));
+                    if length(pid)>0 then
+                      dBase.SetFieldData(17, Copy(pid+space(250),1,250))
                     else
                       dBase.SetFieldData(17, space(250));
-                    if length(pid)>0 then
-                      dBase.SetFieldData(18, Copy(pid+space(250),1,250))
-                    else
-                      dBase.SetFieldData(18, space(250));
                     if ((vs>=0) and (vs<=1)) then
-                       dBASE.SetFieldData(20 , IntToStr(vs))
+                       dBASE.SetFieldData(19 , IntToStr(vs))
+                    else
+                       dBASE.SetFieldData(19 , '0');
+                    if ((pir>=0) and (pir<=1)) then
+                       dBASE.SetFieldData(20 , IntToStr(pir))
                     else
                        dBASE.SetFieldData(20 , '0');
-                    if ((pir>=0) and (pir<=1)) then
-                       dBASE.SetFieldData(21 , IntToStr(pir))
-                    else
-                       dBASE.SetFieldData(21 , '0');
+                    dBASE.SetFieldData(21 , '0'); //Ознака
 
 
                  end
@@ -504,81 +685,66 @@ function BuildSQLStmnt(ModeDBF:integer):string;
 
               if isSVDN then
                  begin
-              dBASE.SetFieldData(1 , IntToStr(WantedMonth));
-              dBASE.SetFieldData(2 , IntToStr(WantedYear));
-              dBASE.SetFieldData(3 , IntToStr(Ukr_Gromad));
-              dBASE.SetFieldData(4 , IntToStr(St));
-              dBASE.SetFieldData(5 , NumIdent);
-              dBASE.SetFieldData(6 , Fam);
-              dBASE.SetFieldData(7 , Nam);
-              dBASE.SetFieldData(8 , Otc);
-              dBASE.SetFieldData(9 , IntToStr(zo));
-              if Pay_Tp>0 then
-                 dBASE.SetFieldData(10 , IntToStr(Pay_TP));
-              if Pay_Mnth>0 then
-                 dBASE.SetFieldData(11 , IntToStr(Pay_Mnth));
-              if Pay_Year>0 then
-                 dBASE.SetFieldData(12 , IntToStr(Pay_Year));
-              dBASE.SetFieldData(13 , IntToStr(kd_np));
-              dBASE.SetFieldData(14 , IntToStr(kd_nzp));
-              dBASE.SetFieldData(15 , IntToStr(kd_ptv));
-              dBASE.SetFieldData(16 , IntToStr(kd_vp));
-              dBASE.SetFieldData(17 , sum_totals);
-              dBASE.SetFieldData(18 , sum_maxs);
-              dBASE.SetFieldData(19 , sum_diffs);
-              dBASE.SetFieldData(20 , sum_inss);
-              dBASE.SetFieldData(21 , sum_narahs);
-              dBASE.SetFieldData(22 , IntToStr(otk));
-              dBASE.SetFieldData(23 , IntToStr(exp));
-              dBASE.SetFieldData(24 , IntToStr(nrc));
-              dBASE.SetFieldData(25 , IntToStr(nrm));
+                      dBASE.SetFieldData(1 , IntToStr(WantedMonth));
+                      dBASE.SetFieldData(2 , IntToStr(WantedYear));
+                      dBASE.SetFieldData(3 , IntToStr(Ukr_Gromad));
+                      dBASE.SetFieldData(4 , IntToStr(St));
+                      dBASE.SetFieldData(5 , NumIdent);
+                      dBASE.SetFieldData(6 , Fam);
+                      dBASE.SetFieldData(7 , Nam);
+                      dBASE.SetFieldData(8 , Otc);
+                      dBASE.SetFieldData(9 , IntToStr(zo));
+                      if Pay_Tp>0 then
+                         dBASE.SetFieldData(10 , IntToStr(Pay_TP));
+                      if Pay_Mnth>0 then
+                         dBASE.SetFieldData(11 , IntToStr(Pay_Mnth));
+                      if Pay_Year>0 then
+                         dBASE.SetFieldData(12 , IntToStr(Pay_Year));
+                      dBASE.SetFieldData(13 , IntToStr(kd_np));
+                      dBASE.SetFieldData(14 , IntToStr(kd_nzp));
+                      dBASE.SetFieldData(15 , IntToStr(kd_ptv));
+                      dBASE.SetFieldData(16 , IntToStr(kd_vp));
+                      dBASE.SetFieldData(17 , sum_totals);
+                      dBASE.SetFieldData(18 , sum_maxs);
+                      dBASE.SetFieldData(19 , sum_diffs);
+                      dBASE.SetFieldData(20 , sum_inss);
+                      dBASE.SetFieldData(21 , sum_narahs);
+                      dBASE.SetFieldData(22 , IntToStr(otk));
+                      dBASE.SetFieldData(23 , IntToStr(exp));
+                      dBASE.SetFieldData(24 , IntToStr(nrc));
+                      dBASE.SetFieldData(25 , IntToStr(nrm));
+                      dBASE.SetFieldData(26 , '0');    //OZN
 
                  end
               else
                  begin
-              dBASE.SetFieldData(3 , IntToStr(RowNum));
-              dBASE.SetFieldData(4 , IntToStr(Ukr_Gromad));
-              dBASE.SetFieldData(5 , IntToStr(St));
-              dBASE.SetFieldData(6 , NumIdent);
-              dBASE.SetFieldData(7 , Fam);
-              dBASE.SetFieldData(8 , Nam);
-              dBASE.SetFieldData(9 , Otc);
-              dBASE.SetFieldData(10 , IntToStr(zo));
-              if Pay_Tp>0 then
-                 dBASE.SetFieldData(11 , IntToStr(Pay_TP));
-              if Pay_Mnth>0 then
-                 dBASE.SetFieldData(12 , IntToStr(Pay_Mnth));
-              if Pay_Year>0 then
-                 dBASE.SetFieldData(13 , IntToStr(Pay_Year));
-              {$IFDEF SVDN}
-              dBASE.SetFieldData(14 , IntToStr(kd_np));
-              dBASE.SetFieldData(15 , IntToStr(kd_nzp));
-              dBASE.SetFieldData(16 , IntToStr(kd_ptv));
-              dBASE.SetFieldData(17 , IntToStr(kd_vp));
-              dBASE.SetFieldData(18 , sum_totals);
-              dBASE.SetFieldData(19 , sum_maxs);
-              dBASE.SetFieldData(20 , sum_diffs);
-              dBASE.SetFieldData(21 , sum_inss);
-              dBASE.SetFieldData(22 , sum_narahs);
-              dBASE.SetFieldData(23 , IntToStr(otk));
-              dBASE.SetFieldData(24 , IntToStr(exp));
-              dBASE.SetFieldData(25 , IntToStr(nrc));
-              dBASE.SetFieldData(26 , IntToStr(nrm));
-              {$ELSE}
-              dBASE.SetFieldData(14 , IntToStr(kd_np));
-              dBASE.SetFieldData(15 , IntToStr(kd_nzp));
-              dBASE.SetFieldData(16 , IntToStr(kd_ptv));
-              dBASE.SetFieldData(17 , IntToStr(kd_vp));
-              dBASE.SetFieldData(18 , sum_totals);
-              dBASE.SetFieldData(19 , sum_maxs);
+                      dBASE.SetFieldData(3 , IntToStr(RowNum));
+                      dBASE.SetFieldData(4 , IntToStr(Ukr_Gromad));
+                      dBASE.SetFieldData(5 , IntToStr(St));
+                      dBASE.SetFieldData(6 , NumIdent);
+                      dBASE.SetFieldData(7 , Fam);
+                      dBASE.SetFieldData(8 , Nam);
+                      dBASE.SetFieldData(9 , Otc);
+                      dBASE.SetFieldData(10 , IntToStr(zo));
+                      if Pay_Tp>0 then
+                         dBASE.SetFieldData(11 , IntToStr(Pay_TP));
+                      if Pay_Mnth>0 then
+                         dBASE.SetFieldData(12 , IntToStr(Pay_Mnth));
+                      if Pay_Year>0 then
+                         dBASE.SetFieldData(13 , IntToStr(Pay_Year));
+                      dBASE.SetFieldData(14 , IntToStr(kd_np));
+                      dBASE.SetFieldData(15 , IntToStr(kd_nzp));
+                      dBASE.SetFieldData(16 , IntToStr(kd_ptv));
+                      dBASE.SetFieldData(17 , IntToStr(kd_vp));
+                      dBASE.SetFieldData(18 , sum_totals);
+                      dBASE.SetFieldData(19 , sum_maxs);
  //             dBASE.SetFieldData(20 , sum_diffs);
-              dBASE.SetFieldData(20 , sum_inss);
+                      dBASE.SetFieldData(20 , sum_inss);
  //             dBASE.SetFieldData(22 , sum_narahs);
-              dBASE.SetFieldData(21 , IntToStr(otk));
-              dBASE.SetFieldData(22 , IntToStr(exp));
+                      dBASE.SetFieldData(21 , IntToStr(otk));
+                      dBASE.SetFieldData(22 , IntToStr(exp));
  //             dBASE.SetFieldData(25 , IntToStr(nrc));
-              dBASE.SetFieldData(23 , IntToStr(nrm));
-              {$ENDIF}
+                      dBASE.SetFieldData(23 , IntToStr(nrm));
               end;
           end;
         7:begin
@@ -622,6 +788,8 @@ SEAZON	N	1	0       19
               if isSVDN then
                  begin
    //                dBASE.SetFieldData(3 , IntToStr(RowNum));
+                   dBASE.SetFieldData(1 , IntToStr(WantedMonth));
+                   dBASE.SetFieldData(2 , IntToStr(WantedYear));
                    dBASE.SetFieldData(3 , IntToStr(Ukr_Gromad));
                    dBASE.SetFieldData(4 , NumIdent);
                    dBASE.SetFieldData(5 , Fam);
@@ -632,6 +800,8 @@ SEAZON	N	1	0       19
                    dBASE.SetFieldData(10 , IntToStr(end_dt));
                    dBASE.SetFieldData(11 , IntToStr(days));
                    dBASE.SetFieldData(14 , IntToStr(Norma));
+                   dBASE.SetFieldData(20 , '0'); //Ознака
+
                  end
               else
                  begin
@@ -735,10 +905,51 @@ end;
 
 
 procedure TFormMovECBtoDBF.BitBtn6Click(Sender: TObject);
+var i,j,kw,y,m:integer;
+    savM,savY:Integer;
 begin
-     FillDBFTable(5);
-     FillDBFTable(6);
-     FillDBFTable(7);
+     i:=cbKwItem.ItemIndex;
+     if i=0 then
+        begin
+             modeRep:=0;      // За месяц
+             FillDBFTable(5);
+             FillDBFTable(6);
+             FillDBFTable(7);
+        end
+     else
+        begin
+             modeRep:=1;      // За квартал
+             savM:=WantedMonth;
+             savY:=WantedYear;
+             kw:=pRecKwItem(listKwItems.Items[i]).kw;
+             y :=pRecKwItem(listKwItems.Items[i]).year;
+             case kw of
+              1:m:=1;
+              2:m:=4;
+              3:m:=7;
+              else
+                m:=10;
+             end;
+             WantedYear:=y;
+             for j:=1 to 3 do
+                 begin
+                      WantedMonth:=m;
+                      Caption:='Перенос даних персонофiкацii в DBF файли за '+GetMonthUkr(m);
+                      Application.ProcessMessages;
+                      if j=1 then
+                         FillDBFTable(5); // Пятую таблицу заполнять 1 раз
+                      FillDBFTable(6);
+                      FillDBFTable(7);
+                      inc(m);
+                 end;
+             WantedMonth:=savM;
+             WantedYear :=savY;
+        end;
+    ShowMessage('Перенос закончен');    
 end;
 
+
+
 end.
+
+

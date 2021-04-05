@@ -24,6 +24,7 @@ type
     procedure ds1dfECBCalcFields(DataSet: TDataSet);
     procedure FormCreate(Sender: TObject);
     procedure DBGrid1DFECBEditButtonClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
     y:Integer;
@@ -86,6 +87,15 @@ begin
      if (m<1) or (m>12) then Exit;
      FormCMP1DFECBDetail:=TFormCMP1DFECBDetail.myCreate(Self,y,m);
      FormCMP1DFECBDetail.showmodal;
+end;
+
+procedure TFormCMP1DFECB.BitBtn1Click(Sender: TObject);
+ var mo,ye:Integer;
+begin
+     mo:=ds1dfECBMNTH.Value;
+     ye:=self.y;
+     FormCMP1DFECBDetail:=TFormCMP1DFECBDetail.myCreate(Self,ye,mo);
+     FormCMP1DFECBDetail.ShowModal;
 end;
 
 end.
