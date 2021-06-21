@@ -72,6 +72,7 @@ object Form1DF: TForm1DF
     object dxDBGrid1DFFIO: TdxDBGridMaskColumn
       Caption = #1060#1048#1054
       HeaderAlignment = taCenter
+      Sorted = csDown
       Width = 144
       BandIndex = 0
       RowIndex = 0
@@ -85,7 +86,6 @@ object Form1DF: TForm1DF
       FieldName = 'W_R'
     end
     object dxDBGrid1DFSUMMAADD: TdxDBGridCalcColumn
-      Sorted = csUp
       Width = 41
       BandIndex = 0
       RowIndex = 0

@@ -530,7 +530,8 @@ function BuildSQLStmnt:string;
          end
       else
          dBASE.SetFieldData(13 , '       ');
-      dBASE.SetFieldData(14 , IntToStr(Ozn_Pilg));
+      if Ozn_Pilg > 0 then
+         dBASE.SetFieldData(14 , IntToStr(Ozn_Pilg));
       dBASE.SetFieldData(15 , '0');
       dBASE.SetFieldData(16  , format('%12.2f',[summaws]));
       dBASE.SetFieldData(17  , format('%12.2f',[summaws]));
@@ -1209,7 +1210,7 @@ function BuildSQLStmnt:string;
    end;
   function putXMLDataPri(recNo:integer):Boolean;
    var p:pRec;
-       s:string;
+       s:string;      
    begin
         p:=pRec(List.Items[recNo]);
         if Length(Trim(p^.datapriXML))<3 then Exit;

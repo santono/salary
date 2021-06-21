@@ -69,13 +69,6 @@ object FormKmndAbo: TFormKmndAbo
     OptionsDB = [edgoCancelOnExit, edgoCanDelete, edgoCanInsert, edgoCanNavigation, edgoConfirmDelete, edgoLoadAllRecords, edgoUseBookmarks]
     OptionsView = [edgoAutoWidth, edgoBandHeaderWidth, edgoRowSelect, edgoUseBitmap]
     Anchors = [akLeft, akTop, akRight, akBottom]
-    object dxDBGridKmndAboSHIFRID: TdxDBGridMaskColumn
-      Visible = False
-      Width = 134
-      BandIndex = 0
-      RowIndex = 0
-      FieldName = 'SHIFRID'
-    end
     object dxDBGridKmndAboYEAR_VY: TdxDBGridMaskColumn
       HeaderAlignment = taCenter
       Width = 69
@@ -130,6 +123,19 @@ object FormKmndAbo: TFormKmndAbo
       RowIndex = 0
       FieldName = 'DATA_P'
     end
+    object dxDBGridKmndAboSHIFRID: TdxDBGridMaskColumn
+      Visible = False
+      Width = 134
+      BandIndex = 0
+      RowIndex = 0
+      FieldName = 'SHIFRID'
+    end
+    object dxDBGridKmndAboNameWR: TdxDBGridColumn
+      Caption = #1042'.'#1088'.'
+      BandIndex = 0
+      RowIndex = 0
+      FieldName = 'NAMEMODEWR'
+    end
   end
   object pFIBdsKmndAbo: TpFIBDataSet
     RefreshSQL.Strings = (
@@ -166,7 +172,8 @@ object FormKmndAbo: TFormKmndAbo
       ' MEAN_DAY_NIS,'
       ' SHIFR_STA,'
       ' SHIFRBUH,'
-      ' MODE_V_Z'
+      ' MODE_V_Z,'
+      ' 0 AS MODEWR'
       ' '
       'FROM'
       ' TB_KOMAND '
@@ -267,6 +274,15 @@ object FormKmndAbo: TFormKmndAbo
     end
     object pFIBdsKmndAboMODE_V_Z: TFIBSmallIntField
       FieldName = 'MODE_V_Z'
+    end
+    object pFIBdsKmndAboMODEWR: TFIBIntegerField
+      FieldName = 'MODEWR'
+    end
+    object pFIBdsKmndAboNAMEMODEWR: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'NAMEMODEWR'
+      Size = 3
+      Calculated = True
     end
   end
   object pFIBtrKmndAbo: TpFIBTransaction

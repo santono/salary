@@ -53,6 +53,9 @@ type
     pFIBdsKmndAboSHIFR_STA: TFIBSmallIntField;
     pFIBdsKmndAboSHIFRBUH: TFIBIntegerField;
     pFIBdsKmndAboMODE_V_Z: TFIBSmallIntField;
+    pFIBdsKmndAboMODEWR: TFIBIntegerField;
+    pFIBdsKmndAboNAMEMODEWR: TStringField;
+    dxDBGridKmndAboNameWR: TdxDBGridColumn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure ActDelKmndAboExecute(Sender: TObject);
@@ -72,6 +75,7 @@ type
     WantedFIO   : string;
     ShifrKat    : Integer;
     ShifrGru    : integer;
+    ModeWR      : Integer;
     WantedCurrPerson : person_ptr;
     constructor CreateKmndForm(AOwner: TComponent; Curr_Person:PERSON_PTR);
     { Public declarations }
@@ -91,6 +95,12 @@ constructor TFormKmndAbo.CreateKmndForm(AOwner: TComponent; Curr_Person:PERSON_P
       WantedFio   := Trim(Curr_Person^.FIO)+' '+trim(Curr_Person^.dolg);
       ShifrKat    := Curr_Person^.Kategorija;
       ShifrGru    := Curr_Person^.Gruppa;
+      modeWR      := 0;
+      if isLNR then
+      if IS_OSN_WID_RABOTY(Curr_person) then
+         MODEWR := 1
+      else
+         ModeWR := 2;    
       Self.WantedCurrPerson:=Curr_Person;
       Caption:='Командировки '+Trim(Curr_Person^.FIO)+' '+trim(Curr_Person^.dolg);
  end;
@@ -108,6 +118,7 @@ begin
 end;
 
 procedure TFormKmndAbo.FormCreate(Sender: TObject);
+var selectSQL:string;
 begin
 {
      if pFIBdsKmndAbo.Active then
@@ -122,6 +133,67 @@ begin
 }
      WantedTabno:=0;
      WantedFIO:='';
+
+     if isLNR then
+         begin
+              selectSQL:='SELECT '
+                        +'SHIFRID,'
+                        +'F_DATA,'
+                        +'L_DATA,'
+                        +'MONTH_VY,'
+                        +'YEAR_VY,'
+                        +'K_WO_DAY,'
+                        +'SUMMA_KMD,'
+                        +'DATA_P_BUD,'
+                        +'SHIFRKAT,'
+                        +'SHIFRGRU,'
+                        +'MEAN_DAY,'
+                        +'MEAN_DAY_BUD,'
+                        +'MEAN_DAY_VNE,'
+                        +'MEAN_DAY_GN,'
+                        +'MEAN_DAY_NIS,'
+                        +'SHIFR_STA,'
+                        +'SHIFRBUH,'
+                        +'MODE_V_Z,'
+                        +'MODEWR'
+                        +' FROM'
+                        +' TB_KOMAND'
+                        +' where TABNO=:TABNO'
+                        +' order by F_DATA desc';
+              dxDBGridKmndAboNameWR.Visible:=true;
+         end
+     else
+         begin
+              selectSQL:='SELECT '
+                        +'SHIFRID,'
+                        +'F_DATA,'
+                        +'L_DATA,'
+                        +'MONTH_VY,'
+                        +'YEAR_VY,'
+                        +'K_WO_DAY,'
+                        +'SUMMA_KMD,'
+                        +'DATA_P_BUD,'
+                        +'SHIFRKAT,'
+                        +'SHIFRGRU,'
+                        +'MEAN_DAY,'
+                        +'MEAN_DAY_BUD,'
+                        +'MEAN_DAY_VNE,'
+                        +'MEAN_DAY_GN,'
+                        +'MEAN_DAY_NIS,'
+                        +'SHIFR_STA,'
+                        +'SHIFRBUH,'
+                        +'MODE_V_Z,'
+                        +'0 AS MODEWR'
+                        +' FROM'
+                        +' TB_KOMAND'
+                        +' where TABNO=:TABNO'
+                        +' order by F_DATA desc';
+
+              dxDBGridKmndAboNameWR.Visible:=false;
+         end;
+     pFIBdsKmndAbo.SQLs.SelectSQL.Clear;
+     pFIBdsKmndAbo.SQLs.selectSQL.add(selectSQL);
+
 
 end;
 
@@ -203,6 +275,8 @@ begin
                   WantedTabno    := Self.WantedTabno;
                   ShifrKat := SELF.ShifrKat;
                   ShifrGru := SELF.ShifrGru;
+                  MODEWR   := 0;
+                  if isLNR then modeWR:=Self.ModeWR;
                   if Act=1 then
                      begin
                           SQLStmnt:='EXECUTE PROCEDURE PR_DELETE_ALL_FROM_TMP_KOMAND';
@@ -229,6 +303,7 @@ begin
                           WantedShifrSta :=SELF.pFIBdsKmndAbo.FieldByName('SHIFR_STA').AsInteger;
                       //    ModeDC      :=SELF.pFIBdsKmndAbo.FieldByName('MODE_DAY_CLOCK').AsInteger;
                           ShifrBuh    :=SELF.pFIBdsKmndAbo.FieldByName('SHIFRBUH').AsInteger;
+                          MODEWR      := SELF.pFIBdsKmndAbo.FieldByName('MODEWR').AsInteger;
                      end;
                   ShifrIdKmd:=ShifrIdKmnd;
                   if execute then
@@ -265,6 +340,15 @@ begin
         pFIBdsKmndAboDATA_P.Value:=''
                else
         pFIBdsKmndAboDATA_P.Value:=IntToStr(D)+'.'+IntToStr(M)+'.'+IntToStr(Y);
+ if pFIBdsKmndAboMODEWR.value=1 then
+    pFIBdsKmndAboNAMEMODEWR.value:='Осн'
+ else
+ if pFIBdsKmndAboMODEWR.value=2 then
+    pFIBdsKmndAboNAMEMODEWR.value:='Свм'
+ else
+    pFIBdsKmndAboNAMEMODEWR.value:='ОиС';
+
+
 end;
 
 procedure TFormKmndAbo.ActMovKmndAboExecute(Sender: TObject);

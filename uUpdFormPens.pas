@@ -7,7 +7,7 @@ uses
   Dialogs, Grids, StdCtrls, Buttons;
 
 const YearFr = 2000;
-      YearTo = 2020;
+      YearTo = 2021;
 
 type
   TFormPensSpr2006 = class(TForm)
@@ -48,7 +48,7 @@ type
      procedure PrintPensSpr2013_2;
      procedure PrintPensSpr2013_Ola;
      procedure PrintLnr20132015Grn(yStart:integer);
-     procedure PrintLnr20152020Rub;
+     procedure PrintLnr20152021Rub;
 
 
 
@@ -744,10 +744,10 @@ begin
 
 end;
 
-procedure TFormPensSpr2006.PrintLnr20152020Rub;
+procedure TFormPensSpr2006.PrintLnr20152021Rub;
 const FNameIni='dscroll.ini';
-      amntOfYear=6;
-      Years:array[1..amntOfYear] of Integer=(2015,2016,2017,2018,2019,2020);
+      amntOfYear=7;
+      Years:array[1..amntOfYear] of Integer=(2015,2016,2017,2018,2019,2020,2021);
 var FName,S:string;
     Ini          : TIniFile;
     V            : Variant;
@@ -795,7 +795,7 @@ begin
       S   := ExtractFilePath(Application.ExeName)+FNameINI;
       Ini := TIniFile.Create(S);
       try
-          FName := Ini.ReadString( 'Parameters', 'PENS_LNR_2015_2020_RUB', '' )
+          FName := Ini.ReadString( 'Parameters', 'PENS_LNR_2015_2021_RUB', '' )
       finally
          Ini.Free;
       end;
@@ -843,7 +843,7 @@ end;
 procedure TFormPensSpr2006.BitBtnLNR2015Click(Sender: TObject);
 begin
      if isLNR then
-        PrintLnr20152020Rub;
+        PrintLnr20152021Rub;
 end;
 
 procedure TFormPensSpr2006.BitBtnLnr2009Click(Sender: TObject);

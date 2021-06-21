@@ -89,6 +89,8 @@ type
     ComboBoxBuh: TComboBox;
     pFIBDataSetSummyDAY_KALEND_WORK: TFIBSmallIntField;
     dxDBGridSumDayKalend: TdxDBGridColumn;
+    LabelWR: TLabel;
+    cbWR: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     function Execute: boolean;
@@ -155,6 +157,7 @@ type
     ModeRecalcClock    : integer; { –ежим перерасчета почасового больничного}
     WantedCodeIll      : integer;
     ShifrBuh           : Integer;
+    MODEWR             : Integer;
 
     { Public declarations }
   end;
@@ -330,6 +333,24 @@ begin
 
 
      end;
+     if isLNR then
+        begin
+             LabelWR.Show;
+             cbWR.Show;
+             if MODEWR=1 then
+                cbWR.ItemIndex:=1
+             else
+             if MODEWR=2 then
+                cbWR.ItemIndex:=2
+             else
+                cbWR.ItemIndex:=0;
+        end
+     else
+        begin
+             LabelWR.Hide;
+             cbWR.Hide;
+        end;
+     
   Self.Visible:=false;
   if ShowModal = mrOk then result := true
                       else result := false;
@@ -381,12 +402,14 @@ begin
      ModeDC:=0;
      if RadioGroupModeDC.ItemIndex=1 then
         ModeDC:=1;
-
+     if cbWR.itemindex=1 then MODEWR:=1 else
+     if cbWR.itemindex=2 then MODEWR:=2 else
+     modewr:=0;
      DecodeDate(DateTimePickerFr.Date,Y,M,D);
      SQLStmnt:='EXECUTE PROCEDURE MKTMPKOMANDSUMMY_01_12_2016 (';
      SQLStmnt:=Trim(SQLSTmnt)+IntToStr(wantedTabno)+',';
      SQLStmnt:=Trim(SQLSTmnt)+''''+IntToStr(Y)+'-'+IntToStr(M)+'-'+IntToStr(D)+''',';
-     SQLStmnt:=Trim(SQLSTmnt)+IntToStr(ModeVyZa)+')';
+     SQLStmnt:=Trim(SQLSTmnt)+IntToStr(ModeVyZa)+','+IntToStr(ModeWR)+')';
      FormWait.Show;
      Application.ProcessMessages;
      try
@@ -645,6 +668,7 @@ begin
 
         end;
 
+
 end;
 
 procedure TFormUpdKmnd.FormShow(Sender: TObject);
@@ -711,6 +735,9 @@ begin
      Mode_V_Z:=RadioGroupModeZaVy.ItemIndex;
      if Mode_V_Z=1 then Mode_V_Z:=0      // за
                    else Mode_V_Z:=1;     // в
+     ModeWR:=cbWR.ItemIndex;
+     if ((MODEWR<0) or (MODEWR>2)) then
+        modeWR:=0;
 
    //  pFIBTransactionSAL.StartTransaction ;
      DataVy:=EnCodeDate(CurrYear,NMES,1);
@@ -772,7 +799,8 @@ begin
      SQLStmnt:=Trim(SQLStmnt)+trim(FormatFloatPoint(MEANDAY_GN))+',';
      SQLStmnt:=Trim(SQLStmnt)+trim(FormatFloatPoint(MEANDAY_NIS))+',';
      SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(MODE_V_Z))+',';
-     SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(ShifrBuh))+')';
+     SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(ShifrBuh))+',';
+     SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(modeWR))+')';
 
      UFibModule.FIB.pFIBDatabaseSal.Execute(SQLStmnt);
 

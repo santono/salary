@@ -1,6 +1,6 @@
 object FormUpdKmnd: TFormUpdKmnd
-  Left = 231
-  Top = 87
+  Left = 226
+  Top = 131
   Width = 790
   Height = 639
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1079#1072#1087#1080#1089#1080' '#1088#1072#1089#1095#1077#1090#1072' '#1082#1086#1084#1072#1085#1076#1080#1088#1086#1074#1086#1095#1085#1099#1093
@@ -30,6 +30,13 @@ object FormUpdKmnd: TFormUpdKmnd
     Width = 39
     Height = 20
     Caption = #1044#1085#1077#1081
+  end
+  object LabelWR: TLabel
+    Left = 336
+    Top = 48
+    Width = 91
+    Height = 20
+    Caption = #1042#1080#1076' '#1088#1072#1073#1086#1090#1099
   end
   object BitBtn1: TBitBtn
     Left = 712
@@ -432,6 +439,19 @@ object FormUpdKmnd: TFormUpdKmnd
     TabOrder = 12
     Text = #1059#1095#1072#1089#1090#1086#1082' '#1085#1077' '#1091#1082#1072#1079#1072#1085
     OnChange = ComboBoxBuhChange
+  end
+  object cbWR: TComboBox
+    Left = 432
+    Top = 48
+    Width = 145
+    Height = 28
+    ItemHeight = 20
+    TabOrder = 13
+    Text = 'cbWR'
+    Items.Strings = (
+      #1054#1089#1085'. '#1080' '#1089#1086#1074#1084'.'
+      #1054#1089#1085#1086#1074#1085#1072#1103
+      #1057#1086#1074#1084#1077#1097#1077#1085#1080#1077)
   end
   object DataSourceSummy: TDataSource
     DataSet = pFIBDataSetSummy

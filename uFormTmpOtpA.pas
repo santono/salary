@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, dxExEdtr, FIBDataSet, DB, dxCntner, dxTL, dxDBCtrl, dxDBGrid,
   pFIBDataSet, dxDBTLCl, dxGrClms, StdCtrls, Buttons, FIBSQLMonitor,
-  FIBDatabase, pFIBDatabase, FIBQuery, pFIBQuery, Menus;
+  FIBDatabase, pFIBDatabase, FIBQuery, pFIBQuery, Menus, ExtCtrls, DBCtrls;
 
 type
   TFormOtpA = class(TForm)
@@ -59,6 +59,9 @@ type
     pFIBTransactionMark: TpFIBTransaction;
     pFIBTransactionWrite: TpFIBTransaction;
     pFIBTransactionRead: TpFIBTransaction;
+    Label1: TLabel;
+    LabelSumma: TLabel;
+    DBNavigator1: TDBNavigator;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     function Execute: boolean;
     procedure ShowTable;
@@ -66,8 +69,15 @@ type
     procedure FormCreate(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
     procedure N1Click(Sender: TObject);
+    procedure pFIBDataSetOtpASELChange(Sender: TField);
+    procedure dxDBGridOtpASELChange(Sender: TObject);
+    procedure dxDBGridOtpASELToggleClick(Sender: TObject;
+      const Text: String; State: TdxCheckBoxState);
+    procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
   private
     { Private declarations }
+    procedure ShowSumSelected;
+
   public
     { Public declarations }
        WantedYear  : INTEGER;
@@ -102,6 +112,7 @@ begin
       pFIBDataSetOtpA.Params[1].AsString:=IntToStr(WantedMonth);
       pFIBDataSetOtpA.Prepare;
       pFIBDataSetOtpA.Open;
+      ShowSumSelected;
       Caption:='Расшифровка начислений за '+GetMonthRus(WantedMonth)+' '+IntToStr(WantedYear)+' г.';
 end;
 
@@ -197,6 +208,82 @@ begin
      FormMakeOtpChoice.ShowModal;
 
      ShowTable;
+end;
+
+procedure TFormOtpA.ShowSumSelected;
+ var summa:Real;
+     SavePlace: TBookmark;
+     v,v0:Variant;
+     Node:TdxTreeListNode;
+   begin
+        summa:=0;
+        Node:=dxDBGridOtpA.TopNode;
+        while Node<>nil do
+          begin
+               v0:=Node.Values[0];
+               if VarIsNumeric(v0) then
+               if v0=1 then
+                  begin
+                       v:=Node.Values[3];
+                       if VarIsNumeric(v) then
+                          summa:=summa+v;
+                  end;        
+               node:=Node.GetNext;
+          end;
+//        SavePlace:=pFIBDataSetOtpA.GetBookmark;
+//        summa:=0;
+//        pFIBDataSetOtpA.First;
+//        while not pFIBDataSetOtpA.Eof do
+//         begin
+//              if pFIBDataSetOtpASEL.Value=1 then
+//                 summa:=summa+pFIBDataSetOtpASUMMA.Value;
+//              pFIBDataSetOtpA.Next;
+//         end;
+//        pFIBDataSetOtpA.FreeBookmark(SavePlace);
+        LabelSumma.Caption:=FORMAT_S(summa,12);
+   end;
+
+procedure TFormOtpA.pFIBDataSetOtpASELChange(Sender: TField);
+begin
+//    ShowSumSelected;
+//     Application.ProcessMessages;
+end;
+
+procedure TFormOtpA.dxDBGridOtpASELChange(Sender: TObject);
+begin
+//     Application.ProcessMessages;
+//     dxDBGridOtpA.Refresh;
+//     ShowSumSelected;
+//     Application.ProcessMessages;
+
+end;
+
+procedure TFormOtpA.dxDBGridOtpASELToggleClick(Sender: TObject;
+  const Text: String; State: TdxCheckBoxState);
+var i:Integer;
+begin
+     dxDBGridOtpA.Refresh;
+//     if State=cbsChecked then
+//        dxDBGridOtpA.FocusedNode.Values[0]:=1
+//     else
+//        dxDBGridOtpA.FocusedNode.Values[0]:=0;
+//     if pFIBDataSetOtpA.State=dsEdit then
+//        pFIBDataSetOtpA.Post;
+//     DBNavigator1Click(Sender,nbPost);
+     ShowSumSelected;
+     Application.ProcessMessages;
+
+end;
+
+procedure TFormOtpA.DBNavigator1Click(Sender: TObject;
+  Button: TNavigateBtn);
+begin
+     if Button=nbPost then
+        begin
+             ShowSumSelected;
+             Application.ProcessMessages;
+        end;
+
 end;
 
 end.

@@ -3337,7 +3337,7 @@ begin
      Application.ProcessMessages;
      SavPersonId := 0;
      SQLStmnt:='DELETE FROM PERSON WHERE TABNO='+IntToStr(WantedTabno)+' AND MONTHVY='+IntToStr(NMES)+' AND YEARVY='+IntToStr(CurrYear);
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      if not FIB.pFIBQuery.Transaction.Active then
         FIB.pFIBQuery.Transaction.StartTransaction;
 //     FIB.pFIBQuery.SQL.Clear;
@@ -3345,7 +3345,8 @@ begin
 //     FIB.pFIBQuery.ExecQuery;
 //     FIB.pFIBQuery.Close;
      SQLStmnt:='SELECT MAX(SHIFRID) FROM PERSON';
-     v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+//     v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+     v:=SQLQueryValue(SQLStmnt);
      PersonId:=v;
 
 

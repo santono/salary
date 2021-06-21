@@ -575,6 +575,9 @@ begin
      SummaNIS := 0;
      Mode     := 0;
      ModePodr := 1;
+     BtnMove.Show;
+     BtnMove.Enabled:=true;
+     
 
 end;
 
@@ -834,6 +837,8 @@ begin
          end;
 
      if IsBlockedMarked then Exit;
+     BtnMove.Hide;
+     BtnMove.Enabled:=False;
 
      // 1. Перенос бюджета
      if (abs(SummaBud)>0.009) and (FHSHintComboBoxBud.ItemIndex>=0)
@@ -961,6 +966,9 @@ begin
 
 
      ShowMessage('Отпускные перенесены');
+     BtnMove.Show;
+     BtnMove.Enabled:=true;
+
      Self.Close;
 
 end;

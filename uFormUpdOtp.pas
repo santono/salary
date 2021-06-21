@@ -660,6 +660,7 @@ begin
         end;
      DecodeDate(DateTimePickerFr.Date,Y,M,D);
      if (((Y=CurrYear) and (m>NMES)) or (Y>CurrYear)) then
+     if isSVDN then
         begin
              if YesNo('Подготовить данные за '+GetMonthRus(NMES)+' '+IntToStr(CurrYear)) then
                 putPersonToSqlForCurrMonth(WantedTabno,WantedPodr);

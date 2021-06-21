@@ -44,7 +44,7 @@ object FormGenYSpr: TFormGenYSpr
     Top = 56
     Width = 121
     Height = 30
-    MaxValue = 2020
+    MaxValue = 2030
     MinValue = 1991
     TabOrder = 1
     Value = 1991
