@@ -221,7 +221,6 @@ object FormUpdKmnd: TFormUpdKmnd
         object dxDBGridSumKOEF: TdxDBGridCalcColumn
           Caption = #1050#1086#1101#1092
           HeaderAlignment = taCenter
-          Visible = False
           Width = 105
           BandIndex = 0
           RowIndex = 0

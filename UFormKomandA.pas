@@ -53,6 +53,8 @@ type
     pFIBTransactionRead: TpFIBTransaction;
     pFIBTransactionWrite: TpFIBTransaction;
     DBNavigator1: TDBNavigator;
+    LabelSumma: TLabel;
+    LabelSummaSel: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     function Execute: boolean;
     procedure ShowTable;
@@ -60,8 +62,12 @@ type
     procedure BitBtn2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure pFIBDataSetKomandAMARKEDChange(Sender: TField);
+    procedure dxDBGridKomandAMARKEDToggleClick(Sender: TObject;
+      const Text: String; State: TdxCheckBoxState);
+    procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
   private
     { Private declarations }
+    procedure ShowSumSelected;
   public
     { Public declarations }
     WantedYear     : INTEGER;
@@ -73,7 +79,7 @@ var
   FormKomandA: TFormKomandA;
 
 implementation
-USES UFibModule;
+USES UFibModule,ScrUtil;
 
 {$R *.dfm}
 
@@ -98,6 +104,8 @@ begin
       pFIBDataSetKomandA.Params[2].AsString:=IntToStr(WantedMonth);
       pFIBDataSetKomandA.Prepare;
       pFIBDataSetKomandA.Open;
+     ShowSumSelected;   
+
 end;
 
 function TFormKomandA.Execute: boolean;
@@ -143,6 +151,52 @@ begin
 }
 
       Caption:='Список начислений для больничного'
+end;
+
+procedure TFormKomandA.ShowSumSelected;
+ var summa:Real;
+     SavePlace: TBookmark;
+     v,v0:Variant;
+     Node:TdxTreeListNode;
+   begin
+        summa:=0;
+//        TdxDBGridCheckColumn(dxDBGridKomandA.Columns[0])
+        Node:=dxDBGridKomandA.TopNode;
+        while Node<>nil do
+          begin
+               v0:=Node.Values[0];
+               if VarIsNumeric(v0) then
+               if v0=1 then
+                  begin
+                       v:=Node.Values[3];
+                       if VarIsNumeric(v) then
+                          summa:=summa+v;
+                  end;
+               node:=Node.GetNext;
+          end;
+
+        LabelSummaSel.Caption:=FORMAT_S(summa,12);
+        Application.ProcessMessages;
+   end;
+
+
+procedure TFormKomandA.dxDBGridKomandAMARKEDToggleClick(Sender: TObject;
+  const Text: String; State: TdxCheckBoxState);
+begin
+     ShowSumSelected;
+     Application.ProcessMessages;
+
+  //   DBNavigator1.BtnClick(nbPost);
+end;
+
+procedure TFormKomandA.DBNavigator1Click(Sender: TObject;
+  Button: TNavigateBtn);
+begin
+     if Button=nbPost then
+        begin
+             ShowSumSelected;
+        end;
+
 end;
 
 end.

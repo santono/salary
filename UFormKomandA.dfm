@@ -18,6 +18,23 @@ object FormKomandA: TFormKomandA
     457)
   PixelsPerInch = 96
   TextHeight = 20
+  object LabelSumma: TLabel
+    Left = 72
+    Top = 416
+    Width = 77
+    Height = 20
+    Anchors = [akLeft, akBottom]
+    Caption = #1054#1090#1084#1077#1095#1077#1085#1086
+  end
+  object LabelSummaSel: TLabel
+    Left = 160
+    Top = 416
+    Width = 81
+    Height = 20
+    Alignment = taRightJustify
+    Anchors = [akLeft, akBottom]
+    Caption = '0.00'
+  end
   object dxDBGridKomandA: TdxDBGrid
     Left = 8
     Top = 8
@@ -35,7 +52,8 @@ object FormKomandA: TFormKomandA
     TabOrder = 0
     DataSource = DataSourceKomandA
     Filter.Criteria = {00000000}
-    OptionsDB = [edgoCancelOnExit, edgoCanDelete, edgoCanInsert, edgoCanNavigation, edgoConfirmDelete, edgoLoadAllRecords, edgoUseBookmarks]
+    OptionsCustomize = [edgoBandMoving, edgoBandSizing, edgoColumnMoving, edgoColumnSizing, edgoFullSizing, edgoHeaderPanelSizing]
+    OptionsDB = [edgoCancelOnExit, edgoCanNavigation, edgoConfirmDelete, edgoLoadAllRecords, edgoUseBookmarks]
     OptionsView = [edgoAutoWidth, edgoBandHeaderWidth, edgoUseBitmap]
     Anchors = [akLeft, akTop, akRight, akBottom]
     object dxDBGridKomandAMARKED: TdxDBGridCheckColumn
@@ -46,6 +64,7 @@ object FormKomandA: TFormKomandA
       FieldName = 'MARKED'
       ValueChecked = '1'
       ValueUnchecked = '0'
+      OnToggleClick = dxDBGridKomandAMARKEDToggleClick
     end
     object dxDBGridKomandASHIFRSTA: TdxDBGridMaskColumn
       Caption = #1064#1092#1088
@@ -173,13 +192,15 @@ object FormKomandA: TFormKomandA
     OnClick = BitBtn2Click
   end
   object DBNavigator1: TDBNavigator
-    Left = 8
+    Left = 256
     Top = 408
-    Width = 240
+    Width = 231
     Height = 25
     DataSource = DataSourceKomandA
+    VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast, nbPost, nbCancel, nbRefresh]
     Anchors = [akLeft, akBottom]
     TabOrder = 3
+    OnClick = DBNavigator1Click
   end
   object DataSourceKomandA: TDataSource
     DataSet = pFIBDataSetKomandA
