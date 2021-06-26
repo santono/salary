@@ -914,7 +914,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
         prefix:='ЖКХ '
      else
      if isLNR then
-        prefix:='ЛНУ '
+        prefix:='ЛГУ '
      else
      if isSVDN then
         begin
@@ -1236,7 +1236,11 @@ procedure TMainForm.FormCreate(Sender: TObject);
            if isLNR then
               begin
                    if yesno('На сервере имеется новая версия программы.'+^M+'Обновить программу с сервера?') then
-                      halt(99);
+                      begin
+                           copyOriginProgram;
+                           ShowMessage('Обновленна программа загружена. Перезайдите в программу снова.');
+                           halt(99);
+                      end
               end
            else
               showMessage('На сервері знаходиться нова версія програми.'+^M+'Завантажте нову версію програми з серверу.');
@@ -1265,7 +1269,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
       raise Exception.Create('Fill_Banki initialization error');
    if isLNR then
       begin
-           Application.Title:='Луганский национальный университет имени В.Даля';
+           Application.Title:='Луганский государственный университет имени В.Даля';
            Application.ProcessMessages;
       end;
    Fill_Shifr;

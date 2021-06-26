@@ -233,9 +233,18 @@ begin
              cbKindPodr.Enabled:=false;
         end;
      if isSVDN then
-        iDFECB.Visible:=True
+        begin
+             iDFECB.Visible:=True;
+             dxDBGrid1DFSummaWs.Visible:=True;
+             pFIBDataSet1DFSUMMAWS.Visible:=True;
+//             dxDBGrid1DFSummaWs.Visible:=false;
+        end
      else
-        iDFECB.Visible:=False;
+        begin
+             iDFECB.Visible:=False;
+             dxDBGrid1DFSummaWs.Visible:=false;
+             pFIBDataSet1DFSUMMAWS.Visible:=false;
+        end;
 
      ShowTable;
 end;
@@ -251,6 +260,7 @@ procedure TForm1DF.ShowTable;
         pFibDataSet1DF.UpdateTransaction.Commit;
      if isLNR then
         begin
+
              SQlStmnt:='SELECT SHIFRID'   +
                        '     , TABNO'     +
                        '     , NAL_CODE'  +
@@ -258,6 +268,7 @@ procedure TForm1DF.ShowTable;
                        '     , W_R'       +
                        '     , SUMMAADD'  +
                        '     , SUMMAPOD'  +
+                       '     , 0.00 AS SUMMAWS' +
                        '     , DATAPRI'   +
                        '     , DATAUW'    +
                        '     , CODE_PRIZ' +

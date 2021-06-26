@@ -5,9 +5,11 @@ function isNetworkDriveStarted:boolean;
 function isNetworkDrive(Drive:string):boolean;
 function getMainDataDrive:string;
 function needCopyOriginProgram:boolean;
+function copyOriginProgram:boolean;
+function checkNetworkDrive(Drive:char):boolean;
 
 implementation
- uses Forms,SysUtils,Windows,ScrDef;
+ uses Forms,SysUtils,Windows,ScrDef,DateUtils,Types, Dialogs;
 
 function getDriveFromExeName:string;
  var s:string;
@@ -127,6 +129,8 @@ function getMainDataDrive:string;
        currDrive:=ExtractFileDrive(Application.exeName);
        if isLNR and (currDrive=localDrive) and checkDirectory('J') then retVal:='J:'
        else
+       if isLNR and (currDrive='C:') and DirectoryExists('E:\Projects\Zarplata') then retVal:='E:'
+       else
        if isSVDN and (currDrive=localDrive) and checkDirectory('D') then retVal:='D:'
        else
           retVal:=ExtractFileDrive(Application.exeName);
@@ -138,17 +142,111 @@ function needCopyOriginProgram:boolean;
      ageLocal,ageNetwork:integer;
      nameLocal,nameNetwork:string;
      s:string;
+     dtNetwork,dtLocal:TDateTime;
  begin
      retVal      := false;
      nameLocal   := Application.ExeName;
      ageLocal    := FileAge(nameLocal);
      s           := getMainDataDrive;
-     nameNetwork := s+copy(nameLocal,2,length(nameLocal)-1);
-     ageNetwork  := FileAge(nameNetwork);
-     if ageNetwork>ageLocal then
-        retVal := true;
+     nameNetwork := s+copy(nameLocal,3,length(nameLocal)-2);
+     if FileExists(nameNetwork) then
+        begin
+            ageNetwork  := FileAge(nameNetwork);
+            dtNetwork   := FileDateToDateTime(ageNetwork);
+            dtLocal     := FileDateToDateTime(ageLocal);
+//     if ageNetwork>ageLocal then
+            if CompareDateTime(dtNetwork,dtLocal)=GreaterThanValue then
+               retVal := true;
+        end;
      needCopyOriginProgram := retVal;
  end;
+
+ function copyOriginProgram:boolean;
+  var localName, serverName, bakName:string;
+      fileName,templateName:string;
+      localDir,bakDir,nameNetwork:string;
+      yearS:string;
+      sr         : TSearchRec;
+      FileAttrs  : Integer;
+      CurrVersio : Integer;
+      Template   : string;
+      S,ss       : string;
+      i,j        : Integer;
+      retVal     : Boolean;
+
+  begin
+      retVal        := True;
+      localName     := Application.ExeName;
+      fileName      := ExtractFileName(localName);
+      templateName  := StringReplace(fileName,'.exe','_????.exe',[rfReplaceAll,rfIgnoreCase]);
+      localDir      := ExtractFilePath(localName);
+      bakDir        := localDir+'\bak';
+      if not DirectoryExists(bakDir)  then
+         if not CreateDir(bakDir) then
+            begin
+                 retVal:=false;
+                 copyOriginProgram:=retVal;
+                 Exit;
+            end;
+      yearS:=IntToStr(YearOf(date));
+      bakDir:=localDir+'\bak\'+yearS;
+      if not DirectoryExists(bakDir)  then
+         if not CreateDir(bakDir) then
+            begin
+                 retVal:=false;
+                 copyOriginProgram:=retVal;
+                 Exit;
+            end;
+      template:=bakDir+'\'+templateName;
+      CurrVersio:=0;
+      FileAttrs := 0;
+      FileAttrs := FileAttrs + faAnyFile;
+      if FindFirst(Template, FileAttrs, sr) = 0 then
+         repeat
+               S:=Trim(sr.Name);
+               s:=Copy(S,length(S)-7,4);
+               Val(s,i,j);
+               if j=0 then
+                  if i>CurrVersio then
+                     CurrVersio:=i;
+         until FindNext(sr) <> 0;
+      SysUtils.FindClose(sr);
+      Inc(CurrVersio);
+      s:=Trim(IntToStr(CurrVersio));
+      while (Length(s)<4) do s:='0'+s;
+      ss:=StringReplace(Template,'????',s,[rfReplaceAll, rfIgnoreCase]);
+      if not RenameFile(localName,ss) then
+         begin
+              showMessage('Ошибка переименования '+localName+' в '+template);
+              retVal:=False;
+         end;
+      s           := getMainDataDrive;
+      nameNetwork := s+copy(localName,3,length(localName)-2);
+     // copyFile
+
+      if not CopyFile(PAnsiChar(nameNetwork) , PAnsiChar(localName),false) then
+         begin
+              showMessage('Ошибка Копирования '+nameNetwork+' в '+localName+' Код ошибки='+IntToStr(GetLastError) );
+              retVal:=False;
+         end;
+
+      copyOriginProgram:=retVal;
+  end;
+
+function checkNetworkDrive(Drive:char):boolean;
+var
+  PathStr: array[0..MAX_PATH] of Char;
+  LPathStr: DWord;
+  retVal:Boolean;
+begin
+  retVal:=false;
+  LPathStr:=MAX_PATH;
+  if WNetGetConnection(
+        PChar(''+Drive+':'),
+        PathStr,
+        LPathStr)=NO_ERROR then retVal:=true;
+  checkNetworkDrive:=retVal;
+end;
 
 end.
  

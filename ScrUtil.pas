@@ -12434,7 +12434,6 @@ function getMORForPutInf:integer;
       s,s1,s2,s3:string;
 
   begin
-
       s:=Application.ExeName;
       s1:=ChangeFileExt(s,'.ini');
       s2:=getMainDataDrive;

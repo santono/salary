@@ -69,7 +69,7 @@ object FormArc: TFormArc
     Top = 40
     Width = 883
     Height = 481
-    ActivePage = TabSheetVyY11
+    ActivePage = tab20114v
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

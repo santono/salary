@@ -10,7 +10,6 @@
 *.doc
 *.exe
 *.ex~
-*.sql
 *.pdf
 *.res
 *.rtf
