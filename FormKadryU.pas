@@ -456,6 +456,7 @@ begin
              if Nomer_dolg_Val<0 then
                 Nomer_dolg_Val:=0;
              ComboBoxDol.ItemIndex:=Nomer_Dolg_Val;
+             ComboBoxDol.Hint:=ComboBoxDol.Text;
         end;
      ComboBoxWR.Text:=Get_WR_Name(Curr_Person^.Wid_Raboty);
      ComboBoxWR.ItemIndex:=Curr_Person^.Wid_Raboty-1;
@@ -669,6 +670,7 @@ begin
       if Assigned(Curr_Person) then
           begin
                MAKE_DOL_PERSON(CURR_PERSON,Shifr_Dolg(ComboBoxDol.ItemIndex+1));
+               ComboBoxDol.Hint:=NAME_DOLG(ComboBoxDol.ItemIndex+1);
            //    EditRazr.Text:=IntToStr(Razr_Dolg(ComboBoxDol.ItemIndex+1));
            //    EditRazr.Repaint;
            //    SetRazrjadPerson(Curr_Person,Shifr_Dolg(Razr_Dolg(ComboBoxDol.ItemIndex+1)));

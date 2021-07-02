@@ -111,7 +111,7 @@ begin
      else
         begin
             LabelDC.Caption:='Рабочих дней: пятидневка - '+IntToStr(d5)+', шестидневка - '+intToStr(d6)+'. Часов '+IntToStr(c)+'.' ;
-            wantedShifrPKG:=81;
+            wantedShifrPKG:=82;
         end;
      SelectLine;
 end;

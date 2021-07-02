@@ -279,7 +279,6 @@ begin
              ShowMessage('Не выбраны счета');
              Exit;
         end;
-
      LoRazr:=SpinEditLoRazr.Value;
      HiRazr:=SpinEditHiRazr.Value;
      if not ((LoRazr>0) and (HiRazr>0) and (HiRazr>=LoRazr)) then
@@ -287,6 +286,8 @@ begin
              ShowMessage('Не верно указан диапазон разрядов');
              Exit;
         end;
+     BitBtn1.Enabled:=False;
+     Application.ProcessMessages;
      FillOkladyForRazr;
      if isLNR then
         fillDolgOkladyFromSQL;
@@ -411,6 +412,8 @@ begin
             Application.ProcessMessages;
      until FormWaitMess.Timer1.Enabled=false;
      FormWaitMess.Hide;
+     BitBtn1.Enabled:=False;
+     Application.ProcessMessages;
 
 
 

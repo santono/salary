@@ -444,6 +444,8 @@ object FormKadry: TFormKadry
       Font.Style = []
       ItemHeight = 20
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 15
       Text = 'ComboBoxDol'
       OnChange = ComboBoxDolChange

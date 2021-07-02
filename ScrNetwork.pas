@@ -24,8 +24,15 @@ function isNetworkDrive(Drive:string):boolean;
  var retVal:boolean;
         typ:integer;
         dd:string;
+        dVal:Integer;
  begin
-       dd:=Drive+':';
+       if Length(Trim(Drive))=1 then
+          dd:=Drive+':'
+       else
+          dd:=Drive;
+//       dd:=Copy(UpperCase(dd),1,1);
+//       dVal:=ord(DD)-Ord('A');
+       dd:=dd+'\';
        typ := GetDriveType(PChar(dd));
        retVal:=false;
        if Typ <> 0 then
@@ -36,7 +43,7 @@ function isNetworkDrive(Drive:string):boolean;
              end;
            DRIVE_FIXED:
              begin
-//                  ShowMessage('Drive fixed');
+//              ShowMessage('Drive fixed');
              end;
            DRIVE_CDROM:
              begin
@@ -145,9 +152,15 @@ function needCopyOriginProgram:boolean;
      dtNetwork,dtLocal:TDateTime;
  begin
      retVal      := false;
+     if isNetworkDriveStarted then
+        begin
+             needCopyOriginProgram:=retVal;
+             Exit;
+        end;
      nameLocal   := Application.ExeName;
      ageLocal    := FileAge(nameLocal);
      s           := getMainDataDrive;
+
      nameNetwork := s+copy(nameLocal,3,length(nameLocal)-2);
      if FileExists(nameNetwork) then
         begin
@@ -161,6 +174,17 @@ function needCopyOriginProgram:boolean;
      needCopyOriginProgram := retVal;
  end;
 
+function getFileSizeMy(fName:string):Integer;
+  var
+    hFile, fileSize: Integer;
+  begin
+    hFile := FileOpen(fName, fmOpenRead);
+    fileSize := GetFileSize(hFile, nil);
+    FileClose(hFile);
+    getFileSizeMy:=fileSize;
+// результат в переменной fileSize
+  end;
+  
  function copyOriginProgram:boolean;
   var localName, serverName, bakName:string;
       fileName,templateName:string;
@@ -173,7 +197,7 @@ function needCopyOriginProgram:boolean;
       S,ss       : string;
       i,j        : Integer;
       retVal     : Boolean;
-
+      llocalName,lnetWork:Integer;
   begin
       retVal        := True;
       localName     := Application.ExeName;
@@ -223,14 +247,20 @@ function needCopyOriginProgram:boolean;
       s           := getMainDataDrive;
       nameNetwork := s+copy(localName,3,length(localName)-2);
      // copyFile
-
+      lnetWork:=getFileSizeMy(nameNetwork);
       if not CopyFile(PAnsiChar(nameNetwork) , PAnsiChar(localName),false) then
          begin
               showMessage('Ошибка Копирования '+nameNetwork+' в '+localName+' Код ошибки='+IntToStr(GetLastError) );
               retVal:=False;
          end;
-
-      copyOriginProgram:=retVal;
+      llocalName:=getFileSizeMy(localName);
+      if llocalName<>lnetWork then
+         begin
+              showMessage('Ошибка Копирования '+nameNetwork+' в '+localName+' Ошибка размера ' );
+              retVal:=False;
+         end;
+//      showMessage('n='+IntToStr(lnetWork)+' l='+IntToStr(llocalName));
+      copyOriginProgram:= retVal;
   end;
 
 function checkNetworkDrive(Drive:char):boolean;

@@ -165,12 +165,23 @@ object FormRepF4: TFormRepF4
       '     , data_uw'
       '     , code_uwol '
       ' from kadry'
+      '      '
       'where '
       '    (extract(year from kadry.data_pri)=:y1 '
       'and extract(month from kadry.data_pri)=:m1) '
       '    or'
-      '    (extract(year from kadry.data_uw)=:y2 '
-      ' and extract(month from kadry.data_uw)=:m2)')
+      '    ('
+      '     (extract(year from kadry.data_uw)=:y2 '
+      '      and extract(month from kadry.data_uw)=:m2)'
+      '     and not exists ('
+      '          select * from tb_prikazy '
+      '             where tb_prikazy.tabno=kadry.tabno'
+      '               and tb_prikazy.y=:y2'
+      '               and tb_prikazy.m=:m2'
+      '               and tb_prikazy.shifridtyp=17'
+      '         ) '
+      '    )'
+      '    ')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
     Left = 232
@@ -591,5 +602,92 @@ object FormRepF4: TFormRepF4
       'group by 1,2,3')
     Left = 368
     Top = 96
+  end
+  object dsSowmUw: TpFIBDataSet
+    SelectSQL.Strings = (
+      'select kk.tabno'
+      '       ,kk.fio'
+      '       ,kk.nal_code'
+      '       ,kk.data_pri'
+      '       ,kk.data_uw'
+      '       ,kk.code_uwol'
+      
+        '       ,pr.nomerprik,pr.dataprik,coalesce(pr.idclassificator,0) ' +
+        'idclassificator'
+      
+        '       ,substr(pr.kodkp,1,6) kodkp,substr(pr.kodzkpptr,1,5) kodz' +
+        'kpptr, coalesce(pr.namedol,'#39#39') namedol, coalesce(pr.nameprof,'#39#39')' +
+        ' nameprof'
+      '       ,pr.databeg'
+      '       ,pr.dataend'
+      '       from kadry kk'
+      '            join tb_prikazy pr on kk.tabno=pr.tabno'
+      '       where pr.y=:y'
+      '         and pr.m=:m'
+      '         and not pr.content is null'
+      '         and coalesce(pr.shifridtyp,0)=17')
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    Left = 424
+    Top = 56
+    object dsSowmUwTABNO: TFIBIntegerField
+      FieldName = 'TABNO'
+    end
+    object dsSowmUwFIO: TFIBStringField
+      FieldName = 'FIO'
+      Size = 51
+      EmptyStrToNull = True
+    end
+    object dsSowmUwNAL_CODE: TFIBStringField
+      FieldName = 'NAL_CODE'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsSowmUwDATA_PRI: TFIBDateField
+      FieldName = 'DATA_PRI'
+    end
+    object dsSowmUwDATA_UW: TFIBDateField
+      FieldName = 'DATA_UW'
+    end
+    object dsSowmUwCODE_UWOL: TFIBSmallIntField
+      FieldName = 'CODE_UWOL'
+    end
+    object dsSowmUwNOMERPRIK: TFIBStringField
+      FieldName = 'NOMERPRIK'
+      Size = 15
+      EmptyStrToNull = True
+    end
+    object dsSowmUwDATAPRIK: TFIBDateField
+      FieldName = 'DATAPRIK'
+    end
+    object dsSowmUwIDCLASSIFICATOR: TFIBIntegerField
+      FieldName = 'IDCLASSIFICATOR'
+    end
+    object dsSowmUwKODKP: TFIBStringField
+      FieldName = 'KODKP'
+      Size = 80
+      EmptyStrToNull = True
+    end
+    object dsSowmUwKODZKPPTR: TFIBStringField
+      FieldName = 'KODZKPPTR'
+      Size = 80
+      EmptyStrToNull = True
+    end
+    object dsSowmUwNAMEDOL: TFIBStringField
+      FieldName = 'NAMEDOL'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsSowmUwNAMEPROF: TFIBStringField
+      FieldName = 'NAMEPROF'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsSowmUwDATABEG: TFIBDateField
+      FieldName = 'DATABEG'
+    end
+    object dsSowmUwDATAEND: TFIBDateField
+      FieldName = 'DATAEND'
+    end
   end
 end

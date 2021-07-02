@@ -170,6 +170,9 @@ begin
      if not isSVDN then exit;
      if not yesNo('Список, получающих меньше минимальной зарплаты создан?') then Exit;
      Application.CreateForm(TFormRepF4,FormRepF4);
+     FormRepF4.wantedYear:=Self.WantedYear;
+     FormRepF4.wantedMonth:=Self.WantedMonth;
+     FormRepF4.Caption:='Свод з ЕСВ за '+GetMonthUkr(Self.WantedMonth)+' '+IntToStr(self.WantedYear)+'р.';
      FormRepF4.showModal;
 end;
 

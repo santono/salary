@@ -103,6 +103,22 @@ type
     dsPerevodyDATABEG: TFIBDateField;
     dsPerevodyDATAEND: TFIBDateField;
     qBolDay: TpFIBQuery;
+    dsSowmUw: TpFIBDataSet;
+    dsSowmUwTABNO: TFIBIntegerField;
+    dsSowmUwFIO: TFIBStringField;
+    dsSowmUwNAL_CODE: TFIBStringField;
+    dsSowmUwDATA_PRI: TFIBDateField;
+    dsSowmUwDATA_UW: TFIBDateField;
+    dsSowmUwCODE_UWOL: TFIBSmallIntField;
+    dsSowmUwNOMERPRIK: TFIBStringField;
+    dsSowmUwDATAPRIK: TFIBDateField;
+    dsSowmUwIDCLASSIFICATOR: TFIBIntegerField;
+    dsSowmUwKODKP: TFIBStringField;
+    dsSowmUwKODZKPPTR: TFIBStringField;
+    dsSowmUwNAMEDOL: TFIBStringField;
+    dsSowmUwNAMEPROF: TFIBStringField;
+    dsSowmUwDATABEG: TFIBDateField;
+    dsSowmUwDATAEND: TFIBDateField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -135,7 +151,8 @@ type
     procedure fillTable5PrinjatUwolen;
     procedure fillTable5PrinjatUwolenFromPrikazy;
     procedure fillTable5Perevody;
-    procedure fillTable5Sowm;
+    procedure fillTable5SowmPri;
+    procedure fillTable5SowmUw;
 
     procedure fillTable5CPH;
     procedure fillTable5Dekr;
@@ -158,6 +175,8 @@ type
     procedure moveToBD;
 
   public
+    wantedMonth:Integer;
+    wantedYear:Integer;
     { Public declarations }
   end;
 
@@ -502,10 +521,10 @@ implementation
      New(Rec6);
      fillChar(Rec6^,sizeOf(Rec6^),0);
      Rec6.id       := FormRepF4.GetMaxId6+1;
-     Rec6.yearVy   := currYear;
-     Rec6.monthVy  := nmes;
+     Rec6.yearVy   := FormRepF4.wantedYear;
+     Rec6.monthVy  := FormRepF4.wantedMonth;
      Rec6.tabno    := tabno;
-     Rec6.periodM  := nmes;
+     Rec6.periodM  := FormRepF4.wantedMonth;
      Rec6.periodY  := Rec6.yearVy;
      Rec6.rowNum   := 0;
      Rec6.ukrGromad:= 1;
@@ -576,7 +595,7 @@ function TFormRepF4.GetMaxId6:integer;
  end;
 
 procedure TFormRepF4.CreateReport6;
-  var savNMES,savNSRV:integer;
+  var savNMES,savNSRV,savYear:integer;
       iNSRV,i:Integer;
       curr_person:PERSON_PTR;
       curr_add:ADD_PTR;
@@ -586,6 +605,7 @@ procedure TFormRepF4.CreateReport6;
   begin
        savNMES:=NMES;
        savNSRV:=NSRV;
+       NMES:=wantedMonth;
        EMPTY_ALL_PERSON;
        list5:=TList.Create;
        list6:=TList.Create;
@@ -1130,6 +1150,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
                       or
                       (curr_add^.shifr=pochas_shifr)
                       or
+                      (curr_add^.shifr=139) // Пособие на погребение
+                      or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
                       or
                       (curr_add^.shifr=dogPodShifr)
@@ -1162,8 +1184,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
            for i:=1 to 31 do
                if not (curr_person^.TABEL[i] in [0,NEZAPOLN]) then
                   inc(retVal);
-               if retVal>LenMonth(encodeDate(currYear,nmes,1)) then
-                  retVal:=LenMonth(encodeDate(currYear,nmes,1));
+               if retVal>LenMonth(encodeDate(wantedYear,wantedMonth,1)) then
+                  retVal:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
 
            kd_Ptv:=retVal;
       end;
@@ -1175,8 +1197,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
            for i:=1 to 31 do
                if not (curr_person^.TABEL[i] in [0,NEZAPOLN]) then
                   inc(retVal);
-               if retVal>LenMonth(encodeDate(currYear,nmes,1)) then
-                  retVal:=LenMonth(encodeDate(currYear,nmes,1));
+               if retVal>LenMonth(encodeDate(wantedYear,wantedMonth,1)) then
+                  retVal:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
 
            kd_Nzp:=OTPUSK_BEZ_DAY(1,curr_person);
       end;
@@ -1188,7 +1210,7 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
        if ((curr_person^.tabno=11626))
          then
             zo:=25;
-       if nsrv in [82,98,105,106,121] then exit; // 98 - почасовка
+       if nsrv in [82,98,105,106,121,165] then exit; // 98 - почасовка
  //      if nsrv in [82,105,106,121] then exit; // 98 - почасовка
        if DOG_POD_PODRAZD(nsrv) then exit;
        if ((curr_person^.tabno=11609) and (NSRV=98)) then
@@ -1211,8 +1233,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
                zo       := 25;
                summaAdd := summaSciPedAdd;
                payTp    := 0;
-               payYear  := currYear;
-               payMnth  := nmes;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
                w_r      := 1;
                rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp,w_r);
                rec6^.w_r:=1;
@@ -1222,8 +1244,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
                zo       := 1;
                summaAdd := summaNotSciPedAdd;
                payTp    := 0;
-               payYear  := currYear;
-               payMnth  := nmes;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
                rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
                rec6^.w_r:=1;
           end;
@@ -1259,6 +1281,8 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
                       (curr_add^.shifr=dekret_shifr)
                       or
                       (curr_add^.shifr=pochas_shifr)
+                      or
+                      (curr_add^.shifr=139) // Пособие на погребение
                       or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
                       or
@@ -1298,8 +1322,8 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
            for i:=1 to 31 do
                if not (curr_person^.TABEL[i] in [0,NEZAPOLN]) then
                   inc(retVal);
-               if retVal>LenMonth(encodeDate(currYear,nmes,1)) then
-                  retVal:=LenMonth(encodeDate(currYear,nmes,1));
+               if retVal>LenMonth(encodeDate(wantedYear,wantedMonth,1)) then
+                  retVal:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
 
            kd_Ptv:=retVal;
            kd_ptv:=0;
@@ -1312,8 +1336,8 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
            for i:=1 to 31 do
                if not (curr_person^.TABEL[i] in [0,NEZAPOLN]) then
                   inc(retVal);
-               if retVal>LenMonth(encodeDate(currYear,nmes,1)) then
-                  retVal:=LenMonth(encodeDate(currYear,nmes,1));
+               if retVal>LenMonth(encodeDate(wantedYear,wantedMonth,1)) then
+                  retVal:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
 
            kd_Nzp:=OTPUSK_BEZ_DAY(1,curr_person);
        if kd_nzp>0 then
@@ -1323,7 +1347,7 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
 
   begin
        if IS_OSN_WID_RABOTY(curr_person) then exit;
-       if nsrv in [82,98,105,106,121] then exit;  // 98 - почасовка
+       if nsrv in [82,98,105,106,121,165] then exit;  // 98 - почасовка
        if DOG_POD_PODRAZD(nsrv) then exit;
        if GET_DOL_CODE(curr_person)=5 then Exit;         //Надбавка ушла в основную
        summaAdd:=getSummaOsnAddForPerson(curr_person);
@@ -1348,8 +1372,8 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
 //               zo       := 25;
                summaAdd := summaSciPedAdd;
                payTp    := 0;
-               payYear  := currYear;
-               payMnth  := nmes;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
 //             function addToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0):pRec6;
                rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,otk,0,0,2);
                rec6^.w_r:=2;
@@ -1378,8 +1402,8 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
                zo       := 1;
                summaAdd := summaNotSciPedAdd;
                payTp    := 0;
-               payYear  := currYear;
-               payMnth  := nmes;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
 //             function addToF6(TABNO,zo,payTp,payMnth,payYear:integer;summaAdd:real;needZero:boolean=false;otk:integer=1;kd_ptv:integer=0;kd_nzp:integer=0;w_r:integer=0):pRec6;
                rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,otk,0,0,2);
                rec6^.w_r:=2;
@@ -1439,8 +1463,8 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
            for i:=1 to 31 do
                if not (curr_person^.TABEL[i] in [0,NEZAPOLN]) then
                   inc(retVal);
-               if retVal>LenMonth(encodeDate(currYear,nmes,1)) then
-                  retVal:=LenMonth(encodeDate(currYear,nmes,1));
+               if retVal>LenMonth(encodeDate(wantedYear,wantedMonth,1)) then
+                  retVal:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
 
            kd_Ptv:=retVal;
       end;
@@ -1452,14 +1476,14 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
            for i:=1 to 31 do
                if not (curr_person^.TABEL[i] in [0,NEZAPOLN]) then
                   inc(retVal);
-               if retVal>LenMonth(encodeDate(currYear,nmes,1)) then
-                  retVal:=LenMonth(encodeDate(currYear,nmes,1));
+               if retVal>LenMonth(encodeDate(wantedYear,wantedMonth,1)) then
+                  retVal:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
            kd_Nzp:=OTPUSK_BEZ_DAY(1,curr_person);
       end;
 
   begin
   //     Exit;  // - Почасовки нет
-       if nsrv in [82,105,106,121] then exit;
+       if nsrv in [82,105,106,121,165] then exit;
        if DOG_POD_PODRAZD(nsrv) then exit;
        if ((curr_person^.tabno=3554) and (nsrv=98))
          then
@@ -1478,8 +1502,8 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
                zo       := 25;
                summaAdd := summaSciPedAdd;
                payTp    := 0;
-               payYear  := currYear;
-               payMnth  := nmes;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
                rec6     := addSummaToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp,1);
                if rec6=nil then
                   begin
@@ -1495,8 +1519,8 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
                zo       := 1;
                summaAdd := summaNotSciPedAdd;
                payTp    := 0;
-               payYear  := currYear;
-               payMnth  := nmes;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
 //               rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
                rec6     := addSummaToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp,1);
                if rec6=nil then
@@ -1848,6 +1872,8 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
                       or
                       (curr_add^.shifr=dekret_shifr)
                       or
+                      (curr_add^.shifr=139) // Пособие на погребение
+                      or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
                       ) then
                       begin
@@ -1867,8 +1893,8 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
                zo       := 26;     //
                summaAdd := summaAdd;
                payTp    := 0;
-               payYear  := currYear;
-               payMnth  := nmes;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
                rec6:=addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,0);
                if curr_Person^.TABNO=11982 then
                   zo:=26;
@@ -1879,7 +1905,7 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
               if curr_person^.MESTO_OSN_RABOTY<>82 then
                   shifrDogDetId:=0;
 
-               if ((NMES=4) and (currYear=2020)) then
+               if ((NMES=4) and (wantedYear=2020)) then
                   begin
                         if curr_person^.tabno=11986 then
                            shifrDogDetId:=-1
@@ -1984,7 +2010,7 @@ procedure TFormRepF4.fillPremPerson(curr_person:person_ptr);
                          end;
                if not finded then
                   begin
-                       rec6:=addToF6(curr_Person^.TABNO,zo,0,nmes,currYear,summaAdd);
+                       rec6:=addToF6(curr_Person^.TABNO,zo,0,wantedMonth,wantedYear,summaAdd);
                        rec6.w_r:=curr_person^.WID_RABOTY;
                        if curr_person^.MESTO_OSN_RABOTY=82 then
                           begin
@@ -2104,10 +2130,10 @@ procedure TFormRepF4.fillDoplDoMin;
       otkimp:=0;
       zoimp:=1;
       expimp:=0;
-      payYear:=currYear;
-      payMnth:=NMES;
-      dsMinSal.Params[0].Value:=currYear;
-      dsMinSal.Params[1].Value:=NMES;
+      payYear:=wantedYear;
+      payMnth:=wantedMonth;
+      dsMinSal.Params[0].Value:=wantedYear;
+      dsMinSal.Params[1].Value:=wantedMonth;
       dsMinSal.Transaction.StartTransaction;
       dsMinSal.Open;
       while not dsMinSal.Eof do
@@ -2141,7 +2167,8 @@ procedure TFormRepF4.fillTable5;
       fillTable5Perevody;
       fillTable5CPH;
   //    fillTable5Dekr;
-      fillTable5Sowm;
+      fillTable5SowmPri;
+      fillTable5SowmUw;
 
  end;
 procedure TFormRepF4.fillTable5PrinjatUwolen;
@@ -2160,10 +2187,10 @@ procedure TFormRepF4.fillTable5PrinjatUwolen;
      rec6:pRec6;
      zo:integer;
  begin
-      dsPrinjatUwolen.Params[0].Value:=currYear;
-      dsPrinjatUwolen.Params[1].Value:=nmes;
-      dsPrinjatUwolen.Params[2].Value:=currYear;
-      dsPrinjatUwolen.Params[3].Value:=nmes;
+      dsPrinjatUwolen.Params[0].Value:=wantedYear;
+      dsPrinjatUwolen.Params[1].Value:=wantedMonth;
+      dsPrinjatUwolen.Params[2].Value:=wantedYear;
+      dsPrinjatUwolen.Params[3].Value:=wantedMonth;
       dsPrinjatUwolen.Transaction.StartTransaction;
       dsPrinjatUwolen.Open;
       while (not dsPrinjatUwolen.Eof) do
@@ -2179,10 +2206,10 @@ procedure TFormRepF4.fillTable5PrinjatUwolen;
              if not dsPrinjatUwolenCODE_UWOL.IsNull then
                 codeUwol:=dsPrinjatUwolenCODE_UWOL.Value;
              startDt:=1;
-             endDt:=lenMonth(encodeDate(currYear,nmes,1));
-             if ((yearOf(datePri)=currYear) and (monthOf(datePri)=nmes)) then
+             endDt:=lenMonth(encodeDate(wantedYear,wantedMonth,1));
+             if ((yearOf(datePri)=wantedYear) and (monthOf(datePri)=wantedMonth)) then
                 startDt:=dayOf(datePri);
-             if ((yearOf(dateUw)=currYear) and (monthOf(dateUw)=nmes)) then
+             if ((yearOf(dateUw)=wantedYear) and (monthOf(dateUw)=wantedMonth)) then
                 endDt:=dayOf(dateUw);
              reasonUwol:='';
              if codeUwol>0 then
@@ -2226,8 +2253,8 @@ procedure TFormRepF4.fillTable5PrinjatUwolen;
                      reasonUwol:=trim(copy(reasonUwol+space(250),1,250));
                      new(rec5);
                      fillChar(rec5^,sizeOf(rec5^),0);
-                     rec5.YEARVY:=currYear;
-                     rec5.monthVy:=nmes;
+                     rec5.YEARVY:=wantedYear;
+                     rec5.monthVy:=wantedMonth;
                      rec5.tabno:=tabno;
                      rec5.PERIODM:=rec5.monthVy;
                      rec5.PERIODY:=rec5.yearVy;
@@ -2273,8 +2300,8 @@ procedure TFormRepF4.fillTable5PrinjatUwolenFromPrikazy;
      d,m,y:Integer;
      ds,ms,ys:string;
  begin
-      dsPriUwPrik.Params[0].Value:=currYear;
-      dsPriUwPrik.Params[1].Value:=nmes;
+      dsPriUwPrik.Params[0].Value:=wantedYear;
+      dsPriUwPrik.Params[1].Value:=wantedMonth;
       dsPriUwPrik.Transaction.StartTransaction;
       dsPriUwPrik.Open;
       while (not dsPriUwPrik.Eof) do
@@ -2312,10 +2339,10 @@ procedure TFormRepF4.fillTable5PrinjatUwolenFromPrikazy;
                    NomerPrik:=Trim(dsPriUwPrikNOMERPRIK.value);
 
              startDt:=1;
-             endDt:=lenMonth(encodeDate(currYear,nmes,1));
-             if ((yearOf(datePri)=currYear) and (monthOf(datePri)=nmes)) then
+             endDt:=lenMonth(encodeDate(wantedYear,wantedMonth,1));
+             if ((yearOf(datePri)=wantedYear) and (monthOf(datePri)=wantedMonth)) then
                 startDt:=dayOf(datePri);
-             if ((yearOf(dateUw)=currYear) and (monthOf(dateUw)=nmes)) then
+             if ((yearOf(dateUw)=wantedYear) and (monthOf(dateUw)=wantedMonth)) then
                 endDt:=dayOf(dateUw);
              reasonUwol:='';
              if codeUwol>0 then
@@ -2359,8 +2386,8 @@ procedure TFormRepF4.fillTable5PrinjatUwolenFromPrikazy;
                      reasonUwol:=trim(copy(reasonUwol+space(250),1,250));
                      new(rec5);
                      fillChar(rec5^,sizeOf(rec5^),0);
-                     rec5.YEARVY  := currYear;
-                     rec5.monthVy := nmes;
+                     rec5.YEARVY  := wantedYear;
+                     rec5.monthVy := wantedMonth;
                      rec5.tabno   := tabno;
                      rec5.PERIODM := rec5.monthVy;
                      rec5.PERIODY := rec5.yearVy;
@@ -2423,8 +2450,8 @@ procedure TFormRepF4.fillTable5Perevody;
  begin
       VS:=0;
       PIR:=0;
-      dsPerevody.Params[0].Value:=currYear;
-      dsPerevody.Params[1].Value:=nmes;
+      dsPerevody.Params[0].Value:=wantedYear;
+      dsPerevody.Params[1].Value:=wantedMonth;
       dsPerevody.Transaction.StartTransaction;
       dsPerevody.Open;
       while (not dsPerevody.Eof) do
@@ -2500,15 +2527,15 @@ procedure TFormRepF4.fillTable5Perevody;
                 nameprof_old:=dsPerevodyNAMEPROF_OLD.Value;
              startDt:=1;
              endDt:=1;
-             if ((yearOf(datePri)=currYear) and (monthOf(datePri)=nmes)) then
+             if ((yearOf(datePri)=wantedYear) and (monthOf(datePri)=wantedMonth)) then
                 startDt:=dayOf(datePri);
-             if ((yearOf(dateUw)=currYear) and (monthOf(dateUw)=nmes)) then
+             if ((yearOf(dateUw)=wantedYear) and (monthOf(dateUw)=wantedMonth)) then
                 endDt:=dayOf(dateUw);
              startDt1:=startDt;
              endDt1:=endDt;
              startDt2:=startDt;
              endDt2:=endDt;
-             if ((monthOf(datebeg)=NMES) and (YearOf(datebeg)=CURRYEAR)) then
+             if ((monthOf(datebeg)=NMES) and (YearOf(datebeg)=wantedYear)) then
                 begin
                      startDt1:=DayOf(datebeg);
                      endDt2:=StartDt1-1;
@@ -2571,8 +2598,8 @@ procedure TFormRepF4.fillTable5Perevody;
                      pid:=trim(copy(pid+space(250),1,250));
                      new(rec5);
                      fillChar(rec5^,sizeOf(rec5^),0);
-                     rec5.YEARVY:=currYear;
-                     rec5.monthVy:=nmes;
+                     rec5.YEARVY:=wantedYear;
+                     rec5.monthVy:=wantedMonth;
                      rec5.tabno:=tabno;
                      rec5.PERIODM:=rec5.monthVy;
                      rec5.PERIODY:=rec5.yearVy;
@@ -2604,8 +2631,8 @@ procedure TFormRepF4.fillTable5Perevody;
                      pid:=trim(copy(pid+space(250),1,250));
                      new(rec5);
                      fillChar(rec5^,sizeOf(rec5^),0);
-                     rec5.YEARVY:=currYear;
-                     rec5.monthVy:=nmes;
+                     rec5.YEARVY:=wantedYear;
+                     rec5.monthVy:=wantedMonth;
                      rec5.tabno:=tabno;
                      rec5.PERIODM:=rec5.monthVy;
                      rec5.PERIODY:=rec5.yearVy;
@@ -2634,8 +2661,8 @@ procedure TFormRepF4.fillTable5Perevody;
       dsPerevody.Close;
       dsPerevody.Transaction.commit;
  end;
-procedure TFormRepF4.fillTable5Sowm;
-//Принятые и уволенные своместители - преподаватели
+procedure TFormRepF4.fillTable5SowmPri;
+//Принятые совместители - преподаватели
  var tabno:integer;
      i,j:integer;
      finded,finded6:boolean;
@@ -2664,8 +2691,8 @@ procedure TFormRepF4.fillTable5Sowm;
  begin
       vs:=0;
       pir:=0;
-      dsSowm.Params[0].Value:=currYear;
-      dsSowm.Params[1].Value:=nmes;
+      dsSowm.Params[0].Value:=wantedYear;
+      dsSowm.Params[1].Value:=wantedMonth;
       dsSowm.Transaction.StartTransaction;
       dsSowm.Open;
       while (not dsSowm.Eof) do
@@ -2713,9 +2740,9 @@ procedure TFormRepF4.fillTable5Sowm;
                 nameprof:=dsSowmNAMEPROF.Value;
              startDt:=0;
              endDt:=0;
-             if ((yearOf(datePri)=currYear) and (monthOf(datePri)=nmes)) then
+             if ((yearOf(datePri)=wantedYear) and (monthOf(datePri)=wantedMonth)) then
                 startDt:=dayOf(datePri);
-             if ((yearOf(dateUw)=currYear) and (monthOf(dateUw)=nmes)) then
+             if ((yearOf(dateUw)=wantedYear) and (monthOf(dateUw)=wantedMonth)) then
                 endDt:=dayOf(dateUw);
              reasonUwol:='';
 //             if codeUwol>0 then
@@ -2730,7 +2757,7 @@ procedure TFormRepF4.fillTable5Sowm;
                 and
                 (length(trim(nomerprik))>0)) then
                 begin
-                    pid:='Приказ '+trim(nomerprik)+' від ';
+                    pid:='Наказ '+trim(nomerprik)+' від ';
                     if (dayOf(dataPrik)<10) then
                        pid:=pid+'0';
                     pid:=pid+intToStr(dayOf(dataPrik))+'.';
@@ -2776,8 +2803,8 @@ procedure TFormRepF4.fillTable5Sowm;
                      pid:=trim(copy(pid+space(250),1,250));
                      new(rec5);
                      fillChar(rec5^,sizeOf(rec5^),0);
-                     rec5.YEARVY:=currYear;
-                     rec5.monthVy:=nmes;
+                     rec5.YEARVY:=wantedYear;
+                     rec5.monthVy:=wantedMonth;
                      rec5.tabno:=tabno;
                      rec5.PERIODM:=rec5.monthVy;
                      rec5.PERIODY:=rec5.yearVy;
@@ -2808,6 +2835,184 @@ procedure TFormRepF4.fillTable5Sowm;
         end;
       dsSowm.Close;
       dsSowm.Transaction.commit;
+ end;
+
+procedure TFormRepF4.fillTable5SowmUw;
+//Уволенные совместители - преподаватели
+ var tabno:integer;
+     i,j:integer;
+     finded,finded6:boolean;
+     rec5:pRec5;
+     startDt,endDt:integer;
+     codeUwol:integer;
+     datePri:tDateTime;
+     dateUw:TDateTime;
+     SQLStmnt:string;
+     v:variant;
+     reasonUwol:string;
+     recPerson:pRecPerson;
+     rec6:pRec6;
+     zo:integer;
+     nomerprik:string;
+     dataprik:TDateTime;
+     idclassificator:integer;
+     kodkp : string;
+     kodzkpptr : string;
+     namedol : string;
+     nameprof : string;
+     pid:string;
+     vzv:string;
+     Vs,pir:Integer;
+
+ begin
+      vs:=1;
+      pir:=0;
+      dsSowmUw.Params[0].Value:=wantedYear;
+      dsSowmUw.Params[1].Value:=wantedMonth;
+      dsSowmUw.Transaction.StartTransaction;
+      dsSowmUw.Open;
+      while (not dsSowmUw.Eof) do
+        begin
+             tabno:=dsSowmUwTABNO.value;
+             if tabno=8634 then
+                vs:=1;
+             if dsSowmUwDATABEG.IsNull then
+                datePri:=encodedate(1990,1,1)
+             else
+                datePri:=dsSowmUwDATABEG.value;
+             if dsSowmUwDATAEND.IsNull then
+                dateUw:=encodedate(1990,1,1)
+             else
+                dateUw:=dsSowmUwDATAEND.value;
+             if dsSowmUwCODE_UWOL.IsNull then
+                codeUwol:=0
+             else
+                codeUwol:=dsSowmUwCODE_UWOL.Value;
+             if dsSowmUwNOMERPRIK.IsNull then
+                nomerprik:=''
+             else
+                nomerprik:=dsSowmUwNOMERPRIK.Value;
+             if dsSowmUwDATAPRIK.IsNull then
+                dataprik:=encodedate(1990,1,1)
+             else
+                dataprik:=dsSowmUwDATAPRIK.Value;
+             if dsSowmUwIDCLASSIFICATOR.IsNull then
+                idclassificator:=0
+             else
+                idclassificator:=dsSowmUwIDCLASSIFICATOR.value;
+             if dsSowmUwKODKP.isNull then
+                kodKp:=''
+             else
+                kodkp:=dsSowmUwKODKP.Value;
+             if dsSowmUwKODZKPPTR.isNull then
+                kodzkpptr:=''
+             else
+                kodzkpptr:=dsSowmUwKODZKPPTR.Value;
+             if dsSowmUwNAMEDOL.isNull then
+                nameDol:=''
+             else
+                nameDol:=dsSowmUwNAMEDOL.Value;
+             if dsSowmUwNAMEPROF.isNull then
+                nameProf:=''
+             else
+                nameprof:=dsSowmUwNAMEPROF.Value;
+             startDt:=0;
+             endDt:=0;
+             if ((yearOf(datePri)=wantedYear) and (monthOf(datePri)=wantedMonth)) then
+                startDt:=dayOf(datePri);
+             if ((yearOf(dateUw)=wantedYear) and (monthOf(dateUw)=wantedMonth)) then
+                endDt:=dayOf(dateUw);
+             reasonUwol:='';
+//             if codeUwol>0 then
+//                begin
+//                     SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
+//                     v:=SQLQueryValue(SQLStmnt);
+//                     if VarIsStr(v) then
+//                        reasonUwol:=trim(ReplQto2Q(v));
+//                end;
+             pid:='';
+             if ((yearOf(dataprik)>2017)
+                and
+                (length(trim(nomerprik))>0)) then
+                begin
+                    pid:='Наказ '+trim(nomerprik)+' від ';
+                    if (dayOf(dataPrik)<10) then
+                       pid:=pid+'0';
+                    pid:=pid+intToStr(dayOf(dataPrik))+'.';
+                    if (monthOf(dataPrik)<10) then
+                       pid:=pid+'0';
+                    pid:=pid+intToStr(monthOf(dataPrik))+'.';
+                    pid:=pid+intToStr(yearOf(dataprik));
+                end;
+             finded:=false;
+             recPerson:=nil;
+             if listCheck.Count>0 then
+                for i:=0 to listCheck.Count-1 do
+                    if pRecPerson(listCheck.Items[i]).tabno=tabno then
+                       begin
+                            recPerson:=pRecPerson(listCheck.Items[i]);
+                            finded:=true;
+                            break;
+                       end;
+             finded6:=false;
+             rec6:=nil;
+             zo:=2;       //Трудова книжка на підприэмстві
+             if list6.Count>0 then
+                for i:=0 to list6.Count-1 do
+                    if pRec6(list6.Items[i]).tabno=tabno then
+                    if pRec6(list6.Items[i]).zo in [1,2,25,26,32] then
+                       begin
+   //                         zo:=pRec6(list6.Items[i]).zo;
+                            rec6:=pRec6(list6.Items[i]);
+                            finded6:=true;
+                            break;
+                       end;
+             if not finded6 then
+                zo:=2;
+             if finded6 then
+             if recPerson<>nil then
+                begin
+                     pid      := trim(copy(pid+space(250),1,250));
+                     nameDol  := trim(copy(nameDol+space(250),1,250));
+                     nameProf := trim(copy(nameProf+space(250),1,250));
+                     kodzkpptr:= trim(copy(kodzkpptr+space(5),1,5));
+                     kodkp    := trim(copy(kodkp+space(6),1,6));
+                     vzv      := '';
+                     pid:=trim(copy(pid+space(250),1,250));
+                     new(rec5);
+                     fillChar(rec5^,sizeOf(rec5^),0);
+                     rec5.YEARVY:=wantedYear;
+                     rec5.monthVy:=wantedMonth;
+                     rec5.tabno:=tabno;
+                     rec5.PERIODM:=rec5.monthVy;
+                     rec5.PERIODY:=rec5.yearVy;
+                     if finded6 then
+                        rec5.UKRGROMAD:=rec6.ukrGromad
+                     else
+                        rec5.UKRGROMAD:=1;
+
+                     rec5.NUMIDENT:=trim(recPerson.numIdent);
+                     rec5.FIO:=trim(recPerson.fio);
+                     rec5.NM:=trim(recPerson.nm);
+                     rec5.FTN:=trim(recPerson.ftn);
+                     rec5.START_DT:=startDt;
+                     rec5.END_DT:=endDt;
+                     rec5.ZO:=zo;
+                     rec5.PID_ZV:=reasonUwol;
+                     rec5.PNR:=trim(ReplQto2Q(nameprof));
+                     rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr));
+                     rec5.prof:=trim(ReplQto2Q(kodkp));
+                     rec5.POS:=trim(ReplQto2Q(namedol));
+                     rec5.PID:=trim(pid);
+                     rec5.VZV:=trim(vzv);
+                     rec5.VS := VS;
+                     rec5.PIR:=PIR;
+                     list5.Add(rec5);
+                end;
+             dsSowmUw.Next;
+        end;
+      dsSowmUw.Close;
+      dsSowmUw.Transaction.commit;
  end;
 
 procedure TFormRepF4.fillTable5CPH;
@@ -2847,7 +3052,7 @@ procedure TFormRepF4.fillTable5CPH;
               SQLStmnt := trim(SQLStmnt) + ' join kadry on kadry.tabno=tb_dogovora_gn_det.tabno';
               SQLStmnt := trim(SQLStmnt) + ' join person on person.tabno=kadry.tabno';
               SQLStmnt := trim(SQLStmnt) + ' join tb_dogovora_gn on tb_dogovora_gn.id=tb_dogovora_gn_det.iddog';
-              SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(currYear)+' and person.monthvy='+intToStr(nmes);
+              SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(wantedYear)+' and person.monthvy='+intToStr(wantedMonth);
               SQLStmnt := trim(SQLStmnt) + ' and person.tabno='+intToStr(tabno)+' and tb_dogovora_gn_det.id='+intToStr(shifrDogDetId);
               SQLStmnt := trim(SQLStmnt) + ' and (select abs(coalesce(sum(fadd.summa),0)) from fadd where fadd.shifridperson=person.shifrid)>0.01)';
               SQLStmnt := trim(SQLStmnt) + ' and (person.w_place in (81,140))';
@@ -2866,7 +3071,7 @@ procedure TFormRepF4.fillTable5CPH;
               SQLStmnt := trim(SQLStmnt) + ' join kadry on kadry.tabno=tb_dogovora_gn_det.tabno';
               SQLStmnt := trim(SQLStmnt) + ' join person on person.tabno=kadry.tabno';
               SQLStmnt := trim(SQLStmnt) + ' join tb_dogovora_gn on tb_dogovora_gn.id=tb_dogovora_gn_det.iddog';
-              SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(currYear)+' and person.monthvy='+intToStr(nmes);
+              SQLStmnt := trim(SQLStmnt) + ' where (person.yearvy='+intToStr(wantedYear)+' and person.monthvy='+intToStr(wantedMonth);
               SQLStmnt := trim(SQLStmnt) + ' and person.tabno='+intToStr(tabno)+' and tb_dogovora_gn_det.id='+intToStr(shifrDogDetId);
               SQLStmnt := trim(SQLStmnt) + ' and (select abs(coalesce(sum(fadd.summa),0)) from fadd where fadd.shifridperson=person.shifrid)>0.01)';
               SQLStmnt := trim(SQLStmnt) + ' and (person.w_place in (81,140))';
@@ -2891,7 +3096,7 @@ procedure TFormRepF4.fillTable5CPH;
                  reasonOk := e;
               e:=trim(e);
               if length(e)<1 then
-                 reasonOk := 'гд. 61 ЦКУ';
+                 reasonOk := 'гл. 61 ЦКУ';
               reasonOk:=trim(copy(reasonOk+space(250),1,250));
               y:=yearOf(DateFr);
               if ((y<2017) or  (y>2030)) then
@@ -2900,10 +3105,10 @@ procedure TFormRepF4.fillTable5CPH;
               if ((yearOf(DateTo)<2017) or  (yearOf(DateTo)>2030)) then
                   dateTo:=encodeDate(1990,1,1,);
               startdt:=1;
-              enddt:=lenMonth(enCodeDate(currYear,nmes,1));
-              if ((yearOf(DateFr)=currYear) and (monthOf(dateFr)=nmes)) then
+              enddt:=lenMonth(enCodeDate(wantedYear,wantedMonth,1));
+              if ((yearOf(DateFr)=wantedYear) and (monthOf(dateFr)=wantedMonth)) then
                  startDt:=dayOf(DateFr);
-              if ((yearOf(DateTo)=currYear) and (monthOf(dateTo)=nmes)) then
+              if ((yearOf(DateTo)=wantedYear) and (monthOf(dateTo)=wantedMonth)) then
                  endDt:=dayOf(DateTo);
              d:=DayOf(dateFr);
              m:=monthOf(dateFr);
@@ -2958,8 +3163,8 @@ procedure TFormRepF4.fillTable5CPH;
                      reasonOk:=trim(copy(reasonOk+space(250),1,250));
                      new(rec5);
                      fillChar(rec5^,sizeOf(rec5^),0);
-                     rec5.YEARVY    := currYear;
-                     rec5.monthVy   := nmes;
+                     rec5.YEARVY    := wantedYear;
+                     rec5.monthVy   := wantedMonth;
                      rec5.tabno     := tabno;
                      rec5.PERIODM   := rec5.monthVy;
                      rec5.PERIODY   := rec5.yearVy;
@@ -3024,9 +3229,9 @@ procedure TFormRepF4.fillTable5Dekr;
  begin
       vs:=0;
       pir:=0;
-      lm:=lenMonth(encodedate(curryear,nmes,1));
-      pm1:=nmes;
-      py1:=currYear;
+      lm:=lenMonth(encodedate(wantedYear,wantedMonth,1));
+      pm1:=wantedMonth;
+      py1:=wantedYear;
       pm2:=pm1;
       py2:=py1;
       dateFr:=encodedate(py1,pm1,1);
@@ -3076,11 +3281,11 @@ procedure TFormRepF4.fillTable5Dekr;
                       startDt:=0;
                       endDt:=0;
                       pid:='';
-                      if ((yearOf(F_Data)=currYear)
-                           and (monthOf(F_Data)=nmes)) then
+                      if ((yearOf(F_Data)=wantedYear)
+                           and (monthOf(F_Data)=wantedMonth)) then
                          startdt:=dayOf(F_Data);
-                      if ((yearOf(L_Data)=currYear)
-                           and (monthOf(L_Data)=nmes)) then
+                      if ((yearOf(L_Data)=wantedYear)
+                           and (monthOf(L_Data)=wantedMonth)) then
                          enddt:=monthOf(L_Data);
                       ZO:=modeIll;
                       if ((ZO<4) or (ZO>6)) then
@@ -3121,8 +3326,8 @@ procedure TFormRepF4.fillTable5Dekr;
 //                                    pid:=trim(copy(pid+space(250),1,250));
                                       new(rec5);
                                       fillChar(rec5^,sizeOf(rec5^),0);
-                                      rec5.YEARVY:=currYear;
-                                      rec5.monthVy:=nmes;
+                                      rec5.YEARVY:=wantedYear;
+                                      rec5.monthVy:=wantedMonth;
                                       rec5.tabno:=tabno;
                                       rec5.PERIODM:=rec5.monthVy;
                                       rec5.PERIODY:=rec5.yearVy;
@@ -3153,8 +3358,8 @@ procedure TFormRepF4.fillTable5Dekr;
                      zo       := 1;
                      summaAdd := 0.00;
                      payTp    := 0;
-                     payYear  := currYear;
-                     payMnth  := nmes;
+                     payYear  := wantedYear;
+                     payMnth  := wantedMonth;
                      kdPtv    := LenMonth(dateTo);
                      kdPtv    := kdPtv - startDt - (lenMonth(dateTo)-endDt);
                      if kdPtv<0 then
@@ -3213,7 +3418,7 @@ procedure TFormRepF4.fillTable7;
                          end;
                if Finded then continue;
                startDt:=1;
-               endDt:=LenMonth(encodeDate(currYear,nmes,1));
+               endDt:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
                if listCheck.count>0 then
                   for j:=0 to listCheck.Count-1 do
                       if pRecPerson(listCheck.Items[j]).tabno=pRec6(list6.Items[i]).tabno then
@@ -3224,8 +3429,8 @@ procedure TFormRepF4.fillTable7;
                          end;
                new(rec7);
                fillChar(rec7^,sizeOf(rec7^),0);
-               rec7.yearVy:=currYear;
-               rec7.monthVy:=nmes;
+               rec7.yearVy:=wantedYear;
+               rec7.monthVy:=wantedMonth;
                rec7.tabno:=pRec6(list6.Items[i]).tabno;
                rec7.PERIODM:=rec7.monthVy;
                rec7.PERIODY:=rec7.yearVy;
@@ -3260,8 +3465,8 @@ procedure TFormRepF4.fillTable7Dekr;
  begin
       if list6.Count<1 then exit;
       ms:=IntToStr(NMES);
-      ys:=IntToStr(CURRYEAR);
-      ds:=IntToStr(lenMonth(EncodeDate(CURRYEAR,NMES,1)));
+      ys:=IntToStr(wantedYear);
+      ds:=IntToStr(lenMonth(EncodeDate(wantedYear,wantedMonth,1)));
       SQLStmnt:='select b.tabno,b.fio,b.inn,b.date_fr,b.date_to,coalesce(b.kind,4) kind from tb_dekr_ecb b';
       SQLStmnt:=SQLStmnt+' join kadry k on b.tabno=k.tabno';
       SQLStmnt:=SQLStmnt+' where';
@@ -3302,7 +3507,7 @@ procedure TFormRepF4.fillTable7Dekr;
 //                       continue;
 //                  end;
                startDt:=1;
-               endDt:=LenMonth(encodeDate(currYear,nmes,1));
+               endDt:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
 //               if listCheck.count>0 then
 //                  for j:=0 to listCheck.Count-1 do
 //                      if pRecPerson(listCheck.Items[j]).tabno=pRec6(list6.Items[i]).tabno then
@@ -3313,8 +3518,8 @@ procedure TFormRepF4.fillTable7Dekr;
 //                         end;
                new(rec7);
                fillChar(rec7^,sizeOf(rec7^),0);
-               rec7.yearVy  := currYear;
-               rec7.monthVy := nmes;
+               rec7.yearVy  := wantedYear;
+               rec7.monthVy := wantedMonth;
                rec7.tabno   := tabno;
                rec7.PERIODM := rec7.monthVy;
                rec7.PERIODY := rec7.yearVy;
@@ -3452,7 +3657,7 @@ procedure TFormRepF4.fillFullList6Recs;
 //                pRec6(list6.items[i])^.exp := 0; ////
                 pRec6(list6.items[i])^.kdnp := 0; ///
                 pRec6(list6.items[i])^.kdnzp := 0; ///
-//                pRec6(list6.items[i])^.kdptv := LenMonth(encodedate(currYear,nmes,1));
+//                pRec6(list6.items[i])^.kdptv := LenMonth(encodedate(wantedYear,wantedMonth,1));
                 pRec6(list6.items[i])^.kdvp := 0; ///;
 //                pRec6(list6.items[i])^.nrc := 0; ///;
                 pRec6(list6.items[i])^.sumNarah := 0; ///;
@@ -3509,7 +3714,7 @@ procedure TFormRepF4.fillFullList6RecsFromCheckList;
 
                 if (pRec6(list6.items[i])^.zo in [1,2,25,32]) then // работник
                    if not (pRec6(list6.items[i])^.payTp in [10,13]) then // не отпускные
-                      if ((pRec6(list6.items[i])^.payYear=currYear) and (pRec6(list6.items[i])^.payMnth=nmes)) then
+                      if ((pRec6(list6.items[i])^.payYear=wantedYear) and (pRec6(list6.items[i])^.payMnth=wantedMonth)) then
                          begin
 //                              pRec6(list6.items[i])^.kdptv := recPerson.kdPtv;
  //                             pRec6(list6.items[i])^.kdnzp := recPerson.kdNzp; ///
@@ -3605,9 +3810,9 @@ procedure TFormRepF4.fillSownVneList;
                     and
                     (pRec6(list6.Items[i]).payMnth=NMES)
                     and
-                    (pRec6(list6.Items[i]).payYear=CURRYEAR)
+                    (pRec6(list6.Items[i]).payYear=wantedYear)
                    ) then
-                   pRec6(list6.Items[i]).kdPtv:=LenMonth(EncodeDate(CURRYEAR,NMES,1));
+                   pRec6(list6.Items[i]).kdPtv:=LenMonth(EncodeDate(wantedYear,wantedMonth,1));
 
            end;
 
@@ -3691,11 +3896,11 @@ procedure TFormRepF4.moveToBD;
  begin
      formWait.Show;
      Application.ProcessMessages;
-     sqlStmnt:='delete from tb_e04t05c where yearvy='+intToStr(currYear)+' and monthvy='+intToStr(nmes);
+     sqlStmnt:='delete from tb_e04t05c where yearvy='+intToStr(wantedYear)+' and monthvy='+intToStr(wantedMonth);
      SQLExecute(SQLStmnt);
-     sqlStmnt:='delete from tb_e04t06c where yearvy='+intToStr(currYear)+' and monthvy='+intToStr(nmes);
+     sqlStmnt:='delete from tb_e04t06c where yearvy='+intToStr(wantedYear)+' and monthvy='+intToStr(wantedMonth);
      SQLExecute(SQLStmnt);
-     sqlStmnt:='delete from tb_e04t07c where yearvy='+intToStr(currYear)+' and monthvy='+intToStr(nmes);
+     sqlStmnt:='delete from tb_e04t07c where yearvy='+intToStr(wantedYear)+' and monthvy='+intToStr(wantedMonth);
      SQLExecute(SQLStmnt);
      if ((list5.Count<1) and (list6.Count<1) and (list7.Count<1)) then
         begin
@@ -3913,7 +4118,7 @@ procedure TFormRepF4.fillCheckList;
                   for j:=0 to recPerson.addList.count-1 do
                       begin
                            recAdd:=pRecAdd(recPerson.addList.items[j]);
-                           if (recAdd^.shifrSta in [31,141]) then
+                           if (recAdd^.shifrSta in [31,139,141]) then
                                recPerson.summaMatHelp := recPerson.summaMatHelp+recAdd^.Summa
                            else
                            if (recAdd^.shifrSta = kassa_shifr) then
@@ -3999,11 +4204,11 @@ procedure TFormRepF4.getDataKdPtv(tabno:integer;var start_d:integer;var end_d:in
      dFr,dTo         : integer;
  begin
      start_d:=1;
-     end_d:=LenMonth(encodedate(currYear,nmes,1));
+     end_d:=LenMonth(encodedate(wantedYear,wantedMonth,1));
      kd_Ptv:=(end_d-start_d+1);
      SQLStmnt:='select data_pri,data_uw,code_uwol from kadry';
-     SQLStmnt:=trim(SQLStmnt)+' where ((extract(year from kadry.data_pri)='+intToStr(currYear)+' and extract(month from kadry.data_pri)='+intToStr(nmes)+') or';
-     SQLStmnt:=trim(SQLStmnt)+' (extract(year from kadry.data_uw )='+intToStr(currYear)+' and extract(month from kadry.data_uw)='+intToStr(nmes)+')) and kadry.tabno='+intToStr(tabno);
+     SQLStmnt:=trim(SQLStmnt)+' where ((extract(year from kadry.data_pri)='+intToStr(wantedYear)+' and extract(month from kadry.data_pri)='+intToStr(wantedMonth)+') or';
+     SQLStmnt:=trim(SQLStmnt)+' (extract(year from kadry.data_uw )='+intToStr(wantedYear)+' and extract(month from kadry.data_uw)='+intToStr(wantedMonth)+')) and kadry.tabno='+intToStr(tabno);
      v:=SQLQueryRecValues(SQLStmnt);
      if VarIsNull(v) then
         exit;
@@ -4029,9 +4234,9 @@ procedure TFormRepF4.getDataKdPtv(tabno:integer;var start_d:integer;var end_d:in
              mTo := monthOf(vTo);
              dTo := dayOf(vTo);
         end;
-     if ((yFr=currYear) and (mFr=NMES)) then
+     if ((yFr=wantedYear) and (mFr=wantedMonth)) then
          start_d:=dFr;
-     if ((yTo=currYear) and (mTo=NMES)) then
+     if ((yTo=wantedYear) and (mTo=wantedMonth)) then
          end_d:=dTo;
      kd_ptv := end_d - start_d + 1;
 
@@ -4087,8 +4292,8 @@ function TFormRepF4.getBolDay(tabno:integer;payYear:integer;payMnth:integer;
         qBolDay.Transaction.StartTransaction;
      qBolDay.Params[0].Value:=payYear;
      qBolDay.Params[1].Value:=payMnth;
-     qBolDay.Params[2].Value:=currYear;
-     qBolDay.Params[3].Value:=NMES;
+     qBolDay.Params[2].Value:=wantedYear;
+     qBolDay.Params[3].Value:=wantedMonth;
      qBolDay.Params[4].Value:=tabno;
      qBolDay.Prepare;
      qBolDay.ExecQuery;
@@ -4196,7 +4401,7 @@ function TFormRepF4.getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer)
      SQLStmnt:='select coalesce(sum(coalesce(br.b_day,0)),0) b_day from boln_res br';
      SQLStmnt:=trim(SQLStmnt)+' join boln b on b.shifrid=br.shifridboln';
      SQLStmnt:=trim(SQLStmnt)+' where br.year_za='+intToStr(payYear)+' and br.month_za='+intToStr(payMnth);
-     SQLStmnt:=trim(SQLStmnt)+' and b.year_vy='+intToStr(currYear)+' and b.month_vy='+intToStr(NMES);
+     SQLStmnt:=trim(SQLStmnt)+' and b.year_vy='+intToStr(wantedYear)+' and b.month_vy='+intToStr(wantedMonth);
      SQLStmnt:=trim(SQLStmnt)+' and b.shifr_sta in (32)';
      SQLStmnt:=trim(SQLStmnt)+' and b.tabno='+intToStr(tabno);
      v:=SQLQueryValue(SQLStmnt);
@@ -4214,7 +4419,7 @@ function TFormRepF4.getDekrBolDay(tabno:integer;payYear:integer;payMnth:integer)
      SQLStmnt:='select coalesce(sum(coalesce(or.o_day,0)),0) o_day from otp_res or';
      SQLStmnt:=trim(SQLStmnt)+' join otpuska o on o.shifrid=or.shifridotp';
      SQLStmnt:=trim(SQLStmnt)+' where or.year_za='+intToStr(payYear)+' and or.month_za='+intToStr(payMnth);
-     SQLStmnt:=trim(SQLStmnt)+' and o.year_vy='+intToStr(currYear)+' and o.month_vy='+intToStr(NMES);
+     SQLStmnt:=trim(SQLStmnt)+' and o.year_vy='+intToStr(wantedYear)+' and o.month_vy='+intToStr(wantedMonth);
      SQLStmnt:=trim(SQLStmnt)+' and o.shifrsta in (5)';
      SQLStmnt:=trim(SQLStmnt)+' and o.tabno='+intToStr(tabno);
      v:=SQLQueryValue(SQLStmnt);
@@ -4234,7 +4439,7 @@ procedure  TFormRepF4.addZavadskieToList6;
      payTp,payMnth,payYear:Integer;
      kd_nzp:Integer;
  begin
-      kd_nzp:=lenmonth(EncodeDate(CURRYEAR,NMES,1));
+      kd_nzp:=lenmonth(EncodeDate(wantedYear,wantedMonth,1));
       if ltns>0 then
       for i:=1 to ltns do
         begin
@@ -4252,8 +4457,8 @@ procedure  TFormRepF4.addZavadskieToList6;
              if not finded then Continue;
              zo       := 1;
              payTp    := 0;
-             payYear  := currYear;
-             payMnth  := nmes;
+             payYear  := wantedYear;
+             payMnth  := wantedMonth;
              rec6_1:=addToF6(tabno,zo,payTp,payMnth,payYear,10.00,false);
              if rec6_1=nil then
                 begin
@@ -4277,32 +4482,32 @@ procedure  TFormRepF4.calculateSumNarahInBD;
       SQLSTmnt:='update tb_e04t06c tu';
       SQLSTmnt:=trim(SQLStmnt)+' set tu.sum_narah=tu.sum_max*0.22';
       SQLSTmnt:=trim(SQLStmnt)+' where ';
-      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(CURRYEAR);
-      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(nmes);
+      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(wantedYear);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(wantedMonth);
       SQLSTmnt:=trim(SQLStmnt)+'   and tu.pay_tp<>13';
       SQLSTmnt:=trim(SQLStmnt)+'   and not tu.zo in (2,32,42)';
       SQLExecute(SQLStmnt);
       SQLSTmnt:='update tb_e04t06c tu';
       SQLSTmnt:=trim(SQLStmnt)+' set tu.sum_narah=tu.sum_diff*0.22';
       SQLSTmnt:=trim(SQLStmnt)+' where ';
-      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(CURRYEAR);
-      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(nmes);
+      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(wantedYear);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(wantedMonth);
       SQLSTmnt:=trim(SQLStmnt)+'   and tu.pay_tp=13';
       SQLSTmnt:=trim(SQLStmnt)+'   and not tu.zo in (2,32,42)';
       SQLExecute(SQLStmnt);
       SQLSTmnt:='update tb_e04t06c tu';
       SQLSTmnt:=trim(SQLStmnt)+' set tu.sum_narah=tu.sum_max*0.0841';
       SQLSTmnt:=trim(SQLStmnt)+' where ';
-      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(CURRYEAR);
-      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(nmes);
+      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(wantedYear);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(wantedMonth);
       SQLSTmnt:=trim(SQLStmnt)+'   and tu.pay_tp<>13';
       SQLSTmnt:=trim(SQLStmnt)+'   and tu.zo in (2,32,42)';
       SQLExecute(SQLStmnt);
       SQLSTmnt:='update tb_e04t06c tu';
       SQLSTmnt:=trim(SQLStmnt)+' set tu.sum_narah=tu.sum_diff*0.0841';
       SQLSTmnt:=trim(SQLStmnt)+' where ';
-      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(CURRYEAR);
-      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(nmes);
+      SQLSTmnt:=trim(SQLStmnt)+'       tu.yearvy= '+IntToStr(wantedYear);
+      SQLSTmnt:=trim(SQLStmnt)+'   and tu.monthvy= '+IntToStr(wantedMonth);
       SQLSTmnt:=trim(SQLStmnt)+'   and tu.pay_tp=13';
       SQLSTmnt:=trim(SQLStmnt)+'   and tu.zo in (2,32,42)';
       SQLExecute(SQLStmnt);

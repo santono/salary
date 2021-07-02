@@ -5,6 +5,7 @@ interface
            FUNCTION SET_PODR_NAMES_FOR_NMES:BOOLEAN;
            FUNCTION FILL_SHIFR:BOOLEAN;
            FUNCTION FILL_DOLG:BOOLEAN;
+           function Fill_DOLG_SQL:boolean;
            FUNCTION FILL_TEMY:BOOLEAN;
            FUNCTION FILL_PENS(START_MONTH:INTEGER):BOOLEAN;
            FUNCTION FILL_BuhAccesBayList:boolean;
@@ -18,7 +19,7 @@ interface
 
 implementation
     uses SysUtils,Classes,DB,QDialogs,ScrDef,ScrUtil,ScrLists,UFibModule,
-  Variants;
+  Variants, FIBQuery;
 
     procedure Fill_MO_Podr;
      var
@@ -776,6 +777,56 @@ PROCEDURE INI_EXL;
      END;
 
 
+function Fill_DOLG_SQL:boolean;
+     var
+        SHIFRDOL   : INTEGER;
+        Name       : STRING;
+        RAZR       : INTEGER;
+        OKLAD      : REAL;
+        DolgRec    : PDolgRec;
+        I,J        : integer;
+
+     begin
+           FILL_DOLG_SQL:=FALSE;
+
+           NAMEDOLGLIST:=TDOLGLIST.CREATE;
+           FIB.pFIBQuery.SQL.Clear;
+           FIB.pFIBQuery.SQL.Add('SELECT SHIFRDOL,NAME,RAZR,OKLAD,');
+//           FIB.pFIBQuery.SQL.Add('coalesce(NEED_STAG,0) need_stag ');
+           FIB.pFIBQuery.SQL.Add('trim(substring(a.name from 6 for 45)) as ename');
+           FIB.pFIBQuery.SQL.Add('FROM TB_DOLG a ORDER BY SHIFRDOL');
+           FIB.pFIBTransactionSAL.StartTransaction;
+           try
+               FIB.pFIBQuery.ExecQuery;
+{               FIB.pFIBQuery.First;}
+               while not FIB.pFIBQuery.eof do
+                begin
+                     SHIFRDOL   := FIB.pFIBQuery.Fields[0].AsINTEGER;
+                     RAZR       := FIB.pFIBQuery.Fields[2].AsINTEGER;
+                     OKLAD      := FIB.pFIBQuery.Fields[3].AsFloat;
+                     Name       := FIB.pFIBQuery.Fields[4].AsString;
+                     new(DolgRec);
+                     DolgRec^.Shifr := ShifrDol;
+                     DolgRec^.Razr  := Razr;
+                     DolgRec^.Oklad := Oklad;
+                     DolgRec^.Name  := NAME;
+                     NameDolgList.Add(DolgRec);
+                     FIB.pFIBQuery.Next;
+                end;
+
+               FIB.pFIBQuery.Close;
+           except
+             on e:Exception do
+                begin
+                     MessageDlg('Ошибка FILL_DOLG_SQL '+e.Message,mtInformation, [mbOk], 0);
+                     Exit;
+                end;
+           end;
+           FIB.pFIBTransactionSAL.Commit;
+        MAX_COUNT_Dolg:=NAMEDolgLIST.Count;
+        COUNT_Dolg:=MAX_COUNT_DOLG;
+        FILL_DOLG_SQL:=TRUE;
+     end;
 
  FUNCTION FILL_DOLG:BOOLEAN;
    VAR

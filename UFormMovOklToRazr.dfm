@@ -78,7 +78,7 @@ object FormMoveNewOkladToRazr: TFormMoveNewOkladToRazr
     Top = 64
     Width = 73
     Height = 30
-    MaxValue = 24
+    MaxValue = 25
     MinValue = 1
     TabOrder = 3
     Value = 24

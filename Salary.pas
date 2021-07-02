@@ -1273,7 +1273,10 @@ procedure TMainForm.FormCreate(Sender: TObject);
            Application.ProcessMessages;
       end;
    Fill_Shifr;
-   Fill_Dolg;
+   if isLNR then
+      Fill_DOLG_SQL
+   else
+      Fill_Dolg;
    Fill_temy;
    Get_Flow_Month;
    Fill_Pens(NMES);

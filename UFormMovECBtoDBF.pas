@@ -571,7 +571,7 @@ function BuildSQLStmnt(ModeDBF:integer):string;
                        dBASE.SetFieldData(20 , IntToStr(pir))
                     else
                        dBASE.SetFieldData(20 , '0');
-                    dBASE.SetFieldData(21 , '0'); //ќзнака
+//                    dBASE.SetFieldData(21 , '0'); //ќзнака
 
 
                  end
@@ -713,7 +713,8 @@ function BuildSQLStmnt(ModeDBF:integer):string;
                       dBASE.SetFieldData(23 , IntToStr(exp));
                       dBASE.SetFieldData(24 , IntToStr(nrc));
                       dBASE.SetFieldData(25 , IntToStr(nrm));
-                      dBASE.SetFieldData(26 , '0');    //OZN
+//                      dBASE.SetFieldData(26 , '0');    //OZN
+//                      dBASE.SetFieldData(26 , ' ');    //OZN
 
                  end
               else
@@ -800,7 +801,8 @@ SEAZON	N	1	0       19
                    dBASE.SetFieldData(10 , IntToStr(end_dt));
                    dBASE.SetFieldData(11 , IntToStr(days));
                    dBASE.SetFieldData(14 , IntToStr(Norma));
-                   dBASE.SetFieldData(20 , '0'); //ќзнака
+//                   dBASE.SetFieldData(20 , '0'); //ќзнака
+                   dBASE.SetFieldData(20 , ' '); //ќзнака
 
                  end
               else
@@ -883,6 +885,7 @@ begin
      while not pFIBQueryECB.Eof do
        begin
               dBASE.Append;
+              dBASE.ClearFields;
               Inc(RowNum);
               FillDBFRecord(ModeDBF,RowNum);
               dBase.Post;
