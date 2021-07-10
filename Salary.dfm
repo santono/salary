@@ -528,6 +528,9 @@ object MainForm: TMainForm
         object N186: TMenuItem
           Action = ActionRepBolnPlan
         end
+        object NRepPlanFondy2021: TMenuItem
+          Action = ActionRepPlanFondy2021
+        end
       end
       object N88: TMenuItem
         Caption = #1042#1089#1087#1086#1084#1086#1075#1072#1090#1077#1083#1100#1085#1099#1077
@@ -1701,6 +1704,10 @@ object MainForm: TMainForm
     object ActionMakeAllTable6ECBRecs: TAction
       Caption = #1057#1086#1079#1076#1072#1090#1100' '#1074#1089#1077#1084' '#1088#1072#1073#1086#1090#1085#1080#1082#1072#1084' '#1079#1072#1087#1080#1089#1080' '#1090#1072#1073#1083#1080#1094#1099' 6'
       OnExecute = ActionMakeAllTable6ECBRecsExecute
+    end
+    object ActionRepPlanFondy2021: TAction
+      Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086#1073' '#1091#1088#1086#1074#1085#1077' '#1086#1087#1083#1072#1090#1099' '#1090#1088#1091#1076#1072
+      OnExecute = ActionRepPlanFondy2021Execute
     end
   end
   object ImageList1: TImageList

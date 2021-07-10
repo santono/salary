@@ -430,6 +430,8 @@ type
     NECBPerson: TMenuItem;
     ActionMakeAllTable6ECBRecs: TAction;
     NSVDN610: TMenuItem;
+    ActionRepPlanFondy2021: TAction;
+    NRepPlanFondy2021: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -707,6 +709,7 @@ type
     procedure N187Click(Sender: TObject);
     procedure ActionFormECBPersonExecute(Sender: TObject);
     procedure ActionMakeAllTable6ECBRecsExecute(Sender: TObject);
+    procedure ActionRepPlanFondy2021Execute(Sender: TObject);
 
 
   private
@@ -802,7 +805,7 @@ implementation
   UFormRptPremGM, UFormSumLimitForCarantine,
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
-  UFormMakeECBRec6ForAll;
+  UFormMakeECBRec6ForAll, UFormRepPlanFondy;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1437,6 +1440,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionMakeAllTable6ECBRecs.Enabled:=True;
           NSVDN610.Enabled:=True;
           NSVDN610.visible:=True;
+          ActionRepPlanFondy2021.Enabled:=False;
+          NRepPlanFondy2021.Visible:=False;
+          NRepPlanFondy2021.enabled:=False;
 
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
@@ -1526,6 +1532,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionMakeAllTable6ECBRecs.Enabled:=false;
           NSVDN610.Enabled:=false;
           NSVDN610.visible:=false;
+          ActionRepPlanFondy2021.Enabled:=true;
+          NRepPlanFondy2021.Visible:=true;
+          NRepPlanFondy2021.enabled:=true;
 
 
    //       if DirectoryExists('Y:') then
@@ -4964,6 +4973,12 @@ procedure TMainForm.ActionMakeAllTable6ECBRecsExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormMakeECBRec6ForAll,FormMakeECBRec6ForAll);
      FormMakeECBRec6ForAll.showModal;
+end;
+
+procedure TMainForm.ActionRepPlanFondy2021Execute(Sender: TObject);
+begin
+     Application.CreateForm(TFormRepPlanFondy,FormRepPlanFondy);
+     FormRepPlanFondy.showModal;
 end;
 
 end.
