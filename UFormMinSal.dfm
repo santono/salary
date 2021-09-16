@@ -14,8 +14,8 @@ object FormMinSalSpr: TFormMinSalSpr
   OnClose = FormClose
   OnCreate = FormCreate
   DesignSize = (
-    688
-    436)
+    680
+    442)
   PixelsPerInch = 96
   TextHeight = 20
   object dxDBGridMinSal: TdxDBGrid
@@ -73,6 +73,15 @@ object FormMinSalSpr: TFormMinSalSpr
       FieldName = 'PROGMIN'
     end
   end
+  object DBNavigator1: TDBNavigator
+    Left = 8
+    Top = 416
+    Width = 240
+    Height = 25
+    DataSource = DataSourceMinSal
+    Anchors = [akLeft, akBottom]
+    TabOrder = 1
+  end
   object pFIBDataSetMinSal: TpFIBDataSet
     UpdateSQL.Strings = (
       'UPDATE SSLIMITY'
@@ -82,7 +91,8 @@ object FormMinSalSpr: TFormMinSalSpr
       ' PROCSSDOLIM = :PROCSSDOLIM,'
       ' PROCSSAFTERLIM = :PROCSSAFTERLIM,'
       ' MINSAL = :MINSAL,'
-      ' PROGMIN = :PROGMIN'
+      ' PROGMIN = :PROGMIN,'
+      ' DATEFR = :DATEFR'
       'WHERE'
       ' DATEFR = :OLD_DATEFR'
       ' ')

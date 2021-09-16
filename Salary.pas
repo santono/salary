@@ -432,6 +432,8 @@ type
     NSVDN610: TMenuItem;
     ActionRepPlanFondy2021: TAction;
     NRepPlanFondy2021: TMenuItem;
+    ActionRepPersonsByPodr: TAction;
+    NRepPersonsByPodr: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -710,6 +712,7 @@ type
     procedure ActionFormECBPersonExecute(Sender: TObject);
     procedure ActionMakeAllTable6ECBRecsExecute(Sender: TObject);
     procedure ActionRepPlanFondy2021Execute(Sender: TObject);
+    procedure ActionRepPersonsByPodrExecute(Sender: TObject);
 
 
   private
@@ -805,7 +808,7 @@ implementation
   UFormRptPremGM, UFormSumLimitForCarantine,
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
-  UFormMakeECBRec6ForAll, UFormRepPlanFondy;
+  UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1443,6 +1446,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionRepPlanFondy2021.Enabled:=False;
           NRepPlanFondy2021.Visible:=False;
           NRepPlanFondy2021.enabled:=False;
+          ActionRepPersonsByPodr.Enabled:=True;
+          NRepPersonsByPodr.Enabled:=True;
+          NRepPersonsByPodr.Visible:=True;
 
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
@@ -1535,6 +1541,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionRepPlanFondy2021.Enabled:=true;
           NRepPlanFondy2021.Visible:=true;
           NRepPlanFondy2021.enabled:=true;
+          ActionRepPersonsByPodr.Enabled:=false;
+          NRepPersonsByPodr.Enabled:=false;
+          NRepPersonsByPodr.Visible:=false;
 
 
    //       if DirectoryExists('Y:') then
@@ -4979,6 +4988,13 @@ procedure TMainForm.ActionRepPlanFondy2021Execute(Sender: TObject);
 begin
      Application.CreateForm(TFormRepPlanFondy,FormRepPlanFondy);
      FormRepPlanFondy.showModal;
+end;
+
+procedure TMainForm.ActionRepPersonsByPodrExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormRepPersonsByPodr,FormRepPersonsByPodr);
+     FormRepPersonsByPodr.showModal;
+
 end;
 
 end.

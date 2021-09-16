@@ -229,7 +229,7 @@ object FormRepClockItogi: TFormRepClockItogi
         end
       end
       object PageHeader1: TfrxPageHeader
-        Height = 37.795275590551200000
+        Height = 37.795275590000000000
         Top = 60.472480000000000000
         Width = 1114.961350000000000000
         object Memo2: TfrxMemoView

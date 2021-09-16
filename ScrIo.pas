@@ -39,6 +39,8 @@ function getVersion:string;
        st:string;
    begin
         reset(inf,1);
+     //   ShowMessage(IntToStr(SizeOf(ADD)));
+
         blockRead(inf,versionRec,sizeOf(versionRec),resultV);
         if resultV<>sizeOf(versionRec) then
            begin

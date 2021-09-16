@@ -385,7 +385,8 @@ uses
   UFormCMP1DFECBDetail in 'UFormCMP1DFECBDetail.pas' {FormCMP1DFECBDetail},
   UFormCmpSwodECBDetail in 'UFormCmpSwodECBDetail.pas' {FormCmpSwodECBDetail1},
   UFormMakeECBRec6ForAll in 'UFormMakeECBRec6ForAll.pas' {FormMakeECBRec6ForAll},
-  UFormRepPlanFondy in 'UFormRepPlanFondy.pas' {FormRepPlanFondy};
+  UFormRepPlanFondy in 'UFormRepPlanFondy.pas' {FormRepPlanFondy},
+  UFormRepPersonsByPodr in 'UFormRepPersonsByPodr.pas' {FormRepPersonsByPodr};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -682,6 +682,9 @@ object MainForm: TMainForm
         object N185: TMenuItem
           Action = ActionRepKRURusDNR
         end
+        object NRepPersonsByPodr: TMenuItem
+          Action = ActionRepPersonsByPodr
+        end
       end
     end
     object N14: TMenuItem
@@ -1708,6 +1711,10 @@ object MainForm: TMainForm
     object ActionRepPlanFondy2021: TAction
       Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086#1073' '#1091#1088#1086#1074#1085#1077' '#1086#1087#1083#1072#1090#1099' '#1090#1088#1091#1076#1072
       OnExecute = ActionRepPlanFondy2021Execute
+    end
+    object ActionRepPersonsByPodr: TAction
+      Caption = #1057#1087#1080#1089#1086#1082' '#1088#1072#1073#1086#1090#1085#1080#1082#1086#1074' '#1087#1086' '#1087#1086#1076#1088#1072#1079#1076#1077#1083#1077#1085#1080#1103#1084
+      OnExecute = ActionRepPersonsByPodrExecute
     end
   end
   object ImageList1: TImageList

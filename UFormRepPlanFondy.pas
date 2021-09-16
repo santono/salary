@@ -307,7 +307,62 @@ procedure TFormRepPlanFondy.fillPerson(curr_person:person_ptr);
                    listDistinctTabno.Add(rec);
               end;
       end;
-    function getSummaSummaOsnAddForPerson(curr_person:PERSON_PTR):Real;
+    function isDopSal(shifr:integer):Boolean;
+      const l=10;
+      const dopShifry:array[1..l] of Integer=(
+              DogPodShifr
+            , ZA_ZASL_PROF_SHIFR
+            , ZA_ZW_ZASL_SHIFR
+            , ZA_STEP_SHIFR
+            , ZA_ZWAN_SHIFR
+            , 7 //Доплата за выслугу шифр
+            , VYSLUGA_SHIFR
+            , ZAW_KAFEDROJ_SHIFR
+            , NADBAWKA_K_Z_SHIFR
+            , DOPLATA_K_ZARPL_SHIFR
+            );
+      var retVal:Boolean;
+          i:Integer;
+      begin
+           retVal:=false;
+           for i:=1 to l do
+             begin
+                  if shifr=dopShifry[i] then
+                     begin
+                          retVal:=true;
+                          Break;
+                     end;
+             end;
+
+           isDopSal:=retVal;
+      end;
+    function isOsnSal(shifr:integer):Boolean;
+      const l=7;
+      const wrongShifry:array[1..l] of Integer=(bol_tek_shifr,BOL_PROSHL_SHIFR,KASSA_SHIFR
+            , DEKRET_SHIFR
+            , 20  // за оздоровление
+            , 31  // мат пом
+            , 141 // мат пом
+            );
+      var retVal:Boolean;
+          i:Integer;
+      begin
+           retVal:=True;
+           for i:=1 to l do
+             begin
+                  if shifr=wrongShifry[i] then
+                     begin
+                          retVal:=False;
+                          Break;
+                     end;
+             end;
+           if retVal then
+           if isDopSal(shifr) then
+              retVal:=False;
+           isOsnSal:=retVal;
+
+      end;
+    function getSummaOsnAddForPerson(curr_person:PERSON_PTR):Real;
       var retVal:Real;
           curr_add:ADD_PTR;
       begin
@@ -315,29 +370,27 @@ procedure TFormRepPlanFondy.fillPerson(curr_person:person_ptr);
           curr_add:=curr_person.ADD;
           while (curr_add<>nil) do
              begin
-                  if not (
-                      (curr_add^.shifr=bol_tek_shifr)
-                      or
-                      (curr_add^.shifr=bol_proshl_shifr)
-                      or
-                      (curr_add^.shifr=bol_future_shifr)
-                      or
-                      (curr_add^.shifr=KASSA_SHIFR)
-                      or
-                      (curr_add^.shifr=31)  // Мат помощь облагаемая
-                      or
-                      (curr_add^.shifr=dekret_shifr)
-                      or
-                      (curr_add^.shifr=20) // Оздоровление
-                      or
-                      (curr_add^.shifr=141) // Мат помощь не облагаемая
-                      ) then
+                  if isOsnSal(curr_add^.shifr) then
                      retVal:=retVal+curr_add^.SUMMA;
                   curr_add:=curr_add.NEXT;
              end;
-          getSummaSummaOsnAddForPerson:=retVal;
+          getSummaOsnAddForPerson:=retVal;
       end;
-    function getSummaSummaMPAddForPerson(curr_person:PERSON_PTR):Real;
+    function getSummaDopAddForPerson(curr_person:PERSON_PTR):Real;
+      var retVal:Real;
+          curr_add:ADD_PTR;
+      begin
+          retVal:=0;
+          curr_add:=curr_person.ADD;
+          while (curr_add<>nil) do
+             begin
+                  if isDopSal(curr_add^.shifr) then
+                     retVal:=retVal+curr_add^.SUMMA;
+                  curr_add:=curr_add.NEXT;
+             end;
+          getSummaDopAddForPerson:=retVal;
+      end;
+    function getSummaMPAddForPerson(curr_person:PERSON_PTR):Real;
       var retVal:Real;
           curr_add:ADD_PTR;
       begin
@@ -354,7 +407,7 @@ procedure TFormRepPlanFondy.fillPerson(curr_person:person_ptr);
                      retVal:=retVal+curr_add^.SUMMA;
                   curr_add:=curr_add.NEXT;
              end;
-          getSummaSummaMPAddForPerson:=retVal;
+          getSummaMPAddForPerson:=retVal;
       end;
 
   begin
@@ -374,13 +427,14 @@ procedure TFormRepPlanFondy.fillPerson(curr_person:person_ptr);
        summaDop:=0;
        summaOsn:=0;
        summaMP:=0;
-       if not DOG_POD_PODRAZD(nsrv) then
-          begin
-               summaOsn := getSummaSummaOsnAddForPerson(curr_person);
-               summaMP  := getSummaSummaMPAddForPerson(curr_person);
-          end
-       else
-          summaDop := getSummaNalogiPerson(curr_person);
+//       if not DOG_POD_PODRAZD(nsrv) then
+//          begin
+               summaOsn := getSummaOsnAddForPerson(curr_person);
+               summaDop := getSummaDopAddForPerson(curr_person);
+               summaMP  := getSummaMPAddForPerson(curr_person);
+//          end
+//       else
+//          summaDop := getSummaNalogiPerson(curr_person);
        if ((abs(summaOsn)<0.01)
        and (abs(summaDop)<0.01)
        and (abs(summaMP)<0.01)) then Exit;

@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, dxExEdtr, dxCntner, dxTL, dxDBCtrl, dxDBGrid, DB, FIBDataSet,
-  FIBDatabase, pFIBDatabase, pFIBDataSet, dxDBTLCl, dxGrClms;
+  FIBDatabase, pFIBDatabase, pFIBDataSet, dxDBTLCl, dxGrClms, ExtCtrls,
+  DBCtrls;
 
 type
   TFormMinSalSpr = class(TForm)
@@ -28,6 +29,7 @@ type
     dxDBGridMinSalPROCSSAFTERLIM: TdxDBGridCalcColumn;
     dxDBGridMinSalMINSAL: TdxDBGridCalcColumn;
     dxDBGridMinSalPROGMIN: TdxDBGridCalcColumn;
+    DBNavigator1: TDBNavigator;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
   private

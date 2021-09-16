@@ -224,7 +224,7 @@ var I_C,I,J,JJ:Integer;
                 if Assigned(StringGridT.Objects[jj,i]) then
                    begin
                         StringGridT.Objects[jj,i].Free;
-                        StringGridT.Objects[jj,i]:=Nil;
+                        StringGridT.Objects[jj,i] := Nil;
                    end;
             Curr_P:=Curr_P^.Next;
        end;
