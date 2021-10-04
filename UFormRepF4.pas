@@ -119,6 +119,30 @@ type
     dsSowmUwNAMEPROF: TFIBStringField;
     dsSowmUwDATABEG: TFIBDateField;
     dsSowmUwDATAEND: TFIBDateField;
+    dsFilledPrikazy: TpFIBDataSet;
+    dsFilledPrikazyTABNO: TFIBIntegerField;
+    dsFilledPrikazyDATABEG: TFIBDateField;
+    dsFilledPrikazyDATAEND: TFIBDateField;
+    dsFilledPrikazySHIFRIDTYP: TFIBIntegerField;
+    dsFilledPrikazyDATAPRIK: TFIBDateField;
+    dsFilledPrikazyNOMERPRIK: TFIBStringField;
+    dsFilledPrikazyFIO: TFIBStringField;
+    dsFilledPrikazyKODZKPPTR: TFIBStringField;
+    dsFilledPrikazyKODKP: TFIBStringField;
+    dsFilledPrikazyNAMEDOL: TFIBStringField;
+    dsFilledPrikazyNAMEPROF: TFIBStringField;
+    dsFilledPrikazyID: TFIBIntegerField;
+    dsFilledPrikazyNEEDT5: TFIBIntegerField;
+    dsFilledPrikazyZO: TFIBIntegerField;
+    dsFilledPrikazyVS: TFIBIntegerField;
+    dsFilledPrikazyPIR: TFIBIntegerField;
+    dsFilledPrikazyCODE_UWOL: TFIBSmallIntField;
+    dsPerevodyZO: TFIBIntegerField;
+    dsPerevodyVS: TFIBIntegerField;
+    dsPerevodyPIR: TFIBIntegerField;
+    dsSowmZO: TFIBIntegerField;
+    dsSowmVS: TFIBIntegerField;
+    dsSowmPIR: TFIBIntegerField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -153,6 +177,7 @@ type
     procedure fillTable5Perevody;
     procedure fillTable5SowmPri;
     procedure fillTable5SowmUw;
+    procedure fillTable5FromFilledPrikazy;
 
     procedure fillTable5CPH;
     procedure fillTable5Dekr;
@@ -349,6 +374,7 @@ implementation
       listCheck         : TList;
       listCPH           : TList;
       listSowmVne       : TList;
+      list5UsedPris     : TList; // Список уже учтенных записей приказов
       E                 : Variant;
       AddCashObject     : tAddCash;
 {$R *.dfm}
@@ -2163,12 +2189,21 @@ procedure TFormRepF4.fillTable5;
      rec5:pRec5;
      startDt,endDt:integer;
  begin
+      list5UsedPris:=TList.Create;
+      fillTable5FromFilledPrikazy; // заполнить записи и из полностью
+                                   // полностью оформленных приказов
+                                   // т е в которых указано ZO и перенос в таблицу 5
+
       fillTable5PrinjatUwolen;
       fillTable5Perevody;
       fillTable5CPH;
   //    fillTable5Dekr;
       fillTable5SowmPri;
       fillTable5SowmUw;
+      if list5UsedPris.Count>0 then
+         for i:=0 to list5UsedPris.Count-1 do
+             Dispose(PInteger(list5UsedPris.Items[i]));
+      list5UsedPris.Free
 
  end;
 procedure TFormRepF4.fillTable5PrinjatUwolen;
@@ -2270,7 +2305,20 @@ procedure TFormRepF4.fillTable5PrinjatUwolen;
                      rec5.END_DT:=endDt;
                      rec5.ZO:=zo;
                      rec5.PID_ZV:=reasonUwol;
-                     list5.Add(rec5);
+                     finded:=false;
+                     if list5.Count>0 then
+                        for i:=0 to list5.Count-1 do
+                            if prec5(list5.items[i]).NUMIDENT = rec5.NUMIDENT then
+                            if prec5(list5.items[i]).START_DT = rec5.START_DT then
+                            if prec5(list5.items[i]).END_DT   = rec5.END_DT then
+                            if prec5(list5.items[i]).PID_ZV   = rec5.PID_ZV then
+                               begin
+                                    finded:=True;
+                                    BREAK;
+                               end;
+
+                     if not finded then
+                        list5.Add(rec5);
                 end;
              dsPrinjatUwolen.Next;
         end;
@@ -2577,6 +2625,15 @@ procedure TFormRepF4.fillTable5Perevody;
              finded6:=false;
              rec6:=nil;
              zo:=1;       //Трудова книжка на пiдприэмстві
+             if not dsPerevodyZO.IsNull then
+             if dsPerevodyZO.Value>0 then
+                zo:=dsPerevodyZO.Value;
+             if not dsPerevodyVS.IsNull then
+             if dsPerevodyVS.Value>=0 then
+                vs:=dsPerevodyVS.Value;
+             if not dsPerevodyPIR.IsNull then
+             if dsPerevodyPIR.Value>=0 then
+                pir:=dsPerevodyPIR.Value;
              if list6.Count>0 then
                 for i:=0 to list6.Count-1 do
                     if pRec6(list6.Items[i]).tabno=tabno then
@@ -2779,6 +2836,16 @@ procedure TFormRepF4.fillTable5SowmPri;
              finded6:=false;
              rec6:=nil;
              zo:=2;       //Трудова книжка на підприэмстві
+             if not dsSowmZO.isNull then
+             if dsSowmZO.Value>0 then
+                zo:=dsSowmZO.Value;
+             if not dsSowmVS.isNull then
+             if dsSowmVS.Value>=0 then
+                vs:=dsSowmVS.Value;
+             if not dsSowmPIR.isNull then
+             if dsSowmPIR.Value>=0 then
+                PIR:=dsSowmPIR.Value;
+
              if list6.Count>0 then
                 for i:=0 to list6.Count-1 do
                     if pRec6(list6.Items[i]).tabno=tabno then
@@ -3375,6 +3442,199 @@ procedure TFormRepF4.fillTable5Dekr;
       dsDekr.Transaction.commit;
  end;
 
+procedure TFormRepF4.fillTable5FromFilledPrikazy;
+ var tabno:integer;
+     i,j:integer;
+     finded,finded6:boolean;
+     rec5:pRec5;
+     startDt,endDt:integer;
+     codeUwol:integer;
+     datePri:tDateTime;
+     dateUw:TDateTime;
+     SQLStmnt:string;
+     v:variant;
+     reasonUwol:string;
+     recPerson:pRecPerson;
+     rec6:pRec6;
+     zo:integer;
+     //ZO - 1 основная
+     //     2 совместитель
+     KODZKPPTR,KODKP:string;
+     namedol,nameprof:string;
+     shifrIdTyp:Integer;
+     NomerPrik:string;
+     DatePrik:TDateTime;
+     d,m,y:Integer;
+     ds,ms,ys:string;
+     needt5,vs,pir:Integer;
+  procedure fillRec5Pri;
+   begin
+   //     if shifridTyp=5 then
+           begin
+                rec5.ZKPP := Trim(KODZKPPTR);
+                rec5.pnr  := Trim(nameprof);  //Професiональна назва роботи
+                rec5.PNR  := Trim(KODKP);     //код класiфiкатора професii
+                rec5.POS  := Trim(namedol);
+                rec5.ZO   := zo;
+                rec5.VS   := vs;
+                rec5.PIR  := pir;
+           end
+
+   end;
+  procedure fillRec5Uw;
+   begin
+   //     if shifridTyp=5 then
+           begin
+                rec5.PID_ZV:=reasonUwol;
+                rec5.VS   := vs;
+                rec5.PIR  := pir;
+           end
+
+   end;
+  procedure fillRec5Perew;
+   begin
+   //     if shifridTyp=5 then
+           begin
+   //             rec5.PID_ZV:=reasonUwol;
+                rec5.VS   := vs;
+                rec5.PIR  := pir;
+           end
+
+   end;
+
+
+
+ begin
+      dsFilledPrikazy.Params[0].Value:=wantedYear;
+      dsFilledPrikazy.Params[1].Value:=wantedMonth;
+      dsFilledPrikazy.Transaction.StartTransaction;
+      dsFilledPrikazy.Open;
+      while (not dsFilledPrikazy.Eof) do
+        begin
+             tabno      := dsFilledPrikazyTABNO.value;
+             datePri    := encodedate(1990,1,1);
+             dateUw     := encodedate(1990,1,1);
+             DatePrik   := encodedate(1990,1,1);
+             NomerPrik  := '';
+             KODZKPPTR  := '';
+             KODKP      := '';
+             codeUwol   := 0;
+             namedol    := '';
+             nameprof   := '';
+             shifrIdTyp := dsFilledPrikazySHIFRIDTYP.Value;
+        //     if shifridTyp in [5,9] then // 5-принять 9 - принять совместителя
+        //     else
+        //     if shifridTyp in [13,17] then // 13-уволить 17 - уволить совместителя
+
+
+             if not dsFilledPrikazyDATABEG.IsNull then
+                if shifridTyp in [5,9] then             // Увольнение
+                   datePri := dsFilledPrikazyDATABEG.value
+                else
+                if shifridTyp in [13,17] then             // Увольнение
+                   dateUw  := dsFilledPrikazyDATABEG.value;
+//             if shifrIdTyp=5 then
+//                if not dsFilledPrikazyDATAEND.IsNull then
+//                   dateUw:=dsFilledPrikazyDATAEND.value;
+             if not dsFilledPrikazyKODZKPPTR.IsNull then
+                KODZKPPTR:=dsFilledPrikazyKODZKPPTR.Value;
+             if not dsFilledPrikazyKODKP.IsNull then
+                KODKP:=dsFilledPrikazyKODKP.Value;
+             if not dsFilledPrikazyNAMEDOL.IsNull then
+                nameDol:=Trim(dsFilledPrikazyNAMEDOL.Value);
+             if not dsFilledPrikazyNAMEPROF.IsNull then
+                namePROF:=Trim(dsFilledPrikazyNAMEPROF.Value);
+             if not dsFilledPrikazyDATAPRIK.IsNull then
+                   DatePrik:=dsFilledPrikazyDATAPRIK.value;
+             if not dsFilledPrikazyNOMERPRIK.IsNull then
+                   NomerPrik:=Trim(dsFilledPrikazyNOMERPRIK.value);
+             needt5:=dsFilledPrikazyNEEDT5.value;
+             zo:=dsFilledPrikazyZO.value;
+             vs:=dsFilledPrikazyVS.value;
+             pir:=dsFilledPrikazyPir.value;
+             startDt:=1;
+             endDt:=lenMonth(encodeDate(wantedYear,wantedMonth,1));
+             if ((yearOf(datePri)=wantedYear) and (monthOf(datePri)=wantedMonth)) then
+                startDt:=dayOf(datePri);
+             if ((yearOf(dateUw)=wantedYear) and (monthOf(dateUw)=wantedMonth)) then
+                endDt:=dayOf(dateUw);
+             if not dsFilledPrikazyCODE_UWOL.IsNull then
+                codeUwol:=dsFilledPrikazyCODE_UWOL.Value;
+
+             reasonUwol:='';
+             if codeUwol>0 then
+                begin
+                     SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
+                     v:=SQLQueryValue(SQLStmnt);
+                     if VarIsStr(v) then
+                        reasonUwol:=trim(ReplQto2Q(v));
+                end;
+             finded:=false;
+             recPerson:=nil;
+             if listCheck.Count>0 then
+                for i:=0 to listCheck.Count-1 do
+                    if pRecPerson(listCheck.Items[i]).tabno=tabno then
+                       begin
+                            recPerson:=pRecPerson(listCheck.Items[i]);
+                            finded:=true;
+                            break;
+                       end;
+             finded6:=false;
+             rec6:=nil;
+                // Таблица ZO
+                // 1 – наймані працівники з трудовою книжкою;
+                // 2 – наймані працівники (без трудової книжки);
+                // 3 – особи, які виконують роботи за договорами цивільно-правового характеру;
+                // 4 – особи, яким надано відпустку по догляду за дитиною від трирічного віку до досягнення нею шестирічного віку;
+                // 5 – особи, яким надано відпустку по вагітності і пологах;
+                // 6 – особи, яким надано відпустку по догляду за дитиною до досягнення нею трирічного віку.
+             zo:=1;   //Трудова книжка на підпрємстві
+             if list6.Count>0 then
+                for i:=0 to list6.Count-1 do
+                    if pRec6(list6.Items[i]).tabno=tabno then
+                    if pRec6(list6.Items[i]).zo in [1,2,25,26,32] then
+                       begin
+                            rec6:=pRec6(list6.Items[i]);
+                            finded6:=true;
+                            break;
+                       end;
+             if recPerson<>nil then
+                begin
+                     reasonUwol:=trim(copy(reasonUwol+space(250),1,250));
+                     new(rec5);
+                     fillChar(rec5^,sizeOf(rec5^),0);
+                     rec5.YEARVY  := wantedYear;
+                     rec5.monthVy := wantedMonth;
+                     rec5.tabno   := tabno;
+                     rec5.PERIODM := rec5.monthVy;
+                     rec5.PERIODY := rec5.yearVy;
+                     if finded6 then
+                        rec5.UKRGROMAD:=rec6.ukrGromad
+                     else
+                        rec5.UKRGROMAD:=1;
+                     rec5.NUMIDENT := trim(recPerson.numIdent);
+                     rec5.FIO      := trim(recPerson.fio);
+                     rec5.NM       := trim(recPerson.nm);
+                     rec5.FTN      := trim(recPerson.ftn);
+                     rec5.START_DT := startDt;
+                     rec5.END_DT   := endDt;
+                     rec5.ZO       := zo;
+                     rec5.pid      := 'наказ вiд '+FormatDate(DatePrik)+' '+trim(nomerPrik);
+                     case shifrIdTyp of
+                      5,9:   // прием 5 - прием 9 - совместитетльство
+                          fillRec5Pri;
+                      13,17: // увольнение 13 - основного 17 - совместительства
+                          fillRec5Uw;
+                      7:  fillRec5Perew;
+
+                     end;
+                     list5.Add(rec5);
+                end;
+             dsFilledPrikazy.Next;
+        end;
+      dsFilledPrikazy.Close;
+      dsFilledPrikazy.Transaction.commit;
+ end;
 
 procedure TFormRepF4.fillTable7;
  var tabno:integer;
@@ -3892,7 +4152,9 @@ procedure TFormRepF4.fillRecalcNarah22;
  end;
 procedure TFormRepF4.moveToBD;
  var SqlStmnt:wideString;
-     i,j:integer;
+     i,j,ic:integer;
+     c:char;
+
  begin
      formWait.Show;
      Application.ProcessMessages;
@@ -3911,6 +4173,24 @@ procedure TFormRepF4.moveToBD;
      if list5.Count>0 then
      for i:=0 to list5.Count-1 do
          begin
+              if length(trim(pRec5(list5.Items[i])^.ZKPP))>0 then
+                 begin
+                   pRec5(list5.Items[i])^.ZKPP:=StringReplace(pRec5(list5.Items[i])^.ZKPP,Chr(160),' ',[rfReplaceAll]);
+                   pRec5(list5.Items[i])^.ZKPP:=trim(pRec5(list5.Items[i])^.ZKPP);
+//                   j:=length(pRec5(list5.Items[i])^.ZKPP);
+//                   c:=pRec5(list5.Items[i])^.ZKPP[j];
+//                   ic:=ord(c);
+                      j:=1;
+                 end;
+              if length(trim(pRec5(list5.Items[i])^.PNR))>0 then
+                 begin
+                   pRec5(list5.Items[i])^.PNR:=StringReplace(pRec5(list5.Items[i])^.PNR,Chr(160),' ',[rfReplaceAll]);
+                   pRec5(list5.Items[i])^.PNR:=trim(pRec5(list5.Items[i])^.PNR);
+//                   j:=length(pRec5(list5.Items[i])^.ZKPP);
+//                   c:=pRec5(list5.Items[i])^.ZKPP[j];
+//                   ic:=ord(c);
+                      j:=1;
+                 end;
               SQLStmnt:='insert into tb_e04t05c (';
 //              SQLStmnt:= SHIFRID     INTEGER NOT NULL,
               SQLStmnt:=trim(SQLStmnt)+'YEARVY,';
@@ -3965,8 +4245,17 @@ procedure TFormRepF4.moveToBD;
               SQLStmnt:=trim(SQLStmnt)+Trim(IntToStr(pRec5(list5.Items[i])^.VS))+',';
               SQLStmnt:=trim(SQLStmnt)+Trim(IntToStr(pRec5(list5.Items[i])^.PIR));
               SQLStmnt:=trim(SQLStmnt)+')';
-
-              SQLExecute(SQLStmnt);
+//              SQLStmnt:=StringReplace(SQLStmnt,Chr(175),'I',[rfReplaceAll]);
+//              SQLStmnt:=StringReplace(SQLStmnt,Chr(191),'i',[rfReplaceAll]);
+//              SQLStmnt:=StringReplace(SQLStmnt,'/','-',[rfReplaceAll]);
+              try
+                SQLExecute(SQLStmnt);
+              except
+                else
+                   showMessage('Ошибка '+SQLStmnt);
+              end;
+//'insert into tb_e04t05c (YEARVY,MONTHVY,TABNO,PERIOD_M,PERIOD_Y,ROWNUM,UKR_GROMAD,NUMIDENT,FIO,NM,FTN,START_DT,END_DT,ZO,PID_ZV,NRM_DT,DOG_CPH,PNR,ZKPP,PROF,POS,PID,VZV,VS,PIR) VALUES(2021,8,12131,8,2021,0,1,'2153111581','УСЛІСТА','ВІРА','АНАТОЛІIВНА',1,31,1,'ст.38 КЗпПУ (неповажн.прич.) (пп.а п.7 ст.26 ПВОіВС)','1990-01-01',0,'','','','','наказ вiд 31.08.2021 187 к','',0,0)'
+// 'insert into tb_e04t05c (YEARVY,MONTHVY,TABNO,PERIOD_M,PERIOD_Y,ROWNUM,UKR_GROMAD,NUMIDENT,FIO,NM,FTN,START_DT,END_DT,ZO,PID_ZV,NRM_DT,DOG_CPH,PNR,ZKPP,PROF,POS,PID,VZV,VS,PIR) VALUES(2021,9,12349,9,2021,0,1,'2744407124','КОСТЕНКО','ТЕТЯНА','ВОЛОДИМІРІВНА',11,30,1,'','1990-01-01',0,'3433 ','20281 ','','Провідний бухгалтер','наказ вiд 10.09.2021 147-к-д','',0,0)'
 
          end;
      j:=0;

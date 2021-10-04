@@ -171,8 +171,8 @@ object FormRepF4: TFormRepF4
       'and extract(month from kadry.data_pri)=:m1) '
       '    or'
       '    ('
-      '     (extract(year from kadry.data_uw)=:y2 '
-      '      and extract(month from kadry.data_uw)=:m2)'
+      '     (extract(year  from kadry.data_uw)=:y2 '
+      '  and extract(month from kadry.data_uw)=:m2)'
       '     and not exists ('
       '          select * from tb_prikazy '
       '             where tb_prikazy.tabno=kadry.tabno'
@@ -217,7 +217,7 @@ object FormRepF4: TFormRepF4
         '_old,substr(coalesce(pr.kodzkpptr_old,'#39' '#39')||'#39'        '#39',1,5) kodz' +
         'kpptr_old, coalesce(pr.namedol_old,'#39' '#39') namedol_old, coalesce(pr' +
         '.nameprof_old,'#39' '#39') nameprof_old,'
-      '       databeg,dataend'
+      '       databeg,dataend,pr.zo,pr.vs,pr.pir'
       '       from kadry kk'
       '            join tb_prikazy pr on kk.tabno=pr.tabno'
       '       where pr.y=:y'
@@ -308,6 +308,15 @@ object FormRepF4: TFormRepF4
     end
     object dsPerevodyDATAEND: TFIBDateField
       FieldName = 'DATAEND'
+    end
+    object dsPerevodyZO: TFIBIntegerField
+      FieldName = 'ZO'
+    end
+    object dsPerevodyVS: TFIBIntegerField
+      FieldName = 'VS'
+    end
+    object dsPerevodyPIR: TFIBIntegerField
+      FieldName = 'PIR'
     end
   end
   object dsDekr: TpFIBDataSet
@@ -420,13 +429,20 @@ object FormRepF4: TFormRepF4
         ' nameprof'
       '       ,pr.databeg'
       '       ,pr.dataend'
+      '       ,pr.zo '
+      '       ,pr.vs'
+      '       ,pr.pir'
       '       from kadry kk'
       '            join tb_prikazy pr on kk.tabno=pr.tabno'
       '       where pr.y=:y'
       '         and pr.m=:m'
       '         and not pr.content is null'
       '         and (upper(pr.content) like '#39'%'#1057#1059#1052#1030#1057'%'#39')'
-      '         and (upper(pr.content) like '#39'%'#1055#1056#1048#1049#1053#1071#1058#1048'%'#39')')
+      '         and (upper(pr.content) like '#39'%'#1055#1056#1048#1049#1053#1071#1058#1048'%'#39')'
+      '         and ('
+      '              coalesce(pr.zo,0)<1'
+      '              or pr.shifridtyp=1 '
+      '         )')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
     Left = 384
@@ -490,6 +506,15 @@ object FormRepF4: TFormRepF4
     object dsSowmDATAEND: TFIBDateField
       FieldName = 'DATAEND'
     end
+    object dsSowmZO: TFIBIntegerField
+      FieldName = 'ZO'
+    end
+    object dsSowmVS: TFIBIntegerField
+      FieldName = 'VS'
+    end
+    object dsSowmPIR: TFIBIntegerField
+      FieldName = 'PIR'
+    end
   end
   object dsPriUwPrik: TpFIBDataSet
     SelectSQL.Strings = (
@@ -517,7 +542,8 @@ object FormRepF4: TFormRepF4
       '    )'
       '    )'
       '    )'
-      '     and pr.shifridtyp in (5,13)')
+      '     and pr.shifridtyp in (5,13)'
+      '     and coalesce(pr.zo,0)<1')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
     Left = 296
@@ -625,7 +651,8 @@ object FormRepF4: TFormRepF4
       '       where pr.y=:y'
       '         and pr.m=:m'
       '         and not pr.content is null'
-      '         and coalesce(pr.shifridtyp,0)=17')
+      '         and coalesce(pr.shifridtyp,0)=17'
+      '         and coalesce(pr.zo,0)<1')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
     Left = 424
@@ -688,6 +715,102 @@ object FormRepF4: TFormRepF4
     end
     object dsSowmUwDATAEND: TFIBDateField
       FieldName = 'DATAEND'
+    end
+  end
+  object dsFilledPrikazy: TpFIBDataSet
+    SelectSQL.Strings = (
+      'select pr.tabno'
+      '     , pr.databeg'
+      '     , pr.dataend'
+      '     , pr.shifridtyp'
+      '     , pr.dataprik'
+      '     , pr.nomerprik'
+      '     , pr.fio'
+      '     , pr.kodzkpptr'
+      '     , pr.kodkp'
+      '     , pr.namedol'
+      '     , pr.nameprof'
+      '     , pr.id'
+      '     , pr.needt5'
+      '     , pr.zo'
+      '     , pr.vs'
+      '     , pr.pir'
+      
+        '     , (select first 1 kk.code_uwol from kadry kk where kk.tabno' +
+        '=pr.tabno) code_uwol'
+      '     from tb_prikazy pr'
+      'where '
+      '    extract(year from pr.dataprik)=:y'
+      'and extract(month from pr.dataprik)=:m'
+      'and coalesce(pr.needt5,0)=1'
+      'and coalesce(pr.zo,0)>0'
+      'and coalesce(pr.shifridtyp,0) in (5,9,13,17)')
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    Left = 408
+    Top = 96
+    object dsFilledPrikazyTABNO: TFIBIntegerField
+      FieldName = 'TABNO'
+    end
+    object dsFilledPrikazyDATABEG: TFIBDateField
+      FieldName = 'DATABEG'
+    end
+    object dsFilledPrikazyDATAEND: TFIBDateField
+      FieldName = 'DATAEND'
+    end
+    object dsFilledPrikazySHIFRIDTYP: TFIBIntegerField
+      FieldName = 'SHIFRIDTYP'
+    end
+    object dsFilledPrikazyDATAPRIK: TFIBDateField
+      FieldName = 'DATAPRIK'
+    end
+    object dsFilledPrikazyNOMERPRIK: TFIBStringField
+      FieldName = 'NOMERPRIK'
+      Size = 15
+      EmptyStrToNull = True
+    end
+    object dsFilledPrikazyFIO: TFIBStringField
+      FieldName = 'FIO'
+      Size = 50
+      EmptyStrToNull = True
+    end
+    object dsFilledPrikazyKODZKPPTR: TFIBStringField
+      FieldName = 'KODZKPPTR'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsFilledPrikazyKODKP: TFIBStringField
+      FieldName = 'KODKP'
+      Size = 10
+      EmptyStrToNull = True
+    end
+    object dsFilledPrikazyNAMEDOL: TFIBStringField
+      FieldName = 'NAMEDOL'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsFilledPrikazyNAMEPROF: TFIBStringField
+      FieldName = 'NAMEPROF'
+      Size = 512
+      EmptyStrToNull = True
+    end
+    object dsFilledPrikazyID: TFIBIntegerField
+      FieldName = 'ID'
+    end
+    object dsFilledPrikazyNEEDT5: TFIBIntegerField
+      FieldName = 'NEEDT5'
+    end
+    object dsFilledPrikazyZO: TFIBIntegerField
+      FieldName = 'ZO'
+    end
+    object dsFilledPrikazyVS: TFIBIntegerField
+      FieldName = 'VS'
+    end
+    object dsFilledPrikazyPIR: TFIBIntegerField
+      FieldName = 'PIR'
+    end
+    object dsFilledPrikazyCODE_UWOL: TFIBSmallIntField
+      FieldName = 'CODE_UWOL'
     end
   end
 end
