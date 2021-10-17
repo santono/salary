@@ -2198,8 +2198,8 @@ procedure TFormRepF4.fillTable5;
       fillTable5Perevody;
       fillTable5CPH;
   //    fillTable5Dekr;
-      fillTable5SowmPri;
-      fillTable5SowmUw;
+//--      fillTable5SowmPri;
+//--      fillTable5SowmUw;
       if list5UsedPris.Count>0 then
          for i:=0 to list5UsedPris.Count-1 do
              Dispose(PInteger(list5UsedPris.Items[i]));
@@ -2252,7 +2252,7 @@ procedure TFormRepF4.fillTable5PrinjatUwolen;
                      SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
                      v:=SQLQueryValue(SQLStmnt);
                      if VarIsStr(v) then
-                        reasonUwol:=trim(ReplQto2Q(v));
+                        reasonUwol:=trim(ReplToUkrI(ReplQto2Q(v)));
                 end;
              finded:=false;
              recPerson:=nil;
@@ -2398,7 +2398,7 @@ procedure TFormRepF4.fillTable5PrinjatUwolenFromPrikazy;
                      SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
                      v:=SQLQueryValue(SQLStmnt);
                      if VarIsStr(v) then
-                        reasonUwol:=trim(ReplQto2Q(v));
+                        reasonUwol:=trim(ReplToUkrI(ReplQto2Q(v)));
                 end;
              finded:=false;
              recPerson:=nil;
@@ -2596,7 +2596,7 @@ procedure TFormRepF4.fillTable5Perevody;
                      SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
                      v:=SQLQueryValue(SQLStmnt);
                      if VarIsStr(v) then
-                        reasonUwol:=trim(ReplQto2Q(v));
+                        reasonUwol:=trim(ReplToUkrI(ReplQto2Q(v)));
                 end;
              pid:='';
              if ((yearOf(dataprik)>2017)
@@ -2669,10 +2669,10 @@ procedure TFormRepF4.fillTable5Perevody;
                      rec5.END_DT:=endDt1;
                      rec5.ZO:=zo;
                      rec5.PID_ZV:=reasonUwol;
-                     rec5.PNR:=trim(ReplQto2Q(nameprof));
-                     rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr));
-                     rec5.prof:=trim(ReplQto2Q(kodkp));
-                     rec5.POS:=trim(ReplQto2Q(namedol));
+                     rec5.PNR:=trim(ReplToUkrI(ReplQto2Q(nameprof)));
+                     rec5.ZKPP:=trim(ReplToUkrI(ReplQto2Q(kodzkpptr)));
+                     rec5.prof:=trim(ReplToUkrI(ReplQto2Q(kodkp)));
+                     rec5.POS:=trim(ReplToUkrI(ReplQto2Q(namedol)));
                      rec5.PID:=trim(pid);
                      rec5.VZV:=trim(vzv);
                      rec5.VS := VS;
@@ -2702,10 +2702,10 @@ procedure TFormRepF4.fillTable5Perevody;
                      rec5.END_DT:=endDt2;
                      rec5.ZO:=zo;
                      rec5.PID_ZV:=reasonUwol;
-                     rec5.PNR:=trim(ReplQto2Q(nameprof_old));
-                     rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr_old));
-                     rec5.prof:=trim(ReplQto2Q(kodkp_old));
-                     rec5.POS:=trim(ReplQto2Q(namedol_old));
+                     rec5.PNR:=trim(ReplToUkrI(ReplQto2Q(nameprof_old)));
+                     rec5.ZKPP:=trim(ReplToUkrI(ReplQto2Q(kodzkpptr_old)));
+                     rec5.prof:=trim(ReplToUkrI(ReplQto2Q(kodkp_old)));
+                     rec5.POS:=trim(ReplToUkrI(ReplQto2Q(namedol_old)));
                      rec5.PID:=trim(pid);
                      rec5.VZV:=trim(vzv);
                      rec5.VS := VS;
@@ -2807,7 +2807,7 @@ procedure TFormRepF4.fillTable5SowmPri;
 //                     SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
 //                     v:=SQLQueryValue(SQLStmnt);
 //                     if VarIsStr(v) then
-//                        reasonUwol:=trim(ReplQto2Q(v));
+//                        reasonUwol:=trim(ReplToUkrI(ReplQto2Q(v)));
 //                end;
              pid:='';
              if ((yearOf(dataprik)>2017)
@@ -2888,10 +2888,10 @@ procedure TFormRepF4.fillTable5SowmPri;
                      rec5.END_DT:=endDt;
                      rec5.ZO:=zo;
                      rec5.PID_ZV:=reasonUwol;
-                     rec5.PNR:=trim(ReplQto2Q(nameprof));
-                     rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr));
-                     rec5.prof:=trim(ReplQto2Q(kodkp));
-                     rec5.POS:=trim(ReplQto2Q(namedol));
+                     rec5.PNR:=trim(ReplToUkrI(ReplQto2Q(nameprof)));
+                     rec5.ZKPP:=trim(ReplToUkrI(ReplQto2Q(kodzkpptr)));
+                     rec5.prof:=trim(ReplToUkrI(ReplQto2Q(kodkp)));
+                     rec5.POS:=trim(ReplToUkrI(ReplQto2Q(namedol)));
                      rec5.PID:=trim(pid);
                      rec5.VZV:=trim(vzv);
                      rec5.VS := VS;
@@ -2989,13 +2989,23 @@ procedure TFormRepF4.fillTable5SowmUw;
                 startDt:=dayOf(datePri);
              if ((yearOf(dateUw)=wantedYear) and (monthOf(dateUw)=wantedMonth)) then
                 endDt:=dayOf(dateUw);
+             if ((startDt=0) and (endDt=0)) then
+                begin
+                      dsSowmUw.Next;
+                      Continue;
+                end;
+
+             if startDt=0 then
+                startDt:=1;
+             if endDt=0 then
+                endDt:=LenMonth(EncodeDate(wantedYear,wantedMonth,1));
              reasonUwol:='';
 //             if codeUwol>0 then
 //                begin
 //                     SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
 //                     v:=SQLQueryValue(SQLStmnt);
 //                     if VarIsStr(v) then
-//                        reasonUwol:=trim(ReplQto2Q(v));
+//                        reasonUwol:=trim(ReplToUkrI(ReplQto2Q(v));
 //                end;
              pid:='';
              if ((yearOf(dataprik)>2017)
@@ -3066,10 +3076,10 @@ procedure TFormRepF4.fillTable5SowmUw;
                      rec5.END_DT:=endDt;
                      rec5.ZO:=zo;
                      rec5.PID_ZV:=reasonUwol;
-                     rec5.PNR:=trim(ReplQto2Q(nameprof));
-                     rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr));
-                     rec5.prof:=trim(ReplQto2Q(kodkp));
-                     rec5.POS:=trim(ReplQto2Q(namedol));
+                     rec5.PNR:=trim(ReplToUkrI(ReplQto2Q(nameprof)));
+                     rec5.ZKPP:=trim(ReplToUkrI(ReplQto2Q(kodzkpptr)));
+                     rec5.prof:=trim(ReplToUkrI(ReplQto2Q(kodkp)));
+                     rec5.POS:=trim(ReplToUkrI(ReplQto2Q(namedol)));
                      rec5.PID:=trim(pid);
                      rec5.VZV:=trim(vzv);
                      rec5.VS := VS;
@@ -3247,7 +3257,7 @@ procedure TFormRepF4.fillTable5CPH;
                      rec5.END_DT   := endDt;
                      rec5.ZO:=zo;
                      rec5.DOG_CPH:=1;
-                     rec5.PID_ZV:=trim(ReplQto2Q(reasonOk));
+                     rec5.PID_ZV:=trim(ReplToUkrI(ReplQto2Q(reasonOk)));
                      rec5.PID := dogovors;
                      rec5.VS := VS;
                      rec5.PIR:=PIR;
@@ -3407,10 +3417,10 @@ procedure TFormRepF4.fillTable5Dekr;
                                       rec5.END_DT:=endDt;
                                       rec5.ZO:=zo;
                                       rec5.PID_ZV:=reasonUwol;
-                                      rec5.PNR:=trim(ReplQto2Q(nameprof));
-                                      rec5.ZKPP:=trim(ReplQto2Q(kodzkpptr));
-                                      rec5.prof:=trim(ReplQto2Q(kodkp));
-                                      rec5.POS:=trim(ReplQto2Q(namedol));
+                                      rec5.PNR:=trim(ReplToUkrI(ReplQto2Q(nameprof)));
+                                      rec5.ZKPP:=trim(ReplToUkrI(ReplQto2Q(kodzkpptr)));
+                                      rec5.prof:=trim(ReplToUkrI(ReplQto2Q(kodkp)));
+                                      rec5.POS:=trim(ReplToUkrI(ReplQto2Q(namedol)));
                                       rec5.PID:=trim(pid);
                                       rec5.VZV:=trim(vzv);
                                       rec5.VS := VS;
@@ -3478,6 +3488,7 @@ procedure TFormRepF4.fillTable5FromFilledPrikazy;
                 rec5.ZO   := zo;
                 rec5.VS   := vs;
                 rec5.PIR  := pir;
+                rec5.END_DT:=0;
            end
 
    end;
@@ -3488,6 +3499,7 @@ procedure TFormRepF4.fillTable5FromFilledPrikazy;
                 rec5.PID_ZV:=reasonUwol;
                 rec5.VS   := vs;
                 rec5.PIR  := pir;
+                rec5.START_DT:=0;
            end
 
    end;
@@ -3567,7 +3579,7 @@ procedure TFormRepF4.fillTable5FromFilledPrikazy;
                      SQLStmnt:='select first 1 coalesce(a.reason,'''') from tb_dismis a where id='+intToStr(codeUwol);
                      v:=SQLQueryValue(SQLStmnt);
                      if VarIsStr(v) then
-                        reasonUwol:=trim(ReplQto2Q(v));
+                        reasonUwol:=trim(ReplToUkrI(ReplQto2Q(v)));
                 end;
              finded:=false;
              recPerson:=nil;
@@ -4227,9 +4239,9 @@ procedure TFormRepF4.moveToBD;
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec5(list5.Items[i])^.rowNum)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec5(list5.Items[i])^.ukrGromad)+',';
               SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec5(list5.Items[i])^.numIdent)+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec5(list5.Items[i])^.fio)))+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec5(list5.Items[i])^.nm)))+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec5(list5.Items[i])^.ftn)))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec5(list5.Items[i])^.fio))))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec5(list5.Items[i])^.nm))))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec5(list5.Items[i])^.ftn))))+''',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec5(list5.Items[i])^.start_dt)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec5(list5.Items[i])^.end_dt)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec5(list5.Items[i])^.zo)+',';
@@ -4305,9 +4317,9 @@ procedure TFormRepF4.moveToBD;
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec6(list6.Items[i])^.ukrGromad)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec6(list6.Items[i])^.st)+',';
               SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec6(list6.Items[i])^.numIdent)+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec6(list6.Items[i])^.fio)))+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec6(list6.Items[i])^.nm)))+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec6(list6.Items[i])^.ftn)))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec6(list6.Items[i])^.fio))))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec6(list6.Items[i])^.nm ))))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec6(list6.Items[i])^.ftn))))+''',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec6(list6.Items[i])^.zo)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec6(list6.Items[i])^.payTp)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec6(list6.Items[i])^.payMnth)+',';
@@ -4367,9 +4379,9 @@ procedure TFormRepF4.moveToBD;
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec7(list7.Items[i])^.periodY)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec7(list7.Items[i])^.ukrGromad)+',';
               SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec7(list7.Items[i])^.numIdent)+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec7(list7.Items[i])^.fio)))+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec7(list7.Items[i])^.nm)))+''',';
-              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplQto2Q(pRec7(list7.Items[i])^.ftn)))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec7(list7.Items[i])^.fio))))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec7(list7.Items[i])^.nm ))))+''',';
+              SQLStmnt:=trim(SQLStmnt)+''''+AnsiUpperCase(trim(ReplToUkrI(ReplQto2Q(pRec7(list7.Items[i])^.ftn))))+''',';
               SQLStmnt:=trim(SQLStmnt)+''''+trim(pRec7(list7.Items[i])^.C_PID)+''',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec7(list7.Items[i])^.START_DT)+',';
               SQLStmnt:=trim(SQLStmnt)+intToStr(pRec7(list7.Items[i])^.END_DT)+',';

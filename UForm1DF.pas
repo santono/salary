@@ -260,48 +260,36 @@ procedure TForm1DF.ShowTable;
         pFibDataSet1DF.UpdateTransaction.Commit;
      if isLNR then
         begin
-
-             SQlStmnt:='SELECT SHIFRID'   +
+             SQlStmnt:='SELECT a.SHIFRID'   +
                        '     , TABNO'     +
                        '     , NAL_CODE'  +
                        '     , FIO'       +
                        '     , W_R'       +
-                       '     , SUMMAADD'  +
-                       '     , SUMMAPOD'  +
+                       '     , a.SUMMAADD'  +
+                       '     , b.SUMMAPOD'  +
                        '     , 0.00 AS SUMMAWS' +
                        '     , DATAPRI'   +
                        '     , DATAUW'    +
                        '     , CODE_PRIZ' +
                        '     , OZN_PILG'  +
                        '     , INVALID'   +
-                       '     FROM TB_1DF a' +
+                       '     FROM TB_1DF a ' +
+                       '     JOIN TB_1DF_DET b ON b.shifrid1df=a.shifrid ' +
                        '     where '  +
                        '        y=' + IntToStr(y) +
                        '    and m=' + IntToStr(m);
-             if kindPodr = Alchevsk then
-                SQLStmnt:=Trim(SQLStmnt)+
-                       '    and exists (' +
-                       ' select * from tb_1df_add b'+
-                       ' where b.shifrid1df=a.shifrid'+
-                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17))'+
-                       '  )'
-             else
-             if kindPodr = SelHoz then
-                SQLStmnt:=Trim(SQLStmnt)+
-                       '    and exists (' +
-                       ' select * from tb_1df_add b'+
-                       ' where b.shifrid1df=a.shifrid'+
-                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (18))'+
-                       '  )'
 
+
+
+
+             if (kindPodr = Alchevsk) then
+                SQLStmnt:=Trim(SQLStmnt)+' and b.shifrbay=17'
              else
-             if kindPodr = UnivBezAS then
-                SQLStmnt:=Trim(SQLStmnt)+
-                       '    and not exists (' +
-                       ' select * from tb_1df_add b'+
-                       ' where b.shifrid1df=a.shifrid'+
-                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17,18))'+
-                       '  )';
+             if (kindPodr = SelHoz) then
+                SQLStmnt:=Trim(SQLStmnt)+' and b.shifrbay =18'
+             else
+             if (kindPodr = UnivBezAS) then
+                SQLStmnt:=Trim(SQLStmnt)+' and b.shifrbay not in (17,18)';
 
              SQlStmnt:=Trim(SQLStmnt)+
                        '     order by nal_code';
@@ -1433,34 +1421,18 @@ function BuildSQLStmnt:string;
  begin
  //     result:='select nal_code,summaadd,summapod,code_priz,ozn_pilg,datapri,datauw from tb_1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and nal_code is not null and char_length(trim(nal_code))=10 order by nal_code' ;
         SQlStmnt:='select nal_code,summaadd,summapod,code_priz,ozn_pilg,datapri,datauw,tabno from tb_1df a where y='+IntToStr(Y)+' and m='+IntToStr(M);
-        if kindPodr<>UnivAll then
-           SQLStmnt:=Trim(SQLStmnt)+makeFilterString;
-(*
+//        if kindPodr<>UnivAll then
+//           SQLStmnt:=Trim(SQLStmnt)+makeFilterString;
+
         if kindPodr = Alchevsk then
-           SQLStmnt:=Trim(SQLStmnt)+
-                       '    and exists (' +
-                       ' select * from tb_1df_add b'+
-                       ' where b.shifrid1df=a.shifrid'+
-                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17))'+
-                       '  )'
+          SQlStmnt:='select nal_code,b.summaadd,b.summapod,code_priz,ozn_pilg,datapri,datauw,tabno from tb_1df a join tb_1df_det b on a.shifrid=b.shifrid1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and b.shifrbay=17'
         else
         if kindPodr = SelHoz then
-           SQLStmnt:=Trim(SQLStmnt)+
-                       '    and exists (' +
-                       ' select * from tb_1df_add b'+
-                       ' where b.shifrid1df=a.shifrid'+
-                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (18))'+
-                       '  )'
-
+          SQlStmnt:='select nal_code,b.summaadd,b.summapod,code_priz,ozn_pilg,datapri,datauw,tabno from tb_1df a join tb_1df_det b on a.shifrid=b.shifrid1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and b.shifrbay=18'
         else
         if kindPodr = UnivBezAS then
-                SQLStmnt:=Trim(SQLStmnt)+
-                       '    and not exists (' +
-                       ' select * from tb_1df_add b'+
-                       ' where b.shifrid1df=a.shifrid'+
-                       ' and b.w_place in (select c.shifrpod from bay c where c.shifrbuh in (17,18))'+
-                       '  )';
-*)
+          SQlStmnt:='select nal_code,b.summaadd,b.summapod,code_priz,ozn_pilg,datapri,datauw,tabno from tb_1df a join tb_1df_det b on a.shifrid=b.shifrid1df where y='+IntToStr(Y)+' and m='+IntToStr(M)+' and b.shifrbay=1';
+
         SQlStmnt:=Trim(SQlStmnt)+' order by nal_code' ;
         BuildSQLStmnt:=SQLStmnt;
  end;

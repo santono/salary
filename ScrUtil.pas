@@ -31,6 +31,7 @@ interface
    function ReplQuot(C:String):String;
    Function ReplSToDQuote(S:String):String;
    Function ReplQto2Q(S:String):String;
+   Function ReplToUkrI(S:String):String;
    Function ReplChar(S:String;CFR:String;CTO:String):String;
    FUNCTION FILEEXIST(FILENAME:STRIng):BOOLEAN;
    FUNCTION NOMER_SERV(WN:INTEGER):INTEGER;
@@ -995,6 +996,29 @@ Function ReplQto2Q(S:String):String;
          end;
       ReplQto2Q:=RetVal;
  end;
+
+Function ReplToUkrI(S:String):String;
+// Заменяет кавычку на две
+ var RetVal:String;
+     i,k:integer;
+ begin
+      RetVal:=S;
+      if Length(S)>0 then
+         begin
+               RetVal:='';
+               k:=Length(S);
+               for i:=1 to k do
+                   begin
+                        if s[i]='i' then s[i]:=Chr(179)
+                                    else
+                        if s[i]='I' then s[i]:=Chr(178);
+                        RetVal:=RetVal+s[i];
+//                        if s[i]='''' then RetVal:=RetVal+'''';
+                   end;
+         end;
+      ReplToUkrI:=RetVal;
+ end;
+
 
    function ReplQuot(C:String):String;
     var i      : integer ;
