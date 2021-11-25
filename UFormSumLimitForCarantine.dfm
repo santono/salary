@@ -1,8 +1,8 @@
 object FormSumLimitForCarantine: TFormSumLimitForCarantine
-  Left = 344
-  Top = 141
+  Left = 219
+  Top = 150
   Width = 684
-  Height = 567
+  Height = 585
   Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1085#1072' '#1084#1072#1082#1089'. '#1085#1072#1095#1080#1089#1083#1077#1085#1080#1103
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,14 +15,15 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
   OnCreate = FormCreate
   DesignSize = (
     668
-    529)
+    547)
   PixelsPerInch = 96
   TextHeight = 20
   object Button1: TButton
     Left = 8
-    Top = 496
+    Top = 512
     Width = 153
     Height = 25
+    Anchors = [akLeft, akBottom]
     Caption = #1055#1086#1083#1091#1095#1080#1090#1100' '#1076#1072#1085#1085#1099#1077
     TabOrder = 0
     OnClick = Button1Click
@@ -31,7 +32,7 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
     Left = 10
     Top = 8
     Width = 647
-    Height = 481
+    Height = 499
     Bands = <
       item
       end>
@@ -65,20 +66,37 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
   end
   object BitBtn1: TBitBtn
     Left = 176
-    Top = 496
+    Top = 512
     Width = 105
     Height = 25
+    Anchors = [akLeft, akBottom]
     Caption = '&'#1042#1099#1093#1086#1076
     TabOrder = 2
     Kind = bkClose
   end
   object CheckBox1: TCheckBox
     Left = 312
-    Top = 496
-    Width = 297
+    Top = 512
+    Width = 193
     Height = 17
+    Anchors = [akLeft, akBottom]
     Caption = #1042#1099#1074#1086#1076#1080#1090#1100' '#1087#1077#1088#1074#1099#1093' 100'
     TabOrder = 3
+  end
+  object cbWR: TComboBox
+    Left = 512
+    Top = 512
+    Width = 145
+    Height = 28
+    Anchors = [akLeft, akBottom]
+    ItemHeight = 20
+    TabOrder = 4
+    Text = 'cbWR'
+    OnChange = cbWRChange
+    Items.Strings = (
+      #1054#1089#1085' '#1080' '#1089#1086#1074#1084
+      #1054#1089#1085#1086#1074#1085#1072#1103
+      #1057#1086#1074#1084#1077#1097#1077#1085#1080#1077)
   end
   object CDS2011: TClientDataSet
     Active = True

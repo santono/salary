@@ -54,7 +54,7 @@ var
   FormMovePremFromSQL: TFormMovePremFromSQL;
 
 implementation
-  Uses UFibModule,ScrDef,ScrIo,ScrUtil,UFormSelPKG,ScrLists,uSQLUnit;
+  Uses UFibModule,ScrDef,ScrIo,ScrUtil,UFormSelPKG,ScrLists,uSQLUnit,ScrNalog;
 
 {$R *.dfm}
 
@@ -674,6 +674,7 @@ var NMES_Sav,NSRV_Sav:Integer;
                 maked:=true;
                 sqlStmnt:='update tb_prem_2021 set moved=1 where npp='+intToStr(npp);
                 SQLExecute(sqlStmnt);
+//                calc_naud_person(Curr_Person,1,31);
                 Curr_Person:=Curr_Person^.Next;
            end;
           fillPersons:=retVal;

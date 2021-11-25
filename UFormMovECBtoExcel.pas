@@ -106,6 +106,9 @@ function TFormMovECBtoExcel.MakeExcelFile(modeExcel:Integer;modeExlOut:integer):
 
 procedure TFormMovECBtoExcel.FillExcelTable(ModeExcel:integer;modeExlOut:Integer);
 const procECB=0.31;
+      xlCalculationManual =	-4135;
+      xlCalculationAutomatic = 	-4105;
+
 var e,WC : variant;
     RecordBound, ix : integer ;
     fmsFloatPoint : TFormatSettings;
@@ -336,6 +339,8 @@ function BuildSQLStmnt(ModeExcel:integer):widestring;
               sum_inss   := ReplChar(sum_inss,'.',',');
               FIO        := Trim(pFIBQueryECB.Fields[24].AsString);
               fioRus     := fio;
+              if Length(Trim(fioRus))<1 then
+                 fioRus:=GetFullRusFioPerson(tabno);
               if not SplitFIO(fioRus,FAMrus,NAMRus,OTCRus) then
                  begin
                       famrus:=fam;
@@ -668,8 +673,12 @@ begin
        end;
      end;
 //     E.Visible:=true;
+     E.ScreenUpdating := False;
+     E.EnableEvents := False;
+//     E.Calculation := xlCalculationManual;
      E.WorkBooks.Open(FName);
      E.WorkBooks[1].WorkSheets[sheetNo].Activate;
+//     E.WorkBooks[1].WorkSheets[sheetNo].Calculation := xlCalculationManual;
      pFIBQueryECB.Close;
      SQLStmnt:=BuildSQLStmnt(ModeExcel);
      pFIBQueryECB.SQL.Clear;
@@ -753,7 +762,11 @@ begin
      else
      if (ModeExcel=5) and (modeExlOut=0) then
         FillTot5;
-     HideZeroRowExcel;   
+     HideZeroRowExcel;
+     E.ScreenUpdating := true;
+     e.Calculate;
+//     E.Calculation[0] := xlCalculationAutomatic;
+
      E.Visible:=true;
 
      if pFIBQueryECB.Open then

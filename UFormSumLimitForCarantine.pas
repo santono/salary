@@ -24,9 +24,11 @@ type
     dxDBGridCDS2011Summa: TdxDBGridMaskColumn;
     BitBtn1: TBitBtn;
     CheckBox1: TCheckBox;
+    cbWR: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure cbWRChange(Sender: TObject);
 
   private
     summaLimit:real;
@@ -34,6 +36,7 @@ type
     function  FindRecInList(tabno:integer):pointer;
     function GetLimitSummaForCarantine:real;
     procedure BuildList;
+    procedure makeCaption;
 
     { Private declarations }
   public
@@ -75,12 +78,23 @@ begin
 end;
 
 procedure TFormSumLimitForCarantine.FormCreate(Sender: TObject);
+var s:string;
 begin
      checkBox1.Checked:=false;
+     cbWR.ItemIndex:=0;
      summaLimit:=GetLimitSummaForCarantine;
-     Caption:='Лимит = '+FormatSummaForPlt(summaLimit)+' в '+getMonthRus(NMES)+' '+intToStr(CurrYear);
+     makeCaption;
 end;
 
+procedure TFormSumLimitForCarantine.makeCaption;
+var s:string;
+ begin
+     S:='';
+     if cbWR.ItemIndex=1 then S:='Основная'
+     else
+     if cbWR.ItemIndex=2 then S:='Совмещение';
+     Caption:='Лимит = '+FormatSummaForPlt(summaLimit)+' в '+getMonthRus(NMES)+' '+intToStr(CurrYear)+' '+S;
+ end;
 function SortPersonRec(Item1, Item2  : Pointer): Integer;
  var personSummyRec1,personSummyRec2 : pPersonSummyRec;
      retVal:Integer;
@@ -148,6 +162,18 @@ procedure TFormSumLimitForCarantine.MakeCurrentSummy(WantedY:Integer;WantedM:Int
               begin
                    FormProgress.LabelFooter.Caption:=Curr_Person.Fio+' ' +Curr_Person.Dolg;
                    Application.ProcessMessages;
+                   if not(
+                        (cbWR.itemIndex=0)
+                         or
+                        ((cbWR.itemIndex=1) and (IS_OSN_WID_RABOTY(curr_person)))
+                         or
+                        ((cbWR.itemIndex=2) and (IS_OSN_WID_RABOTY(curr_person)=false))
+                      ) then
+                    begin
+                         curr_Person:=curr_Person.NEXT;
+                         Continue;
+                    end;
+
                    isFirst:=true;
                    curr_add:=curr_Person.ADD;
                    while (Curr_Add<>nil) do
@@ -319,6 +345,11 @@ begin
         end;
      PersonSummyList.Free;
 
+end;
+
+procedure TFormSumLimitForCarantine.cbWRChange(Sender: TObject);
+begin
+     makeCaption;
 end;
 
 end.

@@ -1996,6 +1996,11 @@ begin
 //              FormMoveRecalcOtp2016.ShowModal;
 //              Application.CreateForm(TFormMoveAwans2017_12,FormMoveAwans2017_12);
 //              FormMoveAwans2017_12.ShowModal;
+              if not ((NMES=10) and (CurrentYear=2021)) then
+                 begin
+                      ShowMessage('ѕеренести перерасчет можно только в окт€бре 2021');
+                 end;
+
               Application.CreateForm(TFormMoveRecalcOtp2016,FormMoveRecalcOtp2016);
               FormMoveRecalcOtp2016.ShowModal;
         end;
