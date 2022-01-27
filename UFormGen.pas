@@ -359,7 +359,7 @@ PROCEDURE MODI_INF;
                         BEGIN
                              if ((not needHideGenerMessages)
                                  or
-                                (needHideGenerMessages and (NSRV<>182) and (NSRV<>183))) then
+                                (needHideGenerMessages and (NSRV<>MAX_COUNT_PODRAZD) and (NSRV<>183))) then
                              ShowMessage('«¿–œÀ¿“¿ Õ≈ Õ¿◊»—ÀﬂÀ¿—‹ ƒÀﬂ '+NAME_SERV(NSRV));
                              Break;
                         END;

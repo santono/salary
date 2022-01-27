@@ -183,7 +183,7 @@ procedure TFormMemBud.MakeOrder;
                    begin
                         HideRow     :=  16;
                         StartCol    :=  16;
-                        EndCol      := 117;
+                        EndCol      := 121; {117}
                         HideModeRow :=   5;
                    end
                 else
@@ -202,7 +202,7 @@ procedure TFormMemBud.MakeOrder;
                         HideRow     := 31; {30;} {29;} {32;} {29;}
                         HideModeRow :=  5;
                         StartCol    := 20;
-                        EndCol      := 123; {118}{74;}
+                        EndCol      := 127; {123}{118}{74;}
                    end
                 else
                    begin
@@ -368,7 +368,7 @@ procedure TFormMemBud.MakeOrder;
                  if isSVDN then
                     begin
                          StartCol     :=  4;
-                         EndCol       :=117;
+                         EndCol       :=121; {117}
                          HeaderRow    :=  4;
                          HideModeRow  :=  5;
                          StartRow     := 11;
@@ -396,7 +396,7 @@ procedure TFormMemBud.MakeOrder;
                 if isSVDN then
                    begin
                         StartCol    :=  4;
-                        EndCol      := 123 ; {118} {74}
+                        EndCol      := 127 ; {123} {118} {74}
                         HeaderRow   :=  4;
                         HideModeRow :=  5;
                         StartRow    := 11;
@@ -1127,6 +1127,10 @@ procedure TFormMemBud.MakeOrder;
                                                                             ShifrRow,ShifrCol);
                                                               if ShifrRow=0 then
                                                                  ShifrRow:=0;
+//                                                              if ShifrRow=7 then
+//                                                                 begin
+//                                                                      ShowMessage('shifrRow=7 '+IntToStr(curr_person^.tabno)+' nsrv='+IntToStr(nsrv));
+//                                                                 end;
                                                               ExcelList.AddItem(ShifrRow,ShifrCol,Curr_Add^.Summa,false);
                                                           //    if Is_Invalid(Curr_Person) then
                                                               if PensionerList.IsPensioner(Curr_Person^.Tabno) then

@@ -361,9 +361,9 @@ end;
 
 procedure TFormSetBaseData.BitBtn3Click(Sender: TObject);
 begin
-     if  not ((NMES=11) and (WORK_YEAR_VAL=2018)) then
+     if  not ((NMES=12) and (WORK_YEAR_VAL=2021)) then
          begin
-              ShowMessage('Ёта фукнци€ доступна только в но€бре 2018');
+              ShowMessage('Ёта функци€ доступна только в декабре 2021');
 
               Exit;
          end;
@@ -413,7 +413,7 @@ begin
                  begin
                       if not(STORONNEE_PODRAZD(Curr_Person.MESTO_OSN_RABOTY)) then
                          begin
-                              SetBaseMonthYearPerson(Curr_Person, 1 , 2018);
+                              SetBaseMonthYearPerson(Curr_Person, 12 , 2021);
                               NeedPut:=true;
                               Inc(countChanged);
                          end;

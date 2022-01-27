@@ -1,6 +1,6 @@
 object FormKadry: TFormKadry
-  Left = 193
-  Top = 139
+  Left = 470
+  Top = 98
   Width = 955
   Height = 618
   Caption = #1057#1087#1080#1089#1086#1082' '#1082#1072#1092#1077#1076#1088#1099

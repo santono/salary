@@ -144,6 +144,7 @@ object Form1DF: TForm1DF
     DataSource = DataSource1DF
     Anchors = [akLeft, akBottom]
     TabOrder = 2
+    OnClick = DBNavigator1Click
   end
   object cbKindPodr: TComboBox
     Left = 144
@@ -180,7 +181,7 @@ object Form1DF: TForm1DF
       ' TB_1DF'
       'where'
       ' y=:y and m=:m '
-      'order by nal_code')
+      'order by coalesce(nal_code,'#39#39')')
     AllowedUpdateKinds = [ukModify]
     Transaction = FIB.pFIBTransactionRead
     Database = FIB.pFIBDatabaseSal

@@ -54,7 +54,7 @@ begin
 }
   {$IFDEF SVDN}
    Label1.Caption:='Автоматизована система';
-   ProductName.Caption:='розрахунку заробітної платні';
+   ProductName.Caption:='розрахунку заробітної плати';
   {$ENDIF}
 end;
 

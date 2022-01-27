@@ -129,6 +129,7 @@ type
       var Value: Variant);
     procedure cbKindPodrChange(Sender: TObject);
     procedure iDFECBClick(Sender: TObject);
+    procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
   private
     { Private declarations }
     listAlchevsk,
@@ -137,6 +138,7 @@ type
     listSelHozString:string;
     kindPodr:tKindPodr;
     summaWarSbor:Real;
+    DBF1DFDirForMessage:string;
     procedure ShowTable;
     function MakeDBFFile(FNameDBF:String;wantedY:Integer;wantedM:integer):string;
     procedure FillDBFTable(wantedY:integer;wantedM:Integer;SummaNo:integer);
@@ -162,7 +164,7 @@ var
 implementation
   uses ScrDef,UFibModule,DBF,DateUtils,IniFiles,ScrUtil,UFormProgress,
   uFormWait, UForm1DFStipToXML,ComObj,USQLUnit,
-  UFormCMP1DFECB;
+  UFormCMP1DFECB, UFormUpdate1DFRec;
 
 {$R *.dfm}
 
@@ -642,7 +644,7 @@ begin
         FillDBFTable(Self.Y,Currm  ,1);
         FillDBFTable(self.Y,Currm+1,2);
         FillDBFTable(self.Y,Currm+2,3);
-        showMessage('Перенос закончен');
+        showMessage('Перенос закончен'^M'Сформированные файлы находятся в каталоге '+DBF1DFDirForMessage);
      except
         on E: Exception do
            begin
@@ -690,6 +692,7 @@ function TForm1DF.MakeDBFFile(FNameDBF:String;wantedY:Integer;wantedM:integer):S
              raise Exception.Create('Отсутствует каталог '+DBFDir+' и не возможно создать его');
              Exit;
         end;
+     DBF1DFDirForMessage:=DBFDir;
      Ch:=copy(DBFDir,Length(DBFDir),1);
      if (not (Ch[1]  in ['\','/'])) then
         begin
@@ -1975,6 +1978,16 @@ begin
      if not isSVDN then Exit;
      FormCMP1DFECB:=TFormCMP1DFECB.myCreate(Self,Y,M);
      FormCMP1DFECB.ShowModal;
+end;
+
+procedure TForm1DF.DBNavigator1Click(Sender: TObject;
+  Button: TNavigateBtn);
+begin
+     if Button =nbEdit	then
+        begin
+             Application.CreateForm(TFormUpdate1DFRec,FormUpdate1DFRec);
+             FormUpdate1DFRec.showModal;
+        end;
 end;
 
 end.

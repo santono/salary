@@ -1078,11 +1078,14 @@ procedure TFormKadry.SetUpSowmKadry(Tabno,W_P:integer);
 
 procedure TFormKadry.EditRazrChange(Sender: TObject);
 var I,J:Integer;
+    maxRazr:Integer;
 begin
+      maxRazr:=24;
+      if isSVDN then maxRazr:=23;
       if Assigned(Curr_Person) then
          begin
               val(EditRazr.Text,I,J);
-              if ((i>=0) and (i<=23)) then
+              if ((i>=0) and (i<=maxRazr)) then
                   if J=0 then SetRazrjadPerson(Curr_Person,i);
          end;
 end;

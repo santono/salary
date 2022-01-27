@@ -643,7 +643,11 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
            CurrPersonOsn:=GetOsnPerson;
            if not Assigned(CurrPersonOsn) then
               begin
-                   ShowMessage('Не найдено сотр. по осно. мету работы');
+                   if ((not needHideGenerMessages)
+                                 or
+                                (needHideGenerMessages)) then
+
+                      ShowMessage('Не найдено сотр. по осн. месту работы');
                    Exit;
               end;
            i:=count_sowm(CurrPersonOsn);

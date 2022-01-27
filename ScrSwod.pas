@@ -89,7 +89,7 @@ var
 implementation
   uses Forms,SysUtils,ScrUtil,uFormMkPensList,ScrLists,ScrIo,
        UFormView,UFormProgress,Dialogs,UFibModule,UFormWait,ComObj,
-       UFormSwodMNFR, frxClass, DateUtils,USQLUnit,UAddUdList;
+       UFormSwodMNFR, frxClass, DateUtils,USQLUnit,UAddUdList, Variants;
 TYPE
        PNeedPodrRec=^TNeedPodrRec;
        TNeedPodrRec=record
@@ -221,6 +221,8 @@ TYPE
           i,j:Integer;
           v:variant;
       begin
+//           if isLNR then
+//              Exit;
            i:=0;
            j:=0;
            if NeedDogPod then i:=1;
@@ -773,6 +775,31 @@ VAR I,J,II,KOD  : INTEGER;
     S_DOLG      : REAL;
     SummaPodr   : real;
     stop        : Boolean;
+ procedure  Delete_From_db(CURR_PERSON:person_ptr;curr_ud:ud_ptr);
+  var SQLStmnt,SQLStmntSel,SQLStmntDel:string;
+      v:Variant;
+      iVal:Integer;
+  begin
+       Exit;
+       if curr_ud^.shifr<>50 then Exit;
+       if NSRV=206 then
+          ShowMessage(Trim(Curr_person^.fio)+' '+FormatFloatPoint(CURR_ud^.SUMMA));
+       SQLStmnt:=' FROM TB_1DF_UD_8116 WHERE TABNO='+INTtOsTR(CURR_PERSON^.TABNO)+' AND SUMMA='+FormatFloatPoint(CURR_ud^.SUMMA)+' AND W_PLACE='+INTtOSTR(NSRV)+' AND SHIFRKAT='+IntToStr(curr_person^.KATEGORIJA)+' AND SHIFRGRU='+IntToStr(curr_person^.GRUPPA)+' AND W_R='+IntToStr(curr_person^.WID_RABOTY);
+       SQLStmntSel:='SELECT COUNT(*) '+SqlStmnt;
+       v:=SQLQueryValue(SQLStmntSel);
+       if VarIsNumeric(v) then
+          begin
+               iVal:=v;
+           //    if iVal=1 then
+                  begin
+                    SQLStmntDel:='DELETE '+SqlStmnt+' ROWS 1';
+                    SQLExecute(sqlstmntDel);
+                  end
+           //    else
+            //      ShowMessage('>1 '+IntToStr(iVal));   
+          end;
+  end;
+
 BEGIN
   SummaPodr:=0;
   Curr_Person:=Head_Person;
@@ -949,6 +976,7 @@ BEGIN
                             IF KOD IN [GOSSTRAH1_SHIFR..GOSSTRAH4_SHIFR,
                                        GOSSTRAH5_SHIFR,GOSSTRAH6_SHIFR] THEN KOD:=GOSSTRAH1_SHIFR;
                             if not Detail_Swod then Curr_Ud^.Period:=nmes;
+            //                Delete_From_db(CURR_PERSON,curr_ud);
                             ItemUdList.AddItem(Kod,Curr_Ud^.Period,Curr_Ud^.Summa,0,0,0,Curr_Person^.Bank);
                             SQLSwodClass.AddItemUd(CURR_Ud,NSRV,CURR_PERSON);
 

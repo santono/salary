@@ -158,6 +158,7 @@ type
     procedure fillDPPerson(curr_person:person_ptr);
     procedure fillPremPerson(curr_person:person_ptr);
     procedure fillPochasPerson(curr_person:person_ptr);
+    procedure fillMatHelpPerson(curr_person:person_ptr);
     procedure fillCheckPerson(curr_person:person_ptr);
     function GetMaxId6:integer;
     function getPreviousNalCode(tabno:integer):string;
@@ -168,6 +169,7 @@ type
     procedure fillRecalcNarah22;
     procedure addZavadskieToList6;
     procedure fillSownVneList;
+//    procedure fillMatHelpObl; //Облагаемая МП и пос на погреб. Оба из 106 подр 
 
     procedure fillTable7;
     procedure fillTable7Dekr;
@@ -232,10 +234,10 @@ implementation
               PID_ZV     : string;
               NRM_DT     : TDateTime; //* TDATE = DATE */,
               DOG_CPH    : integer; //* TSMALLCODE = SMALLINT DEFAULT 0 */,
-              PNR        : string;
-              ZKPP       : string;
+              PNR        : string;  //13-я колонка   профеcийна назва роботи
+              ZKPP       : string;  //14-я колонка - код классификатора
               PROF       : string;
-              POS        : string;
+              POS        : string;  // Посада - 15-я колонка
               PID        : string;
               VZV        : string;
               VS         : Integer;
@@ -335,6 +337,7 @@ implementation
                     summaAddF6   : real;
                     summaMatHelp : real;
                     summaKassa   : real;
+                    summaUwolKomp :real;
                     summaKoef    : real;
                     start_d      : integer;
                     end_d        : integer;
@@ -641,7 +644,7 @@ procedure TFormRepF4.CreateReport6;
        listSowmVne:=TList.Create;
 //       listIll:=TList.Create;
        ProgressBar1.Min:=0;
-       ProgressBar1.Max:=Count_Serv * 8;
+       ProgressBar1.Max:=Count_Serv * 9;
        ProgressBar1.Step:=1;
        MAKEPENSLIST(2);   // Список инвалидов
        AddCashObject:=tAddCash.create;
@@ -760,6 +763,24 @@ procedure TFormRepF4.CreateReport6;
                 while (curr_person<>nil) do
                   begin
                        fillPochasPerson(Curr_person);
+                       curr_person:=curr_person^.NEXT;
+                  end;
+                EMPTY_ALL_PERSON;
+           end;
+
+       for iNSRV:=1 to Count_Serv do
+           begin
+                NSRV:=iNSRV;
+                MKFLNM;
+                ProgressBar1.StepIt;
+                Application.ProcessMessages;
+//                if IsColedgPodr(NSRV) then continue;
+                if nsrv <> 106 then continue;
+                getinf(false);
+                curr_person:=HEAD_PERSON;
+                while (curr_person<>nil) do
+                  begin
+                       fillMatHelpPerson(Curr_person);
                        curr_person:=curr_person^.NEXT;
                   end;
                 EMPTY_ALL_PERSON;
@@ -1180,6 +1201,8 @@ procedure TFormRepF4.fillOsnPerson(curr_person:person_ptr);
                       or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
                       or
+                      (curr_add^.shifr=VYHODNOE_POSOBIE_SHIFR) // Выходное пособие
+                      or
                       (curr_add^.shifr=dogPodShifr)
                       ) then
                       begin
@@ -1311,6 +1334,8 @@ procedure TFormRepF4.fillSowmPerson(curr_person:person_ptr);
                       (curr_add^.shifr=139) // Пособие на погребение
                       or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
+                      or
+                      (curr_add^.shifr=VYHODNOE_POSOBIE_SHIFR) // Выходное пособие
                       or
                       (curr_add^.shifr=dogPodShifr)
                       ) then
@@ -1554,12 +1579,130 @@ procedure TFormRepF4.fillPochasPerson(curr_person:person_ptr);
                        rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
                        rec6^.w_r:=2;
                        rec6^.otk:=0;
-                  end;     
+                  end;
           end;
 //       nzp:=OTPUSK_BEZ_DAY(1,CURR_PERSON);
   end;
 
-procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
+procedure TFormRepF4.fillMatHelpPerson(curr_person:person_ptr);
+// Облагаемая материальная помощь
+// только из 106-го подразделения
+// Шифр пособие на погребение
+  var rec6:pRec6;
+      i:integer;
+      summaAdd:real;
+      summaNotSciPedAdd:real;
+      summaSciPedAdd:real;
+      payTp:integer;
+      zo,payYear,payMnth:integer;
+      kd_ptv:integer;
+      kd_nzp:integer;
+    function getSummaMatHelpAddForPerson(curr_person:PERSON_PTR):Real;
+      var retVal:Real;
+          curr_add:ADD_PTR;
+      begin
+          retVal:=0;
+          curr_add:=curr_person.ADD;
+          while (curr_add<>nil) do
+             begin
+                  if (curr_add^.shifr in [139]) then
+                     retVal:=retVal+curr_add^.SUMMA;
+                  curr_add:=curr_add.NEXT;
+             end;
+          getSummaMatHelpAddForPerson:=retVal;
+      end;
+    procedure fillSciPerson;
+      begin
+           summaSciPedAdd:=0;
+           if isSciPedForSwod(curr_Person) then
+              summaSciPedAdd:=summaAdd;
+      end;
+    procedure fillNotSciPerson;
+      begin
+           summaNotSciPedAdd:=0;
+           if not isSciPedForSwod(curr_Person) then
+              summaNotSciPedAdd:=summaAdd
+      end;
+    procedure fillKdPtvPerson;
+      var retVal:integer;
+          i:integer;
+      begin
+           retVal:=0;
+           for i:=1 to 31 do
+               if not (curr_person^.TABEL[i] in [0,NEZAPOLN]) then
+                  inc(retVal);
+               if retVal>LenMonth(encodeDate(wantedYear,wantedMonth,1)) then
+                  retVal:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
+
+           kd_Ptv:=retVal;
+      end;
+    procedure fillKdNzpPerson;
+      var retVal:integer;
+          i:integer;
+      begin
+           retVal:=0;
+           for i:=1 to 31 do
+               if not (curr_person^.TABEL[i] in [0,NEZAPOLN]) then
+                  inc(retVal);
+               if retVal>LenMonth(encodeDate(wantedYear,wantedMonth,1)) then
+                  retVal:=LenMonth(encodeDate(wantedYear,wantedMonth,1));
+           kd_Nzp:=OTPUSK_BEZ_DAY(1,curr_person);
+      end;
+
+  begin
+  //     Exit;  // - Почасовки нет
+       if nsrv<>106 then exit;
+//       if DOG_POD_PODRAZD(nsrv) then exit;
+       if (curr_person^.tabno=506)
+         then
+            zo:=25;
+
+       summaAdd:=getSummaMatHelpAddForPerson(curr_person);
+       if abs(summaAdd)<0.01 then exit;
+       if curr_person^.tabno=55 then
+          curr_person^.MALO:=0;
+       fillSciPerson;
+       fillNotSciPerson;
+       fillKdPtvPerson;
+       fillKdNzpPerson;
+       if abs(summaSciPedAdd)>0.01 then
+          begin
+               zo       := 25;
+               summaAdd := summaSciPedAdd;
+               payTp    := 0;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
+               rec6     := addSummaToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp,1);
+               if rec6=nil then
+                  begin
+                      rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
+                      rec6^.w_r:=2;
+                      rec6^.zo:=1;
+                      rec6^.exp:=1;
+                      rec6^.otk:=0;
+                  end
+          end;
+       if abs(summaNotSciPedAdd)>0.01 then
+          begin
+               zo       := 1;
+               summaAdd := summaNotSciPedAdd;
+               payTp    := 0;
+               payYear  := wantedYear;
+               payMnth  := wantedMonth;
+//               rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
+               rec6     := addSummaToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp,1);
+               if rec6=nil then
+                  begin
+                       rec6     := addToF6(curr_Person^.TABNO,zo,payTp,payMnth,payYear,summaAdd,false,1,kd_ptv,kd_nzp);
+                       rec6^.w_r:=2;
+                       rec6^.otk:=0;
+                  end;
+          end;
+//       nzp:=OTPUSK_BEZ_DAY(1,CURR_PERSON);
+  end;
+
+
+  procedure TFormRepF4.fillIllPerson(curr_person:person_ptr);
   var i:integer;
       zo,payTp,payYear,payMnth:integer;
       otk,nrc:integer;
@@ -1901,6 +2044,8 @@ procedure TFormRepF4.fillDPPerson(curr_person:person_ptr);
                       (curr_add^.shifr=139) // Пособие на погребение
                       or
                       (curr_add^.shifr=141) // Мат помощь не облагаемая
+                      or
+                      (curr_add^.shifr=VYHODNOE_POSOBIE_SHIFR) // Выходное пособие
                       ) then
                       begin
                            retVal:=retVal+curr_add^.SUMMA;
@@ -2195,7 +2340,7 @@ procedure TFormRepF4.fillTable5;
                                    // т е в которых указано ZO и перенос в таблицу 5
 
       fillTable5PrinjatUwolen;
-      fillTable5Perevody;
+//      fillTable5Perevody;
       fillTable5CPH;
   //    fillTable5Dekr;
 //--      fillTable5SowmPri;
@@ -2240,8 +2385,8 @@ procedure TFormRepF4.fillTable5PrinjatUwolen;
                 dateUw:=dsPrinjatUwolenDATA_UW.value;
              if not dsPrinjatUwolenCODE_UWOL.IsNull then
                 codeUwol:=dsPrinjatUwolenCODE_UWOL.Value;
-             startDt:=1;
-             endDt:=lenMonth(encodeDate(wantedYear,wantedMonth,1));
+             startDt:=0;
+             endDt:=0;// lenMonth(encodeDate(wantedYear,wantedMonth,1));
              if ((yearOf(datePri)=wantedYear) and (monthOf(datePri)=wantedMonth)) then
                 startDt:=dayOf(datePri);
              if ((yearOf(dateUw)=wantedYear) and (monthOf(dateUw)=wantedMonth)) then
@@ -2453,9 +2598,10 @@ procedure TFormRepF4.fillTable5PrinjatUwolenFromPrikazy;
                      rec5.pid      := 'наказ вiд '+FormatDate(DatePrik)+' '+trim(nomerPrik);
                      if shifridTyp=5 then
                         begin
-                             rec5.ZKPP := Trim(KODZKPPTR);
+//                             rec5.ZKPP := Trim(KODZKPPTR);
+                             rec5.ZKPP := Trim(KODKP);
                              rec5.pnr  := Trim(nameprof);  //Професiональна назва роботи
-                             rec5.PNR  := Trim(KODKP);     //код класiфiкатора професii
+//                           rec5.kp  := Trim(KODKP);      //код класiфiкатора професii
                              rec5.POS  := Trim(namedol);
                         end
                      else
@@ -3483,7 +3629,8 @@ procedure TFormRepF4.fillTable5FromFilledPrikazy;
            begin
                 rec5.ZKPP := Trim(KODZKPPTR);
                 rec5.pnr  := Trim(nameprof);  //Професiональна назва роботи
-                rec5.PNR  := Trim(KODKP);     //код класiфiкатора професii
+//                rec5.PNR  := Trim(KODKP);     //код класiфiкатора професii
+                rec5.PROF := Trim(KODKP);     //Код профессии по справочнику
                 rec5.POS  := Trim(namedol);
                 rec5.ZO   := zo;
                 rec5.VS   := vs;
@@ -3500,7 +3647,12 @@ procedure TFormRepF4.fillTable5FromFilledPrikazy;
                 rec5.VS   := vs;
                 rec5.PIR  := pir;
                 rec5.START_DT:=0;
-           end
+                rec5.ZKPP := Trim(KODZKPPTR);
+                rec5.pnr  := Trim(nameprof);  //Професiональна назва роботи
+//                rec5.PNR  := Trim(KODKP);     //код класiфiкатора професii
+                rec5.PROF := Trim(KODKP);     //Код профессии по справочнику
+                rec5.POS  := Trim(namedol);
+            end
 
    end;
   procedure fillRec5Perew;
@@ -4164,7 +4316,7 @@ procedure TFormRepF4.fillRecalcNarah22;
  end;
 procedure TFormRepF4.moveToBD;
  var SqlStmnt:wideString;
-     i,j,ic:integer;
+     i,j,ic,iErr:integer;
      c:char;
 
  begin
@@ -4185,10 +4337,19 @@ procedure TFormRepF4.moveToBD;
      if list5.Count>0 then
      for i:=0 to list5.Count-1 do
          begin
+              if length(trim(pRec5(list5.Items[i])^.PROF))>0 then
+                 begin
+                   pRec5(list5.Items[i])^.PROF:=StringReplace(pRec5(list5.Items[i])^.PROF,Chr(160),' ',[rfReplaceAll]);
+//                   pRec5(list5.Items[i])^.ZKPP:=trim(pRec5(list5.Items[i])^.ZKPP);
+//                   j:=length(pRec5(list5.Items[i])^.ZKPP);
+//                   c:=pRec5(list5.Items[i])^.ZKPP[j];
+//                   ic:=ord(c);
+                      j:=1;
+                 end;
               if length(trim(pRec5(list5.Items[i])^.ZKPP))>0 then
                  begin
                    pRec5(list5.Items[i])^.ZKPP:=StringReplace(pRec5(list5.Items[i])^.ZKPP,Chr(160),' ',[rfReplaceAll]);
-                   pRec5(list5.Items[i])^.ZKPP:=trim(pRec5(list5.Items[i])^.ZKPP);
+//                   pRec5(list5.Items[i])^.ZKPP:=trim(pRec5(list5.Items[i])^.ZKPP);
 //                   j:=length(pRec5(list5.Items[i])^.ZKPP);
 //                   c:=pRec5(list5.Items[i])^.ZKPP[j];
 //                   ic:=ord(c);
@@ -4197,7 +4358,7 @@ procedure TFormRepF4.moveToBD;
               if length(trim(pRec5(list5.Items[i])^.PNR))>0 then
                  begin
                    pRec5(list5.Items[i])^.PNR:=StringReplace(pRec5(list5.Items[i])^.PNR,Chr(160),' ',[rfReplaceAll]);
-                   pRec5(list5.Items[i])^.PNR:=trim(pRec5(list5.Items[i])^.PNR);
+//                   pRec5(list5.Items[i])^.PNR:=trim(pRec5(list5.Items[i])^.PNR);
 //                   j:=length(pRec5(list5.Items[i])^.ZKPP);
 //                   c:=pRec5(list5.Items[i])^.ZKPP[j];
 //                   ic:=ord(c);
@@ -4257,9 +4418,21 @@ procedure TFormRepF4.moveToBD;
               SQLStmnt:=trim(SQLStmnt)+Trim(IntToStr(pRec5(list5.Items[i])^.VS))+',';
               SQLStmnt:=trim(SQLStmnt)+Trim(IntToStr(pRec5(list5.Items[i])^.PIR));
               SQLStmnt:=trim(SQLStmnt)+')';
+              ierr:=0;
+              if Length(Trim(pRec5(list5.Items[i])^.PROF)) >6 then
+                 begin
+                      ShowMessage('Таб.номер '+IntToStr(pRec5(list5.Items[i])^.tabno)+^M'Ошибка переноса Т5 в SQL.'^M' Длина (prof) кода профессии>6 --'+trim(pRec5(list5.Items[i])^.PROF)+'--'+intToStr(Ord(pRec5(list5.Items[i])^.PROF[7])));
+                      iErr:=1;
+                 end;
+              if Length(Trim(pRec5(list5.Items[i])^.ZKPP)) >5 then
+                 begin
+                      ShowMessage('Ошибка переноса Т5 в SQL.'^M' Длина (ZKPP) кода профессии>5 '+pRec5(list5.Items[i])^.ZKPP);
+                      iErr:=1;
+                 end;
 //              SQLStmnt:=StringReplace(SQLStmnt,Chr(175),'I',[rfReplaceAll]);
 //              SQLStmnt:=StringReplace(SQLStmnt,Chr(191),'i',[rfReplaceAll]);
 //              SQLStmnt:=StringReplace(SQLStmnt,'/','-',[rfReplaceAll]);
+              if IErr=0 then
               try
                 SQLExecute(SQLStmnt);
               except
@@ -4398,7 +4571,7 @@ procedure TFormRepF4.moveToBD;
      Application.ProcessMessages;
  end;
 procedure TFormRepF4.fillCheckList;
- var i,j:integer;
+ var i,j,k:integer;
      recPerson:pRecPerson;
      recAdd:pRecAdd;
      nalCode:string;
@@ -4407,7 +4580,7 @@ procedure TFormRepF4.fillCheckList;
      start_d,end_d:integer;
  begin
       if listCheck.Count<1 then exit;
-
+      k:=0;
       for i:=0 to listCheck.Count-1 do
           begin
                recPerson:=pRecPerson(listCheck.Items[i]);
@@ -4415,12 +4588,26 @@ procedure TFormRepF4.fillCheckList;
                recPerson.summaAddF6  := 0;
                recPerson.summaMatHelp:= 0;
                recPerson.summaKassa  := 0;
+               recPerson.summaUwolKomp :=0;
                if recPerson.addList.count>0 then
                   for j:=0 to recPerson.addList.count-1 do
                       begin
                            recAdd:=pRecAdd(recPerson.addList.items[j]);
-                           if (recAdd^.shifrSta in [31,139,141]) then
+                           if (recPerson^.tabno=11755)
+                              and
+                              (recAdd^.shifrPod=106) then
+                              k:=1;
+                      //     if (recAdd^.shifrSta in [31,139,141]) then
+                           if ((recAdd^.shifrSta in [31,141])
+                              or
+                                ((recAdd^.shifrSta in [139])
+                                  and (recAdd^.shifrPod<>106))
+                              )
+                               then
                                recPerson.summaMatHelp := recPerson.summaMatHelp+recAdd^.Summa
+                           else
+                           if (recAdd^.shifrSta = VYHODNOE_POSOBIE_SHIFR) then
+                               recPerson.summaUwolKomp := recPerson.summaUwolKomp+recAdd^.Summa
                            else
                            if (recAdd^.shifrSta = kassa_shifr) then
                                recPerson.summaKassa := recPerson.summaKassa+recAdd^.Summa

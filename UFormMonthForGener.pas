@@ -504,7 +504,7 @@ procedure TFormMonthForGener.GetFromMonths;
       SaveWDate := WantedData;
       DeCodeDate(WantedData,yw,mw,dw);
       finished:=false;
-      for y:=2000 to 2021 do
+      for y:=yw-1 to yw do
           begin
                if y<>yw then continue;
                FName:=CDIR+'MONTH'+COPY(ALLTRIM(IntToStr(Y)),3,2)+'.TXT';

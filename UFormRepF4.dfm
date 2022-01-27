@@ -740,8 +740,11 @@ object FormRepF4: TFormRepF4
         '=pr.tabno) code_uwol'
       '     from tb_prikazy pr'
       'where '
-      '    extract(year from pr.dataprik)=:y'
-      'and extract(month from pr.dataprik)=:m'
+      '    ((extract(year from pr.dataprik)=:y'
+      'and extract(month from pr.dataprik)=:m)'
+      '    or'
+      '    ((coalesce(pr.y,0)=:y) and (coalesce(pr.m,0)=:m))'
+      '    )'
       'and coalesce(pr.needt5,0)=1'
       'and coalesce(pr.zo,0)>0'
       'and coalesce(pr.shifridtyp,0) in (5,9,13,17)')
