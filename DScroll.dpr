@@ -387,7 +387,8 @@ uses
   UFormMakeECBRec6ForAll in 'UFormMakeECBRec6ForAll.pas' {FormMakeECBRec6ForAll},
   UFormRepPlanFondy in 'UFormRepPlanFondy.pas' {FormRepPlanFondy},
   UFormRepPersonsByPodr in 'UFormRepPersonsByPodr.pas' {FormRepPersonsByPodr},
-  UFormUpdate1DFRec in 'UFormUpdate1DFRec.pas' {FormUpdate1DFRec};
+  UFormUpdate1DFRec in 'UFormUpdate1DFRec.pas' {FormUpdate1DFRec},
+  UFormKreditSprSvdn in 'UFormKreditSprSvdn.pas' {FormKreditSprSvdn};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -808,7 +808,8 @@ implementation
   UFormRptPremGM, UFormSumLimitForCarantine,
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
-  UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr;
+  UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
+  UFormKreditSprSvdn;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1206,8 +1207,8 @@ procedure TMainForm.InitUkrMessages;
      N42.Caption:='Довiдки';
      N59.Caption:='Плановий вiддiл';
      N85.Caption:='Вихiд';
-
-
+     N60.Caption:='Рiчна зарплата';
+     N61.Caption:='Доход за 6 мiсяцiв';
  end;
 procedure TMainForm.InitRusMessages;
  begin
@@ -3314,8 +3315,16 @@ end;
 
 procedure TMainForm.N61Click(Sender: TObject);
 begin
-    Application.CreateForm(TFormKreditSpr, FormKreditSpr);
-    FormKreditSpr.ShowModal;
+    if isSVDN then
+       begin
+            Application.CreateForm(TFormKreditSprSvdn, FormKreditSprSvdn);
+            FormKreditSprSvdn.ShowModal;
+       end
+    else
+       begin
+            Application.CreateForm(TFormKreditSpr, FormKreditSpr);
+            FormKreditSpr.ShowModal;
+       end;
 end;
 
 procedure TMainForm.Excel1Click(Sender: TObject);

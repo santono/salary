@@ -2,7 +2,7 @@ object FormUpdKreditSpr: TFormUpdKreditSpr
   Left = 192
   Top = 172
   Width = 696
-  Height = 260
+  Height = 296
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1089#1087#1088#1072#1074#1082#1080' '#1076#1083#1103' '#1087#1086#1083#1091#1095#1077#1085#1080#1103' '#1082#1088#1077#1076#1080#1090#1072
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,26 +15,33 @@ object FormUpdKreditSpr: TFormUpdKreditSpr
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 20
-  object Label1: TLabel
+  object LabelDolg: TLabel
     Left = 16
     Top = 24
     Width = 86
     Height = 20
     Caption = #1044#1086#1083#1078#1085#1086#1089#1090#1100
   end
-  object Label2: TLabel
+  object LabelRuk: TLabel
     Left = 16
     Top = 72
-    Width = 113
+    Width = 109
     Height = 20
     Caption = #1056#1091#1082#1086#1074#1086#1076#1080#1090#1077#1083#1100
   end
-  object Label3: TLabel
+  object LabelGlBuh: TLabel
     Left = 16
     Top = 120
     Width = 103
     Height = 20
     Caption = #1043#1083'. '#1073#1091#1093#1075#1072#1083#1090#1077#1088
+  end
+  object LabelIsp: TLabel
+    Left = 16
+    Top = 162
+    Width = 102
+    Height = 20
+    Caption = #1048#1089#1087#1086#1083#1085#1080#1090#1077#1083#1100
   end
   object EditDolg: TEdit
     Left = 136
@@ -59,7 +66,7 @@ object FormUpdKreditSpr: TFormUpdKreditSpr
   end
   object BitBtn1: TBitBtn
     Left = 24
-    Top = 176
+    Top = 216
     Width = 121
     Height = 25
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
@@ -68,11 +75,19 @@ object FormUpdKreditSpr: TFormUpdKreditSpr
   end
   object BitBtn2: TBitBtn
     Left = 536
-    Top = 168
+    Top = 216
     Width = 89
     Height = 25
     Caption = '&'#1042#1099#1093#1086#1076
     TabOrder = 4
     Kind = bkClose
+  end
+  object EditIsp: TEdit
+    Left = 136
+    Top = 160
+    Width = 521
+    Height = 28
+    TabOrder = 5
+    Text = 'EditIsp'
   end
 end
