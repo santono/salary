@@ -434,6 +434,9 @@ type
     NRepPlanFondy2021: TMenuItem;
     ActionRepPersonsByPodr: TAction;
     NRepPersonsByPodr: TMenuItem;
+    ActionRepFondyPPSSvdn: TAction;
+    N188: TMenuItem;
+    ii1: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -713,6 +716,7 @@ type
     procedure ActionMakeAllTable6ECBRecsExecute(Sender: TObject);
     procedure ActionRepPlanFondy2021Execute(Sender: TObject);
     procedure ActionRepPersonsByPodrExecute(Sender: TObject);
+    procedure ActionRepFondyPPSSvdnExecute(Sender: TObject);
 
 
   private
@@ -809,7 +813,7 @@ implementation
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
-  UFormKreditSprSvdn;
+  UFormKreditSprSvdn, UFormRepFindyPPSSvdn;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1424,6 +1428,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NFondySVDN.Visible:=true;
           NFondySVDN.Enabled:=true;
           ActionRepFondySVDN.Enabled:=true;
+          ActionRepFondyPPSSvdn.Enabled:=true;
           ActionDeleteViruses.Enabled:=false;
           nViruses.Visible:=false;
           nViruses.Enabled:=false;
@@ -1521,6 +1526,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NFondySVDN.Visible:=false;
           NFondySVDN.Enabled:=false;
           ActionRepFondySVDN.Enabled:=false;
+          ActionRepFondyPPSSVDN.Enabled:=false;
           NKRU.Enabled:=true;
           NKRU.Visible:=true;
           ActionRepKRU.Enabled:=true;
@@ -5003,6 +5009,13 @@ procedure TMainForm.ActionRepPersonsByPodrExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormRepPersonsByPodr,FormRepPersonsByPodr);
      FormRepPersonsByPodr.showModal;
+
+end;
+
+procedure TMainForm.ActionRepFondyPPSSvdnExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormRepFindyPPSSvdn,FormRepFindyPPSSvdn);
+     FormRepFindyPPSSvdn.showModal;
 
 end;
 

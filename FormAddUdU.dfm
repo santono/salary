@@ -1,5 +1,5 @@
 object FormAdd: TFormAdd
-  Left = 56
+  Left = 193
   Top = 109
   Width = 968
   Height = 549

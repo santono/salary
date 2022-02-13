@@ -523,7 +523,14 @@ object MainForm: TMainForm
           Action = ActionRepPlanFondy
         end
         object NFondySVDN: TMenuItem
-          Action = ActionRepFondySVDN
+          Caption = #1056'i'#1095#1085#1080#1081' '#1092#1086#1085#1076' '#1086#1087#1083#1072#1090#1080
+          object N188: TMenuItem
+            Action = ActionRepFondySVDN
+            Caption = #1056'i'#1095#1085#1080#1081' '#1092#1086#1085#1076' '#1086#1087#1083#1072#1090#1080
+          end
+          object ii1: TMenuItem
+            Action = ActionRepFondyPPSSvdn
+          end
         end
         object N186: TMenuItem
           Action = ActionRepBolnPlan
@@ -1716,6 +1723,10 @@ object MainForm: TMainForm
     object ActionRepPersonsByPodr: TAction
       Caption = #1057#1087#1080#1089#1086#1082' '#1088#1072#1073#1086#1090#1085#1080#1082#1086#1074' '#1087#1086' '#1087#1086#1076#1088#1072#1079#1076#1077#1083#1077#1085#1080#1103#1084
       OnExecute = ActionRepPersonsByPodrExecute
+    end
+    object ActionRepFondyPPSSvdn: TAction
+      Caption = #1056'i'#1095#1085'i '#1092#1086#1085#1076#1080' '#1055#1042#1057
+      OnExecute = ActionRepFondyPPSSvdnExecute
     end
   end
   object ImageList1: TImageList

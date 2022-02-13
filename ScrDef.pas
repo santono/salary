@@ -364,7 +364,7 @@ type
                        CODE_PRIZ_1DF : WORD  ;
                        NEXT       : ADD_PTR;
                   END;
-       UD        =RECORD
+       UD       = RECORD
                        SHIFR      : WORD   ;
                        PERIOD     : BYTE   ;
                        YEAR       : BYTE   ;   {1991 - 1 è ò ä}
@@ -374,7 +374,7 @@ type
                        COUNT      : STRING[8];
                        NEXT       : UD_PTR;
                   END;
-      CN        =RECORD
+      CN        = RECORD
                        SHIFR        : WORD;
                        KOD          : WORD;
                        SUMMA        : REAL;

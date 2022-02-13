@@ -24,7 +24,7 @@ var
   FormWait: TFormWait;
 
 implementation
-
+   Uses scrdef;
 {$R *.dfm}
 procedure TFormWait.CreateParams(var Params: TCreateParams);
 begin
@@ -38,6 +38,11 @@ begin
       Brush.Style := bsClear;
       BorderStyle := bsNone
 }
+     if isSVDN then
+        begin
+             label1.Caption:='Обробка запиту';
+             label2.Caption:='Очiкуйте...';
+        end;
 end;
 
 procedure TFormWait.FormShow(Sender: TObject);

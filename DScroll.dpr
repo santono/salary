@@ -388,7 +388,8 @@ uses
   UFormRepPlanFondy in 'UFormRepPlanFondy.pas' {FormRepPlanFondy},
   UFormRepPersonsByPodr in 'UFormRepPersonsByPodr.pas' {FormRepPersonsByPodr},
   UFormUpdate1DFRec in 'UFormUpdate1DFRec.pas' {FormUpdate1DFRec},
-  UFormKreditSprSvdn in 'UFormKreditSprSvdn.pas' {FormKreditSprSvdn};
+  UFormKreditSprSvdn in 'UFormKreditSprSvdn.pas' {FormKreditSprSvdn},
+  UFormRepFindyPPSSvdn in 'UFormRepFindyPPSSvdn.pas' {FormRepFindyPPSSvdn};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 
