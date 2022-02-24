@@ -40,7 +40,7 @@ var
   FormMoveNabdToDB: TFormMoveNabdToDB;
 
 implementation
-   uses comobj,uSQLUnit,dateutils,scrdef, scrUtil;
+   uses comobj,uSQLUnit,dateutils,scrdef, scrUtil,uFormWait;
 {$R *.dfm}
 procedure TFormMoveNabdToDB.ParseWordTable;
 var
@@ -195,6 +195,7 @@ var Stmnt:string;
     v:variant;
     cnt:integer;
     yp,mp:integer;
+    Save_Cursor:TCursor;
 begin
      yearVy:=currYear;
      monthVy:=Nmes;
@@ -210,6 +211,10 @@ begin
              showMessage('Неверно указано имя файла Word.');
              exit;
         end;
+     BitBtn2.Enabled:=false;
+     FormWait.Show;
+     Save_Cursor   := Screen.Cursor;
+     Screen.Cursor := crHourGlass;
      stmnt:='delete from TB_NADB_PLANOVIY where yearza='+intToStr(yearza)+' and monthza='+intToStr(monthza);
      SQLExecute(stmnt);
      stmnt:='select count(*) from TB_NADB_PLANOVIY';
@@ -235,6 +240,10 @@ begin
              Stmnt:='select retval from PR_GET_NADB_PLAN_PREV_PERIOD('+IntToStr(yearZa)+','+IntToStr(monthZa)+','+IntToStr(yp)+','+IntToStr(mp)+')';
              v:=SQLQueryValue(Stmnt);
         end;
+     FormWait.Hide;
+     Screen.Cursor:=Save_Cursor;
+     BitBtn2.Enabled:=true;
+
      ShowMessage('Импорт закончен');
 end;
 

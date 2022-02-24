@@ -62,6 +62,7 @@ type
     frxSimpleTextExport1: TfrxSimpleTextExport;
     frxTXTExport1: TfrxTXTExport;
     N3: TMenuItem;
+    N4: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure N1Click(Sender: TObject);
@@ -86,6 +87,7 @@ type
 
     procedure N3Click(Sender: TObject);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
+    procedure N4Click(Sender: TObject);
   private
     { Private declarations }
     MonthZa: integer;
@@ -336,8 +338,10 @@ begin
     end;
     EMPTY_ALL_PERSON;
   end;
+  FormWait.Show;
   fillDBFromList;
   emptyList;
+  FormWait.Hide;
   FormProgress.Hide;
   Application.ProcessMessages;
   FormProgress.Free;
@@ -804,8 +808,21 @@ begin
      SQLSTMNT:=Trim(SQLStmnt)+' WHERE YEARZA=:YEARZA AND MONTHZA=:MONTHZA';
      SQLSTMNT:=Trim(SQLStmnt)+' ORDER BY FIO';
 end;
+
+procedure TFormBrowseNadbPlanoviy.N4Click(Sender: TObject);
+var SQLStmnt:string;
+    v:Variant;
+begin
+     if not YesNo('¬ыполнить поиск не найденных табельных номеров?') then
+        Exit;
+     SQLStmnt:='select retval from PR_FIND_TABNO_FOR_NADB('+intToStr(currYear)+','+intToStr(nmes)+')';
+     FormWait.Show;
+     v:=SQLQueryValue(SQLStmnt);
+     FormWait.Hide;
+end;
+
 begin
     list:=nil;
-
 end.
+
 

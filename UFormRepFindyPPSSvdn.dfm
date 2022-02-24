@@ -114,13 +114,14 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
     PreviewOptions.Zoom = 1.000000000000000000
     PrintOptions.Printer = 'Default'
     PrintOptions.PrintOnSheet = 0
-    ReportOptions.CreateDate = 44605.690218807870000000
-    ReportOptions.LastChange = 44605.745132581020000000
+    ReportOptions.CreateDate = 44605.690218807900000000
+    ReportOptions.LastChange = 44607.369463368100000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       'begin'
       ''
       'end.')
+    OnGetValue = frxReport1GetValue
     Left = 232
     Top = 64
     Datasets = <
@@ -128,7 +129,15 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
         DataSet = frxDBDataset1
         DataSetName = 'frxDBDataset1'
       end>
-    Variables = <>
+    Variables = <
+      item
+        Name = ' New Category1'
+        Value = Null
+      end
+      item
+        Name = 'Y'
+        Value = ''
+      end>
     Style = <>
     object Data: TfrxDataPage
       Height = 1000.000000000000000000
@@ -143,31 +152,15 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
       PaperWidth = 210.000000000000000000
       PaperHeight = 297.000000000000000000
       PaperSize = 9
+      LeftMargin = 10.000000000000000000
+      TopMargin = 10.000000000000000000
       object MasterData1: TfrxMasterData
-        Height = 18.897637795275590000
-        Top = 98.267780000000000000
-        Width = 793.701300000000000000
+        Height = 18.897637795275600000
+        Top = 117.165430000000000000
+        Width = 755.906000000000000000
         DataSet = frxDBDataset1
         DataSetName = 'frxDBDataset1'
         RowCount = 0
-        object Memo1: TfrxMemoView
-          Left = 15.118120000000000000
-          Width = 49.133890000000000000
-          Height = 18.897650000000000000
-          DisplayFormat.DecimalSeparator = ','
-          DisplayFormat.Kind = fkNumeric
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -13
-          Font.Name = 'Arial'
-          Font.Style = []
-          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
-          HAlign = haRight
-          Memo.UTF8 = (
-            '[frxDBDataset1."NOMER"]')
-          ParentFont = False
-          VAlign = vaCenter
-        end
         object Memo2: TfrxMemoView
           Left = 64.252010000000000000
           Width = 200.315090000000000000
@@ -223,13 +216,32 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
           ParentFont = False
           VAlign = vaCenter
         end
+        object Memo1: TfrxMemoView
+          Left = 15.118120000000000000
+          Width = 49.133858270000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[frxDBDataset1."NOMER"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
       end
       object ReportTitle1: TfrxReportTitle
-        Height = 18.897637800000000000
+        Height = 37.795275590551200000
         Top = 18.897650000000000000
-        Width = 793.701300000000000000
+        Width = 755.906000000000000000
         object Memo7: TfrxMemoView
           Left = 15.118120000000000000
+          Top = 18.897650000000000000
           Width = 49.133858270000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -247,6 +259,7 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
         end
         object Memo8: TfrxMemoView
           Left = 64.252010000000000000
+          Top = 18.897650000000000000
           Width = 200.314963070000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -264,6 +277,7 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
         end
         object Memo9: TfrxMemoView
           Left = 264.567100000000000000
+          Top = 18.897650000000000000
           Width = 98.267653070000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -281,6 +295,7 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
         end
         object Memo10: TfrxMemoView
           Left = 362.834880000000000000
+          Top = 18.897650000000000000
           Width = 94.488123070000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -296,11 +311,25 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
           ParentFont = False
           VAlign = vaCenter
         end
+        object Memo11: TfrxMemoView
+          Left = 151.181200000000000000
+          Width = 238.110390000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            #1056#164#1056#1109#1056#1029#1056#1169' '#1056#1109#1056#1111#1056#187#1056#176#1057#8218#1056#1105' '#1056#1111#1057#1026#1056#176#1057#8224'i '#1056#1119#1056#8217#1056#1038' '#1056#183#1056#176' [Y] '#1057#1026'i'#1056#1108)
+          ParentFont = False
+        end
       end
       object ReportSummary1: TfrxReportSummary
         Height = 22.677180000000000000
-        Top = 177.637910000000000000
-        Width = 793.701300000000000000
+        Top = 196.535560000000000000
+        Width = 755.906000000000000000
         object Memo5: TfrxMemoView
           Left = 264.567100000000000000
           Width = 98.267780000000000000
@@ -348,5 +377,40 @@ object FormRepFindyPPSSvdn: TFormRepFindyPPSSvdn
     DataSet = dsFondy
     Left = 272
     Top = 64
+  end
+  object frxPDFExport1: TfrxPDFExport
+    UseFileCache = True
+    ShowProgress = True
+    PrintOptimized = False
+    Outline = False
+    Author = 'FastReport'
+    Subject = 'FastReport PDF export'
+    Background = False
+    Creator = 'FastReport (http://www.fast-report.com)'
+    HTMLTags = True
+    Left = 16
+    Top = 8
+  end
+  object frxXLSExport1: TfrxXLSExport
+    UseFileCache = True
+    ShowProgress = True
+    AsText = False
+    Background = True
+    FastExport = True
+    PageBreaks = True
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 56
+    Top = 8
+  end
+  object frxRTFExport1: TfrxRTFExport
+    UseFileCache = True
+    ShowProgress = True
+    Wysiwyg = True
+    Creator = 'FastReport http://www.fast-report.com'
+    SuppressPageHeadersFooters = False
+    HeaderFooterMode = hfText
+    Left = 96
+    Top = 8
   end
 end

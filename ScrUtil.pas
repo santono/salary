@@ -594,6 +594,9 @@ interface
   procedure receiveIOSemaphoreForRead;
   function  getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;m:integer):Integer;
   function isSciPedForSwod(curr_person:person_ptr):boolean;
+  function get156MessageFromCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real):string;
+  procedure put156MessageToCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;Mess:string);
+  procedure delete156MessageFromCn(Curr_Person:Person_ptr);
 
 
 
@@ -12927,6 +12930,102 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
          retVal:=True;
       isSciPedForSwod:=retVal;
  end;
+ function get156MessageFromCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real):string;
+   var currCn:CN_PTR;
+       Mess:string;
+       finded:boolean;
+   begin
+       Mess:='';
+       finded:=false;
+       CurrCn:=curr_person^.cn;
+       while (currcn<>nil) do
+         begin
+              if currcn^.SHIFR=cn156_shifr+limit_cn_base then
+              if currcn^.PRIM=Period then
+              if abs(Abs(currcn^.summa)-abs(summa))<0.01 then
+                 begin
+                      finded:=True;
+                      mess:=trim(currCn^.PRIM_1);
+                      Break;
+                 end;
+              currcn:=currcn^.next;
+         end;
+      get156MessageFromCn:=Trim(Mess);
+
+   end;
+ procedure put156MessageToCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;Mess:string);
+  var CurrCn:CN_PTR;
+      finded:boolean;
+  begin
+       finded:=false;
+       CurrCn:=curr_person^.cn;
+       while (currcn<>nil) do
+         begin
+              if currcn^.SHIFR=cn156_shifr+limit_cn_base then
+              if currcn^.PRIM=Period then
+              if abs(Abs(currcn^.summa)-abs(summa))<0.01 then
+                 begin
+                      finded:=True;
+                      Break;
+                 end;
+              currcn:=currcn^.next;
+         end;
+       if finded then
+          begin
+            if Mess<>currcn^.prim_1 then
+               currcn^.PRIM_1:=Trim(mess)
+          end
+       else
+          begin
+              MAKE_cn(CurrCn,curr_person);
+              currCn^.SHIFR:=cn156_shifr+limit_cn_base;
+              currCn^.KOD:=100;
+              currCn^.PRIM:=Period;
+              currCn^.SUMMA:=Summa; 
+              currCn^.PRIM_1:=Trim(mess);
+          end;
+  end;
+ procedure delete156MessageFromCn(Curr_Person:Person_ptr);
+  var CurrCn:CN_PTR;
+      finded:boolean;
+      CurrAdd:ADD_PTR;
+      finished:boolean;
+  begin
+       while True do
+         begin
+              finished:=True;
+              currCn:=curr_person^.cn;
+              while (currCn<>nil) do
+                begin
+                  if currCn^.SHIFR=cn156_shifr+limit_cn_base then
+                     begin
+                        finded:=false;
+                        currAdd:=Curr_Person^.ADD;
+                        while (CurrAdd<>Nil) do
+                           begin
+                              if CurrAdd^.shifr=PerersZaProshlPeriody then
+                              if CurrAdd^.PERIOD=CurrCn^.PRIM then
+                              if abs(Abs(currAdd^.SUMMA)-Abs(currCn^.summa))<0.01 then
+                                 begin
+                                      finded:=True;
+                                      Break;
+                                 end;
+                              CurrAdd:=CurrAdd^.NEXT;
+                           end;
+                        if not finded then
+                           begin
+                                del_cn(CurrCn,Curr_Person);
+                                Finished:=False;
+                           end;
+                     end;
+                  if not finished then
+                     Break;
+                  currcn:=currcn^.next;
+                end;
+            if finished then
+               Break;
+         end;
+  end;
 
 end.
 

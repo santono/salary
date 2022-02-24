@@ -294,7 +294,10 @@ PROCEDURE MODI_INF;
                                    end;
                             IF CURR_CN^.SHIFR>LIMIT_CN_BASE THEN
                             IF CURR_CN^.PRIM <> FLOW_MONTH  THEN
-                            if not finded                   then
+                            if (
+                               (not finded)
+                               or (CURR_CN^.SHIFR=cn156_shifr+limit_cn_base)
+                               ) then
                     //        IF CURR_CN^.Prim<>Wanted_Shifr  then
                                 BEGIN
                                      DEL_CN(CURR_CN,CURR_PERSON);

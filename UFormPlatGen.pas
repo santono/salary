@@ -90,7 +90,7 @@ var
 
 implementation
  uses FormSelShifrU,ScrDef,ScrLists,ScrUtil,ScrIo,UFormPlatReestr,UFormView,
-  UFormSaveSelPodr, UFormSelSelection, FormSelSppU;
+  UFormSaveSelPodr, UFormSelSelection, FormSelSppU, DateUtils;
 
 
 {$R *.dfm}
@@ -300,6 +300,7 @@ procedure TFormPlatGen.MakePlt;
       KZ:Word;
       i : integer;
       SQLStmnt:string;
+      dt:TDateTime;
   begin
 
      { Начало MakeHeader }
@@ -391,7 +392,10 @@ procedure TFormPlatGen.MakePlt;
        Inc(ShifrId);
 {       DateTimeToString(DS,'yyyy-mm-dd',Now);}
        DS:=Fib.pFIBQuery.Database.Name;
-       DS:=DateToStr(Date);
+//       DS:=DateToStr(Date);
+//       DS:='2022-02-24';
+       dt:=date;
+       DS:=IntToStr(YEAROF(dt))+'-'+IntToStr(monthOf(dt))+'-'+intTostr(dayof(dt));
 (*
        if Fib.pFIBQuery.Open then
           Fib.pFIBQuery.Close;

@@ -44,7 +44,9 @@ type
     cbOTK: TCheckBox;
     cbNRC: TCheckBox;
     cbCodePriz: TComboBox;
-    Label10: TLabel;
+    LabelCodePriz: TLabel;
+    Edit156: TEdit;
+    Label156: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     function Execute(var RetVal:integer): boolean;
@@ -66,6 +68,7 @@ type
     procedure cbCodePrizChange(Sender: TObject);
     procedure cbOTKClick(Sender: TObject);
     procedure cbNRCClick(Sender: TObject);
+    procedure Edit156Change(Sender: TObject);
 
   private
     { Private declarations }
@@ -76,6 +79,10 @@ type
     procedure FillLabelClockPrice;
     procedure showZO;
     procedure hideZO;
+    procedure show156;
+    procedure hide156;
+    procedure fill156;
+
 
 
   public
@@ -94,6 +101,7 @@ type
     NRC        : integer;
     PAY_TP     : integer;
     Code_priz_1DF : integer;
+    Comment156 : string;
 
     WantedTabno : Integer;
     CurrAdd    : Add_Ptr;
@@ -186,6 +194,13 @@ begin
               dxCalcEditWClock.Enabled := False;
               dxCalcEditPClock.Enabled := False;
               RadioGroup1.Enabled      := false;
+              Edit156.Enabled          := False;
+              cbCodePriz.Enabled       := False;
+              cbNRC.Enabled            := False;
+              cbOTK.Enabled            := False;
+              cbPayTP.Enabled          := False;
+              cbZO6.Enabled            := False;
+
          end;
       TotalAmntOfClockExptCurrent:=0;
       InitialWorkClock:=-1;
@@ -204,8 +219,9 @@ begin
       cbCodePriz.ItemIndex := 0;
       for i:=1 to lenPayTp do
           cbCodePriz.Items.Add(codePriz1DFShortItems[i]);
-      cbOTK.Checked:=false;
-      cbNRC.Checked:=false;
+      cbOTK.Checked := false;
+      cbNRC.Checked := false;
+      hide156;
       if isSVDN then
          showZO
       else
@@ -255,6 +271,14 @@ begin
              PanelNP.Hide;
              PanelTotClock.Hide;
         end;
+     if isLNR then
+       if ShifrSta=PerersZaProshlPeriody then
+          begin
+               show156;
+               Edit156.Text:=Comment156;
+          end
+       else
+          hide156;   
      y:=YearZa;
      m:=MonthZa;
      Dt:=EnCodeDate(y,m,1);
@@ -314,7 +338,11 @@ begin
          end;     
       if ShifrSta=NOT_USE_HOLIDAY_SHIFR  then
          dxSpinEditDay.MaxValue:=730;
-
+      if not isSVDN then
+         if ShifrSta=PerersZaProshlPeriody then
+            show156
+         else
+            hide156;
       RePaint;
 end;
 
@@ -548,8 +576,10 @@ procedure TFormUpdAdd.showZO;
       cbOTK.Show;
       cbNRC.Show;
       cbPayTP.Show;
+      cbCodePriz.Show;
       Label8.Show;
       Label9.Show;
+      LabelCodePriz.Show;
   //    Self.Height:=320;
       Application.ProcessMessages;
  end;
@@ -559,12 +589,32 @@ procedure TFormUpdAdd.hideZO;
       cbOTK.Hide;
       cbNRC.Hide;
       cbPayTP.Hide;
+      cbCodePriz.Hide;
       Label8.Hide;
       Label9.Hide;
+      LabelCodePriz.Hide;
 //      Self.Height:=250;
-      Self.Height:=Self.Height - cbZO6.Height-cbPayTP.Height-cbCodePriz.height-10;
+      Self.Height:=Self.Height - cbZO6.Height-cbPayTP.Height-(*cbCodePriz.height-*)10;
       Application.ProcessMessages;
 
+ end;
+procedure TFormUpdAdd.hide156;
+ begin
+      Label156.Hide;
+      Edit156.Hide;
+      Application.ProcessMessages;
+ end;
+procedure TFormUpdAdd.Fill156;
+ begin
+//      Label156.Show;
+//      Edit156.Show;
+//      Application.ProcessMessages;
+ end;
+procedure TFormUpdAdd.show156;
+ begin
+      Label156.Show;
+      Edit156.Show;
+      Application.ProcessMessages;
  end;
 
 
@@ -606,6 +656,17 @@ begin
      else
         NRC:=0;
 
+end;
+
+procedure TFormUpdAdd.Edit156Change(Sender: TObject);
+var curr_cn:CN_PTR;
+    l:integer;
+begin
+     l:=SizeOf(Curr_cn.Prim_1)-1;
+     Edit156.Text:=Trim(Edit156.Text);
+     if Length(Edit156.Text)>l then
+        Edit156.Text:=Copy(Edit156.Text,1,l);
+     Comment156:=Trim(Edit156.Text);
 end;
 
 end.

@@ -62,7 +62,7 @@ CONST
 {$IFDEF SVDN}
 { *}     MAXSHIFR                  = 180; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
 {$ELSE}
-{ *}     MAXSHIFR                  = 173; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
+{ *}     MAXSHIFR                  = 176; {МАКСИМАЛЬНЫЙ ШИФР В КОДОВОЙ ТАБЛИЦЕ                     * }
 {$ENDIF}
 { *}     LIMIT1_SHIFR              = 49; {ГРАНИЦА ПЕРЕХОДА ИЗ НАЧИСЛЕНИЙ В УДЕРЖАНИЕ               * }
 
@@ -235,7 +235,7 @@ CONST
 { *}     SALDO_SHIFR               = 162; { Сальдо с прошлого периода     }
 { *}     PROF_STI_1_SHIFR          = 163;
 { *}     PROF_STI_2_SHIFR          = 164;
-
+{ *}     CN156_SHIFR               = 175; { Комментарий к 156 статье      }
 
          PERSON_WORK_STATE         = 1;  {Работник находится на работе      }
          PERSON_OTPUSK_STATE       = 2;  {Работник находится в отпуске      }
@@ -605,7 +605,7 @@ var
 {$IFDEF SVDN}
 const LenBlSta=38;
 {$ELSE}
-const LenBlSta=38;
+const LenBlSta=39;
 {$ENDIF}
 const BlSta:array[1..LenBlSta] of integer = (PENSIJA_SHIFR, STIPENDIJA_SHIFR      , POL_SHIFR       , OSN_MESTO_RABOTY_SHIFR  , SOWMESTIT_CN_SHIFR    ,
                                       PRINAT_UWOLEN_SHIFR , PROC_PODOH_SOWM_SHIFR , PENSIONER_SHIFR , INVALID_SHIFR           , PENS_PROC_ZAKON_SHIFR ,
@@ -616,13 +616,14 @@ const BlSta:array[1..LenBlSta] of integer = (PENSIJA_SHIFR, STIPENDIJA_SHIFR    
                                       DataPriShifr        , FIXSUMMAIND_SHIFR     , NeedToPersSwod  , INNERSOWM_SHIFR
                                       {$IFNDEF SVDN}
                                        , NOMER_PODR_SHIFR
+                                       , CN156_SHIFR
                                       {$ENDIF}
                                       {$IFDEF SVDN}
                                        ,DOG_POD_VNESH_SOWM_SHIFR 
                                       {$ENDIF}
                                        , REC6CN_SHIFR
                                        , REC5CN_SHIFR
-                                       , REC7CN_SHIFR 
+                                       , REC7CN_SHIFR
                                       );
 {$IFDEF SVDN}
 const LenProtectedPodr=2;

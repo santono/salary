@@ -646,6 +646,9 @@ begin
              OTK           := curr_add^.otk;
              PAY_TP        := curr_add^.PAY_TP;
              CODE_PRIZ_1DF := curr_add^.CODE_PRIZ_1DF;
+             Comment156    := '';
+             if curr_add^.shifr=PerersZaProshlPeriody then
+                Comment156 :=get156MessageFromCn(Curr_Person,curr_add^.period,Curr_Add^.Summa);
              SaveRecord;
              if execute(RetVal) then
                 begin
@@ -666,6 +669,9 @@ begin
                      curr_add^.otk := OTK;
                      curr_add^.PAY_TP := PAY_TP;
                      curr_add^.CODE_PRIZ_1DF := CODE_PRIZ_1DF;
+                     if curr_add^.shifr=PerersZaProshlPeriody then
+                        put156MessageToCn(Curr_Person,Curr_add^.Period,Curr_add^.Summa,Comment156);
+                     delete156MessageFromCn(Curr_Person);
 
                      if Curr_Person.AUTOMATIC=AUTOMATIC_MODE then
                      if NotEqualOldAndNewRecords then
@@ -813,6 +819,8 @@ begin
                      Curr_Add^.WORK_CLOCK:=WorkClock;
                      Curr_Add^.PERIOD:=MonthZa;
                      Curr_Add^.YEAR:=YearZa-1990;
+                     if Curr_add^.SHIFR=PerersZaProshlPeriody then
+                        put156MessageToCn(Curr_Person,Curr_Add^.PERIOD,Curr_Add^.SUMMA,Trim(Comment156));
                  //    SortedAddList:=TSortedAddList.Init(Curr_Person);
                      if ((Curr_Add^.PERIOD=NMES) or
                          (not IsOtherPeriodECBShifr(Curr_Add^.Shifr))) then

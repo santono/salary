@@ -1,6 +1,6 @@
 object FormBrowseNadbPlanoviy: TFormBrowseNadbPlanoviy
-  Left = 192
-  Top = 124
+  Left = 177
+  Top = 127
   Width = 870
   Height = 502
   Caption = 'FormBrowseNadbPlanoviy'
@@ -379,6 +379,10 @@ object FormBrowseNadbPlanoviy: TFormBrowseNadbPlanoviy
     object N3: TMenuItem
       Caption = '3. '#1055#1077#1095#1072#1090#1100
       OnClick = N3Click
+    end
+    object N4: TMenuItem
+      Caption = '( '#1055#1086#1080#1089#1082' '#1090#1072#1073'. '#1085#1086#1084#1077#1088#1086#1074')'
+      OnClick = N4Click
     end
   end
   object frxReport1: TfrxReport

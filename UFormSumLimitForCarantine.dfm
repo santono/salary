@@ -1,7 +1,7 @@
 object FormSumLimitForCarantine: TFormSumLimitForCarantine
   Left = 219
   Top = 150
-  Width = 684
+  Width = 1009
   Height = 585
   Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1085#1072' '#1084#1072#1082#1089'. '#1085#1072#1095#1080#1089#1083#1077#1085#1080#1103
   Color = clBtnFace
@@ -14,7 +14,7 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
   OnClose = FormClose
   OnCreate = FormCreate
   DesignSize = (
-    668
+    993
     547)
   PixelsPerInch = 96
   TextHeight = 20
@@ -31,7 +31,7 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
   object dxDBGridCDS2011: TdxDBGrid
     Left = 10
     Top = 8
-    Width = 647
+    Width = 972
     Height = 499
     Bands = <
       item
@@ -48,20 +48,44 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
     OptionsView = [edgoAutoWidth, edgoBandHeaderWidth, edgoRowSelect, edgoUseBitmap]
     Anchors = [akLeft, akTop, akRight, akBottom]
     object dxDBGridCDS2011Tabno: TdxDBGridMaskColumn
+      HeaderAlignment = taCenter
       BandIndex = 0
       RowIndex = 0
       FieldName = 'Tabno'
     end
     object dxDBGridCDS2011FIO: TdxDBGridMaskColumn
+      HeaderAlignment = taCenter
       Sorted = csUp
       BandIndex = 0
       RowIndex = 0
       FieldName = 'FIO'
     end
     object dxDBGridCDS2011Summa: TdxDBGridMaskColumn
+      HeaderAlignment = taCenter
       BandIndex = 0
       RowIndex = 0
       FieldName = 'Summa'
+    end
+    object dxDBGridCDS2011SummaOsn: TdxDBGridMaskColumn
+      Caption = #1054#1089#1085
+      HeaderAlignment = taCenter
+      BandIndex = 0
+      RowIndex = 0
+      FieldName = 'SummaOsn'
+    end
+    object dxDBGridCDS2011SummaSowm: TdxDBGridMaskColumn
+      Caption = #1057#1086#1074#1084
+      HeaderAlignment = taCenter
+      BandIndex = 0
+      RowIndex = 0
+      FieldName = 'SummaSowm'
+    end
+    object dxDBGridCDS2011SummaPochas: TdxDBGridMaskColumn
+      Caption = #1055#1086#1095#1072#1089#1086#1074#1082#1072
+      HeaderAlignment = taCenter
+      BandIndex = 0
+      RowIndex = 0
+      FieldName = 'SummaPochas'
     end
   end
   object BitBtn1: TBitBtn
@@ -89,9 +113,11 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
     Width = 145
     Height = 28
     Anchors = [akLeft, akBottom]
+    Enabled = False
     ItemHeight = 20
     TabOrder = 4
     Text = 'cbWR'
+    Visible = False
     OnChange = cbWRChange
     Items.Strings = (
       #1054#1089#1085' '#1080' '#1089#1086#1074#1084
@@ -114,6 +140,18 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
       item
         Name = 'Summa'
         DataType = ftFloat
+      end
+      item
+        Name = 'SummaOsn'
+        DataType = ftFloat
+      end
+      item
+        Name = 'SummaSowm'
+        DataType = ftFloat
+      end
+      item
+        Name = 'SummaPochas'
+        DataType = ftFloat
       end>
     IndexDefs = <>
     Params = <>
@@ -121,9 +159,11 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
     Left = 308
     Top = 263
     Data = {
-      4E0000009619E0BD0100000018000000030000000000030000004E0005546162
+      850000009619E0BD010000001800000006000000000003000000850005546162
       6E6F04000100000000000346494F010049000000010005574944544802000200
-      32000553756D6D6108000400000000000000}
+      32000553756D6D6108000400000000000853756D6D614F736E08000400000000
+      000953756D6D61536F776D08000400000000000B53756D6D61506F6368617308
+      000400000000000000}
     object CDS2011Tabno: TIntegerField
       DisplayLabel = #1058#1072#1073'.'#1085#1086#1084'.'
       FieldName = 'Tabno'
@@ -137,6 +177,15 @@ object FormSumLimitForCarantine: TFormSumLimitForCarantine
       DisplayLabel = #1057#1091#1084#1084#1072
       FieldName = 'Summa'
       DisplayFormat = '0.00'
+    end
+    object CDS2011SummaOsn: TFloatField
+      FieldName = 'SummaOsn'
+    end
+    object CDS2011SummaSowm: TFloatField
+      FieldName = 'SummaSowm'
+    end
+    object CDS2011SummaPochas: TFloatField
+      FieldName = 'SummaPochas'
     end
   end
   object dsoCDS2011: TDataSource

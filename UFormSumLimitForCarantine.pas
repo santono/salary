@@ -25,6 +25,12 @@ type
     BitBtn1: TBitBtn;
     CheckBox1: TCheckBox;
     cbWR: TComboBox;
+    dxDBGridCDS2011SummaOsn: TdxDBGridMaskColumn;
+    dxDBGridCDS2011SummaSowm: TdxDBGridMaskColumn;
+    dxDBGridCDS2011SummaPochas: TdxDBGridMaskColumn;
+    CDS2011SummaOsn: TFloatField;
+    CDS2011SummaSowm: TFloatField;
+    CDS2011SummaPochas: TFloatField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -48,15 +54,24 @@ var
 
 implementation
   uses DateUtils,ScrDef,ScrUtil,ScrIo,UFormprogress,
-       uFormWait,IniFiles; // ,UCDSFactory,
+       uFormWait,IniFiles,USQLUnit; // ,UCDSFactory,
 
   type pPersonSummyRec = ^tPersonSummyRec;
        tPersonSummyRec = record
-                          tabno     : Integer;
-                          fio       : string;
-                          summaza   : Real;
-                          summavy   : Real;
-                          summa2011 : Real;
+                          tabno           : Integer;
+                          fio             : string;
+                          summaza         : Real;
+                          summavy         : Real;
+                          summa2011       : Real;
+                          summazaOsn      : Real;
+                          summavyOsn      : Real;
+                          summa2011Osn    : Real;
+                          summazaSowm     : Real;
+                          summavySowm     : Real;
+                          summa2011Sowm   : Real;
+                          summazaPochas   : Real;
+                          summavyPochas   : Real;
+                          summa2011Pochas : Real;
                          end;
 
    var PersonSummyList : TList;
@@ -93,7 +108,8 @@ var s:string;
      if cbWR.ItemIndex=1 then S:='Основная'
      else
      if cbWR.ItemIndex=2 then S:='Совмещение';
-     Caption:='Лимит = '+FormatSummaForPlt(summaLimit)+' в '+getMonthRus(NMES)+' '+intToStr(CurrYear)+' '+S;
+//     Caption:='Лимит = '+FormatSummaForPlt(summaLimit)+' в '+getMonthRus(NMES)+' '+intToStr(CurrYear)+' '+S;
+     Caption:='Лимит = '+FormatSummaForPlt(summaLimit)+' в '+getMonthRus(NMES)+' '+intToStr(CurrYear);
  end;
 function SortPersonRec(Item1, Item2  : Pointer): Integer;
  var personSummyRec1,personSummyRec2 : pPersonSummyRec;
@@ -201,29 +217,63 @@ procedure TFormSumLimitForCarantine.MakeCurrentSummy(WantedY:Integer;WantedM:Int
                                  if PersonSummyRec = nil then
                                     begin
                                          personSummyRec           := new(pPersonSummyRec) ;
+                                         FillChar(personSummyRec^, SizeOf(personSummyRec^), 0);
                                          personSummyRec.Tabno     := curr_person.TABNO    ;
                                          personSummyRec.FIO       := curr_person.FIO      ;
-                                         personSummyRec.SummaVy   := 0.00 ;
-                                         personSummyRec.SummaZa   := 0.00 ;
-                                         personSummyRec.Summa2011 := 0.00 ;
                                          PersonSummyList.Add(personSummyRec);
                                     end;
                                  isFirst:=false;
                             end;
                          if (WantedM=NMES) and (WantedY=CurrYear) then
-                             personSummyRec.SummaVy   := personSummyRec.SummaVy + curr_add.summa;
+                            begin
+                                 personSummyRec.SummaVy   := personSummyRec.SummaVy + curr_add.summa;
+                                 if curr_add^.SHIFR=pochas_shifr then
+                                    personSummyRec.summavyPochas   := personSummyRec.SummaVyPochas + curr_add.summa
+                                 else
+                                 if IS_OSN_WID_RABOTY(Curr_person) then
+                                    personSummyRec.summavyOsn   := personSummyRec.SummaVyOsn + curr_add.summa
+                                 else
+                                    personSummyRec.summavySowm  := personSummyRec.SummaVySowm + curr_add.summa
+                            end ;
                          if (curr_add.period=WantedM) and
                             (curr_add.year+1990=WantedY) then
-                             personSummyRec.SummaZa   := personSummyRec.SummaZa + curr_add.summa;
+                            begin
+                                 personSummyRec.SummaZa   := personSummyRec.SummaZa + curr_add.summa;
+                                 if curr_add^.SHIFR=pochas_shifr then
+                                    personSummyRec.summaZaPochas   := personSummyRec.SummaZaPochas + curr_add.summa
+                                 else
+                                 if IS_OSN_WID_RABOTY(Curr_person) then
+                                    personSummyRec.summaZaOsn   := personSummyRec.SummaZaOsn + curr_add.summa
+                                 else
+                                    personSummyRec.summaZaSowm  := personSummyRec.SummaZaSowm + curr_add.summa
+                            end;
                          if not isOtherPeriodECBShifr(Curr_Add.shifr) then
                             if (nmes=WantedM) and
                                (curryear=WantedY) then
-                               personSummyRec.Summa2011 := personSummyRec.Summa2011 + curr_add.summa
+                               begin
+                                    personSummyRec.Summa2011 := personSummyRec.Summa2011 + curr_add.summa;
+                                    if curr_add^.SHIFR=pochas_shifr then
+                                       personSummyRec.summa2011Pochas:= personSummyRec.Summa2011Pochas + curr_add.summa
+                                    else
+                                    if IS_OSN_WID_RABOTY(Curr_person) then
+                                       personSummyRec.summa2011Osn   := personSummyRec.Summa2011Osn + curr_add.summa
+                                    else
+                                       personSummyRec.summa2011Sowm  := personSummyRec.Summa2011Sowm + curr_add.summa
+                               end
                             else
                          else
                             if (curr_add.period=WantedM) and
                                (curr_add.year+1990=WantedY) then
-                               personSummyRec.Summa2011 := personSummyRec.Summa2011 + curr_add.summa;
+                               begin
+                                    personSummyRec.Summa2011 := personSummyRec.Summa2011 + curr_add.summa;
+                                    if curr_add^.SHIFR=pochas_shifr then
+                                       personSummyRec.summa2011Pochas:= personSummyRec.Summa2011Pochas + curr_add.summa
+                                    else
+                                    if IS_OSN_WID_RABOTY(Curr_person) then
+                                       personSummyRec.summa2011Osn   := personSummyRec.Summa2011Osn + curr_add.summa
+                                    else
+                                       personSummyRec.summa2011Sowm  := personSummyRec.Summa2011Sowm + curr_add.summa
+                               end;
                          curr_add:=curr_add.NEXT;
                     end;
                    curr_Person:=curr_Person.NEXT;
@@ -248,7 +298,16 @@ function TFormSumLimitForCarantine.GetLimitSummaForCarantine:real;
      iVal,iErr   : Integer;
      fName       : string;
      aVal        : real;
+     SQLStmnt    : string;
+     V           : Variant;
   BEGIN
+      SQLStmnt := 'SELECT FIRST 1 COALESCE(limitmax,0) FROM SSLIMITY ORDER BY DATEFR DESC';
+      v:=SQLQueryValue(SQLStmnt);
+      if VarIsNumeric(v) then
+         Result:=v
+      else
+         Result:=0;
+(*
       fName:=getIniFileName;
       Ini := TIniFile.Create( fName );
       try
@@ -260,6 +319,7 @@ function TFormSumLimitForCarantine.GetLimitSummaForCarantine:real;
          Ini.Free;
       end;
       Result:=aVal;
+*)
   end;
 
 procedure TFormSumLimitForCarantine.BuildList;
@@ -336,6 +396,9 @@ begin
                            CDS2011Tabno.Value:=pPersonSummyRec(PersonSummyList.Items[i]).Tabno;
                            CDS2011FIO.Value:=pPersonSummyRec(PersonSummyList.Items[i]).FIO;
                            CDS2011Summa.Value:=pPersonSummyRec(PersonSummyList.Items[i]).Summa2011;
+                           CDS2011SummaOsn.Value:=pPersonSummyRec(PersonSummyList.Items[i]).Summa2011Osn;
+                           CDS2011SummaSowm.Value:=pPersonSummyRec(PersonSummyList.Items[i]).Summa2011Sowm;
+                           CDS2011SummaPochas.Value:=pPersonSummyRec(PersonSummyList.Items[i]).Summa2011Pochas;
                            CDS2011.Post;
                       end
                end;
