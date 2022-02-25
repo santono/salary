@@ -11291,7 +11291,10 @@ procedure RestPerson09(Curr_Person:Person_Ptr;fname:string);
       if VarIsStr(v) then
          s:=v
       else
-         s:='О.Л. Голубенко';
+      if isSVDN then
+         s:='О.Л. Голубенко'
+      else
+         s:='В.Д. Рябичев';    
       getRektorFIO:=Trim(s);
   end;
 
@@ -11318,7 +11321,11 @@ procedure RestPerson09(Curr_Person:Person_Ptr;fname:string);
       if VarIsStr(v) then
          s:=v
       else
-         s:='Л.І. Бєлоусова';
+      if isSVDN then
+         s:='Л.І. Бєлоусова'
+      else
+         s:='Р.Г. Пятковская';
+
       getGlBuhFIO:=Trim(s);
   end;
  function getNameUniFromSQL:string;
@@ -11331,7 +11338,11 @@ procedure RestPerson09(Curr_Person:Person_Ptr;fname:string);
       if VarIsStr(v) then
          s:=v
       else
-         s:='CНУ ім.В.Даля';
+      if isSVDN then
+         s:='CНУ ім.В.Даля'
+      else
+         s:='ЛГУ им.В.Даля';
+
       getNameUniFromSQL:=Trim(s);
   end;
  function getGlBuhDolg:string;
@@ -11344,7 +11355,10 @@ procedure RestPerson09(Curr_Person:Person_Ptr;fname:string);
       if VarIsStr(v) then
          s:=v
       else
-         s:='Головний бухгалтер';
+      if isSVDN then
+         s:='Головний бухгалтер'
+      else
+         s:='Главный бухгалтер';
       getGlBuhDolg:=Trim(s);
   end;
  function getRazrOkladByDolg(shifrIdDolg:Integer;var razr:Integer;var oklad:real):boolean;

@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, FIBDatabase, pFIBDatabase, FIBDataSet, pFIBDataSet,
   StdCtrls, ComCtrls, dxExEdtr, dxCntner, dxTL, dxDBCtrl, dxDBGrid,
-  dxDBTLCl, dxGrClms, Buttons, DBClient,MidasLib;
+  dxDBTLCl, dxGrClms, Buttons, DBClient,MidasLib, frxClass, frxDBSet,
+  frxExportRTF, frxExportXLS, frxExportPDF;
 
 type
   tModeSQL=(ModeVy,ModeZA,Mode2011);
@@ -31,10 +32,19 @@ type
     CDS2011SummaOsn: TFloatField;
     CDS2011SummaSowm: TFloatField;
     CDS2011SummaPochas: TFloatField;
+    frxReport1: TfrxReport;
+    frxDBDataset1: TfrxDBDataset;
+    frxPDFExport1: TfrxPDFExport;
+    frxXLSExport1: TfrxXLSExport;
+    frxRTFExport1: TfrxRTFExport;
+    BitBtn2: TBitBtn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure cbWRChange(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
+    procedure frxReport1GetValue(const VarName: String;
+      var Value: Variant);
 
   private
     summaLimit:real;
@@ -89,7 +99,15 @@ procedure TFormSumLimitForCarantine.Button1Click(Sender: TObject);
  var S:string;
 
 begin
+      BitBtn1.Enabled := False;
+      Button1.Enabled := False;
+      Application.ProcessMessages;
       BuildList;
+      BitBtn2.Enabled := True;
+      BitBtn2.Show;
+      BitBtn1.Enabled := true;
+      Button1.Enabled := true;
+      Application.ProcessMessages;
 end;
 
 procedure TFormSumLimitForCarantine.FormCreate(Sender: TObject);
@@ -99,6 +117,8 @@ begin
      cbWR.ItemIndex:=0;
      summaLimit:=GetLimitSummaForCarantine;
      makeCaption;
+     BitBtn2.Enabled:=False;
+     BitBtn2.Hide;
 end;
 
 procedure TFormSumLimitForCarantine.makeCaption;
@@ -206,11 +226,11 @@ procedure TFormSumLimitForCarantine.MakeCurrentSummy(WantedY:Integer;WantedM:Int
                                  Curr_Add:=curr_add.NEXT;
                                  Continue;
                             end;
-                         if (curr_add^.shifr=POCHAS_SHIFR) then
-                            begin
-                                 Curr_Add:=curr_add.NEXT;
-                                 Continue;
-                            end;
+//                         if (curr_add^.shifr=POCHAS_SHIFR) then
+//                            begin
+//                                 Curr_Add:=curr_add.NEXT;
+//                                 Continue;
+//                            end;
                          if (isFirst) then
                             begin
                                  PersonSummyRec:=pPersonSummyRec(FindRecInList(Curr_Person.tabno));
@@ -413,6 +433,28 @@ end;
 procedure TFormSumLimitForCarantine.cbWRChange(Sender: TObject);
 begin
      makeCaption;
+end;
+
+procedure TFormSumLimitForCarantine.BitBtn2Click(Sender: TObject);
+begin
+     frxReport1.ShowReport;
+end;
+
+procedure TFormSumLimitForCarantine.frxReport1GetValue(
+  const VarName: String; var Value: Variant);
+var s:string;
+begin
+     if CompareText(VarName,'M')=0 then
+        begin
+             s:=GetMonthRus(nmes)+' '+IntToStr(CURRYEAR);
+             value:=s;
+        end
+     else
+     if CompareText(VarName,'SummaLim')=0 then
+        begin
+             s:=FormatSummaForPlt(summaLimit);
+             value:=s;
+        end;
 end;
 
 end.

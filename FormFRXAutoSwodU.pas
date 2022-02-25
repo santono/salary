@@ -663,9 +663,10 @@ begin
         if isLNR then
            if ((WantedYear>2014) or ((WantedYear=2014) and (WantedMonth>8))) then
      //      Value:='ГОУ ВПО Луганский государственный университет имени В.Даля'
-             Value:='ГОУ ВПО '+trim(getNameUniFromSQL)
+     //        Value:='ГОУ ВО '+trim(getNameUniFromSQL)
+             Value:=trim(getNameUniFromSQL)
            else
-           Value:='Східноукраїнський національній університет імени В.Даля'
+             Value:='ГОУ ВО ЛНР "Луганский государственный университет имени Владимира Даля"'
         else
            Value:='Східноукраїнський національній університет імени В.Даля'
      else
