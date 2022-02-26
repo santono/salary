@@ -27,9 +27,9 @@ object FormKomandA: TFormKomandA
     Caption = #1054#1090#1084#1077#1095#1077#1085#1086
   end
   object LabelSummaSel: TLabel
-    Left = 160
+    Left = 210
     Top = 416
-    Width = 81
+    Width = 31
     Height = 20
     Alignment = taRightJustify
     Anchors = [akLeft, akBottom]
@@ -61,6 +61,7 @@ object FormKomandA: TFormKomandA
       Width = 20
       BandIndex = 0
       RowIndex = 0
+      OnChange = dxDBGridKomandAMARKEDChange
       FieldName = 'MARKED'
       ValueChecked = '1'
       ValueUnchecked = '0'
@@ -209,7 +210,7 @@ object FormKomandA: TFormKomandA
   end
   object pFIBDataSetKomandA: TpFIBDataSet
     UpdateSQL.Strings = (
-      'UPDATE TMP_BOLNA'
+      'UPDATE TMP_KOMAND_ADD'
       'SET '
       '    W_PLACE = :W_PLACE,'
       '    W_R = :W_R,'
@@ -230,12 +231,12 @@ object FormKomandA: TFormKomandA
       '    ')
     DeleteSQL.Strings = (
       'DELETE FROM'
-      '    TMP_BOLNA'
+      '    TMP_KOMAND_ADD'
       'WHERE'
       '        SHIFRIDTMP = :OLD_SHIFRIDTMP'
       '    ')
     InsertSQL.Strings = (
-      'INSERT INTO TMP_BOLNA('
+      'INSERT INTO TMP_KOMAND_ADD('
       '    W_PLACE,'
       '    W_R,'
       '    SHIFRGRU,'
@@ -289,7 +290,7 @@ object FormKomandA: TFormKomandA
       '    TMP.ID_CLAR,'
       '    TMP.SHIFRIDTMP'
       'FROM'
-      '    TMP_BOLNA TMP '
+      '    TMP_KOMAND_ADD TMP '
       '    JOIN SHIFR S  ON TMP.SHIFRSTA = S.SHIFR'
       '    JOIN PODR P   ON TMP.W_PLACE  = P.SHIFRPOD'
       '    JOIN KATEG K  ON TMP.SHIFRKAT = K.SHIFR'
@@ -351,6 +352,8 @@ object FormKomandA: TFormKomandA
       '         TMP.W_PLACE,'
       '         TMP.SHIFRKAT,'
       '         TMP.SHIFRGRU')
+    AutoUpdateOptions.UpdateTableName = 'TMP_KOMAND_ADD'
+    AutoUpdateOptions.KeyFields = 'SHIFRIDTMP'
     Transaction = pFIBTransactionRead
     Database = FIB.pFIBDatabaseSal
     UpdateTransaction = pFIBTransactionWrite

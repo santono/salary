@@ -967,6 +967,10 @@ object MainForm: TMainForm
           Caption = #1054#1090#1087#1091#1089#1082#1085#1099#1077
           OnClick = N78Click
         end
+        object ClearTmpTablesKMD: TMenuItem
+          Caption = #1050#1086#1084#1072#1085#1076#1080#1088#1086#1074#1086#1095#1085#1099#1077
+          OnClick = ClearTmpTablesKMDClick
+        end
         object N106: TMenuItem
           Caption = #1055#1077#1088#1077#1088#1072#1089#1095#1077#1090#1099' '#1085#1072#1083#1086#1075#1086#1074
           OnClick = N106Click

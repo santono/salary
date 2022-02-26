@@ -312,6 +312,7 @@ interface
    function SetBaseMonthYearPerson(Curr_Person:Person_Ptr; m:integer; y:integer):boolean;
    procedure DeleteAllFromTmpBolnTables;
    procedure DeleteAllFromTmpOtpTables;
+   procedure DeleteAllFromTmpKmdTables;
    procedure DeleteAllFromTmpPersonTables;
    function getSummaAddForPerson(curr_person:PERSON_PTR):Real;
    function getSummaPremForPerson(curr_person:PERSON_PTR):Real;
@@ -8134,6 +8135,12 @@ function NeedCodePersonLine(Tabno:integer):boolean;
          FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_OTP_ADD');
          FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_OTP_SUMMY');
          FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_OTP_RES');
+  end;
+ procedure DeleteAllFromTmpKmdTables;
+  begin
+         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_KOMAND_ADD');
+         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_KOMAND_SUMMY');
+         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_KOMAND_RES');
   end;
   function IsShifrInAddPerson(Curr_Person:Person_Ptr;WantedShifr:integer):boolean;
    var Curr_Add:Add_Ptr;

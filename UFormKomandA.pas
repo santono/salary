@@ -65,6 +65,7 @@ type
     procedure dxDBGridKomandAMARKEDToggleClick(Sender: TObject;
       const Text: String; State: TdxCheckBoxState);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
+    procedure dxDBGridKomandAMARKEDChange(Sender: TObject);
   private
     { Private declarations }
     procedure ShowSumSelected;
@@ -79,7 +80,7 @@ var
   FormKomandA: TFormKomandA;
 
 implementation
-USES UFibModule,ScrUtil;
+USES UFibModule,ScrUtil,scrdef;
 
 {$R *.dfm}
 
@@ -96,6 +97,7 @@ begin
 end;
 
 procedure TFormKomandA.ShowTable;
+var ds:string;
 begin
       if pFIBDataSetKomandA.Active then
          pFIBDataSetKomandA.Active:=false;
@@ -105,6 +107,16 @@ begin
       pFIBDataSetKomandA.Prepare;
       pFIBDataSetKomandA.Open;
      ShowSumSelected;   
+      if isSVDN then
+         begin
+              ds:=getMonthUkr(wantedMonth)+' '+IntToStr(wantedYear);
+              Caption:='Перелiк нарахуваннь для вiдряджень '+ds;
+         end
+      else
+         begin
+              ds:=getMonthRus(wantedMonth)+' '+IntToStr(wantedYear);
+              Caption:='Список начислений для командировочных '+ds;
+         end
 
 end;
 
@@ -126,17 +138,21 @@ end;
 
 procedure TFormKomandA.BitBtn2Click(Sender: TObject);
 begin
+     BitBtn2.Enabled:=false;
      if pFIBDataSetKomandA.State=dsEdit then
         pFIBDataSetKomandA.Post;
+     Self.Close;   
 end;
 
 procedure TFormKomandA.FormCreate(Sender: TObject);
 begin
      if not pFIBDataSetKomandA.Transaction.Active then
         pFIBDataSetKomandA.Transaction.StartTransaction;
+        
 end;
 
 procedure TFormKomandA.pFIBDataSetKomandAMARKEDChange(Sender: TField);
+//var ds:string;
 begin
 {
      if pFIBDataSetKomandA.State=dsEdit then
@@ -149,8 +165,18 @@ begin
              pFIBDataSetKomandA.Edit;
         end;
 }
-
-      Caption:='Список начислений для больничного'
+{
+      if isSVDN then
+         begin
+              ds:=getMonthUkr(wantedMonth)+' '+IntToStr(wantedYear);
+              Caption:='Перелiк нарахуваннь для вiдряджень '+ds;
+         end
+      else
+         begin
+              ds:=getMonthRus(wantedMonth)+' '+IntToStr(wantedYear);
+              Caption:='Список начислений для командировочных '+ds;
+         end
+}
 end;
 
 procedure TFormKomandA.ShowSumSelected;
@@ -182,21 +208,70 @@ procedure TFormKomandA.ShowSumSelected;
 
 procedure TFormKomandA.dxDBGridKomandAMARKEDToggleClick(Sender: TObject;
   const Text: String; State: TdxCheckBoxState);
+var bVal:boolean;
+    dbVal:Integer;
+    dsState:TDataSetState;
+    shifrId : Integer;
 begin
      ShowSumSelected;
      Application.ProcessMessages;
+//     dbVal:=pFIBDataSetKomandAMARKED.Value;
+//     shifrId:=pFIBDataSetKomandASHIFRIDTMP.Value;
+//     if State=cbsChecked then
+//        bval:=True
+//     else
+//        bVal:=false;
+//     dsState:=pFIBDataSetKomandA.State;
+//     if dsState=dsEdit then
+//        begin
+//             if bVal then
+//                pFIBDataSetKomandAMARKED.Value:=1
+//             else
+//                pFIBDataSetKomandAMARKED.Value:=0;
+//             pFIBDataSetKomandA.Post;
+//             pFIBDataSetKomandA.Edit;
+//        end;
 
-  //   DBNavigator1.BtnClick(nbPost);
+
+//     DBNavigator1.BtnClick(nbPost);
 end;
 
 procedure TFormKomandA.DBNavigator1Click(Sender: TObject;
   Button: TNavigateBtn);
 begin
-     if Button=nbPost then
-        begin
-             ShowSumSelected;
-        end;
+//     if Button=nbPost then
+//        begin
+//             ShowSumSelected;
+//        end;
 
 end;
+
+procedure TFormKomandA.dxDBGridKomandAMARKEDChange(Sender: TObject);
+var bVal:boolean;
+    dbVal:Integer;
+    dsState:TDataSetState;
+    v,v0:Variant;
+    vInt:Integer;
+    Node:TdxTreeListNode;
+begin
+ //    ShowSumSelected;
+ //    Application.ProcessMessages;
+     dbVal:=pFIBDataSetKomandAMARKED.Value;
+ //    if State=cbsChecked then
+ //       bval:=True
+ //    else
+ //       bVal:=false;
+
+//     DBNavigator1.BtnClick(nbPost);
+        Node:=dxDBGridKomandA.FocusedNode;
+        v0:=Node.Values[0];
+        if VarIsNumeric(v0) then
+           begin
+               vInt:=v0;
+           end;
+     dsState:=pFIBDataSetKomandA.State;
+
+end;
+
 
 end.

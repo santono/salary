@@ -437,6 +437,7 @@ type
     ActionRepFondyPPSSvdn: TAction;
     N188: TMenuItem;
     ii1: TMenuItem;
+    ClearTmpTablesKMD: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -717,6 +718,7 @@ type
     procedure ActionRepPlanFondy2021Execute(Sender: TObject);
     procedure ActionRepPersonsByPodrExecute(Sender: TObject);
     procedure ActionRepFondyPPSSvdnExecute(Sender: TObject);
+    procedure ClearTmpTablesKMDClick(Sender: TObject);
 
 
   private
@@ -813,7 +815,7 @@ implementation
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
-  UFormKreditSprSvdn, UFormRepFindyPPSSvdn;
+  UFormKreditSprSvdn, UFormRepFondyPPSSvdn;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -5014,10 +5016,27 @@ end;
 
 procedure TMainForm.ActionRepFondyPPSSvdnExecute(Sender: TObject);
 begin
-     Application.CreateForm(TFormRepFindyPPSSvdn,FormRepFindyPPSSvdn);
-     FormRepFindyPPSSvdn.showModal;
+     Application.CreateForm(TFormRepFondyPPSSvdn,FormRepFondyPPSSvdn);
+     FormRepFondyPPSSvdn.showModal;
 
 end;
+
+procedure TMainForm.ClearTmpTablesKMDClick(Sender: TObject);
+begin
+     if YesNo('Вы хотите очистить временные таблицы, которые используются для расчета командировочных.'+#13#10+
+              ' Проверьте, чтобы никто не начислял в этот момент командировочные'+#13#10+
+              ' И нажмите кнопкку ДА, если хотите продолжить') then
+        begin
+             DeleteAllFromTmpKmdTables;
+             FormWaitMess.SetMessage('Табл.очищены');
+             FormWaitMess.Show;
+             repeat
+                   Application.ProcessMessages;
+             until FormWaitMess.Timer1.Enabled=false;
+             FormWaitMess.Hide;
+        end;
+end;
+
 
 end.
 
