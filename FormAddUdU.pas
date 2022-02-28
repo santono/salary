@@ -96,7 +96,12 @@ type
     procedure N13Click(Sender: TObject);
     procedure N14Click(Sender: TObject);
     procedure N15Click(Sender: TObject);
+    procedure StringAddMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
   private
+    SaveHintHidePause : integer;
+    SaveHintPause     : integer;
+    CurrRow,CurrCol   : Integer;
     { Private declarations }
     Curr_Person:Person_Ptr;
     RetCode:integer;
@@ -109,6 +114,7 @@ type
     procedure DelAllZeroUd;
     procedure All_Add(Mode_I:integer;CurFil_Add:integer);
     procedure All_Ud(Mode_I:integer;CurFil_Ud:integer);
+    function GetNameShifrAdd(Curr_Person:person_ptr;Curr_Add:add_ptr):string;
   public
     { Public declarations }
   end;
@@ -185,11 +191,25 @@ procedure TFormAdd.MakeGrid;
        Self.MakeGridAdd(U);
  end;
 
+function TFormAdd.GetNameShifrAdd(Curr_Person:person_ptr;Curr_Add:add_ptr):string;
+ var retVal,rv:string;
+ begin
+      retVal:=GetNameShifr(curr_Add^.SHIFR);
+      if curr_add^.shifr=PerersZaProshlPeriody then
+         begin
+             rv:=get156MessageFromCn(Curr_Person,curr_add^.period,Curr_Add^.Summa);
+             if Length(rv)>3 then
+                retVal:=rv;
+         end;
+      GetNameShifrAdd:=retVal;
+ end;
+
+
 procedure TFormAdd.MakeGridAdd;
-var I_A,I,JJ:Integer;
-    Curr_Add:Add_Ptr;
-    S:string;
-    a:real;
+var I_A,I,JJ : Integer;
+    Curr_Add : Add_Ptr;
+    S        : string;
+    a        : real;
  begin
      I_A:=Count_Add(Curr_Person);
      if i_a<1 then i_a:=1;
@@ -236,7 +256,7 @@ var I_A,I,JJ:Integer;
             a:=a+Curr_Add^.Summa;
             StringAdd.Cells[0,i]:=IntToStr(Curr_Add^.Shifr);
 //            StringAdd.Cells[1,i]:=ShifrList.GetName(Curr_Add^.Shifr);
-            StringAdd.Cells[1,i]:=GetNameShifr(Curr_Add^.Shifr);
+            StringAdd.Cells[1,i]:=GetNameShifrAdd(Curr_Person,Curr_Add);
             StringAdd.Cells[2,i]:=FloatToStrF(Curr_Add^.Summa,ffFixed,12,2);
             StringAdd.Cells[3,i]:=IntToStr(Curr_Add^.Period);
             StringAdd.Cells[4,i]:=IntToStr(Curr_Add^.Year+1990);
@@ -762,6 +782,11 @@ begin
      stringGridUdTot.left:=StringUd.left;
      stringGridUdTot.width:=StringUd.width;
      stringGridUdTot.height:=90;
+     currRow:=-1;
+     currCol:=-1;
+     Application.ShowHint := True;
+     StringAdd.ShowHint := true;
+
 end;
 
 procedure TFormAdd.N1Click(Sender: TObject);
@@ -1604,6 +1629,52 @@ begin
      Application.ProcessMessages;
 
 end;
+
+procedure TFormAdd.StringAddMouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: Integer);
+var
+  r : integer;
+  c : integer;
+  shifr,wantedShifr:string;
+begin
+     wantedShifr:=Trim(IntToStr(PerersZaProshlPeriody));
+     try
+        StringAdd.MouseToCell(X, Y, C, R);
+        if (c<0) or (c+1>StringAdd.ColCount) then Exit;
+        if (r<0) or (r+1>StringAdd.RowCount) then Exit;
+        with StringAdd do
+             begin
+                  if ((CurrRow <> r) or(CurrCol <> c)) then
+                      begin
+                            CurrRow := r;
+                            CurrCol := c;
+                            Application.CancelHint;
+                            StringAdd.Hint := StringAdd.Cells[1,r];
+                            StringAdd.showHint := false;
+                            if c in [0,1]  then
+                               begin
+                                  SHIFR:=Trim(StringAdd.Cells[0,r]);
+                                  if shifr=wantedShifr then
+                                     begin
+                                        if Trim(getNameshifr(PerersZaProshlPeriody))<>Trim(StringAdd.Cells[1,r]) then
+                                           begin
+                                               StringAdd.ShowHint:=True;
+                                               StringAdd.Hint :=getNameshifr(PerersZaProshlPeriody)+' '+StringAdd.Cells[1,r];
+                                           end
+                                     end;
+                               end;
+                      end;
+               end;
+     except
+       on EInvalidGridOperation do
+       c:=1;
+       else
+           c:=1;
+    end;
+
+
+end;
+
 
 end.
 

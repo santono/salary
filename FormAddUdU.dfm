@@ -125,6 +125,7 @@ object FormAdd: TFormAdd
       OnKeyDown = StringAddKeyDown
       OnKeyPress = StringAddKeyPress
       OnMouseDown = StringAddMouseDown
+      OnMouseMove = StringAddMouseMove
     end
     object StringGridAddTot: TStringGrid
       Left = 1

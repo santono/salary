@@ -20,7 +20,7 @@ object FormMainArc: TFormMainArc
   TextHeight = 20
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 405
+    Top = 403
     Width = 680
     Height = 19
     Panels = <

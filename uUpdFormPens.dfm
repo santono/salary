@@ -1,6 +1,6 @@
 object FormPensSpr2006: TFormPensSpr2006
-  Left = 207
-  Top = 65
+  Left = 255
+  Top = 204
   Width = 736
   Height = 513
   Caption = #1057#1087#1088#1072#1074#1082#1072' '#1074' '#1087#1077#1085#1089#1080#1086#1085#1085#1099#1081' '#1092#1086#1085#1076' '#1089' '#1103#1085#1074#1072#1088#1103' 2007'
@@ -110,7 +110,7 @@ object FormPensSpr2006: TFormPensSpr2006
     Top = 440
     Width = 105
     Height = 25
-    Caption = '2015-2021'
+    Caption = '2015-2022'
     TabOrder = 8
     OnClick = BitBtnLNR2015Click
   end

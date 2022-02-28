@@ -7,7 +7,7 @@ uses
   Dialogs, Grids, StdCtrls, Buttons;
 
 const YearFr = 2000;
-      YearTo = 2021;
+      YearTo = 2022;
 
 type
   TFormPensSpr2006 = class(TForm)
@@ -304,7 +304,6 @@ begin
      if MessageDlg('Отмечать только основную работу?',mtConfirmation, [mbYes, mbNo],  0) = mrYes then Need_Mode:=1;
      if not Fib.pFIBQueryArc.Transaction.InTransaction then
         Fib.pFIBQueryArc.Transaction.StartTransaction;
-
      FIB.pFIBQueryArc.SQL.Clear;
      s:='SELECT FIRST 1 SHIFRID FROM PR_GEN_NEW_PENS_SPR('+IntToStr(WantedTabno)+','''+trim(WFIO)+''','+IntToStr(Need_Mode)+')';
      FIB.pFIBQueryArc.SQL.Add(S);
@@ -746,8 +745,8 @@ end;
 
 procedure TFormPensSpr2006.PrintLnr20152021Rub;
 const FNameIni='dscroll.ini';
-      amntOfYear=7;
-      Years:array[1..amntOfYear] of Integer=(2015,2016,2017,2018,2019,2020,2021);
+      amntOfYear=8;
+      Years:array[1..amntOfYear] of Integer=(2015,2016,2017,2018,2019,2020,2021,2022);
 var FName,S:string;
     Ini          : TIniFile;
     V            : Variant;

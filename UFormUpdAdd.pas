@@ -663,7 +663,7 @@ var curr_cn:CN_PTR;
     l:integer;
 begin
      l:=SizeOf(Curr_cn.Prim_1)-1;
-     Edit156.Text:=Trim(Edit156.Text);
+  //   Edit156.Text:=Trim(Edit156.Text);
      if Length(Edit156.Text)>l then
         Edit156.Text:=Copy(Edit156.Text,1,l);
      Comment156:=Trim(Edit156.Text);

@@ -2187,7 +2187,7 @@ FUNCTION THIS_PERSON(CURR_PERSON:PERSON_PTR):BOOLEAN;
                 KOD    := 0;
                 SUMMA  := 0.;
                 PRIM   := 0;
-                PRIM_1 := space(8);
+                PRIM_1 := space(SizeOf(Prim_1)-1);
                 DEJA_COUNTED := NOT_DEJA_COUNTED;
                 FLOW_SUMMA   := 0;
                 LIMIT_SUMMA  := 0;
