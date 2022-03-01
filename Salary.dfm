@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 265
-  Top = 127
+  Left = 226
+  Top = 131
   Width = 782
   Height = 493
   HorzScrollBar.Visible = False
@@ -233,12 +233,12 @@ object MainForm: TMainForm
       Action = ActionArcPerson
       Caption = #1040#1088#1093
     end
-    object ToolButton23: TToolButton
+    object ToolButtonInd: TToolButton
       Left = 660
       Top = 2
       Action = ActIndexPersonCalc
     end
-    object ToolButton24: TToolButton
+    object ToolButtonPrikazy: TToolButton
       Left = 690
       Top = 2
       Action = ActionPrikazyPerson
@@ -722,6 +722,9 @@ object MainForm: TMainForm
       end
       object N182: TMenuItem
         Action = ActionBrowsePrikazy
+      end
+      object NOtpBS: TMenuItem
+        Action = ActionOtpBSBrowse
       end
     end
     object N30: TMenuItem
@@ -1731,6 +1734,10 @@ object MainForm: TMainForm
     object ActionRepFondyPPSSvdn: TAction
       Caption = #1056'i'#1095#1085'i '#1092#1086#1085#1076#1080' '#1055#1042#1057
       OnExecute = ActionRepFondyPPSSvdnExecute
+    end
+    object ActionOtpBSBrowse: TAction
+      Caption = #1054#1090#1087#1091#1089#1082#1072' '#1073#1077#1079' '#1089#1086#1093#1088#1072#1085#1077#1085#1080#1103
+      OnExecute = ActionOtpBSBrowseExecute
     end
   end
   object ImageList1: TImageList

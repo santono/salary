@@ -218,7 +218,7 @@ type
     N117: TMenuItem;
     ActTestDuplicates: TAction;
     ActIndexPersonCalc: TAction;
-    ToolButton23: TToolButton;
+    ToolButtonInd: TToolButton;
     ActMovRecalcPod2012: TAction;
     N20114: TMenuItem;
     ActionDelRecen: TAction;
@@ -289,7 +289,7 @@ type
     ActionRepSowmInOut: TAction;
     N139: TMenuItem;
     ActionPrikazyPerson: TAction;
-    ToolButton24: TToolButton;
+    ToolButtonPrikazy: TToolButton;
     ActionPrikazyTyp: TAction;
     N140: TMenuItem;
     ActionVyplLnr: TAction;
@@ -438,6 +438,8 @@ type
     N188: TMenuItem;
     ii1: TMenuItem;
     ClearTmpTablesKMD: TMenuItem;
+    ActionOtpBSBrowse: TAction;
+    NOtpBS: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -719,6 +721,7 @@ type
     procedure ActionRepPersonsByPodrExecute(Sender: TObject);
     procedure ActionRepFondyPPSSvdnExecute(Sender: TObject);
     procedure ClearTmpTablesKMDClick(Sender: TObject);
+    procedure ActionOtpBSBrowseExecute(Sender: TObject);
 
 
   private
@@ -815,7 +818,7 @@ implementation
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
-  UFormKreditSprSvdn, UFormRepFondyPPSSvdn;
+  UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1457,7 +1460,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionRepPersonsByPodr.Enabled:=True;
           NRepPersonsByPodr.Enabled:=True;
           NRepPersonsByPodr.Visible:=True;
-
+          NOtpBs.Enabled:=False;
+          NOtpBs.Visible:=false;
+          ActionOtpBSBrowse.enabled:=False;
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
 
@@ -1553,6 +1558,13 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionRepPersonsByPodr.Enabled:=false;
           NRepPersonsByPodr.Enabled:=false;
           NRepPersonsByPodr.Visible:=false;
+          NOtpBs.Enabled:=true;
+          NOtpBs.Visible:=true;
+          ActionOtpBSBrowse.enabled:=true;
+          ToolButtonPrikazy.Enabled:=False;
+          ToolButtonPrikazy.visible:=False;
+          ToolButtonInd.Enabled:=False;
+          ToolButtonInd.visible:=False;
 
 
    //       if DirectoryExists('Y:') then
@@ -5037,6 +5049,12 @@ begin
         end;
 end;
 
+
+procedure TMainForm.ActionOtpBSBrowseExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormOtpBSList,FormOtpBSList);
+     FormOtpBSList.showModal;
+end;
 
 end.
 
