@@ -35,6 +35,41 @@ implementation
 
 {$R *.dfm}
 
+function GetAppVersionStr : String;
+var
+  VerInfoSize: Cardinal;
+  VerValueSize: Cardinal;
+  Dummy: Cardinal;
+  PVerInfo: Pointer;
+  PVerValue: PVSFixedFileInfo;
+  FileName: TFileName;
+  FormatString:string;
+begin
+  FileName:=Application.ExeName;
+{$IFDEF SVDN}
+     FormatString:='Версiя %d.%d.%d збiрка %d'
+{$ELSE}
+     FormatString:='Версия %d.%d.%d сборка %d';
+{$ENDIF}
+  Result := '';
+  VerInfoSize := GetFileVersionInfoSize(PChar(FileName), Dummy);
+  GetMem(PVerInfo, VerInfoSize);
+  try
+    if GetFileVersionInfo(PChar(FileName), 0, VerInfoSize, PVerInfo) then
+      if VerQueryValue(PVerInfo, '\', Pointer(PVerValue), VerValueSize) then
+        with PVerValue^ do
+//          Result := Format('v%d.%d.%d сборка %d', [
+            Result := Format(formatString, [
+            HiWord(dwFileVersionMS), //Major
+            LoWord(dwFileVersionMS), //Minor
+            HiWord(dwFileVersionLS), //Release
+            LoWord(dwFileVersionLS)]); //Build
+  finally
+    FreeMem(PVerInfo, VerInfoSize);
+  end;
+end;
+
+
 procedure TAboutBox.Timer1Timer(Sender: TObject);
 begin
     Timer1.Enabled := False;
@@ -56,6 +91,7 @@ begin
    Label1.Caption:='Автоматизована система';
    ProductName.Caption:='розрахунку заробітної плати';
   {$ENDIF}
+   Version.Caption:=GetAppVersionStr+' 06.03.2022';
 end;
 
 procedure TAboutBox.OKButtonClick(Sender: TObject);

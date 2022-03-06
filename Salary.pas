@@ -1273,7 +1273,6 @@ procedure TMainForm.FormCreate(Sender: TObject);
 
    if kz<0 then
       raise Exception.Create('DirList initialization error');
-
    if isLNR then
    if needServerAppData then
       begin
@@ -1328,8 +1327,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
    if isSVDN then
       InitUkrMessages
    else
-      InitRusMessages;   
-   uSQLUnit.setSal; 
+      InitRusMessages;
+   uSQLUnit.setSal;
    unLockAllMy;
    if isSVDN then
       if needAllPodr then
@@ -1348,6 +1347,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
    if (isLNR and isGKH) then
    if not isGKHPodr(nsrv) then
       NSRV:=191;
+//  getExeFileSize;
+//   versionInfo:=getApplicationVersion;
+//   versionInfo:=GetAppVersionStr;
    MKFLNM;
    GETINF(TRUE);
    CurrentPodrReadedByOperator:=NSRV;

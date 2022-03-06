@@ -389,7 +389,13 @@ uses
   UFormRepPersonsByPodr in 'UFormRepPersonsByPodr.pas' {FormRepPersonsByPodr},
   UFormUpdate1DFRec in 'UFormUpdate1DFRec.pas' {FormUpdate1DFRec},
   UFormKreditSprSvdn in 'UFormKreditSprSvdn.pas' {FormKreditSprSvdn},
-  UFormRepFondyPPSSvdn in 'UFormRepFondyPPSSvdn.pas' {FormRepFondyPPSSvdn};
+  UFormRepFondyPPSSvdn in 'UFormRepFondyPPSSvdn.pas' {FormRepFondyPPSSvdn},
+  UFormOtpBSList in 'UFormOtpBSList.pas' {FormOtpBSList},
+  UFormOtpBSUpd in 'UFormOtpBSUpd.pas' {FormOtpBSUpd},
+  UFormOtpBSListAbo in 'UFormOtpBSListAbo.pas' {FormOtpBSListAbo},
+  UFormOtpBSUpdAbo in 'UFormOtpBSUpdAbo.pas' {FormOtpBSUpdAbo},
+  UFormOtpBsMoveAbo in 'UFormOtpBsMoveAbo.pas' {FormOtpBsMoveAbo},
+  UVersionAPP in 'UVersionAPP.pas';
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -579,6 +579,7 @@ var
     TYP_PRIKAZA_PEREVOD:Integer;
     needServerAppData:Boolean;
     needUseIOSemaphore:Boolean;
+    versionInfo:string;
 
     SVDNfooterRec:record
                        summaAdd         : Real;

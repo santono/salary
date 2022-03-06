@@ -607,6 +607,9 @@ interface
   function get156MessageFromCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real):string;
   procedure put156MessageToCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;Mess:string);
   procedure delete156MessageFromCn(Curr_Person:Person_ptr);
+  function getExeFileSize:longint;
+  function getApplicationVersion:String;
+  function GetAppVersionStr: string;
 
 
 
@@ -13384,6 +13387,101 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
                Break;
          end;
   end;
+ function getExeFileSize:longint;
+  var exeFileName:string;
+      sizeExeFile:LongInt;
+      f: file of Byte;
+      s:string;
+      retVal:LongInt;
+  begin
+       retVal:=0;
+       exeFileName:=Application.ExeName;
+       AssignFile(f, exeFileName);
+       Reset(f);
+       try
+          sizeExeFile := FileSize(f);
+          S := 'Exe File size in bytes: ' + IntToStr(sizeExeFile);
+          retVal:=sizeExeFile;
+       finally
+          CloseFile(f);
+       end;
+       getExeFileSize:=retVal;
+  end;
+ function getApplicationVersion:string;
+  var exeFileName:string;
+      retVal:LongInt;
+      retValS:string;
+      Rec: LongRec;
+  begin
+       retVal:=0;
+       exeFileName:=Application.ExeName;
+       rec:=LongRec(GetFileVersion(exeFileName));
+       retValS := Format('%d.%d', [Rec.Hi, Rec.Lo]);
+       getApplicationVersion:=retValS;
+  end;
+
+function GetAppVersionStrbad: string;
+var
+  Exe: string;
+(*
+  Size, Handle: DWORD;
+  Buffer: TBytes;
+  FixedPtr: PVSFixedFileInfo;
+*)
+  retVal:string;
+begin
+(*
+  Exe := Application.ExeName;
+  Size := GetFileVersionInfoSize(PChar(Exe), Handle);
+  if Size = 0 then
+    RaiseLastOSError;
+  SetLength(Buffer, Size);
+  if not GetFileVersionInfo(PChar(Exe), Handle, Size, Buffer) then
+    RaiseLastOSError;
+  if not VerQueryValue(Buffer, '\', Pointer(FixedPtr), Size) then
+    RaiseLastOSError;
+  Retval := Format('%d.%d.%d.%d',
+    [LongRec(FixedPtr.dwFileVersionMS).Hi,  //major
+     LongRec(FixedPtr.dwFileVersionMS).Lo,  //minor
+     LongRec(FixedPtr.dwFileVersionLS).Hi,  //release
+*)
+  GetAppVersionStrBad:=retVal;
+end;
+
+//function FileVersion(const FileName: TFileName): String;
+function GetAppVersionStr : String;
+var
+  VerInfoSize: Cardinal;
+  VerValueSize: Cardinal;
+  Dummy: Cardinal;
+  PVerInfo: Pointer;
+  PVerValue: PVSFixedFileInfo;
+  FileName: TFileName;
+  FormatString:string;
+begin
+  FileName:=Application.ExeName;
+  if isSVDN then
+     FormatString:='Версiя %d.%d.%d збiрка %d'
+  else
+     FormatString:='Версия %d.%d.%d сборка %d';
+
+  Result := '';
+  VerInfoSize := GetFileVersionInfoSize(PChar(FileName), Dummy);
+  GetMem(PVerInfo, VerInfoSize);
+  try
+    if GetFileVersionInfo(PChar(FileName), 0, VerInfoSize, PVerInfo) then
+      if VerQueryValue(PVerInfo, '\', Pointer(PVerValue), VerValueSize) then
+        with PVerValue^ do
+//          Result := Format('v%d.%d.%d сборка %d', [
+            Result := Format(formatString, [
+            HiWord(dwFileVersionMS), //Major
+            LoWord(dwFileVersionMS), //Minor
+            HiWord(dwFileVersionLS), //Release
+            LoWord(dwFileVersionLS)]); //Build
+  finally
+    FreeMem(PVerInfo, VerInfoSize);
+  end;
+end;
 
 end.
 
