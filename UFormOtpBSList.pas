@@ -89,7 +89,6 @@ begin
      if dsOtpBS.UpdateTransaction.Active then
         dsOtpBS.UpdateTransaction.Commit;
      dsOtpBS.Transaction.Commit;
-
 end;
 
 procedure TFormOtpBSList.grOtpBSTABNOButtonButtonClick(Sender: TObject;
