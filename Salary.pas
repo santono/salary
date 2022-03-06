@@ -440,6 +440,8 @@ type
     ClearTmpTablesKMD: TMenuItem;
     ActionOtpBSBrowse: TAction;
     NOtpBS: TMenuItem;
+    ToolButtonObo: TToolButton;
+    ActionOtpBSAboList: TAction;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -722,6 +724,7 @@ type
     procedure ActionRepFondyPPSSvdnExecute(Sender: TObject);
     procedure ClearTmpTablesKMDClick(Sender: TObject);
     procedure ActionOtpBSBrowseExecute(Sender: TObject);
+    procedure ActionOtpBSAboListExecute(Sender: TObject);
 
 
   private
@@ -818,7 +821,8 @@ implementation
   UFormBrowseNadbPlanoviy, FormKRURosDNRU, UFormRepBolnPlan,
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
-  UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList;
+  UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
+  UFormOtpBSListAbo;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1463,6 +1467,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NOtpBs.Enabled:=False;
           NOtpBs.Visible:=false;
           ActionOtpBSBrowse.enabled:=False;
+          ActionOtpBSListAbo.enabled:=False;
+          ToolbottonObo.visible:=false;
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
 
@@ -5054,6 +5060,32 @@ procedure TMainForm.ActionOtpBSBrowseExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormOtpBSList,FormOtpBSList);
      FormOtpBSList.showModal;
+end;
+
+procedure TMainForm.ActionOtpBSAboListExecute(Sender: TObject);
+var j,i,tabno:Integer;
+     Curr_Person:PERSON_PTR;
+begin
+    J:=Count_Person;
+    curr_Person:=nil;
+    if StringGrid1.Row<=j+1 then
+       begin
+            i:=0;
+            Curr_Person:=Head_Person;
+            while (Curr_Person<>Nil) do
+              begin
+                   inc(i);
+                   if (i=StringGrid1.Row-1) then
+                       Break;
+                   Curr_Person:=Curr_Person^.NEXT;
+              end;
+       end;
+    if Curr_Person=nil then Exit;
+    if curr_Person^.tabno<1 then Exit;
+    tabno:=curr_person^.tabno;
+    FormOtpBSListAbo:=TFormOtpBSListAbo.CreateAbo(Self,tabno);
+    FormOtpBSListAbo.showModal;
+
 end;
 
 end.

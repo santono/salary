@@ -1,8 +1,8 @@
-object FormOtpBSList: TFormOtpBSList
+object FormOtpBSListAbo: TFormOtpBSListAbo
   Left = 257
   Top = 176
-  Width = 696
-  Height = 480
+  Width = 315
+  Height = 359
   Caption = #1057#1087#1080#1089#1086#1082' '#1086#1090#1087#1091#1089#1082#1086#1074' '#1073#1077#1079' '#1086#1087#1083#1072#1090#1099
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,13 +14,13 @@ object FormOtpBSList: TFormOtpBSList
   OnClose = FormClose
   OnCreate = FormCreate
   DesignSize = (
-    680
-    442)
+    299
+    321)
   PixelsPerInch = 96
   TextHeight = 13
   object DBNavigator1: TDBNavigator
     Left = 8
-    Top = 416
+    Top = 278
     Width = 240
     Height = 25
     DataSource = dsoOtpBS
@@ -30,17 +30,17 @@ object FormOtpBSList: TFormOtpBSList
   end
   object grOtpBS: TdxDBGrid
     Left = 8
-    Top = 24
-    Width = 665
-    Height = 385
+    Top = 8
+    Width = 281
+    Height = 263
     Bands = <
       item
-      end
-      item
         Caption = #1055#1088#1080#1082#1072#1079
+        Width = 112
       end
       item
         Caption = #1044#1072#1090#1099' '#1086#1090#1087#1091#1089#1082#1072
+        Width = 158
       end>
     DefaultLayout = False
     HeaderPanelRowCount = 1
@@ -56,7 +56,7 @@ object FormOtpBSList: TFormOtpBSList
     Anchors = [akLeft, akTop, akRight, akBottom]
     object grOtpBSID: TdxDBGridMaskColumn
       Visible = False
-      BandIndex = 0
+      BandIndex = -1
       RowIndex = 0
       FieldName = 'SHIFRID'
     end
@@ -64,7 +64,7 @@ object FormOtpBSList: TFormOtpBSList
       Caption = #1058'.'#1085'.'
       HeaderAlignment = taCenter
       Visible = False
-      BandIndex = 0
+      BandIndex = -1
       RowIndex = 0
       FieldName = 'TABNO'
       Buttons = <
@@ -76,56 +76,60 @@ object FormOtpBSList: TFormOtpBSList
     object grOtpBSTABNO: TdxDBGridMaskColumn
       Caption = #1058'.'#1085'.'
       HeaderAlignment = taCenter
-      BandIndex = 0
+      Visible = False
+      BandIndex = -1
       RowIndex = 0
       FieldName = 'TABNO'
     end
     object grOtpBSFIO: TdxDBGridMaskColumn
       Caption = #1060#1072#1084#1080#1083#1083#1080#1103' '#1048'.'#1054'.'
       HeaderAlignment = taCenter
-      BandIndex = 0
+      Visible = False
+      BandIndex = -1
       RowIndex = 0
       FieldName = 'FIO'
     end
     object grOtpBSNOMER_PRIK: TdxDBGridMaskColumn
       Caption = #1053#1086#1084#1077#1088
       HeaderAlignment = taCenter
-      BandIndex = 1
+      Width = 78
+      BandIndex = 0
       RowIndex = 0
       FieldName = 'NOMER_PRI'
     end
     object grOtpBSDATA_PRIK: TdxDBGridDateColumn
       Caption = #1044#1072#1090#1072
       HeaderAlignment = taCenter
-      BandIndex = 1
+      Width = 34
+      BandIndex = 0
       RowIndex = 0
       FieldName = 'DATA_PRI'
     end
     object grOtpBSDATE_FR: TdxDBGridDateColumn
       Caption = 'C'
       HeaderAlignment = taCenter
-      BandIndex = 2
+      Width = 79
+      BandIndex = 1
       RowIndex = 0
       FieldName = 'DATEFR'
     end
     object grOtpBSDATE_TO: TdxDBGridDateColumn
       Caption = #1055#1086
       HeaderAlignment = taCenter
-      BandIndex = 2
+      Width = 79
+      BandIndex = 1
       RowIndex = 0
       FieldName = 'DATETO'
     end
   end
-  object dpDT: TDateTimePicker
-    Left = 8
-    Top = 0
-    Width = 186
-    Height = 21
-    Date = 44626.684908784720000000
-    Time = 44626.684908784720000000
-    DateFormat = dfLong
+  object BitBtn1: TBitBtn
+    Left = 248
+    Top = 280
+    Width = 41
+    Height = 25
+    Caption = 'BitBtn1'
     TabOrder = 2
-    OnChange = dpDTChange
+    OnClick = BitBtn1Click
   end
   object dsoOtpBS: TDataSource
     DataSet = dsOtpBS
@@ -136,9 +140,6 @@ object FormOtpBSList: TFormOtpBSList
     UpdateSQL.Strings = (
       'UPDATE TB_OTP_BS'
       'SET '
-      ' SHIFRID = :SHIFRID,'
-      ' TABNO = :TABNO,'
-      ' FIO = :FIO,'
       ' DATEFR = :DATEFR,'
       ' DATETO = :DATETO,'
       ' OTPDAY = :OTPDAY,'
@@ -211,9 +212,9 @@ object FormOtpBSList: TFormOtpBSList
       ' y,'
       ' m '
       'FROM'
-      ' TB_OTP_BS'
-      'where'
-      ' y=:y and m=:m ')
+      ' TB_OTP_BS '
+      'WHERE TABNO=:TABNO'
+      'order by y desc, m desc')
     AutoUpdateOptions.UpdateTableName = 'TB_OTP_BS'
     AutoUpdateOptions.KeyFields = 'SHIFRID'
     AutoUpdateOptions.GeneratorName = 'G_OTP_BS'

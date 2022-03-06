@@ -79,6 +79,7 @@ begin
                       begin
                          MAKE_OTP_TABEL_FROM_SQL(CURR_PERSON);
                          MAKE_OG_TABEL_FROM_SQL(CURR_PERSON);
+                         MAKE_OBO_TABEL_FROM_SQL(CURR_PERSON);
                       end;
                    Curr_Person:=Curr_Person^.Next;
               end;

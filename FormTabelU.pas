@@ -448,6 +448,7 @@ procedure TFormTabel.fillStandartTabel(curr_person:person_ptr);
       FILL_STANDARD_TABEL_PERSON(curr_person);
       MAKE_OTP_TABEL_FROM_SQL(CURR_PERSON);
       MAKE_OG_TABEL_FROM_SQL(CURR_PERSON);
+      MAKE_OBO_TABEL_FROM_SQL(CURR_PERSON);
       FILL_TABEL_UW_person(CURR_PERSON);
 
  end;

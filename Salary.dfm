@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 226
-  Top = 131
+  Left = 208
+  Top = 138
   Width = 782
   Height = 493
   HorzScrollBar.Visible = False
@@ -249,6 +249,12 @@ object MainForm: TMainForm
       Top = 2
       Action = ActionFRXTablePerson
       Caption = #1058#1073#1083
+    end
+    object ToolButtonObo: TToolButton
+      Left = 750
+      Top = 2
+      Action = ActionOtpBSAboList
+      Caption = #1054#1073#1086
     end
   end
   object StatusBar1: TStatusBar
@@ -1738,6 +1744,10 @@ object MainForm: TMainForm
     object ActionOtpBSBrowse: TAction
       Caption = #1054#1090#1087#1091#1089#1082#1072' '#1073#1077#1079' '#1089#1086#1093#1088#1072#1085#1077#1085#1080#1103
       OnExecute = ActionOtpBSBrowseExecute
+    end
+    object ActionOtpBSAboList: TAction
+      Caption = #1054#1090#1087#1091#1089#1082#1072' '#1073#1077#1079' '#1086#1087#1083#1072#1090#1099
+      OnExecute = ActionOtpBSAboListExecute
     end
   end
   object ImageList1: TImageList

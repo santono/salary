@@ -1,4 +1,4 @@
-unit UFormOtpBSList;
+unit UFormOtpBSListAbo;
 
 interface
 
@@ -6,10 +6,10 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, FIBDatabase, pFIBDatabase, DB, FIBDataSet, pFIBDataSet,
   ExtCtrls, DBCtrls, dxExEdtr, dxDBTLCl, dxGrClms, dxTL, dxDBCtrl,
-  dxDBGrid, dxCntner, DBClient, ComCtrls;
+  dxDBGrid, dxCntner, DBClient, StdCtrls, Buttons;
 
 type
-  TFormOtpBSList = class(TForm)
+  TFormOtpBSListAbo = class(TForm)
     dsoOtpBS: TDataSource;
     DBNavigator1: TDBNavigator;
     dsOtpBS: TpFIBDataSet;
@@ -34,7 +34,7 @@ type
     dsOtpBSDATA_PRI: TFIBDateField;
     dsOtpBSY: TFIBIntegerField;
     dsOtpBSM: TFIBIntegerField;
-    dpDT: TDateTimePicker;
+    BitBtn1: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure grOtpBSTABNOButtonButtonClick(Sender: TObject;
@@ -43,46 +43,49 @@ type
 //      ANode: TdxTreeListNode; var AText: String);
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
     procedure dsOtpBSBeforeInsert(DataSet: TDataSet);
-    procedure dpDTChange(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
-    y,m:Integer;
+    wantedTabno:Integer;
+    wantedFIO:string;
     { Private declarations }
   public
+     constructor createAbo(AOwner: TComponent;wantedTabno:integer);
     { Public declarations }
   end;
 
 var
-  FormOtpBSList: TFormOtpBSList;
+  FormOtpBSListAbo: TFormOtpBSListAbo;
 
 implementation
- uses uFrmFindKadryFB, UFormOtpBSUpd, scrDef,dateUtils;
+ uses uFrmFindKadryFB, UFormOtpBSUpdAbo, scrDef,Scrutil, UFormOtpBsMoveAbo;
 
 {$R *.dfm}
-
-procedure TFormOtpBSList.FormCreate(Sender: TObject);
-var state: TDataSetState;
-    dt:TDateTime;
-begin
+constructor TFormOtpBSListAbo.createAbo(AOwner: TComponent;wantedTabno:integer);
+ begin
+     inherited Create(AOwner);
+     self.wantedtabno:=wantedtabno;
+     if isSVDN then
+        Self.wantedFIO:=GetFullUkrFioPerson(Self.wantedTabno)
+     else
+        Self.wantedFIO:=GetFullRusFioPerson(Self.wantedTabno);
+     if isSVDN then
+        caption:='Перелiк вiдпусток без оплати '+IntToStr(wantedTabno)+' '+trim(Self.wantedFIO)
+     else
+        caption:='Спиcок отпусков без оплаты '+IntToStr(wantedTabno)+' '+trim(Self.wantedFIO);
      dsOtpBS.Transaction.StartTransaction;
-     dt:=EncodeDate(CURRYEAR,NMES,1);
-     dpDT.date:=dt;
-     y:=yearOf(dt);
-     m:=monthOf(dt);
-     dpDT.MaxDate:=incYear(dt);
-     dpDT.MinDate:=incYear(dt,-10);
-     dsOtpBS.Params[0].Value:=CURRYEAR;
-     dsOtpBS.Params[1].Value:=NMES;
-     dsOtpBS.Prepare;
+     dsOtpBS.Params[0].Value:=self.wantedTabno;
      dsOtpBS.Open;
+ end;
+procedure TFormOtpBSListAbo.FormCreate(Sender: TObject);
+begin
 //      state := dsOtpBS.State;
 
 //      dsOtpBS.Edit;
 //      state := dsoOtpBS.DataSet.State;
 //      state := dsOtpBS.State;
-
 end;
 
-procedure TFormOtpBSList.FormClose(Sender: TObject;
+procedure TFormOtpBSListAbo.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
      dsOtpBS.close;
@@ -92,7 +95,7 @@ begin
 
 end;
 
-procedure TFormOtpBSList.grOtpBSTABNOButtonButtonClick(Sender: TObject;
+procedure TFormOtpBSListAbo.grOtpBSTABNOButtonButtonClick(Sender: TObject;
   AbsoluteIndex: Integer);
 begin
     with TFormFindKadryFB.Create(nil) do
@@ -109,7 +112,7 @@ begin
 
 end;
 
-procedure TFormOtpBSList.DBNavigator1Click(Sender: TObject;
+procedure TFormOtpBSListAbo.DBNavigator1Click(Sender: TObject;
   Button: TNavigateBtn);
 var state: TDataSetState;
 begin
@@ -125,19 +128,21 @@ begin
 //             state := dsOtpBS.State;
              dsOtpBSy.value:=CURRYEAR;
              dsOtpBSm.value:=nmes;
-             Application.CreateForm(TFormOtpBSUpd,FormOtpBSUpd);
-             FormOtpBsUpd.ShowModal;
+             dsOtpBSTABNO.Value:=wantedTabno;
+             dsOtpBSFIO.Value:=Trim(self.wantedFIO);
+             Application.CreateForm(TFormOtpBSUpdAbo,FormOtpBSUpdAbo);
+             FormOtpBsUpdAbo.ShowModal;
         end
      else
      if Button=nbEdit then
         begin
              dsOtpBs.Edit;
-             Application.CreateForm(TFormOtpBSUpd,FormOtpBSUpd);
-             FormOtpBsUpd.ShowModal;
+             Application.CreateForm(TFormOtpBSUpdAbo,FormOtpBSUpdAbo);
+             FormOtpBsUpdAbo.ShowModal;
         end;
 end;
 
-procedure TFormOtpBSList.dsOtpBSBeforeInsert(DataSet: TDataSet);
+procedure TFormOtpBSListAbo.dsOtpBSBeforeInsert(DataSet: TDataSet);
 var i:Integer;
     st:TDataSetState;
 begin
@@ -145,19 +150,10 @@ begin
      i:=1;
 end;
 
-procedure TFormOtpBSList.dpDTChange(Sender: TObject);
-var y1,m1:Integer;
+procedure TFormOtpBSListAbo.BitBtn1Click(Sender: TObject);
 begin
-     y1:=YearOf(dpDT.Date);
-     m1:=MonthOf(dpDT.date);
-     if ((y1=y) and (m1=m)) then Exit;
-     y:=y1;
-     m:=m1;
-     dsOtpBS.Close;
-     dsOtpBS.Params[0].Value:=y;
-     dsOtpBS.Params[1].Value:=m;
-     dsOtpBS.Prepare;
-     dsOtpBS.Open;
+     FormOtpBsMoveAbo:=TFormOtpBsMoveAbo.createAbo(Self,Self.wantedTabno);
+     FormOtpBsMoveAbo.ShowModal;
 end;
 
 end.

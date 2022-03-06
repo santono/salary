@@ -1,6 +1,6 @@
 {$H-}
 {$WARNINGS OFF}
-{$HINTS OFF}
+{$HINTS OFF}             
 {$I+}
 unit ScrUtil;
 
@@ -253,6 +253,13 @@ interface
                              ShifrSwmMode : integer;
                              Dolg     : string;
                              NeedAdd  : boolean);
+  procedure RecalcPersonForObo(ShifrIdObo : integer ;
+                               DateFrObo  : TDateTime;
+                               DateToObo  : TDateTime;
+                               GUIDPerson : string  ;
+                               Tabno      : integer ;
+                               ShifrPod   : integer);
+
    FUNCTION  LenMonth(DateW:TDateTime):Integer;
    function  DateBetween(TestedDate,DateB,DateE:TDateTime):boolean;
    function  NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo:TDateTime):boolean;
@@ -260,7 +267,9 @@ interface
    PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
    PROCEDURE MAKE_OTP_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
    PROCEDURE MAKE_OTP_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
+//   PROCEDURE MAKE_OTO_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
    PROCEDURE MAKE_OG_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
+   PROCEDURE MAKE_OBO_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
    function GetShifrWrk:integer;
    function get_bank_name(shifrban:integer):string;
    FUNCTION IS_LUGANSK(S:STRING):BOOLEAN;
@@ -5953,6 +5962,268 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 
   end;
 
+//+++++++++++++++++++++++++++++++++++++++++++++
+// Перерасчет работника с отпускным без оплаты
+//+++++++++++++++++++++++++++++++++++++++++++++
+  procedure RecalcPersonForObo(ShifrIdObo : integer ;
+                               DateFrObo  : TDateTime;
+                               DateToObo  : TDateTime;
+                               GUIDPerson : string  ;
+                               Tabno      : integer ;
+                               ShifrPod   : integer);
+  type PPeriodRec=^TPeriodRec;
+       TPeriodRec=record
+                   YearZa  : integer;
+                   MonthZa : integer;
+                   DayFr   : Integer;
+                   DayTo   : Integer;
+                  end;
+
+  var Nsrv_Temp     : integer;
+      Curr_Person   : Person_Ptr;
+      Finded        : boolean;
+      S             : string;
+      Curr_Add      : Add_Ptr;
+      ShifrSta      : integer;
+      YearZa        : integer;
+      MonthZa       : integer;
+      K_Day         : integer;
+      Summa         : real;
+      ShifrId       : integer;
+      DateFr,DateTo : TDateTime;
+      DateB,DateE   : TDateTime;     {Первый и посление дни текущего месяца}
+      Y,M,D         : word;
+      Updated       : boolean;
+      CurrD         : TDateTime;
+      DatePS,FieldS : string;
+      PeriodRec     : PPeriodRec;
+      List          : TList;
+      I,J           : integer;
+      DebugMode     : integer;
+
+
+  begin
+       if ShifrPod<1 then Exit;
+
+       { 1. Прочитать другое подразделение, если нужно }
+       Nsrv_Temp:=Nsrv;
+       if (ShifrPod>0) then
+         if ShifrPod<>NSRV then
+            begin
+                 PutInf;
+                 EMPTY_ALL_PERSON;
+                 Nsrv:=ShifrPod;
+                 MKFLNM;
+                 GETINF(TRUE);
+            end;
+
+       { 2. Найти сотрудника  }
+       DateB       := EncodeDate(CurrYear,NMES,1);
+       DateE       := EncodeDate(CurrYear,NMES,LenMonth(DateB));
+       Finded      := false;
+       if Not Finded then
+          begin
+               Curr_Person := HEAD_PERSON;
+               while (Curr_Person<>Nil) do
+                 begin
+                      if GetGUIDPersonToString(Curr_Person)=GUIDPerson then
+                           begin
+                                Finded:=true;
+                                Break;
+                           end;
+                      Curr_Person:=Curr_Person^.Next;
+                 end;
+          end;
+       { Выйти если сотрудник не найден }
+       if (not finded)
+          or (finded and (curr_person^.AUTOMATIC<>AUTOMATIC_MODE)) then
+          begin
+               { Восстановить текущее подразделение }
+               if ShifrPod<>Nsrv_Temp then
+                   begin
+                         EMPTY_ALL_PERSON;
+                         Nsrv:=Nsrv_Temp;
+                         MKFLNM;
+                         GETINF(TRUE);
+                   end;
+               Exit
+          end;
+         MAKE_OBO_TABEL_FROM_SQL(curr_person);
+         CALC_NAUD_PERSON(Curr_Person,31);
+(*
+         List:=TList.Create;
+         Updated := false;
+         S:= 'select ShifrSta,summa_k_bud, summa_k_vne, summa_k_gn, summa_k_nis,'+
+             ' Year_Za,Month_Za,a.k_day,b.ShifrId,b.f_data,b.l_data' +
+             ' from tb_komand_res a join tb_komand b on a.ShifrIdKmnd=b.ShifrId' +
+             ' where b.ShifrId=' + IntToStr(ShifrIDKmd);
+         if not FIB.pFIBQuery.Transaction.Active then
+            FIB.pFIBQuery.Transaction.StartTransaction;
+
+         FIB.pFIBQuery.SQL.Clear;
+         FIB.pFIBQuery.SQL.Add(S);
+         try
+            FormWait.Show;
+            Application.ProcessMessages;
+            FIB.pFIBQuery.ExecQuery;
+            FormWait.Hide;
+            DateFr:=date;
+            DateTo:=dateFr;
+            shifrsta:=1;
+            while not FIB.pFIBQuery.Eof do
+             begin
+                  ShifrSta := FIB.pFIBQuery.Fields[0].AsInteger;
+                  YearZa   := FIB.pFIBQuery.Fields[5].AsInteger;
+                  MonthZa  := FIB.pFIBQuery.Fields[6].AsInteger;
+                  K_Day    := FIB.pFIBQuery.Fields[7].AsInteger;
+                  Summa    := FIB.pFIBQuery.Fields[Gruppa].AsFloat;
+                  ShifrId  := FIB.pFIBQuery.Fields[8].AsInteger;
+                  DateFr   := FIB.pFIBQuery.Fields[9].AsDate;
+                  DateTo   := FIB.pFIBQuery.Fields[10].AsDate;
+                  DecodeDate(DateFr,Y,M,D);
+                  DecodeDate(DateTo,Y,M,D);
+
+                  { Изменение от 17 05 2009 }
+                  { занести в список для Изменение от 17 05 2009 }
+{ ======================================================= }
+                   Finded:=false;
+                   for i:=0 to List.Count-1 do
+                       if (PPeriodRec(List.Items[i])^.YearZa  = YearZa) and
+                          (PPeriodRec(List.Items[i])^.MonthZa = MonthZa) then
+                          begin
+                                Finded:=true;
+                                break;
+                          end;
+                   if not Finded then
+                      if (YearZa<>CurrYear) or (MonthZa<>NMES) then
+                         begin
+                              New(PeriodRec);
+                              PeriodRec.YearZa  := YearZa;
+                              PeriodRec.MonthZa := MonthZa;
+                              List.Add(PeriodRec);
+                         end;
+{ ======================================================= }
+                  { Конец изменений от 17 05 2009 }
+
+
+
+
+                  if abs(Summa)>0.009  then
+                     begin
+                          if NeedAdd then
+                             begin
+                                   Make_Add(Curr_Add,Curr_Person);
+                                   Curr_Add^.Shifr    := ShifrSta;
+                                   Curr_Add^.Period   := MonthZa;
+                                   Curr_Add^.Year     := YearZa-1990;
+                                   Curr_Add^.Summa    := Summa;
+                                   Curr_Add^.FZP      := Summa;
+                                   Curr_Add^.Work_Day := K_Day;
+                                   Curr_Add^.Who      := ShifrId mod 60000;
+                                   Updated := true;
+                             end;
+{
+                          Finded:=false;
+                          for i:=0 to List.Count-1 do
+                              if (PPeriodRec(List.Items[i])^.YearZa  = YearZa) and
+                                 (PPeriodRec(List.Items[i])^.MonthZa = MonthZa) then
+                                  begin
+                                       Finded:=true;
+                                       break;
+                                  end;
+                          if not Finded then
+                          if (YearZa<>CurrYear) or (MonthZa<>NMES) then
+                             begin
+                                   New(PeriodRec);
+                                   PeriodRec.YearZa  := YearZa;
+                                   PeriodRec.MonthZa := MonthZa;
+                                   List.Add(PeriodRec);
+                             end;
+}
+                     end;
+                  FIB.pFIBQuery.Next;
+             end;
+            FIB.pFIBQuery.Close;
+         except
+            MessageDlg('Ошибка SQL запроса',mtInformation, [mbOk], 0);
+            Exit;
+         end;
+       if FIB.pFIBQuery.Transaction.Active then
+          FIB.pFIBQuery.Transaction.Commit;
+       if Assigned(Curr_Person) then
+       if NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo) then
+          begin
+               Make_Kmd_Tabel(Curr_Person,DateFr,DateTo);
+               if IsShifrInAddPerson(Curr_Person,138) then
+                   ShifrSta:=ShifrSta;
+               Calc_Naud_Person(Curr_Person,31);
+               if IsShifrInAddPerson(Curr_Person,138) then
+                   ShifrSta:=ShifrSta;
+{
+               Curr_Person^.HOLIDAY[1,1,1]:=DayOf(DateFr);
+               Curr_Person^.HOLIDAY[1,1,2]:=MonthOf(DateFr);
+               Curr_Person^.HOLIDAY[1,1,3]:=YearOf(DateFr) - 1900;
+               Curr_Person^.HOLIDAY[1,2,1]:=DayOf(DateFr);
+               Curr_Person^.HOLIDAY[1,2,2]:=MonthOf(DateFr);
+               Curr_Person^.HOLIDAY[1,2,3]:=YearOf(DateFr) - 1900;
+}
+          end;
+       for i:=1 to List.Count do
+           begin
+                j:=i;
+          //      ShowMessage('y='+IntToStr(PPeriodRec(List.Items[i-1])^.YearZa)+' m='+IntToStr(PPeriodRec(List.Items[i-1])^.MonthZa));
+                DebugMode:=0;
+                if (trim(Curr_Person^.Dolg)='до 31.01.11') then
+//                  begin
+                    DebugMode:=1;
+                    if Curr_Person^.AUTOMATIC=AUTOMATIC_MODE then
+                       begin
+                            Recalc_Person_Sql(Curr_Person,PPeriodRec(List.Items[i-1])^.YearZa,PPeriodRec(List.Items[i-1])^.MonthZa,DebugMode);
+                            if PPeriodRec(List.Items[i-1])^.MonthZa=NMES then
+                               Calc_Naud_Person(Curr_Person,31)
+                                                 else
+                               begin
+                                    FLAG_NAUD_FOR_OTHER_MONTH:=true;
+                                    Update_Podoh(Curr_Person,PPeriodRec(List.Items[i-1])^.MonthZa,PPeriodRec(List.Items[i-1])^.YearZa-1990);
+                                    FLAG_NAUD_FOR_OTHER_MONTH:=false;
+                               end
+                       end;
+//                  end;
+           end;
+     { Пометить больничный как перенесеный }
+       for i:=0 to List.Count-1 do
+           Dispose(PPeriodRec(List.Items[i]));
+       List.Free;
+
+       if (Updated) and (NeedAdd) then
+          begin
+               CurrD  := Date;
+               DeCodeDate(CurrD,Y,M,D);
+               DatePS := IntToStr(Y)+'-'+IntToStr(M)+'-'+IntToStr(D);
+               FieldS := 'DATA_P_BUD';
+               S:= 'update tb_komand set '+FieldS+'='''+DatePS+'''';
+               S:=S+' where shifrid='+IntToStr(ShifrIdKmd);
+               try
+                  FormWait.Show;
+                  Application.ProcessMessages;
+                  SQLExecute(S);
+                  FormWait.Hide;
+              except
+                   ShowMessage('Ошибка записи даты переноса');
+               end;
+          end;
+*)
+       if ShifrPod<>NSRV_Temp then
+          begin
+               PutInf;
+               EMPTY_ALL_PERSON;
+               Nsrv:=NSRV_TEMP;
+               MKFLNM;
+               GETINF(TRUE);
+          end;
+
+  end;
+
 //+++++++++++++++++++++++
 
 
@@ -6365,6 +6636,72 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                CURR_PERSON^.TABEL[L]:=BEREM_OTPUSK;
   END;
 
+ PROCEDURE MAKE_OBO_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
+  VAR L,U_BOUND,L_BOUND:INTEGER;
+      YFR,MFR,DFR:WORD;
+      YTO,MTO,DTO:WORD;
+      Template:array[1..31] of Byte;
+  function SetTemplate:Boolean;
+    var RetVal:boolean;
+        SQLStmnt:widestring;
+        IsStarted:Boolean;
+        YS,DataFrS,DataToS:String;
+        DateFr,DateTo:TDateTime;
+        df,dt,i:integer;
+    begin
+         RetVal:=False;
+         FillChar(Template,SizeOf(Template),0);
+         YS:=IntToStr(Work_Year_Val);
+         DataFrS:=YS+'-'+IntToStr(NMES)+'-01';
+         DateFr:=EncodeDate(Word(Work_Year_Val),word(Nmes),1);
+         DataToS:=YS+'-'+IntToStr(NMES)+'-'+IntToStr(LenMonth(DateFr));
+         DateTo:=EncodeDate(Word(Work_Year_Val),word(Nmes),Word(LenMonth(DateFr)));
+         SQLStmnt:=         'select a.datefr,a.dateto from tb_Otp_Bs a';
+         SQLStmnt:=SQLStmnt+' where a.tabno='+IntToStr(Curr_Person^.Tabno);
+         SQLStmnt:=SQLStmnt+' and not ((a.datefr>'''+DataToS+''') or (a.dateto<'''+DataFrS+'''))';
+         IsStarted:=false;
+         if not FIB.pFIBQuery.Transaction.Active then
+            begin
+                 FIB.pFIBQuery.Transaction.StartTransaction;
+                 IsStarted:=True;
+            end;
+         FIB.pFIBQuery.SQL.Clear;
+         FIB.pFIBQuery.SQL.Add(SQLStmnt);
+         FIB.pFIBQuery.ExecQuery;
+         while not FIB.pFIBQuery.Eof do
+              begin
+                    if DateFr>=FIB.pFIBQuery.Fields[0].AsDate then df:=1
+                       else df:=DayOf(FIB.pFIBQuery.Fields[0].AsDate);
+                    if FIB.pFIBQuery.Fields[1].AsDate>DateTo then dt:=DayOf(DateTo)
+                       else dt:=DayOf(FIB.pFIBQuery.Fields[1].AsDate);
+                    if (dt>=df) then
+                    for i:=df to dt do
+                        Template[i]:=1;
+
+                   FIB.pFIBQuery.Next;
+              end;
+         FIB.pFIBQuery.Close;
+         if IsStarted then
+            FIB.pFIBQuery.Transaction.Commit;
+         for i:=1 to 31 do
+             if Template[i]=1 then
+                begin
+                     RetVal:=true;
+                     Break;
+                end;
+         SetTemplate:=RetVal;
+    end;
+ BEGIN
+        if not SetTemplate then Exit;
+//        U_BOUND:=LENMONTH(EnCodeDate(CurrYear,NMes,1));
+//        IF NMES=MTO  THEN U_BOUND:=DTO;
+//        L_BOUND:=1;
+//        IF NMES=MFR  THEN L_BOUND:=DFR;
+        for l:=1 to 31 do
+            if Template[l]=1 then
+            IF (GetDayCode(l) IN [1,2,3,4])   THEN
+               CURR_PERSON^.TABEL[L]:=OTPUSK_BEZ_OPLATY;
+  END;
 
  PROCEDURE MAKE_OTP_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
   VAR L,U_BOUND,L_BOUND:INTEGER;
