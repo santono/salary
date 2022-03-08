@@ -105,7 +105,8 @@ var
   PersonList : TList;
 
 implementation
-uses UFibModule,uFormWait,ScrUtil,SCRIO,Types,DateUtils,ScrLists;
+uses UFibModule,uFormWait,ScrUtil,SCRIO,Types,DateUtils,ScrLists,
+     USQLUnit;
 
 {$R *.dfm}
   function GetNmbOfBoln(Tabno:integer):Integer;
@@ -115,33 +116,13 @@ uses UFibModule,uFormWait,ScrUtil,SCRIO,Types,DateUtils,ScrLists;
        v:variant;
    begin
          Result := 0;
-//         S:='SELECT count(*) FROM boln where tabno='+IntToStr(Tabno)+
-//             ' and Month_Vy='+IntToStr(Nmes)+' and Year_Vy='+IntToStr(CurrYear);
-//         if not FIB.pFIBQuery.Transaction.Active then
-//            FIB.pFIBQuery.Transaction.StartTransaction;
-//         FIB.pFIBQuery.SQL.Clear;
-//         FIB.pFIBQuery.SQL.Add(S);
-//         try
-//            FormWait.Show;
-//            Application.ProcessMessages;
-//            FIB.pFIBQuery.ExecQuery;
-//            FormWait.Hide;
-//            I_Count:=FIB.pFIBQuery.Fields[0].AsInteger;
-//            FIB.pFIBQuery.Close;
-//         except
-//            MessageDlg('Ошибка получения количества больничных',mtInformation, [mbOk], 0);
-//            if FIB.pFIBQuery.Transaction.Active then
-//               FIB.pFIBQuery.Transaction.Commit;
-//            Exit;
-//         end;
+
          SQLStmnt:='SELECT count(*) FROM boln where tabno='+IntToStr(Tabno)+
              ' and Month_Vy='+IntToStr(Nmes)+' and Year_Vy='+IntToStr(CurrYear);
-         v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+         v:=SQLQueryValue(SQLStmnt);
          i_count:=v;
          if ((I_Count>0) and (I_Count<10)) then
             Result:=I_Count;
-//         if FIB.pFIBQuery.Transaction.Active then
-//            FIB.pFIBQuery.Transaction.Commit;
    end;
 
   function IsCorrectPodrForBoln(WantedSrv:integer):boolean;
@@ -152,31 +133,11 @@ uses UFibModule,uFormWait,ScrUtil,SCRIO,Types,DateUtils,ScrLists;
        SQLStmnt:string;
    begin
          RetVal:=true;
-//         S:='SELECT count(*) FROM I_PODR where mode=1 and SHIFR_POD='+IntToStr(WANTEDSRV);
-//         if not FIB.pFIBQuery.Transaction.Active then
-//            FIB.pFIBQuery.Transaction.StartTransaction;
-//         FIB.pFIBQuery.SQL.Clear;
-//         FIB.pFIBQuery.SQL.Add(S);
-//         try
-//            FormWait.Show;
-//            Application.ProcessMessages;
-//            FIB.pFIBQuery.ExecQuery;
-//            FormWait.Hide;
-//            I_Count:=FIB.pFIBQuery.Fields[0].AsInteger;
-//            FIB.pFIBQuery.Close;
-//         except
-//            MessageDlg('Ошибка проверки подразделения',mtInformation, [mbOk], 0);
-//            if FIB.pFIBQuery.Transaction.Active then
-//               FIB.pFIBQuery.Transaction.Commit;
-//            Exit;
-//         end;
          SQLStmnt:='SELECT count(*) FROM I_PODR where mode=1 and SHIFR_POD='+IntToStr(WANTEDSRV);
-         v:=FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+         v:=SQLQueryValue(SQLStmnt);
          i_count:=v;
          if (I_Count>0) then RetVal:=false;
          IsCorrectPodrForBoln:=RetVal;
-//         if FIB.pFIBQuery.Transaction.Active then
-//            FIB.pFIBQuery.Transaction.Commit;
    end;
 
 procedure TFormMovBol.PrepareList;
@@ -185,7 +146,7 @@ var
     S       : String;
     I       : Integer;
     WantedIndex : integer;
-
+    v,vv    : Variant;
 begin
 {
     S:= 'select Sum(summa_b_bud),'+
@@ -208,6 +169,7 @@ begin
        S:=S+ ' and boln_res.shifrsta=12'
     else if CodeMove=6 then
        S:=S+ ' and boln_res.shifrsta<>12';
+(*
     if not FIB.pFIBQuery.Transaction.Active then
        FIB.pFIBQuery.Transaction.StartTransaction;
     FIB.pFIBQuery.SQL.Clear;
@@ -231,6 +193,24 @@ begin
     end;
     if FIB.pFIBQuery.Transaction.Active then
        FIB.pFIBQuery.Transaction.Commit;
+*)
+    SummaBud := 0.00;
+    SummaVne := 0.00;
+    SummaGn  := 0.00;
+    SummaNIS := 0.00;
+    v:=SQLQueryRecValues(s);
+    if VarIsArray(v) then
+       begin
+            if VarIsFloat(v[0]) then
+               SummaBud := v[0];
+            if VarIsFloat(v[1]) then
+               SummaVne := v[1];
+            if VarIsFloat(v[2]) then
+               SummaGn := v[2];
+            if VarIsFloat(v[3]) then
+               SummaNis := v[3];
+       end;
+
     SummaBudTxt.Caption := '';
     SummaVneTxt.Caption := '';
     SummaGnTxt.Caption  := '';

@@ -2459,22 +2459,6 @@ begin
      SQLStmnt:='SELECT count(*) from tb_tmp_person';
      v:=SQLQueryValue(SQLStmnt);
      i1:=getVariantInteger(v);
-
-{
-     if not FIB.pFIBQuery.Transaction.Active then
-        FIB.pFIBQuery.Transaction.StartTransaction;
-     FIB.pFIBQuery.SQL.Clear;
-     FIB.pFIBQuery.SQL.ADD('EXECUTE PROCEDURE PR_DELETE_TMP_PERSON_TABLES('+IntToStr(Curr_Person^.TABNO)+')');
-     try
-         FIB.pFIBQuery.ExecQuery;
-         FIB.pFIBQuery.Close;
-     except
-         ShowMessage('Ошибка чистки временных файлов перерасчета');
-         FIB.pFIBQuery.Transaction.RollBack;
-         Exit;
-     end;
-     FIB.pFIBQuery.Transaction.Commit;
-}
      SQLStmnt:='EXECUTE PROCEDURE PR_CR_TMP_TBLS_PERSON(';
      SQLStmnt:=Trim(SQLStmnt)+IntToStr(Curr_Person^.Tabno)+','+IntToStr(YearZa)+','+IntToStr(MonthZa)+','+IntToStr(CurrYear)+','+IntToStr(NMES)+')';
      SQLExecute(SQLStmnt);
@@ -2482,31 +2466,6 @@ begin
      v:=SQLQueryValue(SQLStmnt);
      PersonId:=getVariantInteger(v);
      FIB.pFIBQuery.Transaction.StartTransaction;
-{
-     FIB.pFIBQuery.Transaction.StartTransaction;
-     FIB.pFIBQuery.SQL.Clear;
-     FIB.pFIBQuery.SQL.ADD('EXECUTE PROCEDURE PR_CR_TMP_TBLS_PERSON(');
-     FIB.pFIBQuery.SQL.ADD(IntToStr(Curr_Person^.Tabno)+','+IntToStr(YearZa)+','+IntToStr(MonthZa)+','+IntToStr(CurrYear)+','+IntToStr(NMES)+')');
-     try
-         FIB.pFIBQuery.ExecQuery;
-         FIB.pFIBQuery.Close;
-     except
-         ShowMessage('Ошибка создания временных файлов перерасчета');
-         FIB.pFIBQuery.Transaction.RollBack;
-         Exit;
-     end;
-     FIB.pFIBQuery.SQL.Clear;
-     FIB.pFIBQuery.SQL.ADD('SELECT MAX(SHIFRID) FROM TB_TMP_PERSON WHERE CONN_ID=CURRENT_CONNECTION');
-     try
-         FIB.pFIBQuery.ExecQuery;
-         PersonId:=FIB.pFIBQuery.Fields[0].AsInteger;
-         FIB.pFIBQuery.Close;
-     except
-         ShowMessage('Ошибка создания временных файлов перерасчета');
-         FIB.pFIBQuery.Transaction.RollBack;
-         Exit;
-     end;
-}
      List:=TList.Create;
      SavNsrv:=NSRV;
      if Curr_Person^.Mesto_Osn_Raboty<>nsrv then
@@ -2592,24 +2551,6 @@ begin
      SQLStmnt:='EXECUTE PROCEDURE PR_RECALC_PERSON('+IntToStr(Curr_Person^.TABNO)+','+IntToStr(YearZa)+','+IntToStr(MonthZa)+','+IntToStr(SavPersonId)+','+IntToStr(Debug_Mode)+','''+GUIDS+''')';
      SQLExecute(SQLStmnt);
 
-(*
-     FIB.pFIBQuery.SQL.Clear;
- {    FIB.pFIBQuery.SQL.ADD('EXECUTE PROCEDURE PR_RECALC_PERSON('+IntToStr(Curr_Person^.TABNO)+','+IntToStr(YearZa)+','+IntToStr(MonthZa)+','+IntToStr(SavPersonId)+','+IntToStr(CurrYear)+','+IntToStr(NMES)+')');}
-     SQLStmnt:='EXECUTE PROCEDURE PR_RECALC_PERSON('+IntToStr(Curr_Person^.TABNO)+','+IntToStr(YearZa)+','+IntToStr(MonthZa)+','+IntToStr(SavPersonId)+','+IntToStr(Debug_Mode)+','''+GUIDS+''')';
-     FIB.pFIBQuery.SQL.ADD(SQLStmnt);
-     try
-         FIB.pFIBQuery.ExecQuery;
-         FIB.pFIBQuery.Close;
-     except
-         ShowMessage('Ошибка процедуры перерасчета из созданных временных файлов перерасчета');
-         FIB.pFIBQuery.Transaction.RollBack;
-         Exit;
-     end;
-     if FIB.pFIBQuery.Transaction.Active then
-        FIB.pFIBQuery.Transaction.COMMIT;
-     if NOT FIB.pFIBQuery.Transaction.Active then
-        FIB.pFIBQuery.Transaction.StartTransaction;
-*)
 
      if FIB.pFIBQuery.Transaction.Active then
         FIB.pFIBQuery.Transaction.Commit;
@@ -2744,18 +2685,7 @@ begin
 
      SQLStmnt:='EXECUTE PROCEDURE PR_DELETE_TMP_PERSON_TABLES('+IntToStr(Curr_Person^.Tabno)+')';
      SQLExecute(SQLStmnt);
-(*
-     FIB.pFIBQuery.SQL.Clear;
-     FIB.pFIBQuery.SQL.ADD('EXECUTE PROCEDURE PR_DELETE_TMP_PERSON_TABLES('+IntToStr(Curr_Person^.Tabno)+')');
-     try
-         FIB.pFIBQuery.ExecQuery;
-         FIB.pFIBQuery.Close;
-     except
-         ShowMessage('Ошибка чистки временных файлов перерасчета');
-         FIB.pFIBQuery.Transaction.RollBack;
-         Exit;
-     end;
-*)
+
      if FIB.pFIBQuery.Transaction.Active then
         FIB.pFIBQuery.Transaction.COMMIT;
      FormWait.Hide;

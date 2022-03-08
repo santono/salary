@@ -5414,7 +5414,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
         MakeGUID(NewPerson);
 
  (*  Изменения от 16 04 2011
-     добавить льготі ПН в F4 *)
+     добавить льготы ПН в F4 *)
         MakeLgotyPNInCN(NewPerson);
 
 
