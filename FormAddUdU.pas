@@ -934,6 +934,8 @@ begin
              p:=Curr_Add^.PERIOD;
              y:=Curr_Add^.Year;
              ShifrTmp:=Curr_Add^.Shifr;
+             if curr_add^.SHIFR = PerersZaProshlPeriody then
+                delete156MessageFromCn(Curr_Person);
              Del_Add(Curr_Add,Curr_Person);
              i_a:=count_add(curr_person);
          //    SortedAddList:=TSortedAddList.Init(Curr_Person);

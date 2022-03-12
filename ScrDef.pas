@@ -36,7 +36,9 @@ CONST
          Povkwa_tabel              =18;  {Повышение квалификации }
          Prostoy_tabel             =19;  {Простой (из-за короно вируса 26 04 2020)}
          Tvorch_otp_tabel          =20;  {Творческий отпуск                 }
-
+         Mobili_Tabel              =21;
+         Evakuac_Tabel             =22;
+         Neizv_Tabel               =23;
 
          TEACHER_KATEGORIJA        =  1;
          UCH_WCPOM_KATEGORIJA      =  2;
@@ -580,6 +582,7 @@ var
     needServerAppData:Boolean;
     needUseIOSemaphore:Boolean;
     versionInfo:string;
+    instantExeFileSize:integer;
 
     SVDNfooterRec:record
                        summaAdd         : Real;
@@ -731,6 +734,8 @@ begin
     needServerAppData:=False;
     needUseIOSemaphore:=false;
     DDIR:='';
+    instantExeFileSize:=10777088;
+
 {$IFDEF SVDN}
     isSVDN := True  ;
     isLNR  := False ;

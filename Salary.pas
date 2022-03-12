@@ -1347,7 +1347,12 @@ procedure TMainForm.FormCreate(Sender: TObject);
    if (isLNR and isGKH) then
    if not isGKHPodr(nsrv) then
       NSRV:=191;
-//  getExeFileSize;
+//   NmbOfAttempt:=getExeFileSizeNew;
+//   if NmbOfAttempt<>instantExeFileSize then
+//      begin
+//           showMessage('...Wrong file size...');
+//           Application.Terminate;
+//      end;
 //   versionInfo:=getApplicationVersion;
 //   versionInfo:=GetAppVersionStr;
    MKFLNM;

@@ -22,6 +22,7 @@ type
                     ShifrPod     : Integer;
                     ShifrSwmMode : Integer;
                     Moved        : boolean;
+                    Oklad        : Real;
                     Dolg:String;
                     Show:String;
                   end;
@@ -363,7 +364,8 @@ begin
         begin
              StringGridSel.Cells[0,i]   := PPersonRec(PersonList.Items[i])^.Show;
 {             StringGridSel.Objects[0,i] := Nil;}
-             StringGridSel.Objects[0,i]:=TStrColor.Create;
+             if PPersonRec(PersonList.Items[i])^.Oklad>100.00 then
+                StringGridSel.Objects[0,i]:=TStrColor.Create;
 
         end
   end;
@@ -440,12 +442,14 @@ procedure TFormMovBol.FillPersonList;
                ) then
                 begin
                      New(PersonRec);
+                     FillChar(PersonRec^,SizeOf(PersonRec^),0);
                      if ((ShifrKatOsn=0) or
                          (C_P^.Wid_Raboty=1)) then ShifrKatOsn:=C_P^.KATEGORIJA;
                      PersonRec^.ShifrKat := C_P^.KATEGORIJA;
                      PersonRec^.ShifrGru := C_P^.GRUPPA;
                      PersonRec^.ShifrDol := Get_Dol_Code(C_P);
                      PersonRec^.ShifrPod := NSRV;
+                     PersonRec^.Oklad    := c_p^.OKLAD;
                      if IS_OSN_WID_RABOTY(C_P) then
                         begin
                               PersonRec^.ShifrWR  := 1;
@@ -474,6 +478,7 @@ procedure AddCreateNewPersonRec;
   var    PersonRec : PPersonRec ;
   begin
        New(PersonRec);
+       FillChar(PersonRec^,SizeOf(PersonRec^),0);
        PersonRec^.ShifrKat      := 0 ;
        if ShifrKatOsn>0 then
           PersonRec^.ShifrKat   := ShifrKatOsn ;
@@ -485,6 +490,7 @@ procedure AddCreateNewPersonRec;
        PersonRec^.Dolg          := 'Перенос.';
        PersonRec^.Show          := 'Создать новую запись';
        PersonRec^.Moved         := false;
+       PersonRec^.Oklad         :=0.0;
        PersonList.Add(PersonRec);
   end;
  begin
@@ -683,7 +689,6 @@ begin
         end;
    //  if IsShifrInAddPerson(Curr_Person,138) then
    //     i:=1;;
-
      for i:=0 to StringGridSel.RowCount-1 do
          begin
                if i=FHSHintComboBoxBud.ItemIndex then continue;

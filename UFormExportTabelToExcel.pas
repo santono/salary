@@ -42,10 +42,19 @@ implementation
          xlMedium   = 	-4138; 	//От среднего.
          xlThick 	  =   4; 	//Жирное (широкой границы).
          xlThin 	  =   2;  //
-         MAX_TABEL_KOD=19;
+        {$IFDEF SVDN}
+         MAX_TABEL_KOD=20;
          SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
+          ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ','ТВ');
+        {$ELSE}
+         MAX_TABEL_KOD=23;
+         SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
+          ('Я ','ОЖ','К ','Т ','У ','ОТ','ОБ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ','ТВ','ДН','НЭ','НН');
+        {$ENDIF}
+//         MAX_TABEL_KOD=19;
+//         SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
        //  ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До');
-         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ');
+//         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ');
 
 procedure TFormExportTabelToExcel.FormClose(Sender: TObject;
   var Action: TCloseAction);
@@ -77,7 +86,7 @@ procedure TFormExportTabelToExcel.exportToExcel;
       if isSVDN then
          fileName:=TemplateDIR+'Tabel_Short_SNU.xlt'
       else
-         fileName:=TemplateDIR+'Tabel_Short_LNU.xlt';
+         fileName:=TemplateDIR+'Tabel_Short_LGU.xlt';
       if not FileExists(fileName) then
         begin
              ShowMessage('Отсутствует шаблон '+fileName);
@@ -180,6 +189,11 @@ procedure TFormExportTabelToExcel.exportToExcel;
 
              shifrDol:=getDolPerson(curr_person);
              if (shifrDol=1500) then
+                 begin
+                      curr_person:=curr_person^.next;
+                      continue;
+                 end;
+             if (shifrDol=0) then
                  begin
                       curr_person:=curr_person^.next;
                       continue;

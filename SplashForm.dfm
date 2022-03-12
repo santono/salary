@@ -2,7 +2,7 @@ object AboutBox: TAboutBox
   Left = 285
   Top = 216
   BorderStyle = bsNone
-  ClientHeight = 213
+  ClientHeight = 241
   ClientWidth = 412
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,11 +17,24 @@ object AboutBox: TAboutBox
   OnPaint = FormPaint
   PixelsPerInch = 96
   TextHeight = 24
+  object LabelAppSize: TLabel
+    Left = 16
+    Top = 184
+    Width = 99
+    Height = 20
+    Caption = 'LabelAppSize'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
   object Panel1: TPanel
     Left = 8
     Top = 8
     Width = 393
-    Height = 161
+    Height = 169
     BevelInner = bvRaised
     BevelOuter = bvLowered
     ParentColor = True
@@ -72,7 +85,7 @@ object AboutBox: TAboutBox
   end
   object OKButton: TButton
     Left = 175
-    Top = 180
+    Top = 212
     Width = 75
     Height = 25
     Caption = 'OK'

@@ -1264,12 +1264,12 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
           MUST_FIND_PERSON        := FALSE;  {СБРОСИТЬ   ФЛАГ ДЛЯ ПРОГРАММЫ GETINF}
           SEARCH_ONLY_ONE_PERSON  := FALSE;  {НЕ НАДО ИСКАТЬ ОДНОГО РАБОТНИКА ПО УСЛОВИЮ}
           TestDuplPodr('при чтении');   // Проверка задвоенных начислений
+          deleteEmpty156MessageFromPodr;
           if NMES=FLOW_MONTH then
              CRC32Ori:=PodrCRC32
           else
              CRC32Ori:=0;
           putNSRVFeaturesToSQLAfterGetInf;
-
           if NeedTestGetPutInf then
           if not CompareNSRV(Mes) then
              begin

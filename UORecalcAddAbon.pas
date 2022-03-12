@@ -2,7 +2,7 @@
 {$WARNINGS OFF}
 {$HINTS OFF}
 {$I+}
-unit UORecalcAbon;
+unit UORecalcAddAbon;
 
 interface
    uses ScrDef;
@@ -34,21 +34,12 @@ implementation
                       constructor Create(newY:Integer ; newM:Integer; newPodr:Integer; Curr_Person:Person_ptr);
                       destructor Destroy; override;
 
-                      function GetSummaAddForECBN(WantedY:Integer;WantedM:integer):real;
-                      function GetSummaAddForECB(WantedY:Integer;WantedM:integer):real;
-                      function GetSummaAddForECBDP(WantedY:Integer;WantedM:integer):real;
-                      function GetSummaAddForECBIll(WantedY:Integer;WantedM:integer):real;
                       function GetSummaAddForPod(WantedY:Integer;WantedM:integer;Podr:integer):real;
                       function GetSummaAddForWS(WantedY:Integer;WantedM:integer;Podr:integer):real;
-                      function GetSummaUdECBN(WantedY:Integer;WantedM:integer):real;
-                      function GetSummaUdECB(WantedY:Integer;WantedM:integer):real;
-                      function GetSummaUdECBDP(WantedY:Integer;WantedM:integer):real;
-                      function GetSummaUdECBIll(WantedY:Integer;WantedM:integer):real;
                       function GetSummaUdPod(WantedY:Integer;WantedM:integer;Podr:integer):real;
                       function GetSummaUdWS(WantedY:Integer;WantedM:integer;Podr:integer):real;
                       function GetSummaUdAlim(WantedY:Integer;WantedM:integer):real;
                      private
-                      function GetUdEcbNalog(Code:Integer;Curr_Person:Person_Ptr;WantedY:Integer;WantedM:integer):real;
                       function Nach_Person_For_Nalog_Exl(ModeNalog:TModeNalog;CURR_PERSON:PERSON_PTR;DEST_MONTH,DEST_YEAR,MONTH_VY:INTEGER):REAL;
                       function CompareNalogMode(Shifr:integer;ModeNalog:TModeNalog):boolean;
                      end;
@@ -75,12 +66,6 @@ implementation
                        SummaUdNalRas      : Real;
                        SummaUdNalRazn     : Real;
                    end;
-         TRecNalECB = record
-                        RecECB:TRecNal;
-                        ProcECB:Real;
-                        LimitECBNorma : Real;
-                        LimitECBFact  : Real;
-                   end;
          TPersonO=class
                        y:Integer;
                        m:Integer;
@@ -91,26 +76,18 @@ implementation
                        RecPod  : TRecNal;
                        RecAlim : TRecNal;
                        RecWS   : TRecNal;
-                       RecECB : array[1..4] of TRecNalECB;
                        RecPodSelf  : TRecNal;
                        RecAlimSelf : TRecNal;
                        RecWSSelf   : TRecNal;
-                       RecECBSelf : array[1..4] of TRecNalECB;
                        SummaAddForPodTot  : Real;
                        SummaUdPodTot      : Real;
                        SummaAddForPodSelf : Real;
                        SummaUdPodSelf     : Real;
-                       SummaAddForECBTot  : Real;
-                       SummaUdECBTot      : Real;
-                       SummaAddForECBSelf : Real;
-                       SummaUdECBSelf     : Real;
                        constructor Create(newY:integer;newM:integer;Curr_Person:Person_Ptr;ModeCalc:TModeCalcPerson=OnlyThisLine);
                        destructor Destroy;override;
                        procedure AddPerson(newY:integer;newM:integer;newPodr:Integer;Curr_Person:PERSON_PTR);
                        procedure FillAllData(Tabno:integer;NeedDeleteCurrentNalogi:Boolean=true);
                        procedure FillDataFromDB;
-                       function GetLimitForECB(Y:Integer;M:integer):Real;
-                       procedure GetSummyForECBTot;
                        procedure CalculateNalogi;
                        function GetOsnPerson:PERSON_PTR;
                       end;
@@ -126,18 +103,10 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
       UNTIL NOT (DEL_WANTED_UD_YEAR(ALIMENTY_M_U_SHIFR,CURR_PERSON,m,Y));
       REPEAT
       UNTIL NOT (DEL_WANTED_UD_YEAR(ALIMENTY_M_U_SHIFR+SHIFT_SHIFR,CURR_PERSON,m,Y));
-      repeat
-      until not (DEL_WANTED_UD_YEAR(ECBSHIFR,Curr_Person,M,Y));
       REPEAT
       UNTIL NOT (DEL_WANTED_UD_YEAR(PerechPoIspListamShifr,CURR_PERSON,m,Y));
       REPEAT
       UNTIL NOT (DEL_WANTED_UD_YEAR(PerechPoIspListamShifr+Shift_Shifr,CURR_PERSON,m,Y));
-      repeat
-      until not (DEL_WANTED_UD_YEAR(ECBNSHIFR,Curr_Person,M,Y));
-      repeat
-      until not (DEL_WANTED_UD_YEAR(ECBDPSHIFR,Curr_Person,M,Y));
-      repeat
-      until not (DEL_WANTED_UD_YEAR(ECBIllSHIFR,Curr_Person,M,Y));
       repeat
       until not (DEL_WANTED_UD_YEAR(WAR_SBOR_SHIFR,Curr_Person,M,Y));
  end;
@@ -246,68 +215,6 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
            inherited Destroy;
       end;
 
-    function TPersonRecO.GetSummaAddForECBN(WantedY:Integer;WantedM:integer):real;
-      var RetVal  : Real;
-          ProcECB : Real;
-          WantedECBShifr : Integer;
-      begin
-           if Self.m=7 then
-              retval:=0;
-           RetVal := 0;
-           if dog_pod_podrazd(podr) or
-              isDogPodOnlyNach(Person) then
-              begin
-                   GetSummaAddForECBN := RetVal;
-                   Exit;
-              end;
-           ProcECB := GetProcECBNalogDirect(PERSON,WantedM,WantedY,
-                             WantedECBShifr,Self.Podr);
-           if WantedECBShifr=ECBNShifr then
-              RetVal := Nach_Person_For_Nalog_Exl(ECBNalog,Person,WantedM,WantedY,WantedM);
-
-           GetSummaAddForECBN := RetVal;
-      end;
-
-    function TPersonRecO.GetSummaAddForECB(WantedY:Integer;WantedM:integer):real;
-      var RetVal  : Real;
-          ProcECB : Real;
-          WantedECBShifr : Integer;
-      begin
-           RetVal := 0;
-           if dog_pod_podrazd(podr) or
-              isDogPodOnlyNach(Person) then
-              begin
-                   GetSummaAddForECB := RetVal;
-                   Exit;
-              end;
-           ProcECB := GetProcECBNalogDirect(PERSON,WantedM,WantedY,
-                             WantedECBShifr,Self.Podr);
-           if WantedECBShifr=ECBShifr then
-              RetVal := Nach_Person_For_Nalog_Exl(ECBNalog,Person,WantedM,WantedY,WantedM);
-
-           GetSummaAddForECB := RetVal;
-      end;
-
-    function TPersonRecO.GetSummaAddForECBDP(WantedY:Integer;WantedM:integer):real;
-      var RetVal  : Real;
-      begin
-           RetVal := 0;
-           if dog_pod_podrazd(podr) or
-              isDogPodOnlyNach(Person) then
-              RetVal := Nach_Person_For_Nalog_Exl(ECBNalog,Person,WantedM,WantedY,WantedM);
-           GetSummaAddForECBDP := RetVal;
-      end;
-
-    function TPersonRecO.GetSummaAddForECBIll(WantedY:Integer;WantedM:integer):real;
-      var RetVal  : Real;
-          ProcECB : Real;
-          WantedECBShifr : Integer;
-      begin
-           RetVal := Nach_Person_For_Nalog_Exl(ECBIllNalog,Person,WantedM,WantedY,WantedM);
-
-           GetSummaAddForECBIll := RetVal;
-      end;
-
     function TPersonRecO.GetSummaAddForPod(WantedY:Integer;WantedM:integer;Podr:integer):real;
       var RetVal  : Real;
       begin
@@ -327,22 +234,6 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
       end;
 
 
-    function TPersonRecO.GetSummaUdECBN(WantedY:Integer;WantedM:integer):real;
-       begin
-            Result:=GetUdEcbNalog(1,PERSON,WantedY,WantedM);
-       end;
-    function TPersonRecO.GetSummaUdECB(WantedY:Integer;WantedM:integer):real;
-       begin
-            Result:=GetUdEcbNalog(2,PERSON,WantedY,WantedM);
-       end;
-    function TPersonRecO.GetSummaUdECBDP(WantedY:Integer;WantedM:integer):real;
-       begin
-            Result:=GetUdEcbNalog(3,PERSON,WantedY,WantedM);
-       end;
-    function TPersonRecO.GetSummaUdECBIll(WantedY:Integer;WantedM:integer):real;
-       begin
-            Result:=GetUdEcbNalog(4,PERSON,WantedY,WantedM);
-       end;
     function TPersonRecO.GetSummaUdPod(WantedY:Integer;WantedM:integer;Podr:integer):real;
      var RetVal  : real;
          Curr_Ud : UD_PTR;
@@ -420,41 +311,6 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
           Result:=RetVal;
      end;
 
-    function TPersonRecO.GetUdEcbNalog(Code:Integer;Curr_Person:Person_Ptr;WantedY:Integer;WantedM:integer):real;
-     var RetVal  : real;
-         Curr_Ud : UD_PTR;
-         WantedShifr:Integer;
-     begin
-          RetVal:=0;
-          Curr_Ud:=Curr_Person^.Ud;
-          case Code of
-           2:WantedShifr:=ECBShifr;
-           3:WantedShifr:=ECBDpShifr;
-           4:WantedShifr:=ECBIllShifr;
-           else
-             WantedShifr:=ECBNShifr;
-          end;
-          while (Curr_Ud<>Nil) do
-           begin
-                if (Curr_Ud^.SHIFR  = WantedShifr)
-                   or
-                    (
-                      ((dog_pod_podrazd(podr)) or (isDogPodOnlyNach(Curr_Person)))
-                       and
-                      (WantedShifr=ECBDPShifr)
-                       and
-                      ((Curr_Ud^.Shifr=ECBShifr)
-                        or
-                       (Curr_Ud^.Shifr=ECBNShifr))
-                    )  then
-                if Curr_Ud^.PERIOD = WantedM      then
-                if (Curr_Ud^.Year=WantedY) or
-                   (Curr_Ud^.Year+1990=WantedY)        then
-                   RetVal:=RetVal+Curr_Ud^.Summa;
-                Curr_UD:=Curr_Ud^.NEXT;
-           end;
-          Result:=RetVal;
-     end;
 
    function TPersonRecO.Nach_Person_For_Nalog_Exl(ModeNalog:TModeNalog;CURR_PERSON:PERSON_PTR;DEST_MONTH,DEST_YEAR,MONTH_VY:INTEGER):REAL;
 
@@ -478,7 +334,6 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
              Exit;
         end;
      Curr_Add:=Curr_Person^.Add;
- //    if ModeNalog=ecbnalog then
      if ModeNalog=WSNalog then
      if Self.M=8 then
         Curr_Add:=Curr_Person^.Add;
@@ -545,8 +400,6 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
          case ModeNalog of
           PodohNalog  : if ShifrList.IsPodoh(Shifr)  then RetVal:=true;
           AlimNach    : if ShifrList.IsPodoh(Shifr)  then RetVal:=true;
-          ECBNalog    : if ShifrList.IsECB(Shifr)    then RetVal:=true;
-          ECBIllNalog : if ShifrList.IsECBIll(Shifr) then RetVal:=true;
      //     WSNalog     : if ShifrList.IsWS(Shifr)     then RetVal:=true;
           WSNalog     : RetVal:=true;
          end;
@@ -589,22 +442,6 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
            FillChar(RecWSSelf,SizeOf(RecWSSelf),0);
            FillChar(RecAlim,SizeOf(RecAlim),0);
            FillChar(RecAlimSelf,SizeOf(RecAlimSelf),0);
-           FillChar(RecECB,SizeOf(RecECB),0);
-           FillChar(RecECBSelf,SizeOf(RecECBSelf),0);
-           RecECB[1].ProcECB:=ECBNProc;
-           RecECB[2].ProcECB:=ECBProc;
-           RecECB[3].ProcECB:=ECBDPProc;
-           RecECB[4].ProcECB:=ECBIllProc;
-           RecECB[1].LimitECBNorma:=GetLimitForECB(y,M);
-           for i:=2 to 4 do
-               RecECB[i].LimitECBNorma:=RecECB[1].LimitECBNorma;
-           for i:=1 to 4 do
-               begin
-                    RecECBSelf[i].ProcECB:=RecECB[i].ProcECB;
-                    RecECBSelf[i].LimitECBNorma:=RecECB[i].ProcECB;
-                    RecECB[i].LimitECBFact:=RecECB[i].LimitECBNorma;
-                    RecECBSelf[i].LimitECBFact:=RecECBSelf[i].LimitECBNorma;
-               end;
 
       end;
     destructor TPersonO.Destroy;
@@ -986,33 +823,10 @@ procedure TPersonO.FillDataFromDB;
         FIB.pFIBQuery.Close;
         FIB.pFIBQuery.Transaction.Commit;
         FIB.pFIBQuerySecond.Transaction:=FIB.pFIBQuery.Transaction;
-
-
   end;
 
-function TPersonO.GetLimitForECB(Y:Integer;M:integer):Real;
-  var SQLStmnt:string;
-      LimitSS:Real;
-  begin
-       if FIB.pFIBQuery.Open then
-          FIB.pFIBQuery.Close;
-       if FIB.pFIBQuery.Transaction.Active then
-          FIB.pFIBQuery.Transaction.Commit;
-       FIB.pFIBQuery.SQL.Clear;
-       SQLStmnt:='select FIRST 1 LIMITMAX from SSLIMITY WHERE DATEFR<='''+IntToStr(Y)+'-'+IntToStr(M)+'-01'' ORDER BY DATEFR DESC';
-       FIB.pFIBQuery.SQL.Add(SQLStmnt);
-       FIB.pFIBQuery.Transaction.StartTransaction;
-       FIB.pFIBQuery.ExecQuery;
-       LimitSS:=FIB.pFIBQuery.Fields[0].AsFloat;
-       if FIB.pFIBQuery.Open then
-          FIB.pFIBQuery.Close;
-       if FIB.pFIBQuery.Transaction.Active then
-          FIB.pFIBQuery.Transaction.Commit;
 
-       GetLimitForECB:=LimitSS;
-  end;
-
-procedure TPersonO.GetSummyForECBTot;
+procedure TPersonO.GetSummyForNalogiTot;
  var i:Integer;
      A,O:Real;
      CurrGUIDS:string;
@@ -1028,14 +842,6 @@ procedure TPersonO.GetSummyForECBTot;
                   a:= TPersonRecO(PersonList.Items[i]).GetSummaUdECBN(Y,M);
                   if a>0.001 then
                      o:=TPersonRecO(PersonList.Items[i]).Person^.Oklad;
-                  RecECB[1].RecECB.SummaAddForNalTot:=RecECB[1].RecECB.SummaAddForNalTot + TPersonRecO(PersonList.Items[i]).GetSummaAddForECBN(Y,M);
-                  RecECB[1].RecECB.SummaUdNalTot    :=RecECB[1].RecECB.SummaUdNalTot     + TPersonRecO(PersonList.Items[i]).GetSummaUdECBN(Y,M);
-                  RecECB[2].RecECB.SummaAddForNalTot:=RecECB[2].RecECB.SummaAddForNalTot + TPersonRecO(PersonList.Items[i]).GetSummaAddForECB(Y,M);
-                  RecECB[2].RecECB.SummaUdNalTot    :=RecECB[2].RecECB.SummaUdNalTot     + TPersonRecO(PersonList.Items[i]).GetSummaUdECB(Y,M);
-                  RecECB[3].RecECB.SummaAddForNalTot:=RecECB[3].RecECB.SummaAddForNalTot + TPersonRecO(PersonList.Items[i]).GetSummaAddForECBDP(Y,M);
-                  RecECB[3].RecECB.SummaUdNalTot    :=RecECB[3].RecECB.SummaUdNalTot     + TPersonRecO(PersonList.Items[i]).GetSummaUdECBDP(Y,M);
-                  RecECB[4].RecECB.SummaAddForNalTot:=RecECB[4].RecECB.SummaAddForNalTot + TPersonRecO(PersonList.Items[i]).GetSummaAddForECBIll(Y,M);
-                  RecECB[4].RecECB.SummaUdNalTot    :=RecECB[4].RecECB.SummaUdNalTot     + TPersonRecO(PersonList.Items[i]).GetSummaUdECBIll(Y,M);
                   RecPod.SummaAddForNalTot          :=RecPod.SummaAddForNalTot           + TPersonRecO(PersonList.Items[i]).GetSummaAddForPod(Y,M,TPersonRecO(PersonList.Items[i]).podr);
                   RecPod.SummaUdNalTot              :=RecPod.SummaUdNalTot               + TPersonRecO(PersonList.Items[i]).GetSummaUdPod(Y,M,TPersonRecO(PersonList.Items[i]).podr);
                   RecWS.SummaAddForNalTot           :=RecWS.SummaAddForNalTot            + TPersonRecO(PersonList.Items[i]).GetSummaAddForWS(Y,M,TPersonRecO(PersonList.Items[i]).podr);
@@ -1046,14 +852,6 @@ procedure TPersonO.GetSummyForECBTot;
                   if GetGUIDPerson(TPersonRecO(PersonList.Items[i]).Person,CurrGUIDS) then
                   if Trim(Self.GUIDS)=trim(CurrGUIDS) then
                      begin
-                          RecECBSelf[1].RecECB.SummaAddForNalTot:=RecECBSelf[1].RecECB.SummaAddForNalTot + TPersonRecO(PersonList.Items[i]).GetSummaAddForECBN(Y,M);
-                          RecECBSelf[1].RecECB.SummaUdNalTot    :=RecECBSelf[1].RecECB.SummaUdNalTot     + TPersonRecO(PersonList.Items[i]).GetSummaUdECBN(Y,M);
-                          RecECBSelf[2].RecECB.SummaAddForNalTot:=RecECBSelf[2].RecECB.SummaAddForNalTot + TPersonRecO(PersonList.Items[i]).GetSummaAddForECB(Y,M);
-                          RecECBSelf[2].RecECB.SummaUdNalTot    :=RecECBSelf[2].RecECB.SummaUdNalTot     + TPersonRecO(PersonList.Items[i]).GetSummaUdECB(Y,M);
-                          RecECBSelf[3].RecECB.SummaAddForNalTot:=RecECBSelf[3].RecECB.SummaAddForNalTot + TPersonRecO(PersonList.Items[i]).GetSummaAddForECBDP(Y,M);
-                          RecECBSelf[3].RecECB.SummaUdNalTot    :=RecECBSelf[3].RecECB.SummaUdNalTot     + TPersonRecO(PersonList.Items[i]).GetSummaUdECBDP(Y,M);
-                          RecECBSelf[4].RecECB.SummaAddForNalTot:=RecECBSelf[4].RecECB.SummaAddForNalTot + TPersonRecO(PersonList.Items[i]).GetSummaAddForECBIll(Y,M);
-                          RecECBSelf[4].RecECB.SummaUdNalTot    :=RecECBSelf[4].RecECB.SummaUdNalTot     + TPersonRecO(PersonList.Items[i]).GetSummaUdECBIll(Y,M);
                           RecPodSelf.SummaAddForNalTot          :=RecPodSelf.SummaAddForNalTot           + TPersonRecO(PersonList.Items[i]).GetSummaAddForPod(Y,M,TPersonRecO(PersonList.Items[i]).Podr);
                           RecPodSelf.SummaUdNalTot              :=RecPodSelf.SummaUdNalTot               + TPersonRecO(PersonList.Items[i]).GetSummaUdPod(Y,M,TPersonRecO(PersonList.Items[i]).Podr);
                           RecWSSelf.SummaAddForNalTot           :=RecWSSelf.SummaAddForNalTot            + TPersonRecO(PersonList.Items[i]).GetSummaAddForWS(Y,M,TPersonRecO(PersonList.Items[i]).Podr);
@@ -1069,226 +867,11 @@ procedure TPersonO.GetSummyForECBTot;
 procedure TPersonO.CalculateNalogi;
   var   CurrPerson:PERSON_PTR;
         I : Integer;
-        SummaECB : Real;
-  procedure SetUpMaxECBs;
-   var LimitForECB:Real;
-   begin
-        LimitForECB:=Self.RecECB[1].LimitECBNorma;
-        if Self.RecECB[1].RecECB.SummaAddForNalTot > Self.RecECB[1].LimitECBNorma then
-           begin
-                Self.RecECB[1].LimitECBFact  := Self.RecECB[1].LimitECBNorma;
-                Self.RecECB[2].LimitECBFact  := 0 ;
-                Self.RecECB[3].LimitECBFact  := 0 ;
-                Self.RecECB[4].LimitECBFact  := 0 ;
-           end
-        else
-        if Self.RecECB[1].RecECB.SummaAddForNalTot+Self.RecECB[2].RecECB.SummaAddForNalTot>Self.RecECB[1].LimitECBNorma then
-           begin
-                Self.RecECB[1].LimitECBFact := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECB[2].LimitECBFact := Self.RecECB[1].LimitECBNorma-Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECB[3].LimitECBFact  := 0 ;
-                Self.RecECB[4].LimitECBFact  := 0 ;
-           end
-        else
-        if Self.RecECB[1].RecECB.SummaAddForNalTot +
-           Self.RecECB[2].RecECB.SummaAddForNalTot +
-           Self.RecECB[3].RecECB.SummaAddForNalTot > Self.RecECB[1].LimitECBNorma then
-           begin
-                Self.RecECB[1].LimitECBFact := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECB[2].LimitECBFact := Self.RecECB[2].RecECB.SummaAddForNalTot;
-                Self.RecECB[3].LimitECBFact := Self.RecECB[1].LimitECBNorma-
-                                               (Self.RecECB[1].RecECB.SummaAddForNalTot+
-                                                Self.RecECB[2].RecECB.SummaAddForNalTot);
-                Self.RecECB[4].LimitECBFact  := 0 ;
-           end
-        else
-        if Self.RecECB[1].RecECB.SummaAddForNalTot +
-           Self.RecECB[2].RecECB.SummaAddForNalTot +
-           Self.RecECB[3].RecECB.SummaAddForNalTot +
-           Self.RecECB[4].RecECB.SummaAddForNalTot > Self.RecECB[1].LimitECBNorma then
-              begin
-                Self.RecECB[1].LimitECBFact := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECB[2].LimitECBFact := Self.RecECB[2].RecECB.SummaAddForNalTot;
-                Self.RecECB[3].LimitECBFact := Self.RecECB[3].RecECB.SummaAddForNalTot;
-                Self.RecECB[4].LimitECBFact := Self.RecECB[1].LimitECBNorma-
-                                               (Self.RecECB[1].RecECB.SummaAddForNalTot+
-                                                Self.RecECB[2].RecECB.SummaAddForNalTot+
-                                                Self.RecECB[3].RecECB.SummaAddForNalTot);
-              end
-        else
-              begin
-                Self.RecECB[1].LimitECBFact := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECB[2].LimitECBFact := Self.RecECB[2].RecECB.SummaAddForNalTot;
-                Self.RecECB[3].LimitECBFact := Self.RecECB[3].RecECB.SummaAddForNalTot;
-                Self.RecECB[4].LimitECBFact := Self.RecECB[4].RecECB.SummaAddForNalTot;
-              end;
-    end;
-  procedure SetUpMaxECBsSelf;
-   var LimitForECB:Real;
-       I:Integer;
-   begin
-        Self.RecECBSelf[1].LimitECBFact  := Self.RecECBSelf[1].RecECB.SummaAddForNalTot ;
-        Self.RecECBSelf[2].LimitECBFact  := Self.RecECBSelf[2].RecECB.SummaAddForNalTot ;
-        Self.RecECBSelf[3].LimitECBFact  := Self.RecECBSelf[3].RecECB.SummaAddForNalTot ;
-        Self.RecECBSelf[4].LimitECBFact  := Self.RecECBSelf[4].RecECB.SummaAddForNalTot ;
-        LimitForECB:=Self.RecECB[1].LimitECBNorma;
-    {1} if (Self.RecECB[1].RecECB.SummaAddForNalTot-
-            Self.RecECBSelf[1].RecECB.SummaAddForNalTot)  > Self.RecECB[1].LimitECBNorma then
-           begin
-                Self.RecECBSelf[1].LimitECBFact  := 0 ;
-                Self.RecECBSelf[2].LimitECBFact  := 0 ;
-                Self.RecECBSelf[3].LimitECBFact  := 0 ;
-                Self.RecECBSelf[4].LimitECBFact  := 0 ;
-           end
-        else
-    {1a}if ((Self.RecECB[1].RecECB.SummaAddForNalTot-
-             Self.RecECBSelf[1].RecECB.SummaAddForNalTot) < Self.RecECB[1].LimitECBNorma) and
-           (Self.RecECB[1].RecECB.SummaAddForNalTot > Self.RecECB[1].LimitECBNorma) then
-           begin
-                Self.RecECBSelf[1].LimitECBFact  := Self.RecECB[1].LimitECBNorma-
-                                                    (Self.RecECB[1].RecECB.SummaAddForNalTot-
-                                                     Self.RecECBSelf[1].RecECB.SummaAddForNalTot);
-                Self.RecECBSelf[2].LimitECBFact  := 0 ;
-                Self.RecECBSelf[3].LimitECBFact  := 0 ;
-                Self.RecECBSelf[4].LimitECBFact  := 0 ;
-           end
-        else
-    {2} if (abs(Self.RecECB[1].RecECB.SummaAddForNalTot)<0.005) and
-           (Self.RecECB[2].RecECB.SummaAddForNalTot-
-            Self.RecECBSelf[2].RecECB.SummaAddForNalTot>Self.RecECB[1].LimitECBNorma) then
-           begin
-                Self.RecECBSelf[1].LimitECBFact  := 0 ;
-                Self.RecECBSelf[2].LimitECBFact  := 0 ;
-                Self.RecECBSelf[3].LimitECBFact  := 0 ;
-                Self.RecECBSelf[4].LimitECBFact  := 0 ;
-           end
-        else
-    {2a} if Self.RecECB[1].RecECB.SummaAddForNalTot+
-           Self.RecECB[2].RecECB.SummaAddForNalTot-
-           Self.RecECBSelf[2].RecECB.SummaAddForNalTot>Self.RecECB[1].LimitECBNorma then
-           begin
-                Self.RecECBSelf[1].LimitECBFact  := Self.RecECB[1].RecECB.SummaAddForNalTot ;
-                Self.RecECBSelf[2].LimitECBFact  := Self.RecECB[2].RecECB.SummaAddForNalTot ;
-                Self.RecECBSelf[3].LimitECBFact  := 0 ;
-                Self.RecECBSelf[4].LimitECBFact  := 0 ;
-           end
-        else
-    {2b}if ((Self.RecECB[1].RecECB.SummaAddForNalTot+
-            Self.RecECB[2].RecECB.SummaAddForNalTot-
-            Self.RecECBSelf[2].RecECB.SummaAddForNalTot)<Self.RecECB[1].LimitECBNorma) and
-           ((Self.RecECB[1].RecECB.SummaAddForNalTot+
-            Self.RecECB[2].RecECB.SummaAddForNalTot)>Self.RecECB[1].LimitECBNorma) then
-           begin
-                Self.RecECBSelf[1].LimitECBFact  := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[2].LimitECBFact  := Self.RecECB[1].LimitECBNorma-
-                                                    (
-                                                     Self.RecECB[1].RecECB.SummaAddForNalTot+
-                                                     Self.RecECB[2].RecECB.SummaAddForNalTot-
-                                                     Self.RecECBSelf[2].RecECB.SummaAddForNalTot
-                                                    )  ;
-                Self.RecECBSelf[3].LimitECBFact  := 0 ;
-                Self.RecECBSelf[4].LimitECBFact  := 0 ;
-           end
-        else
-    {3} if (Self.RecECB[1].RecECB.SummaAddForNalTot +
-            Self.RecECB[2].RecECB.SummaAddForNalTot +
-            Self.RecECB[3].RecECB.SummaAddForNalTot -
-            Self.RecECBSelf[3].RecECB.SummaAddForNalTot) > Self.RecECB[1].LimitECBNorma then
-           begin
-                if abs(Self.RecECB[1].RecECB.SummaAddForNalTot)>0.005 then
-                   Self.RecECBSelf[1].LimitECBFact := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                if abs(Self.RecECB[2].RecECB.SummaAddForNalTot)>0.005 then
-                   Self.RecECBSelf[2].LimitECBFact := Self.RecECB[1].LimitECBNorma-Self.RecECB[1].RecECB.SummaAddForNalTot;
-                if abs(Self.RecECB[3].RecECB.SummaAddForNalTot)>0.005 then
-                   Self.RecECBSelf[3].LimitECBFact := 0;
-                if abs(Self.RecECB[4].RecECB.SummaAddForNalTot)>0.005 then
-                   Self.RecECBSelf[4].LimitECBFact := 0 ;
-           end
-        else
-    {3a}if ((Self.RecECB[1].RecECB.SummaAddForNalTot +
-             Self.RecECB[2].RecECB.SummaAddForNalTot +
-             Self.RecECB[3].RecECB.SummaAddForNalTot -
-             Self.RecECBSelf[3].RecECB.SummaAddForNalTot) < Self.RecECB[1].LimitECBNorma) and
-           ((Self.RecECB[1].RecECB.SummaAddForNalTot +
-             Self.RecECB[2].RecECB.SummaAddForNalTot +
-             Self.RecECB[3].RecECB.SummaAddForNalTot ) > Self.RecECB[1].LimitECBNorma) then
-           begin
-                Self.RecECBSelf[1].LimitECBFact := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[2].LimitECBFact := Self.RecECB[2].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[3].LimitECBFact := Self.RecECB[1].LimitECBNorma -
-                                                   (Self.RecECB[1].RecECB.SummaAddForNalTot +
-                                                    Self.RecECB[2].RecECB.SummaAddForNalTot +
-                                                    Self.RecECB[3].RecECB.SummaAddForNalTot -
-                                                    Self.RecECBSelf[3].RecECB.SummaAddForNalTot);
-                Self.RecECBSelf[4].LimitECBFact := 0 ;
-           end
-        else
-    {4} if (Self.RecECB[1].RecECB.SummaAddForNalTot +
-            Self.RecECB[2].RecECB.SummaAddForNalTot +
-            Self.RecECB[3].RecECB.SummaAddForNalTot +
-            Self.RecECB[4].RecECB.SummaAddForNalTot -
-            Self.RecECBSelf[4].RecECB.SummaAddForNalTot) > Self.RecECB[1].LimitECBNorma then
-              begin
-                Self.RecECBSelf[1].LimitECBFact := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[2].LimitECBFact := Self.RecECB[2].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[3].LimitECBFact := Self.RecECB[1].LimitECBNorma -
-                                                   (Self.RecECB[1].RecECB.SummaAddForNalTot+
-                                                    Self.RecECB[2].RecECB.SummaAddForNalTot);
-                Self.RecECBSelf[4].LimitECBFact := 0;
-              end
-        else
-    {4a}if ((Self.RecECB[1].RecECB.SummaAddForNalTot +
-             Self.RecECB[2].RecECB.SummaAddForNalTot +
-             Self.RecECB[3].RecECB.SummaAddForNalTot +
-             Self.RecECB[4].RecECB.SummaAddForNalTot) > Self.RecECB[1].LimitECBNorma) and
-           ((Self.RecECB[1].RecECB.SummaAddForNalTot +
-             Self.RecECB[2].RecECB.SummaAddForNalTot +
-             Self.RecECB[3].RecECB.SummaAddForNalTot +
-             Self.RecECB[4].RecECB.SummaAddForNalTot -
-             Self.RecECBSelf[4].RecECB.SummaAddForNalTot) < Self.RecECB[1].LimitECBNorma) then
-              begin
-                Self.RecECBSelf[1].LimitECBFact := Self.RecECB[1].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[2].LimitECBFact := Self.RecECB[2].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[3].LimitECBFact := Self.RecECB[3].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[4].LimitECBFact := Self.RecECB[1].LimitECBNorma -
-                                                   (Self.RecECB[1].RecECB.SummaAddForNalTot +
-                                                    Self.RecECB[2].RecECB.SummaAddForNalTot +
-                                                    Self.RecECB[3].RecECB.SummaAddForNalTot +
-                                                    Self.RecECB[4].RecECB.SummaAddForNalTot -
-                                                    Self.RecECBSelf[4].RecECB.SummaAddForNalTot);
-              end
-        else
-              begin
-                Self.RecECBSelf[1].LimitECBFact := Self.RecECBSelf[1].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[2].LimitECBFact := Self.RecECBSelf[2].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[3].LimitECBFact := Self.RecECBSelf[3].RecECB.SummaAddForNalTot;
-                Self.RecECBSelf[4].LimitECBFact := Self.RecECBSelf[4].RecECB.SummaAddForNalTot;
-              end;
-        for i:=1 to 4 do
-            begin
-                 if Abs(Self.RecECBSelf[i].RecECB.SummaAddForNalTot)<0.005 then
-                    Self.RecECBSelf[i].LimitECBFact:=0;
-                 if Abs(Self.RecECBSelf[i].LimitECBFact)>abs(Self.RecECBSelf[i].RecECB.SummaAddForNalTot) then
-                    Self.RecECBSelf[i].LimitECBFact:=Self.RecECBSelf[i].RecECB.SummaAddForNalTot;
-            end;
-    end;
 
  begin
-      SetUpMaxECBs;
-      SummaECB:=0;
-      for i:=1 to 4 do
-          begin
-               Self.RecECB[i].RecECB.SummaUdNalRas:=
-                   R10(Self.RecECB[i].LimitECBFact*Self.RecECB[i].ProcECB);
-               Self.RecECB[i].RecECB.SummaUdNalRazn:=
-                   R10(Self.RecECB[i].RecECB.SummaUdNalRas-Self.RecECB[i].RecECB.SummaUdNalTot);
-               if i<>3 then
-                  SummaECB:=SummaECB + Self.RecECB[i].RecECB.SummaUdNalRas;
-          end;
-
       { Налог с дохода }
       CurrPerson:=Self.GetOsnPerson;
-      Self.RecPod.SummaUdNalRas:=PODOH_2004_2011(Self.RecPod.SummaAddForNalTot,SummaECB,0,Self.M,Self.Y,CurrPerson);
+      Self.RecPod.SummaUdNalRas:=PODOH_2004_2011(Self.RecPod.SummaAddForNalTot,0,0,Self.M,Self.Y,CurrPerson);
 
       Self.RecPod.SummaUdNalRazn:=r10(Self.RecPod.SummaUdNalRas-Self.RecPod.SummaUdNalTot);
       Self.RecWS.SummaUdNalRas:=getWSSumma(Self.RecWS.SummaAddForNalTot);
@@ -1296,21 +879,10 @@ procedure TPersonO.CalculateNalogi;
 
       if Self.ModeCalcOnlyThisLinePerson then
          begin
-              SetUpMaxECBsSelf;
-              SummaECB:=0;
-              for i:=1 to 4 do
-                  begin
-                       Self.RecECBSelf[i].RecECB.SummaUdNalRas:=
-                            R10(Self.RecECBSelf[i].LimitECBFact*Self.RecECBSelf[i].ProcECB);
-                       Self.RecECBSelf[i].RecECB.SummaUdNalRazn:=
-                            R10(Self.RecECBSelf[i].RecECB.SummaUdNalRas-Self.RecECBSelf[i].RecECB.SummaUdNalTot);
-                       if i<>3 then
-                          SummaECB:=SummaECB + Self.RecECBSelf[i].RecECB.SummaUdNalRas;
-                  end;
 
              { Налог с дохода }
               CurrPerson:=Self.GetOsnPerson;
-              Self.RecPodSelf.SummaUdNalRas:=PODOH_2004_2011(Self.RecPodSelf.SummaAddForNalTot,SummaECB,0,Self.M,Self.Y,CurrPerson);
+              Self.RecPodSelf.SummaUdNalRas:=PODOH_2004_2011(Self.RecPodSelf.SummaAddForNalTot,0,0,Self.M,Self.Y,CurrPerson);
 //              if NSRV=102 then  { Для 102-го взять процент 28 11 2011 }
 //                 Self.RecPodSelf.SummaUdNalRas:=R10((Self.RecPodSelf.SummaAddForNalTot-SummaECB)*0.15);
 
@@ -1395,8 +967,8 @@ procedure CreateTestPerson(WantedY:Integer;WantedM:Integer;Curr_Person:Person_Pt
     i,yy,Prim: integer;
     Curr_Ud  : UD_PTR;
     Dol_Code : Integer;
-    SummaUdECBN,SummaUdECB,SummaUdECBDP,SummaUdECBIll,SummaUdPod,SummaUdWS:Real;
-    SummaPod,SummaWS,SummaECB : Real;
+    SummaUdPod,SummaUdWS:Real;
+    SummaPod,SummaWS  : Real;
     SummaAddPod       : Real;
     SummaAddWS        : Real;
     Total_Proc,Proc   : Real;
@@ -1426,7 +998,8 @@ procedure CreateTestPerson(WantedY:Integer;WantedM:Integer;Curr_Person:Person_Pt
           RPerson.FillDataFromDB;
 
       i:=RPerson.PersonList.Count;
-      RPerson.GetSummyForECBTot;
+//      RPerson.GetSummyForECBTot;
+      RPerson.GetSummyForNalogiTot;
       RPerson.CalculateNalogi;
       yy:=WantedY;
       if yy>1900 then yy:=yy-1990;
@@ -1440,14 +1013,6 @@ procedure CreateTestPerson(WantedY:Integer;WantedM:Integer;Curr_Person:Person_Pt
               SummaWS       := RPerson.RecWSSelf.SummaUdNalRas;
               SummaUdWS     := RPerson.RecWSSelf.SummaUdNalRazn;
               SummaUdAlim   := RPerson.RecAlimSelf.SummaUdNalTot;
-              SummaUdECBN   := RPerson.RecECBSelf[1].RecECB.SummaUdNalRazn;
-              SummaUdECB    := RPerson.RecECBSelf[2].RecECB.SummaUdNalRazn;
-              SummaUdECBDP  := RPerson.RecECBSelf[3].RecECB.SummaUdNalRazn;
-              SummaUdECBIll := RPerson.RecECBSelf[4].RecECB.SummaUdNalRazn;
-              SummaECB      := RPerson.RecECBSelf[1].RecECB.SummaUdNalRas +
-                               RPerson.RecECBSelf[2].RecECB.SummaUdNalRas +
-                               RPerson.RecECBSelf[3].RecECB.SummaUdNalRas +
-                               RPerson.RecECBSelf[4].RecECB.SummaUdNalRas;
          end
       else
          begin
@@ -1458,16 +1023,7 @@ procedure CreateTestPerson(WantedY:Integer;WantedM:Integer;Curr_Person:Person_Pt
               SummaWS       := RPerson.RecWS.SummaUdNalRas;
               SummaUdWS     := RPerson.RecWS.SummaUdNalRazn;
               SummaUdAlim   := RPerson.RecAlim.SummaUdNalTot;
-              SummaUdECBN   := RPerson.RecECB[1].RecECB.SummaUdNalRazn;
-              SummaUdECB    := RPerson.RecECB[2].RecECB.SummaUdNalRazn;
-              SummaUdECBDP  := RPerson.RecECB[3].RecECB.SummaUdNalRazn;
-              SummaUdECBIll := RPerson.RecECB[4].RecECB.SummaUdNalRazn;
-              SummaECB      := RPerson.RecECB[1].RecECB.SummaUdNalRas +
-                               RPerson.RecECB[2].RecECB.SummaUdNalRas +
-                               RPerson.RecECB[3].RecECB.SummaUdNalRas +
-                               RPerson.RecECB[4].RecECB.SummaUdNalRas;
          end;
-      if (yy+1990)>2015 then summaECB:=0;
 
       PersonMarked:=False;
       if abs(SummaUdPod)>0.005 then
@@ -1536,116 +1092,6 @@ procedure CreateTestPerson(WantedY:Integer;WantedM:Integer;Curr_Person:Person_Pt
 // а в Северодонецке при перерасчетах за прошлый год - и ЕСВ - перерасчитывается
 //if isSVDN then
 // 27 01 2016 gjpdjybkf  Т И и в Севере только подо налог
-if false then
-if ((YY+1990)<2016) then
-   begin
-      if abs(SummaUdECBN)>0.005 then
-      if (Dol_Code<>1500) and
-         (not DOG_POD_PODRAZD(NSRV)) and
-         (not isDogPodOnlyNach(Curr_Person)) then
-         begin
-              MAKE_UD(CURR_UD,CURR_PERSON);
-              CURR_UD^.SUMMA  := R10(SummaUdECBN);
-              CURR_UD^.PERIOD := WantedM;
-              CURR_UD^.YEAR   := YY;
-              CURR_UD^.SHIFR  := ECBNSHIFR;
-              CURR_UD^.WHO    := 1;
-              if NeedBlockRecalcedNalogi then
-                 CURR_UD^.Vyplacheno:=GET_OUT;
-         end
-      else
-         begin
-              if not PersonMarked then
-                 begin
-                      FirstStringForPerson(Curr_Person);
-                      PersonMarked:=True;
-                 end;
-              if (Dol_Code=1500) then
-                  PutLogString('Попытка записать ЕСВ(н) '+trim(format('%12.2f',[SummaUDECBN]))+' для больничного')
-              else
-                  PutLogString('Попытка записать ЕСВ(н) '+trim(format('%12.2f',[SummaUDECBN]))+' для договара подряда');
-         end;
-      if abs(SummaUdECB)>0.005 then
-      if (Dol_Code<>1500)
-          and
-         (not DOG_POD_PODRAZD(NSRV))
-         and
-         (not isDogPodOnlyNach(Curr_Person))
-          then
-         begin
-              MAKE_UD(CURR_UD,CURR_PERSON);
-              CURR_UD^.SUMMA  := R10(SummaUdECB);
-              CURR_UD^.PERIOD := WantedM;
-              CURR_UD^.YEAR   := YY;
-              CURR_UD^.SHIFR  := ECBSHIFR;
-              CURR_UD^.WHO    := 1;
-              if NeedBlockRecalcedNalogi then
-                 CURR_UD^.Vyplacheno:=GET_OUT;
-         end
-      else
-         begin
-              if not PersonMarked then
-                 begin
-                      FirstStringForPerson(Curr_Person);
-                      PersonMarked:=True;
-                 end;
-              if (Dol_Code=1500) then
-                  PutLogString('Попытка записать ЕСВ '+trim(format('%12.2f',[SummaUDECB]))+' для больничного')
-              else
-                  PutLogString('Попытка записать ЕСВ '+trim(format('%12.2f',[SummaUDECB]))+' для договара подряда');
-         end;
-      if abs(SummaUdECBDP)>0.005 then
-      if (Dol_Code<>1500) and
-         ((DOG_POD_PODRAZD(NSRV))
-           or (isDogPodOnlyNach(Curr_Person))) then
-         begin
-              MAKE_UD(CURR_UD,CURR_PERSON);
-              CURR_UD^.SUMMA  := R10(SummaUdECBDP);
-              CURR_UD^.PERIOD := WantedM;
-              CURR_UD^.YEAR   := YY;
-              CURR_UD^.SHIFR  := ECBDPSHIFR;
-              CURR_UD^.WHO    := 1;
-              if NeedBlockRecalcedNalogi then
-                 CURR_UD^.Vyplacheno:=GET_OUT;
-         end
-      else
-         begin
-              if not PersonMarked then
-                 begin
-                      FirstStringForPerson(Curr_Person);
-                      PersonMarked:=True;
-                 end;
-              if (Dol_Code=1500) then
-                  PutLogString('Попытка записать ЕСВ(дп) '+trim(format('%12.2f',[SummaUDECBDP]))+' для больничного')
-              else
-                  PutLogString('Попытка записать ЕСВ(дп) '+trim(format('%12.2f',[SummaUDECBDP]))+' не в договара подряда');
-         end;
-      if abs(SummaUdECBIll)>0.005 then
-      if (Dol_Code=1500) or
-         (ExistWantedAddShifrInPerson(Bol_5_Shifr,Curr_Person,YY,WantedM))   or
-         (ExistWantedAddShifrInPerson(BOL_TEK_SHIFR,Curr_Person,YY,WantedM)) or
-         (ExistWantedAddShifrInPerson(BOL_PROSHL_SHIFR,Curr_Person,YY,WantedM)) or
-         (ExistWantedAddShifrInPerson(DEKRET_SHIFR,Curr_Person,YY,WantedM)) then
-         begin
-              MAKE_UD(CURR_UD,CURR_PERSON);
-              CURR_UD^.SUMMA  := R10(SummaUdECBIll);
-              CURR_UD^.PERIOD := WantedM;
-              CURR_UD^.YEAR   := YY;
-              CURR_UD^.SHIFR  := ECBILLSHIFR;
-              CURR_UD^.WHO    := 1;
-              if NeedBlockRecalcedNalogi then
-                 CURR_UD^.Vyplacheno:=GET_OUT;
-         end
-      else
-         begin
-              if not PersonMarked then
-                 begin
-                      FirstStringForPerson(Curr_Person);
-                      PersonMarked:=True;
-                 end;
-              PutLogString('Попытка записать ЕСВ(блн) '+trim(format('%12.2f',[SummaUDECBILL]))+' не в больничный или отс 5 дн больничного');
-         end;
-   end;
       TOTAL_PROC:=0;
       I:=1;
       TOTAL_PROC:=0;
@@ -1663,7 +1109,7 @@ if ((YY+1990)<2016) then
                     IF ((Abs(PROC)>0.01) AND (Abs(SummaAbsAlim)<0.005)) THEN
                         BEGIN
                              A_A:=(SummaAddPod-
-                                   SummaPod-SummaECB-
+                                   SummaPod-
                                    PROF(CURR_PERSON,SummaAddPod,WantedM)
                                    )*PROC;
                              ADD_ALIM:=A_A-(SummaUdAlim*PROC/TOTAL_PROC);
@@ -1697,7 +1143,7 @@ procedure OpenLog;
  var Fname:string;
  begin
       if not NeedLogForRecalculateNalogiPerson then Exit;
-      FName:=CDOC+'LogECB.txt';
+      FName:=CDOC+'LogRecalc.txt';
       AssignFile(Dev,FName);
       Rewrite(Dev);
       LogOpened:=True;
@@ -1729,8 +1175,8 @@ procedure GetResultRecalcPodohPerson(WantedY:Integer;WantedM:Integer;Curr_Person
     i,yy,Prim: integer;
     Curr_Ud  : UD_PTR;
     Dol_Code : Integer;
-    SummaUdECBN,SummaUdECB,SummaUdECBDP,SummaUdECBIll,SummaUdPod:Real;
-    SummaPod,SummaECB : Real;
+    SummaUdPod:Real;
+    SummaPod : Real;
     SummaAddPod       : Real;
     A_Shifr : Integer;
     RMode:TModeCalcPerson;
@@ -1746,7 +1192,8 @@ procedure GetResultRecalcPodohPerson(WantedY:Integer;WantedM:Integer;Curr_Person
       i:=RPerson.PersonList.Count;
       RPerson.FillDataFromDB;
       i:=RPerson.PersonList.Count;
-      RPerson.GetSummyForECBTot;
+//      RPerson.GetSummyForECBTot;
+      RPerson.GetSummyForNalogiTot;
       RPerson.CalculateNalogi;
       yy:=WantedY;
       if yy>1900 then yy:=yy-1990;
@@ -1755,14 +1202,6 @@ procedure GetResultRecalcPodohPerson(WantedY:Integer;WantedM:Integer;Curr_Person
       SummaPod      := RPerson.RecPod.SummaUdNalRas;
       SummaUdPod    := RPerson.RecPod.SummaUdNalRazn;
    //   SummaUdAlim   := RPerson.RecAlim.SummaUdNalTot;
-      SummaUdECBN   := RPerson.RecECB[1].RecECB.SummaUdNalRazn;
-      SummaUdECB    := RPerson.RecECB[2].RecECB.SummaUdNalRazn;
-      SummaUdECBDP  := RPerson.RecECB[3].RecECB.SummaUdNalRazn;
-      SummaUdECBIll := RPerson.RecECB[4].RecECB.SummaUdNalRazn;
-      SummaECB      := RPerson.RecECB[1].RecECB.SummaUdNalRas +
-                       RPerson.RecECB[2].RecECB.SummaUdNalRas +
-                       RPerson.RecECB[3].RecECB.SummaUdNalRas +
-                       RPerson.RecECB[4].RecECB.SummaUdNalRas;
       SummaPodAdd := SummaAddPod;
       SummaPodUd  := RPerson.RecPod.SummaUdNalTot;
       SummaPodRas := SummaPod;

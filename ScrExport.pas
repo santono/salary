@@ -41,7 +41,7 @@ implementation
   uses Dialogs,SysUtils,DbUnit,ScrLists,DBLogDlg,ScrUtil,UFIBModule,
        KadClU,UToSQL,Clarion,Forms,DateUtils,Math,Classes,ScrIO,UFormWait,
        FormShowRecalcPersonU,UFormAnalyzeNalogi,KadKprClU,UFormWaitMess,
-  Variants, FIBDatabase,USQLUnit;
+  Variants, FIBDatabase,USQLUnit, UORecalcAddPerson;
 { **************************************** }
 { *   Перенос подразделений в FireBird   * }
 { **************************************** }
@@ -2450,7 +2450,30 @@ procedure Recalc_Person_Sql(Curr_Person:Person_ptr;YearZa:integer;MonthZa:intege
      SQLStmnt    : string;
      v           : Variant;
      i1,i2       : Integer;
+     s           : string;
+     iVal        : Integer;
+     iErr        : Integer;
 begin
+     if curr_Person^.oklad>1000 then
+        begin
+             GetGUIDPerson(Curr_Person,GUIDS);
+             s:='';
+             GUIDS:=Trim(GUIDS);
+             if Length(GUIDS)>10 then
+                begin
+                     S:=Copy(GUIDS,1,4);
+                     Val(s,iVal,iErr);
+                     if iErr=0 then
+                        begin
+                            if iVal<2022 then
+                               begin
+                                    recalcAddPerson(YearZa,MonthZa,Curr_Person);
+                                    Exit;
+                               end;
+                        end;
+
+                end;
+        end;
      FormWait.Show;
      Application.ProcessMessages;
      SavPersonId := 0;

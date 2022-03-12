@@ -48,6 +48,7 @@ interface
    FUNCTION GET_kat_short_name(n_kat:INTEGER):string;
    FUNCTION GET_IST_NAME(N_IST:INTEGER):STRING;
    FUNCTION GET_IST_plt_name(n_IST:INTEGER):string;
+   FUNCTION WORK_DAY_USING_TABEL(START_DAY:INTEGER;LAST_DAY:INTEGER;TABEL:TABEL_TYPE;maxTabelDays:integer=0):integer;
    FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
    FUNCTION PROSTOY_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
    FUNCTION TvOtp_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
@@ -57,6 +58,7 @@ interface
    FUNCTION ILL_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
    FUNCTION OTPUSK_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
    FUNCTION OTPUSK_BEZ_DAY(START_DAY:INTEGER;CURR_PERSON:PERSON_PTR):integer;
+   FUNCTION NADBAWKA_DAY_USING_TABEL(START_DAY:INTEGER;LAST_DAY:INTEGER;TABEL:TABEL_TYPE;curr_person:PERSON_PTR):REAL;
    FUNCTION NADBAWKA_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
    FUNCTION THIS_PERSON(CURR_PERSON:PERSON_PTR):BOOLEAN;
    function OK_FREE_MEM(Len:Integer):boolean;
@@ -141,6 +143,11 @@ interface
    FUNCTION  DEL_WANTED_UD(WANTED_SHIFR:INTEGER;
                           CURR_PERSON:PERSON_PTR;
                           START_MONTH:INTEGER):BOOLEAN;
+   FUNCTION DEL_WANTED_ADD_YEAR(WANTED_SHIFR:INTEGER;
+                                CURR_PERSON:PERSON_PTR;
+                                START_MONTH:INTEGER;
+                                START_YEAR:INTEGER):BOOLEAN;
+
    FUNCTION  DEL_WANTED_ADD(WANTED_SHIFR:INTEGER;
                            CURR_PERSON:PERSON_PTR;
                            START_MONTH:INTEGER):BOOLEAN;
@@ -607,7 +614,9 @@ interface
   function get156MessageFromCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real):string;
   procedure put156MessageToCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;Mess:string);
   procedure delete156MessageFromCn(Curr_Person:Person_ptr);
+  procedure deleteEmpty156MessageFromPodr;
   function getExeFileSize:longint;
+  function getExeFileSizeNew:longint;
   function getApplicationVersion:String;
   function GetAppVersionStr: string;
 
@@ -1600,11 +1609,31 @@ function SplitFIO(FIO:STRING;var FAM,NAM,OTC:string):boolean;
       else get_kat_short_name:=kat_short_name[n_kat];
   end;
 
-FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
+FUNCTION WORK_DAY_USING_TABEL(START_DAY:INTEGER;LAST_DAY:INTEGER;TABEL:TABEL_TYPE;maxTabelDays:integer=0):integer;
  VAR I,J:INTEGER;
  BEGIN
       J:=0;
-      FOR I:=START_DAY TO LAST_DAY DO IF ((CURR_PERSON^.TABEL[I]=RABOTA)       OR
+      FOR I:=START_DAY TO LAST_DAY DO IF ((TABEL[I]=JAWKA)       OR
+                       //    (CURR_PERSON^.TABEL[I]=KOMANDIROWKA) OR
+                       //    (CURR_PERSON^.TABEL[I]=Donorsk_tabel)    OR     Т И сказала, что донорские в раб.дни не входят 13 03 2018
+                           (TABEL[I]=LEGK_TRUD)     OR
+//                           (CURR_PERSON^.TABEL[I]=PROSTOY_TABEL) OR
+                           (TABEL[I]=GOS_OB))       THEN
+                           J:=J+1;
+      if ((maxTabelDays>0) and (maxTabelDays<32)) then
+      if j>maxTabelDays then
+         j:=maxTabelDays;
+      WORK_DAY_USING_TABEL:=J;
+ END;
+FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
+ VAR I,J:INTEGER;
+     retVal:Integer;
+ BEGIN
+      retVal:=WORK_DAY_USING_TABEL(START_DAY,last_day,curr_person^.TABEL,maxTabelDays);
+      WORK_DAY:=retVal;
+(*
+      J:=0;
+      FOR I:=START_DAY TO LAST_DAY DO IF ((CURR_PERSON^.TABEL[I]=JAWKA)       OR
                        //    (CURR_PERSON^.TABEL[I]=KOMANDIROWKA) OR
                        //    (CURR_PERSON^.TABEL[I]=Donorsk_tabel)    OR     Т И сказала, что донорские в раб.дни не входят 13 03 2018
                            (CURR_PERSON^.TABEL[I]=LEGK_TRUD)     OR
@@ -1615,6 +1644,7 @@ FUNCTION WORK_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxT
       if j>maxTabelDays then
          j:=maxTabelDays;
       WORK_DAY:=J;
+*)      
  END;
 FUNCTION PROSTOY_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR;maxTabelDays:integer=0):integer;
  VAR I,J:INTEGER;
@@ -1765,6 +1795,56 @@ FUNCTION WORK_CLOCK_LERA(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_P
       a:=RoundTo(a,-1);
       WORK_CLOCK_LERA:=A;
  END;
+
+FUNCTION NADBAWKA_DAY_USING_TABEL(START_DAY:INTEGER;LAST_DAY:INTEGER;TABEL:TABEL_TYPE;curr_person:PERSON_PTR):REAL;
+ VAR I,J:INTEGER;
+     T:byte;
+ FUNCTION TEST_SUBBOTA(I:INTEGER):BOOLEAN;
+  VAR
+     J:INTEGER;
+     Y,M,D,DOW:WORD;
+     DateWrk,Dt:TDateTime;
+  BEGIN
+     VAL(WORK_YEAR,Y,J);
+     IF J<>0 THEN BEGIN TEST_SUBBOTA:=FALSE; EXIT; END;
+     M:=NMES;
+     D:=I;
+     Dt:=EndOfAMonth(Y,M);
+     if D>DayOf(Dt) then
+        begin
+             Test_Subbota:=false;
+             Exit;
+        end;
+     DateWrk:=EncodeDate(y,m,d);
+//     RecodeYear(DateWrk,Y);
+//     RecodeMonth(DateWrk,M);
+//     RecodeDay(DateWrk,D);
+     Dow:=DayOfWeek(DateWrk);
+     IF DOW=6 THEN TEST_SUBBOTA:=TRUE ELSE TEST_SUBBOTA:=FALSE;
+     EXIT;
+  END;
+ BEGIN
+      J:=0;
+      NADBAWKA_DAY_USING_TABEL:=j;
+      FOR I:=START_DAY TO LAST_DAY DO
+          IF (isFiveDayMode(CURR_PERSON))
+         AND (TABEL[I] IN [TARIFN_OTPUSK,ILLNESS]) AND (TEST_SUBBOTA(I))  THEN
+                                                                              ELSE
+             begin
+                  T:=TABEL[I];
+                  IF NOT (T IN [NEZAPOLN          ,
+                                PROGUL            ,
+                                VYHODN            ,
+                                OTPUSK_BEZ_OPLATY ,
+                                TARIFN_OTPUSK      ,
+                                ILLNESS           ,
+                                KOMANDIROWKA      ,
+                                PROSTOY_TABEL      ,
+                                NEOPL_NETRUD])      THEN INC(J);
+             end;
+      NADBAWKA_DAY_USING_TABEL:=J;
+ END;
+
 
 FUNCTION NADBAWKA_DAY(START_DAY:INTEGER;LAST_DAY:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
  VAR I,J:INTEGER;
@@ -2896,6 +2976,38 @@ FUNCTION DEL_WANTED_ADD(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:
               UNTIL (I=I_A) OR (FOUND);
      UNTIL NOT FOUND;
      DEL_WANTED_ADD:=L;
+ END;
+FUNCTION DEL_WANTED_ADD_YEAR(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER;START_YEAR:INTEGER):BOOLEAN;
+ VAR L,FOUND:BOOLEAN;
+     CURR_ADD:ADD_PTR;
+     I,I_A:INTEGER;
+     wantedYear:Integer;
+ BEGIN
+     wantedYear:=START_YEAR;
+     if wantedYear>1990 then
+        wantedYear:=wantedYear-1990;
+     L:= FALSE;
+     REPEAT
+           FOUND:=FALSE;
+           I_A:=COUNT_ADD(CURR_PERSON);
+           I:=0;
+           IF I_A>0 THEN
+              REPEAT
+                    I:=I+1;
+                    IF I=1 THEN CURR_ADD:=CURR_PERSON^.ADD
+                           ELSE CURR_ADD:=CURR_ADD^.NEXT;
+                    IF CURR_ADD^.SHIFR=WANTED_SHIFR     THEN
+                    IF CURR_ADD^.VYPLACHENO=NOT_GET_OUT THEN
+                    IF CURR_ADD^.PERIOD=START_MONTH THEN
+                    IF CURR_ADD^.YEAR=WANTEDYEAR THEN
+                       BEGIN
+                            L:=TRUE;
+                            FOUND:=TRUE;
+                            DEL_ADD(CURR_ADD,CURR_PERSON);
+                       END;
+              UNTIL (I=I_A) OR (FOUND);
+     UNTIL NOT FOUND;
+     DEL_WANTED_ADD_YEAR:=L;
  END;
 FUNCTION EXISTS_WANTED_UD(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER):BOOLEAN;
  VAR FOUND:BOOLEAN;
@@ -5396,7 +5508,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
         W_P                         := NewPerson^.MESTO_OSN_RABOTY;
         NewPerson^.Bank             := 1; { Приват банк }
         NewPerson^.Nal_Code         := GetNal_CodePerson(Tabno);
-        if CodeMove=6 then
+//        if CodeMove=6 then
            Make_Dol_Person(NewPerson,1500);
         SetUpSowm(Tabno,W_P);
         if CodeMove=6 then
@@ -13387,6 +13499,18 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
                Break;
          end;
   end;
+ procedure deleteEmpty156MessageFromPodr;
+   var curr_person:PERSON_PTR;
+   begin
+        curr_person:=HEAD_PERSON;
+        while (curr_person<>nil) do
+         begin
+              delete156MessageFromCn(curr_person);
+              curr_person:=curr_person^.NEXT;
+         end;
+
+   end;
+
  function getExeFileSize:longint;
   var exeFileName:string;
       sizeExeFile:LongInt;
@@ -13482,6 +13606,27 @@ begin
     FreeMem(PVerInfo, VerInfoSize);
   end;
 end;
+
+function getexeFileSizeNew:Integer;
+var
+  iFileHandle: Integer;
+  iFileLength: Integer;
+  exeFileName:string;
+  offset65:Int64;
+begin
+  exeFileName:=Trim(Application.ExeName);
+  try
+    iFileHandle := FileOpen(exeFileName, fmOpenRead+fmShareDenyNone);
+    iFileLength := FileSeek(iFileHandle,0,2);
+//FileSeek(Handle: Integer; const Offset: Int64; Origin: Integer): Int64; overload;
+
+    FileClose(iFileHandle);
+  finally
+//    FileClose(iFileHandle);
+  end;
+  getexeFileSizeNew:=iFileLength;
+end;
+
 
 end.
 

@@ -57,12 +57,10 @@ implementation
 
 {$R *.dfm}
 const
-      MAX_TABEL_KOD=20;
-      SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
-         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ','ТВ');
-      LONG_MONTH:ARRAY[1..12] OF INTEGER=
-         (31,29,31,30,31,30,31,31,30,31,30,31);
       {$IFDEF SVDN}
+        MAX_TABEL_KOD=20;
+        SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
+         ('Я ','ОЖ','К ','Т ','У ','ОТ','А ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ','ТВ');
       NAME_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[35]=
            ('Явка на роботу                    ',
             'Вiдпуска жiнкам на дитину до року ',
@@ -85,7 +83,10 @@ const
             'Простой                           ',
             'Творча вiдпустка                  ');
       {$ELSE}
-      NAME_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[35]=
+        MAX_TABEL_KOD=23;
+        SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
+         ('Я ','ОЖ','К ','Т ','У ','ОТ','ОБ','ЛЧ','Е ','Ч ','Г ','Р ','Б ','ПР','  ','ЛТ','До','ПК','П ','ТВ','ДН','НЭ','НН');
+        NAME_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[35]=
            ('Явка на работу                    ',
             'Отпуск женщинам на ребенка до года',
             'Служебные командировки            ',
@@ -105,8 +106,14 @@ const
             'Донорские                         ',
             'Повышение квалификации            ',
             'Простой                           ',
-            'Творческий отпуск                 ');
+            'Творческий отпуск                 ',
+            'Другое неотработанное время       ',
+            'Неявка в связи с эвакуацией       ',
+            'Неявка по неизвестным причинам    '
+            );
       {$ENDIF}
+      LONG_MONTH:ARRAY[1..12] OF INTEGER=
+         (31,29,31,30,31,30,31,31,30,31,30,31);
             RIGHT_DIRECTION = 1;
             DOWN_DIRECTION  = 2;
             LEFT_DIRECTION  = 3;
@@ -120,6 +127,7 @@ var I_C,I,J,JJ:Integer;
     CurrRow:Integer;
     JJClock:real;
     s:string;
+    tabnoS:string;
  begin
      Caption:='Табель '+Trim(Month[NMES])+' '+IntToStr(CurrYear)+' г. '+NAME_SERV(NSRV);
      I_C:=Count_Person;
@@ -179,7 +187,20 @@ var I_C,I,J,JJ:Integer;
             Inc(I);
             if Assigned(Curr_Person) then
                if Curr_P=Curr_Person then CurrRow:=I;
-            StringGridT.Cells[0,i]:=IntToStr(Curr_P^.Tabno)+' '+Trim(Curr_P^.Fio)+' '+FormatFloat(F,GET_KOEF_OKLAD_PERSON(Curr_P));
+            TabnoS:=intToStr(curr_p^.tabno);
+            if curr_p^.tabno<10 then
+               TabnoS:='    '+TabnoS
+            else
+            if curr_p^.tabno<100 then
+               TabnoS:='   '+TabnoS
+            else
+            if curr_p^.tabno<1000 then
+               TabnoS:='  '+TabnoS
+            else
+            if curr_p^.tabno<10000 then
+               TabnoS:=' '+TabnoS;
+
+            StringGridT.Cells[0,i]:=TabnoS+' '+Trim(Curr_P^.Fio)+' '+FormatFloat(F,GET_KOEF_OKLAD_PERSON(Curr_P));
             for j:=1 to StringGridT.ColCount-1 do
                 StringGridT.Cells[j,i]:=Self.GetSTabel(Curr_P^.Tabel[j]);
             JJ:=Work_Day(1,31,Curr_P);
