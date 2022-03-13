@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, FIBDatabase, pFIBDatabase, DB, FIBDataSet, pFIBDataSet,
   ExtCtrls, DBCtrls, dxExEdtr, dxDBTLCl, dxGrClms, dxTL, dxDBCtrl,
-  dxDBGrid, dxCntner, DBClient, StdCtrls, Buttons;
+  dxDBGrid, dxCntner, DBClient, StdCtrls, Buttons, ImgList, ToolWin,
+  ComCtrls, ActnList;
 
 type
   TFormOtpBSListAbo = class(TForm)
@@ -34,7 +35,19 @@ type
     dsOtpBSDATA_PRI: TFIBDateField;
     dsOtpBSY: TFIBIntegerField;
     dsOtpBSM: TFIBIntegerField;
-    BitBtn1: TBitBtn;
+    il1: TImageList;
+    ToolBar1: TToolBar;
+    ActionList1: TActionList;
+    ActionAppend: TAction;
+    ActionDelete: TAction;
+    ActionEdit: TAction;
+    ActionMove: TAction;
+    ActionRefresh: TAction;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure grOtpBSTABNOButtonButtonClick(Sender: TObject;
@@ -44,6 +57,11 @@ type
     procedure DBNavigator1Click(Sender: TObject; Button: TNavigateBtn);
     procedure dsOtpBSBeforeInsert(DataSet: TDataSet);
     procedure BitBtn1Click(Sender: TObject);
+    procedure ActionAppendExecute(Sender: TObject);
+    procedure ActionDeleteExecute(Sender: TObject);
+    procedure ActionEditExecute(Sender: TObject);
+    procedure ActionMoveExecute(Sender: TObject);
+    procedure ActionRefreshExecute(Sender: TObject);
   private
     wantedTabno:Integer;
     wantedFIO:string;
@@ -154,6 +172,34 @@ procedure TFormOtpBSListAbo.BitBtn1Click(Sender: TObject);
 begin
      FormOtpBsMoveAbo:=TFormOtpBsMoveAbo.createAbo(Self,Self.wantedTabno);
      FormOtpBsMoveAbo.ShowModal;
+end;
+
+procedure TFormOtpBSListAbo.ActionAppendExecute(Sender: TObject);
+begin
+     DBNavigator1Click(Self,nbInsert);
+end;
+
+procedure TFormOtpBSListAbo.ActionDeleteExecute(Sender: TObject);
+begin
+     DBNavigator1Click(Self,nbDelete);
+end;
+
+procedure TFormOtpBSListAbo.ActionEditExecute(Sender: TObject);
+begin
+     DBNavigator1Click(Self,nbEdit);
+end;
+
+
+
+procedure TFormOtpBSListAbo.ActionMoveExecute(Sender: TObject);
+begin
+     FormOtpBsMoveAbo:=TFormOtpBsMoveAbo.createAbo(Self,Self.wantedTabno);
+     FormOtpBsMoveAbo.ShowModal;
+end;
+
+procedure TFormOtpBSListAbo.ActionRefreshExecute(Sender: TObject);
+begin
+     DBNavigator1Click(Self,nbRefresh);
 end;
 
 end.

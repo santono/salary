@@ -23,8 +23,8 @@ type
                     ShifrSwmMode : Integer;
                     Moved        : boolean;
                     Oklad        : Real;
-                    Dolg:String;
-                    Show:String;
+                    Dolg         : String;
+                    Show         : String;
                   end;
   TFormMovBol = class(TForm)
     BitBtn1     : TBitBtn;
@@ -687,14 +687,13 @@ begin
                  PPersonRec(PersonList.Items[FHSHintComboBoxNIS.ItemIndex])^.Dolg,True,Self.CodeMove);
              PPersonRec(PersonList.Items[FHSHintComboBoxNIS.ItemIndex])^.Moved:=true;
         end;
-   //  if IsShifrInAddPerson(Curr_Person,138) then
-   //     i:=1;;
      for i:=0 to StringGridSel.RowCount-1 do
          begin
                if i=FHSHintComboBoxBud.ItemIndex then continue;
                if i=FHSHintComboBoxVNE.ItemIndex then continue;
                if PPersonRec(PersonList.Items[i])^.Moved then continue;
                if not Assigned(StringGridSel.Objects[0,i]) then continue;
+               if PPersonRec(PersonList.Items[i])^.ShifrWR=1 then continue; // Сначала пересчитать совместителей
                MoveBolToPerson(ShifrIdBoln,2,WantedTabno, { Группа указана вторая но это все равно ведь только перрасчет по табелю }
                    PPersonRec(PersonList.Items[i])^.ShifrPod,
                    PPersonRec(PersonList.Items[i])^.ShifrKat,
@@ -704,17 +703,24 @@ begin
                    PPersonRec(PersonList.Items[i])^.ShifrSwmMode,
                    PPersonRec(PersonList.Items[i])^.Dolg,
                    False,Self.CodeMove);
- //    try
- //       j:=1;
- //       if IsShifrInAddPerson(Curr_Person,138) then
- //         j:=1;;
- //    finally
- //       j:=2;
- //    end;
-
-
-
-         end;
+        end;
+     for i:=0 to StringGridSel.RowCount-1 do
+         begin
+               if i=FHSHintComboBoxBud.ItemIndex then continue;
+               if i=FHSHintComboBoxVNE.ItemIndex then continue;
+               if PPersonRec(PersonList.Items[i])^.Moved then continue;
+               if not Assigned(StringGridSel.Objects[0,i]) then continue;
+               if PPersonRec(PersonList.Items[i])^.ShifrWR<>1 then continue; // Сначала пересчитать совместителей
+               MoveBolToPerson(ShifrIdBoln,2,WantedTabno, { Группа указана вторая но это все равно ведь только перрасчет по табелю }
+                   PPersonRec(PersonList.Items[i])^.ShifrPod,
+                   PPersonRec(PersonList.Items[i])^.ShifrKat,
+                   PPersonRec(PersonList.Items[i])^.ShifrGru,
+                   PPersonRec(PersonList.Items[i])^.ShifrDol,
+                   PPersonRec(PersonList.Items[i])^.ShifrWR,
+                   PPersonRec(PersonList.Items[i])^.ShifrSwmMode,
+                   PPersonRec(PersonList.Items[i])^.Dolg,
+                   False,Self.CodeMove);
+        end;
      if Mode_Ill=10 then
         ShowMessage('Командировочный перенесен')
      else

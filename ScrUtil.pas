@@ -626,7 +626,7 @@ implementation
    uses Math,SysUtils,QDialogs,DateUtils,QControls,ScrLists,ScrIo,ScrLini,
         UFIBModule,uFormWait,FORMS,ScrNalog,ShellApi,WinDows,ScrExport,Classes,
         ComObj,ActiveX,IniFiles,uMD5,Variants, FIBDatabase,USQLUnit,UFormDepartmentSeek,
-        scrnetwork,types,SqlTimSt;
+        scrnetwork,types,SqlTimSt, UORecalcAddPerson;
    const doss:array[1..72] of byte = ($49,$69,$80,$81,$82,$83,$84,$85,$F0,$F2,$F3,$F4,$F5,$86,$87,$88,$89,$8A,$8B,$8C,$8D,$8E,$8F,$90,$91,$92,$93,$94,$95,$96,$97,$98,$99,$9A,$9B,$9C,$9D,$9E,$9F,$A0,$A1,$A2,$A3,$A4,$A5,$F1,$A6,$A7,$A8,$A9,$AA,$AB,$AC,$AD,$AE,$AF,$E0,$E1,$E2,$E3,$E4,$E5,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF);
    const wins:array[1..72] of byte = ($B2,$B3,$C0,$C1,$C2,$C3,$C4,$C5,$A8,$AA,$BA,$AF,$BF,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD,$CE,$CF,$D0,$D1,$D2,$D3,$D4,$D5,$D6,$D7,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$E0,$E1,$E2,$E3,$E4,$E5,$B8,$E6,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF,$F0,$F1,$F2,$F3,$F4,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$FC,$FD,$FE,$FF);
  { AA(BA) -win f2(f3) - dos ukr E; AF(BF) - win F4(F5) - dos ukr II}
@@ -5457,6 +5457,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
       I,J           : integer;
       NewPerson     : Person_Ptr;
       DebugMode     : integer;
+      modeRecalc    : Integer;
   function NeedNewPerson:boolean;
    begin
         Result := false;
@@ -5742,13 +5743,20 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                     DebugMode:=1;
                     if Curr_Person^.AUTOMATIC=AUTOMATIC_MODE then
                        begin
-                            Recalc_Person_Sql(Curr_Person,PPeriodRec(List.Items[i-1])^.YearZa,PPeriodRec(List.Items[i-1])^.MonthZa,DebugMode);
-                            if PPeriodRec(List.Items[i-1])^.MonthZa=NMES then
+                            y:=PPeriodRec(List.Items[i-1])^.YearZa;
+                            m:=PPeriodRec(List.Items[i-1])^.MonthZa;
+                            if ((m=NMES) and (y=curryear)) then
                                Calc_Naud_Person(Curr_Person,31)
                                                  else
                                begin
+                                    RecalcAddPerson(Y,M,Curr_Person);
+//                                    Recalc_Person_Sql(Curr_Person,PPeriodRec(List.Items[i-1])^.YearZa,PPeriodRec(List.Items[i-1])^.MonthZa,DebugMode);
                                     FLAG_NAUD_FOR_OTHER_MONTH:=true;
-                                    Update_Podoh(Curr_Person,PPeriodRec(List.Items[i-1])^.MonthZa,PPeriodRec(List.Items[i-1])^.YearZa-1990);
+                                    if curr_person^.WID_RABOTY=1 then
+                                       modeRecalc:=2     // Для основных - все строки
+                                    else
+                                       modeRecalc:=1;    // Для совместителей только эту строку пересчитать
+                                    Update_Podoh(Curr_Person,m,y-1990,1); // Пересчитаьь только эту строку
                                     FLAG_NAUD_FOR_OTHER_MONTH:=false;
                                end
                        end;
@@ -5779,22 +5787,24 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 }
                S:= 'update boln set '+FieldS+'='''+DatePS+'''';
                S:=S+' where shifrid='+IntToStr(ShifrIdBoln);
-               if not FIB.pFIBQuery.Transaction.Active then
-                  FIB.pFIBQuery.Transaction.StartTransaction;
-               FIB.pFIBQuery.SQL.Clear;
-               FIB.pFIBQuery.SQL.Add(S);
-               try
-                  FormWait.Show;
-                  Application.ProcessMessages;
-                  FIB.pFIBQuery.ExecQuery;
-                  FormWait.Hide;
-                  FIB.pFIBQuery.Close;
-              except
-                   ShowMessage('Ошибка записи даты переноса');
-               end;
+               SQLExecute(s);
           end;
-       if FIB.pFIBQuery.Transaction.Active then
-          FIB.pFIBQuery.Transaction.Commit;
+//               if not FIB.pFIBQuery.Transaction.Active then
+//                  FIB.pFIBQuery.Transaction.StartTransaction;
+//               FIB.pFIBQuery.SQL.Clear;
+//               FIB.pFIBQuery.SQL.Add(S);
+//               try
+//                  FormWait.Show;
+//                  Application.ProcessMessages;
+//                  FIB.pFIBQuery.ExecQuery;
+//                  FormWait.Hide;
+//                  FIB.pFIBQuery.Close;
+//              except
+//                   ShowMessage('Ошибка записи даты переноса');
+//               end;
+//          end;
+//       if FIB.pFIBQuery.Transaction.Active then
+//          FIB.pFIBQuery.Transaction.Commit;
 
        if ShifrPod<>NSRV_Temp then
           begin
@@ -5804,7 +5814,6 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                MKFLNM;
                GETINF(TRUE);
           end;
-
   end;
 
 
@@ -6030,14 +6039,42 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 //                  begin
                     DebugMode:=1;
                     if Curr_Person^.AUTOMATIC=AUTOMATIC_MODE then
+                    if Curr_Person^.WID_RABOTY<>1 then
                        begin
-                            Recalc_Person_Sql(Curr_Person,PPeriodRec(List.Items[i-1])^.YearZa,PPeriodRec(List.Items[i-1])^.MonthZa,DebugMode);
-                            if PPeriodRec(List.Items[i-1])^.MonthZa=NMES then
+                            y:=PPeriodRec(List.Items[i-1])^.YearZa;
+                            m:=PPeriodRec(List.Items[i-1])^.MonthZa;
+                            Recalc_Person_Sql(Curr_Person,Y,M,DebugMode);
+                            if M=NMES then
                                Calc_Naud_Person(Curr_Person,31)
                                                  else
                                begin
                                     FLAG_NAUD_FOR_OTHER_MONTH:=true;
-                                    Update_Podoh(Curr_Person,PPeriodRec(List.Items[i-1])^.MonthZa,PPeriodRec(List.Items[i-1])^.YearZa-1990);
+                                    Update_Podoh(Curr_Person,M,Y-1990,1);
+                                    FLAG_NAUD_FOR_OTHER_MONTH:=false;
+                               end
+                       end;
+//                  end;
+           end;
+       for i:=1 to List.Count do
+           begin
+                j:=i;
+          //      ShowMessage('y='+IntToStr(PPeriodRec(List.Items[i-1])^.YearZa)+' m='+IntToStr(PPeriodRec(List.Items[i-1])^.MonthZa));
+                DebugMode:=0;
+                if (trim(Curr_Person^.Dolg)='до 31.01.11') then
+//                  begin
+                    DebugMode:=1;
+                    if Curr_Person^.AUTOMATIC=AUTOMATIC_MODE then
+                    if Curr_Person^.WID_RABOTY=1 then
+                       begin
+                            y:=PPeriodRec(List.Items[i-1])^.YearZa;
+                            m:=PPeriodRec(List.Items[i-1])^.MonthZa;
+                            Recalc_Person_Sql(Curr_Person,Y,M,DebugMode);
+                            if M=NMES then
+                               Calc_Naud_Person(Curr_Person,31)
+                                                 else
+                               begin
+                                    FLAG_NAUD_FOR_OTHER_MONTH:=true;
+                                    Update_Podoh(Curr_Person,M,Y-1990,2);
                                     FLAG_NAUD_FOR_OTHER_MONTH:=false;
                                end
                        end;
@@ -6107,7 +6144,8 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
       ShifrId       : integer;
       DateFr,DateTo : TDateTime;
       DateB,DateE   : TDateTime;     {Первый и посление дни текущего месяца}
-      Y,M,D         : word;
+      Y,M,D,y1,m1   : word;
+      YCurr,mCurr   : word;
       Updated       : boolean;
       CurrD         : TDateTime;
       DatePS,FieldS : string;
@@ -6165,151 +6203,55 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
           end;
          MAKE_OBO_TABEL_FROM_SQL(curr_person);
          CALC_NAUD_PERSON(Curr_Person,31);
-(*
-         List:=TList.Create;
+
+         List    := TList.Create;
          Updated := false;
-         S:= 'select ShifrSta,summa_k_bud, summa_k_vne, summa_k_gn, summa_k_nis,'+
-             ' Year_Za,Month_Za,a.k_day,b.ShifrId,b.f_data,b.l_data' +
-             ' from tb_komand_res a join tb_komand b on a.ShifrIdKmnd=b.ShifrId' +
-             ' where b.ShifrId=' + IntToStr(ShifrIDKmd);
-         if not FIB.pFIBQuery.Transaction.Active then
-            FIB.pFIBQuery.Transaction.StartTransaction;
-
-         FIB.pFIBQuery.SQL.Clear;
-         FIB.pFIBQuery.SQL.Add(S);
-         try
-            FormWait.Show;
-            Application.ProcessMessages;
-            FIB.pFIBQuery.ExecQuery;
-            FormWait.Hide;
-            DateFr:=date;
-            DateTo:=dateFr;
-            shifrsta:=1;
-            while not FIB.pFIBQuery.Eof do
-             begin
-                  ShifrSta := FIB.pFIBQuery.Fields[0].AsInteger;
-                  YearZa   := FIB.pFIBQuery.Fields[5].AsInteger;
-                  MonthZa  := FIB.pFIBQuery.Fields[6].AsInteger;
-                  K_Day    := FIB.pFIBQuery.Fields[7].AsInteger;
-                  Summa    := FIB.pFIBQuery.Fields[Gruppa].AsFloat;
-                  ShifrId  := FIB.pFIBQuery.Fields[8].AsInteger;
-                  DateFr   := FIB.pFIBQuery.Fields[9].AsDate;
-                  DateTo   := FIB.pFIBQuery.Fields[10].AsDate;
-                  DecodeDate(DateFr,Y,M,D);
-                  DecodeDate(DateTo,Y,M,D);
-
-                  { Изменение от 17 05 2009 }
-                  { занести в список для Изменение от 17 05 2009 }
-{ ======================================================= }
-                   Finded:=false;
-                   for i:=0 to List.Count-1 do
-                       if (PPeriodRec(List.Items[i])^.YearZa  = YearZa) and
-                          (PPeriodRec(List.Items[i])^.MonthZa = MonthZa) then
-                          begin
-                                Finded:=true;
-                                break;
-                          end;
-                   if not Finded then
-                      if (YearZa<>CurrYear) or (MonthZa<>NMES) then
-                         begin
-                              New(PeriodRec);
-                              PeriodRec.YearZa  := YearZa;
-                              PeriodRec.MonthZa := MonthZa;
-                              List.Add(PeriodRec);
-                         end;
-{ ======================================================= }
-                  { Конец изменений от 17 05 2009 }
-
-
-
-
-                  if abs(Summa)>0.009  then
-                     begin
-                          if NeedAdd then
-                             begin
-                                   Make_Add(Curr_Add,Curr_Person);
-                                   Curr_Add^.Shifr    := ShifrSta;
-                                   Curr_Add^.Period   := MonthZa;
-                                   Curr_Add^.Year     := YearZa-1990;
-                                   Curr_Add^.Summa    := Summa;
-                                   Curr_Add^.FZP      := Summa;
-                                   Curr_Add^.Work_Day := K_Day;
-                                   Curr_Add^.Who      := ShifrId mod 60000;
-                                   Updated := true;
-                             end;
-{
-                          Finded:=false;
-                          for i:=0 to List.Count-1 do
-                              if (PPeriodRec(List.Items[i])^.YearZa  = YearZa) and
-                                 (PPeriodRec(List.Items[i])^.MonthZa = MonthZa) then
-                                  begin
-                                       Finded:=true;
-                                       break;
-                                  end;
-                          if not Finded then
-                          if (YearZa<>CurrYear) or (MonthZa<>NMES) then
-                             begin
-                                   New(PeriodRec);
-                                   PeriodRec.YearZa  := YearZa;
-                                   PeriodRec.MonthZa := MonthZa;
-                                   List.Add(PeriodRec);
-                             end;
-}
-                     end;
-                  FIB.pFIBQuery.Next;
-             end;
-            FIB.pFIBQuery.Close;
-         except
-            MessageDlg('Ошибка SQL запроса',mtInformation, [mbOk], 0);
-            Exit;
-         end;
-       if FIB.pFIBQuery.Transaction.Active then
-          FIB.pFIBQuery.Transaction.Commit;
-       if Assigned(Curr_Person) then
-       if NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo) then
-          begin
-               Make_Kmd_Tabel(Curr_Person,DateFr,DateTo);
-               if IsShifrInAddPerson(Curr_Person,138) then
-                   ShifrSta:=ShifrSta;
-               Calc_Naud_Person(Curr_Person,31);
-               if IsShifrInAddPerson(Curr_Person,138) then
-                   ShifrSta:=ShifrSta;
-{
-               Curr_Person^.HOLIDAY[1,1,1]:=DayOf(DateFr);
-               Curr_Person^.HOLIDAY[1,1,2]:=MonthOf(DateFr);
-               Curr_Person^.HOLIDAY[1,1,3]:=YearOf(DateFr) - 1900;
-               Curr_Person^.HOLIDAY[1,2,1]:=DayOf(DateFr);
-               Curr_Person^.HOLIDAY[1,2,2]:=MonthOf(DateFr);
-               Curr_Person^.HOLIDAY[1,2,3]:=YearOf(DateFr) - 1900;
-}
-          end;
+         currd   := DateFrObo;
+         y       := YearOf(currd);
+         m       := MonthOf(currD);
+         y1      := CurrentYear;
+         m1      := NMES;
+         yCurr   := 0;
+         mCurr   := 0;
+         while (CurrD<dateToObo) do
+           begin
+                y:=YearOf(currd);
+                m:=MonthOf(currD);
+                if EncodeDate(y,m,1)<encodedate(y1,m1,1) then
+                   begin
+                        if ((y<>YCurr) or (m<>mCurr)) then
+                           begin
+                                YCurr:=y;
+                                mCurr:=m;
+                                New(PeriodRec);
+                                FillChar(periodRec^,sizeOf(periodRec^),0);
+                                PeriodRec.YearZa  := YCurr;
+                                PeriodRec.MonthZa := MCurr;
+                                List.Add(PeriodRec);
+                           end;
+                   end;
+                currD:=IncDay(CurrD,1);
+           end;
        for i:=1 to List.Count do
            begin
                 j:=i;
-          //      ShowMessage('y='+IntToStr(PPeriodRec(List.Items[i-1])^.YearZa)+' m='+IntToStr(PPeriodRec(List.Items[i-1])^.MonthZa));
                 DebugMode:=0;
-                if (trim(Curr_Person^.Dolg)='до 31.01.11') then
-//                  begin
-                    DebugMode:=1;
-                    if Curr_Person^.AUTOMATIC=AUTOMATIC_MODE then
-                       begin
-                            Recalc_Person_Sql(Curr_Person,PPeriodRec(List.Items[i-1])^.YearZa,PPeriodRec(List.Items[i-1])^.MonthZa,DebugMode);
-                            if PPeriodRec(List.Items[i-1])^.MonthZa=NMES then
-                               Calc_Naud_Person(Curr_Person,31)
-                                                 else
-                               begin
-                                    FLAG_NAUD_FOR_OTHER_MONTH:=true;
-                                    Update_Podoh(Curr_Person,PPeriodRec(List.Items[i-1])^.MonthZa,PPeriodRec(List.Items[i-1])^.YearZa-1990);
-                                    FLAG_NAUD_FOR_OTHER_MONTH:=false;
-                               end
-                       end;
-//                  end;
+                if Curr_Person^.AUTOMATIC=AUTOMATIC_MODE then
+                   begin
+                        y:=PPeriodRec(List.Items[i-1])^.YearZa;
+                        m:=PPeriodRec(List.Items[i-1])^.MonthZa;
+//                        Recalc_Person_Sql(Curr_Person,PPeriodRec(List.Items[i-1])^.YearZa,PPeriodRec(List.Items[i-1])^.MonthZa,DebugMode);
+                        RecalcAddPerson(y,m,Curr_Person);
+                        FLAG_NAUD_FOR_OTHER_MONTH:=true;
+                        Update_Podoh(Curr_Person,PPeriodRec(List.Items[i-1])^.MonthZa,PPeriodRec(List.Items[i-1])^.YearZa-1990);
+                        FLAG_NAUD_FOR_OTHER_MONTH:=false;
+                   end
            end;
      { Пометить больничный как перенесеный }
        for i:=0 to List.Count-1 do
            Dispose(PPeriodRec(List.Items[i]));
        List.Free;
-
+(*
        if (Updated) and (NeedAdd) then
           begin
                CurrD  := Date;
