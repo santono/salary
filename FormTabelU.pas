@@ -57,6 +57,7 @@ implementation
 
 {$R *.dfm}
 const
+(*
       {$IFDEF SVDN}
         MAX_TABEL_KOD=20;
         SHIFR_TABEL:ARRAY[1..MAX_TABEL_KOD] OF STRING[2]=
@@ -112,6 +113,7 @@ const
             'Неявка по неизвестным причинам    '
             );
       {$ENDIF}
+*)
       LONG_MONTH:ARRAY[1..12] OF INTEGER=
          (31,29,31,30,31,30,31,31,30,31,30,31);
             RIGHT_DIRECTION = 1;

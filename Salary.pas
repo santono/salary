@@ -442,6 +442,7 @@ type
     NOtpBS: TMenuItem;
     ToolButtonObo: TToolButton;
     ActionOtpBSAboList: TAction;
+    NClearTmpTableSRD: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -725,6 +726,7 @@ type
     procedure ClearTmpTablesKMDClick(Sender: TObject);
     procedure ActionOtpBSBrowseExecute(Sender: TObject);
     procedure ActionOtpBSAboListExecute(Sender: TObject);
+    procedure NClearTmpTableSRDClick(Sender: TObject);
 
 
   private
@@ -1476,6 +1478,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ActionOtpBSBrowse.enabled:=False;
           ActionOtpBSListAbo.enabled:=False;
           ToolbottonObo.visible:=false;
+          NClearTmpTableSRD.visible:=False;
+          NClearTmpTableSRD.enabled:=False;
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
        {$ELSE}
 
@@ -5092,6 +5096,23 @@ begin
     tabno:=curr_person^.tabno;
     FormOtpBSListAbo:=TFormOtpBSListAbo.CreateAbo(Self,tabno);
     FormOtpBSListAbo.showModal;
+
+end;
+
+procedure TMainForm.NClearTmpTableSRDClick(Sender: TObject);
+begin
+     if YesNo('Вы хотите очистить временные таблицы, которые используются для расчета оплаты по среднедневной з.п..'+#13#10+
+              ' Проверьте, чтобы никто не начислял в этот момент оплаты по среднедневному'+#13#10+
+              ' И нажмите кнопкку ДА, если хотите продолжить') then
+        begin
+             DeleteAllFromTmpSrdTables;
+             FormWaitMess.SetMessage('Табл.очищены');
+             FormWaitMess.Show;
+             repeat
+                   Application.ProcessMessages;
+             until FormWaitMess.Timer1.Enabled=false;
+             FormWaitMess.Hide;
+        end;
 
 end;
 

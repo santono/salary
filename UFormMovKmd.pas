@@ -83,7 +83,8 @@ type
 public
     WantedTabno : integer;
     Curr_Person : Person_Ptr;
-    ShifrIdKmd : Integer;
+    ShifrIdKmd  : Integer;
+    shifrSta    : Integer;
     procedure PrepareHints;
     { Public declarations }
   end;
@@ -516,10 +517,10 @@ begin
          end;
  //    if IsShifrInAddPerson(Curr_Person,138) then
  //       i:=1;;
-
+     BtnMove.Enabled:=False;
      if (abs(SummaBud)>0.009) and (FHSHintComboBoxBud.ItemIndex>=0) then
         begin
-             MoveKmdToPerson(ShifrIdKmd,1,WantedTabno,
+             MoveKmdToPerson(ShifrIdKmd,1,WantedTabno,shifrsta,
                  PPersonRec(PersonList.Items[FHSHintComboBoxBud.ItemIndex])^.ShifrPod,
                  PPersonRec(PersonList.Items[FHSHintComboBoxBud.ItemIndex])^.ShifrKat,
                  PPersonRec(PersonList.Items[FHSHintComboBoxBud.ItemIndex])^.ShifrGru,
@@ -535,7 +536,7 @@ begin
 
      if (abs(SummaVNE)>0.009) and (FHSHintComboBoxVNE.ItemIndex>=0) then
         begin
-             MoveKmdToPerson(ShifrIdKmd,2,WantedTabno,
+             MoveKmdToPerson(ShifrIdKmd,2,WantedTabno,shifrSta,
                  PPersonRec(PersonList.Items[FHSHintComboBoxVNE.ItemIndex])^.ShifrPod,
                  PPersonRec(PersonList.Items[FHSHintComboBoxVNE.ItemIndex])^.ShifrKat,
                  PPersonRec(PersonList.Items[FHSHintComboBoxVNE.ItemIndex])^.ShifrGru,
@@ -547,7 +548,7 @@ begin
         end;
      if (abs(SummaGN)>0.009) and (FHSHintComboBoxGN.ItemIndex>=0) then
         begin
-             MoveKmdToPerson(ShifrIdKmd,3,WantedTabno,
+             MoveKmdToPerson(ShifrIdKmd,3,WantedTabno,shifrSta,
                  PPersonRec(PersonList.Items[FHSHintComboBoxGN.ItemIndex])^.ShifrPod,
                  PPersonRec(PersonList.Items[FHSHintComboBoxGN.ItemIndex])^.ShifrKat,
                  PPersonRec(PersonList.Items[FHSHintComboBoxGN.ItemIndex])^.ShifrGru,
@@ -559,7 +560,7 @@ begin
         end;
      if (abs(SummaNIS)>0.009) and (FHSHintComboBoxNIS.ItemIndex>=0) then
         begin
-             MoveKmdToPerson(ShifrIdKmd,4,WantedTabno,
+             MoveKmdToPerson(ShifrIdKmd,4,WantedTabno,shifrSta,
                  PPersonRec(PersonList.Items[FHSHintComboBoxNIS.ItemIndex])^.ShifrPod,
                  PPersonRec(PersonList.Items[FHSHintComboBoxNIS.ItemIndex])^.ShifrKat,
                  PPersonRec(PersonList.Items[FHSHintComboBoxNIS.ItemIndex])^.ShifrGru,
@@ -578,7 +579,7 @@ begin
                if i=FHSHintComboBoxVNE.ItemIndex then continue;
                if PPersonRec(PersonList.Items[i])^.Moved then continue;
                if not Assigned(StringGridSel.Objects[0,i]) then continue;
-               MoveKmdToPerson(ShifrIdKmd,2,WantedTabno, { Группа указана вторая но это все равно ведь только перрасчет по табелю }
+               MoveKmdToPerson(ShifrIdKmd,2,WantedTabno,shifrSta, { Группа указана вторая но это все равно ведь только перрасчет по табелю }
                    PPersonRec(PersonList.Items[i])^.ShifrPod,
                    PPersonRec(PersonList.Items[i])^.ShifrKat,
                    PPersonRec(PersonList.Items[i])^.ShifrGru,
@@ -598,6 +599,7 @@ begin
 
 
          end;
+     BtnMove.Enabled:=True;
      ShowMessage('Командировочный перенесен');
   //   if IsShifrInAddPerson(Curr_Person,138) then
   //      i:=1;;

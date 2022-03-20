@@ -699,6 +699,7 @@ procedure TPersonO.calculateNadbawki(curr_person:person_ptr);
              if wantedShifr<LIMIT_CN_BASE then
              if ShifrList.IsAdd(wantedShifr) then
              if curr_cn^.AUTOMATIC=automatic_mode then
+             if curr_cn^.summa<0.01 then
              if curr_cn^.KOD in [1,2,3,4,5,6] then //1-абс сумма ФЗП 2-% окл фзп
                                                    //3-абс сумма ФМП 4-% окл фмп
                                                    //5-абс сумма OTH 6-% окл other

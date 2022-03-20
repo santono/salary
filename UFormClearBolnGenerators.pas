@@ -22,7 +22,7 @@ var
   FormClearBolnGenerators: TFormClearBolnGenerators;
 
 implementation
-   uses UFibModule,uFormWait,ScrDef;
+   uses UFibModule,uFormWait,ScrDef,USQLUnit;
 
 {$R *.dfm}
 
@@ -31,23 +31,29 @@ var SQLStmnt:string;
 begin
      FormWait.Show;
      SQLStmnt:='ALTER SEQUENCE GBOLNTMPSUMMY RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GBOLNATMP RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GBOLNTMPRES RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GOTP_SUMMY_TMP RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GOTP_ADD_TMP RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GOTP_RES_TMP RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE gkomandtmpsummy RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE gkomandaddtmp RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE gkomandrestmp RESTART WITH 1';
-     FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
+     SQLStmnt:='ALTER SEQUENCE GSRDADDTMP RESTART WITH 1';
+     SQLExecute(SQLStmnt);
+     SQLStmnt:='ALTER SEQUENCE GSRDTMPSUMMY RESTART WITH 1';
+     SQLExecute(SQLStmnt);
+     SQLStmnt:='ALTER SEQUENCE GSRDRESTMP RESTART WITH 1';
+     SQLExecute(SQLStmnt);
      FormWait.Hide;
      if not needHideGenerMessages then
         ShowMessage('Готово!.'+^M+'Не забудьте очистить временные таблицы для предотвращения возможности дублирования их первичных ключей.');

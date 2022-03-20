@@ -396,7 +396,8 @@ uses
   UFormOtpBSUpdAbo in 'UFormOtpBSUpdAbo.pas' {FormOtpBSUpdAbo},
   UFormOtpBsMoveAbo in 'UFormOtpBsMoveAbo.pas' {FormOtpBsMoveAbo},
   UVersionAPP in 'UVersionAPP.pas',
-  UORecalcAddPerson in 'UORecalcAddPerson.pas';
+  UORecalcAddPerson in 'UORecalcAddPerson.pas',
+  UFormCNSrd in 'UFormCNSrd.pas' {FormCNSrd};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

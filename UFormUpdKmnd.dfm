@@ -1,8 +1,8 @@
 object FormUpdKmnd: TFormUpdKmnd
-  Left = 226
-  Top = 109
+  Left = 256
+  Top = 115
   Width = 790
-  Height = 639
+  Height = 712
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1079#1072#1087#1080#1089#1080' '#1088#1072#1089#1095#1077#1090#1072' '#1082#1086#1084#1072#1085#1076#1080#1088#1086#1074#1086#1095#1085#1099#1093
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -32,11 +32,18 @@ object FormUpdKmnd: TFormUpdKmnd
     Caption = #1044#1085#1077#1081
   end
   object LabelWR: TLabel
-    Left = 336
+    Left = 296
     Top = 48
     Width = 91
     Height = 20
     Caption = #1042#1080#1076' '#1088#1072#1073#1086#1090#1099
+  end
+  object Label1: TLabel
+    Left = 560
+    Top = 24
+    Width = 56
+    Height = 20
+    Caption = #1057#1090#1072#1090#1100#1103
   end
   object BitBtn1: TBitBtn
     Left = 712
@@ -66,8 +73,8 @@ object FormUpdKmnd: TFormUpdKmnd
     TabOrder = 2
   end
   object BitBtn2: TBitBtn
-    Left = 8
-    Top = 496
+    Left = 16
+    Top = 576
     Width = 75
     Height = 25
     TabOrder = 3
@@ -75,8 +82,8 @@ object FormUpdKmnd: TFormUpdKmnd
     Kind = bkOK
   end
   object BitBtn3: TBitBtn
-    Left = 88
-    Top = 496
+    Left = 96
+    Top = 576
     Width = 153
     Height = 25
     Caption = #1048#1085#1080#1094#1080#1072#1083#1080#1079#1072#1094#1080#1103
@@ -85,22 +92,22 @@ object FormUpdKmnd: TFormUpdKmnd
   end
   object PageControl1: TPageControl
     Left = 8
-    Top = 80
+    Top = 112
     Width = 737
-    Height = 409
-    ActivePage = TabSheet1
+    Height = 449
+    ActivePage = TabSheetRas
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = #1048#1089#1093'.'#1076#1072#1085#1085#1099#1077
       OnShow = TabSheet1Show
       DesignSize = (
         729
-        374)
+        414)
       object dxDBGridSum: TdxDBGrid
         Left = 0
         Top = 8
         Width = 721
-        Height = 360
+        Height = 400
         Bands = <
           item
           end>
@@ -117,7 +124,7 @@ object FormUpdKmnd: TFormUpdKmnd
         Anchors = [akLeft, akTop, akRight, akBottom]
         object dxDBGridSumCONNID: TdxDBGridMaskColumn
           Visible = False
-          Width = 62
+          Width = 61
           BandIndex = 0
           RowIndex = 0
           FieldName = 'CONNID'
@@ -125,7 +132,7 @@ object FormUpdKmnd: TFormUpdKmnd
         object dxDBGridSumSEL: TdxDBGridCheckColumn
           Caption = #1042
           MinWidth = 20
-          Width = 22
+          Width = 24
           BandIndex = 0
           RowIndex = 0
           OnChange = dxDBGridSumSELChange
@@ -140,7 +147,7 @@ object FormUpdKmnd: TFormUpdKmnd
           Alignment = taLeftJustify
           Caption = #1056'.'#1088'.'
           HeaderAlignment = taCenter
-          Width = 34
+          Width = 39
           BandIndex = 0
           RowIndex = 0
           OnChange = dxDBGridSumManual_calcChange
@@ -153,21 +160,21 @@ object FormUpdKmnd: TFormUpdKmnd
         end
         object dxDBGridSumMONTH_ZA: TdxDBGridCalcColumn
           Caption = #1052'-'#1094
-          Width = 47
+          Width = 43
           BandIndex = 0
           RowIndex = 0
           FieldName = 'MONTH_ZA'
         end
         object dxDBGridSumYEAR_ZA: TdxDBGridCalcColumn
           Caption = #1043#1086#1076
-          Width = 52
+          Width = 46
           BandIndex = 0
           RowIndex = 0
           FieldName = 'YEAR_ZA'
         end
         object dxDBGridSumSUMMA_BUD: TdxDBGridCalcColumn
           Caption = #1041#1102#1076#1078#1077#1090
-          Width = 78
+          Width = 57
           BandIndex = 0
           RowIndex = 0
           FieldName = 'SUMMA_BUD'
@@ -175,7 +182,7 @@ object FormUpdKmnd: TFormUpdKmnd
         object dxDBGridSumSUMMA_VNE: TdxDBGridCalcColumn
           Caption = #1042#1085#1077' '#1073#1102#1076#1078#1077#1090
           HeaderAlignment = taCenter
-          Width = 127
+          Width = 81
           BandIndex = 0
           RowIndex = 0
           FieldName = 'SUMMA_VNE'
@@ -183,7 +190,7 @@ object FormUpdKmnd: TFormUpdKmnd
         object dxDBGridSumSUMMA_GN: TdxDBGridCalcColumn
           Caption = #1043' '#1085
           HeaderAlignment = taCenter
-          Width = 73
+          Width = 55
           BandIndex = 0
           RowIndex = 0
           FieldName = 'SUMMA_GN'
@@ -191,14 +198,14 @@ object FormUpdKmnd: TFormUpdKmnd
         object dxDBGridSumSUMMA_NIS: TdxDBGridCalcColumn
           Caption = #1053#1048#1057
           HeaderAlignment = taCenter
-          Width = 71
+          Width = 55
           BandIndex = 0
           RowIndex = 0
           FieldName = 'SUMMA_NIS'
         end
         object dxDBGridSumOKLAD_M: TdxDBGridCalcColumn
           Caption = #1054#1082#1083#1072#1076
-          Width = 65
+          Width = 52
           BandIndex = 0
           RowIndex = 0
           FieldName = 'OKLAD_M'
@@ -206,14 +213,14 @@ object FormUpdKmnd: TFormUpdKmnd
         object dxDBGridSumDAYS: TdxDBGridCalcColumn
           Caption = #1044#1085
           HeaderAlignment = taCenter
-          Width = 49
+          Width = 44
           BandIndex = 0
           RowIndex = 0
           FieldName = 'DAYS'
         end
         object dxDBGridSumGRAPHIC_DAY: TdxDBGridMaskColumn
           Caption = #1043#1088'.'#1076#1085'.'
-          Width = 55
+          Width = 47
           BandIndex = 0
           RowIndex = 0
           FieldName = 'GRAPHIC_DAY'
@@ -221,7 +228,7 @@ object FormUpdKmnd: TFormUpdKmnd
         object dxDBGridSumKOEF: TdxDBGridCalcColumn
           Caption = #1050#1086#1101#1092
           HeaderAlignment = taCenter
-          Width = 105
+          Width = 71
           BandIndex = 0
           RowIndex = 0
           FieldName = 'KOEF'
@@ -229,13 +236,14 @@ object FormUpdKmnd: TFormUpdKmnd
         object dxDBGridSumDayKalend: TdxDBGridColumn
           Caption = #1050#1088#1076
           HeaderAlignment = taCenter
+          Width = 65
           BandIndex = 0
           RowIndex = 0
           FieldName = 'DAY_KALEND_WORK'
         end
         object dxDBGridSumColumnButton: TdxDBGridButtonColumn
           Caption = #1055#1089#1084
-          Width = 44
+          Width = 38
           BandIndex = 0
           RowIndex = 0
           ButtonOnly = True
@@ -362,10 +370,211 @@ object FormUpdKmnd: TFormUpdKmnd
         TabOrder = 0
       end
     end
+    object TabSheetRas: TTabSheet
+      Caption = #1056#1072#1089#1095#1077#1090
+      ImageIndex = 3
+      OnShow = TabSheetRasShow
+      object LabelCalc: TLabel
+        Left = 8
+        Top = 384
+        Width = 70
+        Height = 20
+        Caption = 'LabelCalc'
+      end
+      object dxDBGridRas: TdxDBGrid
+        Left = 0
+        Top = 0
+        Width = 729
+        Height = 377
+        Bands = <
+          item
+          end>
+        DefaultLayout = True
+        HeaderPanelRowCount = 1
+        KeyField = 'SHIFRIDTMP'
+        ShowSummaryFooter = True
+        SummaryGroups = <>
+        SummarySeparator = ', '
+        PopupMenu = PopupMenu1
+        TabOrder = 0
+        DataSource = DataSourceSummy
+        Filter.Criteria = {00000000}
+        OptionsBehavior = [edgoDragScroll, edgoEditing, edgoEnterShowEditor, edgoImmediateEditor, edgoTabThrough, edgoVertThrough]
+        OptionsDB = [edgoCancelOnExit, edgoCanNavigation, edgoConfirmDelete, edgoLoadAllRecords, edgoUseBookmarks]
+        OptionsView = [edgoAutoWidth, edgoBandHeaderWidth, edgoRowSelect, edgoUseBitmap]
+        object dxDBGridRasCONNID: TdxDBGridMaskColumn
+          Visible = False
+          Width = 84
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'CONNID'
+        end
+        object dxDBGridRasSEL: TdxDBGridCheckColumn
+          MinWidth = 20
+          Width = 20
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'SEL'
+          ValueChecked = '1'
+          ValueGrayed = '0'
+          ValueUnchecked = '0'
+        end
+        object dxDBGridRasMANUAL_CALC: TdxDBGridCheckColumn
+          Caption = #1056'.'#1088'.'
+          MinWidth = 20
+          Width = 38
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'MANUAL_CALC'
+          ValueChecked = '1'
+          ValueGrayed = '0'
+          ValueUnchecked = '0'
+        end
+        object dxDBGridRasMONTH_ZA: TdxDBGridMaskColumn
+          Caption = #1052#1094
+          Width = 44
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'MONTH_ZA'
+        end
+        object dxDBGridRasYEAR_ZA: TdxDBGridMaskColumn
+          Caption = #1043#1086#1076
+          HeaderAlignment = taCenter
+          Width = 55
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'YEAR_ZA'
+        end
+        object dxDBGridRasSUMMA_BUD: TdxDBGridCurrencyColumn
+          Visible = False
+          Width = 97
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'SUMMA_BUD'
+          Nullable = False
+        end
+        object dxDBGridRasSUMMA_VNE: TdxDBGridCurrencyColumn
+          Visible = False
+          Width = 97
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'SUMMA_VNE'
+          Nullable = False
+        end
+        object dxDBGridRasSUMMA_GN: TdxDBGridCurrencyColumn
+          Visible = False
+          Width = 91
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'SUMMA_GN'
+          Nullable = False
+        end
+        object dxDBGridRasSUMMA_NIS: TdxDBGridCurrencyColumn
+          Visible = False
+          Width = 93
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'SUMMA_NIS'
+          Nullable = False
+        end
+        object dxDBGridRasOKLAD_M: TdxDBGridCurrencyColumn
+          Visible = False
+          Width = 84
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'OKLAD_M'
+          Nullable = False
+        end
+        object dxDBGridRasGRAPHIC_DAY: TdxDBGridMaskColumn
+          Visible = False
+          Width = 111
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'GRAPHIC_DAY'
+        end
+        object dxDBGridRasSHIFRIDTMP: TdxDBGridMaskColumn
+          Visible = False
+          Width = 95
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'SHIFRIDTMP'
+        end
+        object dxDBGridRasSumma: TdxDBGridColumn
+          HeaderAlignment = taCenter
+          Width = 102
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'Summa'
+          SummaryFooterType = cstSum
+        end
+        object dxDBGridRasSummaSel: TdxDBGridColumn
+          Alignment = taRightJustify
+          HeaderAlignment = taCenter
+          Width = 141
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'SummaSel'
+          SummaryFooterType = cstSum
+        end
+        object dxDBGridRasKOEF: TdxDBGridCurrencyColumn
+          Caption = #1050#1086#1101#1092
+          HeaderAlignment = taCenter
+          Width = 114
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'KOEF'
+          DisplayFormat = '0.00'
+          Nullable = False
+        end
+        object dxDBGridRasSummaSelUw: TdxDBGridColumn
+          HeaderAlignment = taCenter
+          Width = 143
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'SummaSelUw'
+          SummaryFooterType = cstSum
+          OnSummary = dxDBGridRasSummaSelUwSummary
+        end
+        object dxDBGridRasDAY_KALEND_WORK: TdxDBGridMaskColumn
+          Caption = #1056#1072#1073'.'#1076#1085'.'
+          HeaderAlignment = taCenter
+          Visible = False
+          Width = 41
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'DAY_KALEND_WORK'
+          SummaryFooterType = cstSum
+        end
+        object dxDBGridRasDAYS: TdxDBGridMaskColumn
+          Caption = #1056#1072#1073'.'#1076#1085'.'
+          HeaderAlignment = taCenter
+          Width = 68
+          BandIndex = 0
+          RowIndex = 0
+          FieldName = 'DAYS'
+          SummaryFooterType = cstSum
+        end
+      end
+      object cbRas: TComboBox
+        Left = 584
+        Top = 384
+        Width = 145
+        Height = 28
+        ItemHeight = 20
+        TabOrder = 1
+        Text = 'cbRas'
+        OnChange = cbRasChange
+        Items.Strings = (
+          #1041#1102#1076#1078#1077#1090
+          #1042#1085#1077#1073#1102#1076#1078#1077#1090
+          #1043#1053
+          #1053#1048#1057)
+      end
+    end
   end
   object BitBtn4: TBitBtn
-    Left = 248
-    Top = 496
+    Left = 256
+    Top = 576
     Width = 89
     Height = 25
     Caption = #1056#1072#1089#1095#1077#1090
@@ -373,8 +582,8 @@ object FormUpdKmnd: TFormUpdKmnd
     OnClick = BitBtn4Click
   end
   object Save: TBitBtn
-    Left = 352
-    Top = 496
+    Left = 360
+    Top = 576
     Width = 105
     Height = 25
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
@@ -382,8 +591,8 @@ object FormUpdKmnd: TFormUpdKmnd
     OnClick = SaveClick
   end
   object RadioGroupModeZaVy: TRadioGroup
-    Left = 480
-    Top = 496
+    Left = 488
+    Top = 576
     Width = 137
     Height = 41
     Hint = #1056#1077#1078#1080#1084' '#1080#1085#1080#1094#1080#1072#1083#1080#1079#1072#1094#1080#1080' '#1074' '#1080#1083#1080' '#1079#1072
@@ -398,8 +607,8 @@ object FormUpdKmnd: TFormUpdKmnd
     TabOrder = 8
   end
   object BitBtnDelNotSel: TBitBtn
-    Left = 624
-    Top = 498
+    Left = 632
+    Top = 578
     Width = 97
     Height = 25
     Caption = #1059#1076'.'#1085#1077' '#1086#1090#1084'.'
@@ -407,8 +616,8 @@ object FormUpdKmnd: TFormUpdKmnd
     OnClick = BitBtnDelNotSelClick
   end
   object BitBtn5: TBitBtn
-    Left = 624
-    Top = 528
+    Left = 632
+    Top = 608
     Width = 97
     Height = 25
     Caption = #1057#1093#1088'.'#1090#1077#1082'.'#1084#1077#1089'.'
@@ -416,8 +625,8 @@ object FormUpdKmnd: TFormUpdKmnd
     OnClick = BitBtn5Click
   end
   object RadioGroupModeDC: TRadioGroup
-    Left = 248
-    Top = 520
+    Left = 256
+    Top = 600
     Width = 185
     Height = 49
     Caption = #1057#1088#1077#1076#1085#1077
@@ -430,8 +639,8 @@ object FormUpdKmnd: TFormUpdKmnd
     OnClick = RadioGroupModeDCClick
   end
   object ComboBoxBuh: TComboBox
-    Left = 440
-    Top = 552
+    Left = 448
+    Top = 632
     Width = 281
     Height = 28
     ItemHeight = 20
@@ -440,7 +649,7 @@ object FormUpdKmnd: TFormUpdKmnd
     OnChange = ComboBoxBuhChange
   end
   object cbWR: TComboBox
-    Left = 432
+    Left = 392
     Top = 48
     Width = 145
     Height = 28
@@ -451,6 +660,19 @@ object FormUpdKmnd: TFormUpdKmnd
       #1054#1089#1085'. '#1080' '#1089#1086#1074#1084'.'
       #1054#1089#1085#1086#1074#1085#1072#1103
       #1057#1086#1074#1084#1077#1097#1077#1085#1080#1077)
+  end
+  object cbShifrSta: TComboBox
+    Left = 544
+    Top = 48
+    Width = 217
+    Height = 28
+    ItemHeight = 20
+    TabOrder = 14
+    Text = 'cbShifrSta'
+    OnChange = cbShifrStaChange
+    Items.Strings = (
+      '138 '#1050#1086#1084#1072#1085#1076#1080#1088#1086#1074#1082#1072
+      '173 '#1043#1086#1089#1086#1073#1103#1079#1072#1085#1085#1086#1089#1090#1080)
   end
   object DataSourceSummy: TDataSource
     DataSet = pFIBDataSetSummy
@@ -506,6 +728,7 @@ object FormUpdKmnd: TFormUpdKmnd
     AutoUpdateOptions.KeyFields = 'SHIFRIDTMP'
     AutoUpdateOptions.AutoReWriteSqls = True
     AutoUpdateOptions.GeneratorName = 'GKOMANDTMPSUMMY'
+    OnCalcFields = pFIBDataSetSummyCalcFields
     Transaction = pFIBTransactionRead
     Database = FIB.pFIBDatabaseSal
     UpdateTransaction = pFIBTransactionWrite
@@ -592,6 +815,27 @@ object FormUpdKmnd: TFormUpdKmnd
     end
     object pFIBDataSetSummyMANUAL_CALC: TFIBSmallIntField
       FieldName = 'MANUAL_CALC'
+    end
+    object pFIBDataSetSummysumma: TFloatField
+      DisplayLabel = #1057#1091#1084#1084#1072
+      FieldKind = fkCalculated
+      FieldName = 'Summa'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object pFIBDataSetSummySummaSel: TFloatField
+      DisplayLabel = #1054#1090#1084#1077#1095#1077#1085#1086
+      FieldKind = fkCalculated
+      FieldName = 'SummaSel'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object pFIBDataSetSummySummaSelUw: TFloatField
+      DisplayLabel = #1057#1091#1084#1084#1072' '#1091#1074'..'
+      FieldKind = fkCalculated
+      FieldName = 'SummaSelUw'
+      DisplayFormat = '0.00'
+      Calculated = True
     end
   end
   object pFIBDataSetRes: TpFIBDataSet
@@ -775,5 +1019,552 @@ object FormUpdKmnd: TFormUpdKmnd
     TPBMode = tpbDefault
     Left = 196
     Top = 311
+  end
+  object frxReport1: TfrxReport
+    Version = '4.3'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 44639.773050671300000000
+    ReportOptions.LastChange = 44639.842125555560000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    OnGetValue = frxReport1GetValue
+    Left = 308
+    Top = 223
+    Datasets = <
+      item
+        DataSet = frxDBDataset1
+        DataSetName = 'frxDBDataset1'
+      end>
+    Variables = <
+      item
+        Name = ' MyVariables'
+        Value = Null
+      end
+      item
+        Name = 'Header'
+        Value = ''
+      end
+      item
+        Name = 'Meanday'
+        Value = ''
+      end>
+    Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      Orientation = poLandscape
+      PaperWidth = 297.000000000000000000
+      PaperHeight = 210.000000000000000000
+      PaperSize = 9
+      LeftMargin = 10.000000000000000000
+      RightMargin = 10.000000000000000000
+      TopMargin = 10.000000000000000000
+      BottomMargin = 10.000000000000000000
+      TitleBeforeHeader = False
+      object MasterData1: TfrxMasterData
+        Height = 18.897650000000000000
+        Top = 139.842610000000000000
+        Width = 1046.929810000000000000
+        DataSet = frxDBDataset1
+        DataSetName = 'frxDBDataset1'
+        RowCount = 0
+        object Memo1: TfrxMemoView
+          Left = 37.795300000000000000
+          Width = 37.795275590551180000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."SEL"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo2: TfrxMemoView
+          Left = 75.590600000000000000
+          Width = 37.795275590000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."MANUAL_CALC"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo3: TfrxMemoView
+          Left = 188.976500000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."Summa"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo4: TfrxMemoView
+          Left = 283.464750000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."SummaSel"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo5: TfrxMemoView
+          Left = 377.953000000000000000
+          Width = 56.692913390000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2f'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."KOEF"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo6: TfrxMemoView
+          Left = 434.645950000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."SummaSelUw"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo8: TfrxMemoView
+          Left = 113.385900000000000000
+          Width = 37.795275590551180000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."MONTH_ZA"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo9: TfrxMemoView
+          Left = 151.181200000000000000
+          Width = 37.795300000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."YEAR_ZA"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo7: TfrxMemoView
+          Left = 529.134200000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DataField = 'DAYS'
+          DataSet = frxDBDataset1
+          DataSetName = 'frxDBDataset1'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDataset1."DAYS"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+      end
+      object ReportSummary1: TfrxReportSummary
+        Height = 83.149660000000000000
+        Top = 219.212740000000000000
+        Width = 1046.929810000000000000
+        object Memo19: TfrxMemoView
+          Left = 188.976500000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[SUM(<frxDBDataset1."Summa">,MasterData1)]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo20: TfrxMemoView
+          Left = 283.464750000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[SUM(<frxDBDataset1."SummaSel">,MasterData1)]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo21: TfrxMemoView
+          Left = 434.645950000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[SUM(<frxDBDataset1."SummaSelUw">,MasterData1)]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo22: TfrxMemoView
+          Left = 529.134200000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[SUM(<frxDBDataset1."DAYS">,MasterData1)]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo24: TfrxMemoView
+          Left = 3.779530000000000000
+          Top = 45.354360000000000000
+          Width = 619.842920000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -16
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1038#1057#1026#1056#181#1056#1169#1056#1029#1056#181#1056#1169#1056#1029#1056#181#1056#1030#1056#1029#1056#176#1057#1039' [Meanday]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+      end
+      object PageHeader1: TfrxPageHeader
+        Height = 60.472480000000000000
+        Top = 18.897650000000000000
+        Width = 1046.929810000000000000
+        object Memo23: TfrxMemoView
+          Width = 623.622450000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -19
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[Header]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo10: TfrxMemoView
+          Left = 37.795300000000000000
+          Top = 30.236240000000000000
+          Width = 37.795300000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1114#1057#1026#1056#1108)
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo11: TfrxMemoView
+          Left = 75.590600000000000000
+          Top = 30.236240000000000000
+          Width = 37.795300000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#160'.'#1057#1026'.')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo12: TfrxMemoView
+          Left = 113.385900000000000000
+          Top = 30.236240000000000000
+          Width = 37.795300000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1114#1057#8224'.')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo13: TfrxMemoView
+          Left = 151.181200000000000000
+          Top = 30.236240000000000000
+          Width = 37.795300000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#8220#1056#1109#1056#1169)
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo14: TfrxMemoView
+          Left = 188.976500000000000000
+          Top = 30.236240000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1038#1057#1107#1056#1112#1056#1112#1056#176)
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo15: TfrxMemoView
+          Left = 283.464750000000000000
+          Top = 30.236240000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1038#1057#1107#1056#1112#1056#1112#1056#176' '#1056#1109#1057#8218#1056#1112'.')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo16: TfrxMemoView
+          Left = 377.953000000000000000
+          Top = 30.236240000000000000
+          Width = 56.692950000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1113#1056#1109#1057#1036#1057#8222'.')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo17: TfrxMemoView
+          Left = 434.645950000000000000
+          Top = 30.236240000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1038#1057#1107#1056#1112#1056#1112#1056#176' '#1057#1107#1056#1030'.')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo18: TfrxMemoView
+          Left = 529.134200000000000000
+          Top = 30.236240000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#8221#1056#1029#1056#181#1056#8470)
+          ParentFont = False
+          VAlign = vaCenter
+        end
+      end
+    end
+  end
+  object frxDBDataset1: TfrxDBDataset
+    UserName = 'frxDBDataset1'
+    CloseDataSource = False
+    DataSet = pFIBDataSetSummy
+    Left = 356
+    Top = 223
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 348
+    Top = 319
+    object N1: TMenuItem
+      Caption = #1055#1077#1095#1072#1090#1100
+      OnClick = N1Click
+    end
+  end
+  object frxPDFExport1: TfrxPDFExport
+    UseFileCache = True
+    ShowProgress = True
+    PrintOptimized = False
+    Outline = False
+    Author = 'FastReport'
+    Subject = 'FastReport PDF export'
+    Background = False
+    Creator = 'FastReport (http://www.fast-report.com)'
+    HTMLTags = True
+    Left = 404
+    Top = 223
+  end
+  object frxXLSExport1: TfrxXLSExport
+    UseFileCache = True
+    ShowProgress = True
+    AsText = False
+    Background = True
+    FastExport = True
+    PageBreaks = True
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 436
+    Top = 223
+  end
+  object frxRTFExport1: TfrxRTFExport
+    UseFileCache = True
+    ShowProgress = True
+    Wysiwyg = True
+    Creator = 'FastReport http://www.fast-report.com'
+    SuppressPageHeadersFooters = False
+    HeaderFooterMode = hfText
+    Left = 476
+    Top = 223
   end
 end

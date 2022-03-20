@@ -229,15 +229,15 @@ begin
 end;
 
 procedure TFormOtpBsMoveAbo.moveMarkedToSalary;
-var  SavePlace: TBookmark;
-     v,v0:Variant;
-     Node:TdxTreeListNode;
-     GUID:string;
+var  SavePlace : TBookmark;
+     v,v0      : Variant;
+     Node      : TdxTreeListNode;
+     GUID      : string;
      shifrIdObo:Integer;
      DateFrObo,DateToObo:TDateTime;
-     tabno:Integer;
-     shifrPod:Integer;
-     moved:Boolean;
+     tabno     : Integer;
+     shifrPod  : Integer;
+     moved     : Boolean;
    begin
         Node:=dxDBGrid.TopNode;
         moved:=False;

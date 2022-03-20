@@ -269,7 +269,7 @@ begin
 
               //    if Self.WantedMode<>10 then // оставить за для командировочных
               //                                // 23 01 2011
-                 Mode_V_Z   := 1;  // в - с 19 12 2010
+                  Mode_V_Z   := 1;  // в - с 19 12 2010
                   ShifrBuh       := CurrWrk;
                   Fio            := SELF.WantedFIO;
                   WantedTabno    := Self.WantedTabno;
@@ -395,6 +395,7 @@ begin
   Save_Place:=SELF.pFIBdsKmndAbo.GetBookmark;
   ShowTable;
   SELF.pFIBdsKmndAbo.GotoBookmark(Save_Place);
+  SELF.pFIBdsKmndAbo.FreeBookmark(Save_Place);
 end;
 
 procedure TFormKmndAbo.MoveKomand;
@@ -408,10 +409,14 @@ procedure TFormKmndAbo.MoveKomand;
      Finded,Eq:boolean;
      Sav,Curr:array[1..L_Person_Data] of byte;
      J : integer;
+     shifrSta : Integer;
  begin
       ShifrIdKmd := pFIBdsKmndAbo.FieldByName('ShifrId').AsInteger;
       MONTH_VY   := pFIBdsKmndAbo.FieldByName('MONTH_VY').AsInteger;
       YEAR_VY    := pFIBdsKmndAbo.FieldByName('YEAR_VY').AsInteger;
+      shifrSta   := pFIBdsKmndAbo.FieldByName('SHIFR_STA').AsInteger;
+      if shifrSta<>GOSOB_SHIFR then
+         shifrSta:=Komandirowki_Shifr;
 //      if ((MONTH_VY<>NMES) OR (YEAR_VY<>CURRYEAR)) AND (CODE<>6) then
 //         begin
 //              ShowMessage('Можно перенести только начисленные в этом месяце больничный');
@@ -422,6 +427,7 @@ procedure TFormKmndAbo.MoveKomand;
       FormMovKmd.WantedTabno := WantedTabno;
       FormMovKmd.Curr_Person := WantedCurrPerson;
       FormMovKmd.ShifrIdKmd  := ShifrIdKmd;
+      FormMovKmd.shifrSta    := shifrSta;
       FormMovKmd.PrepareHints;
       Sav_Person_Rec:=WantedCurrPerson^;
       move(WantedCurrPerson^,Sav,L_Person_Data);

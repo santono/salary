@@ -252,6 +252,7 @@ interface
    procedure MoveKmdToPerson(ShifrIdKmd : integer;
                              Gruppa   : integer;
                              Tabno    : integer;
+                             shifrSta : Integer;
                              ShifrPod : integer;
                              ShifrKat : integer;
                              ShifrGru : integer;
@@ -271,7 +272,7 @@ interface
    function  DateBetween(TestedDate,DateB,DateE:TDateTime):boolean;
    function  NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo:TDateTime):boolean;
    PROCEDURE MAKE_ILL_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
-   PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
+   PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime;shifrSta:integer);
    PROCEDURE MAKE_OTP_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
    PROCEDURE MAKE_OTP_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
 //   PROCEDURE MAKE_OTO_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
@@ -329,6 +330,7 @@ interface
    procedure DeleteAllFromTmpBolnTables;
    procedure DeleteAllFromTmpOtpTables;
    procedure DeleteAllFromTmpKmdTables;
+   procedure DeleteAllFromTmpSrdTables;
    procedure DeleteAllFromTmpPersonTables;
    function getSummaAddForPerson(curr_person:PERSON_PTR):Real;
    function getSummaPremForPerson(curr_person:PERSON_PTR):Real;
@@ -5716,7 +5718,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
        if NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo) then
           begin
                if ShifrSta=Komandirowki_shifr then
-                   Make_Kmd_Tabel(Curr_Person,DateFr,DateTo)
+                   Make_Kmd_Tabel(Curr_Person,DateFr,DateTo,Komandirowki_Shifr)
                else
                    Make_Ill_Tabel(Curr_Person,DateFr,DateTo);
                if IsShifrInAddPerson(Curr_Person,138) then
@@ -5822,6 +5824,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
   procedure MoveKmdToPerson(ShifrIdKmd : integer;
                             Gruppa   : integer;
                             Tabno    : integer;
+                            shifrSta : Integer;
                             ShifrPod : integer;
                             ShifrKat : integer;
                             ShifrGru : integer;
@@ -5841,7 +5844,6 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
       Finded        : boolean;
       S             : string;
       Curr_Add      : Add_Ptr;
-      ShifrSta      : integer;
       YearZa        : integer;
       MonthZa       : integer;
       K_Day         : integer;
@@ -5931,10 +5933,10 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
             FormWait.Hide;
             DateFr:=date;
             DateTo:=dateFr;
-            shifrsta:=1;
+        //    shifrsta:=1;
             while not FIB.pFIBQuery.Eof do
              begin
-                  ShifrSta := FIB.pFIBQuery.Fields[0].AsInteger;
+         //         ShifrSta := FIB.pFIBQuery.Fields[0].AsInteger;
                   YearZa   := FIB.pFIBQuery.Fields[5].AsInteger;
                   MonthZa  := FIB.pFIBQuery.Fields[6].AsInteger;
                   K_Day    := FIB.pFIBQuery.Fields[7].AsInteger;
@@ -6015,7 +6017,8 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
        if Assigned(Curr_Person) then
        if NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo) then
           begin
-               Make_Kmd_Tabel(Curr_Person,DateFr,DateTo);
+     //          if shifrSta=gosob_shifr then
+               Make_Kmd_Tabel(Curr_Person,DateFr,DateTo,shifrSta);
                if IsShifrInAddPerson(Curr_Person,138) then
                    ShifrSta:=ShifrSta;
                Calc_Naud_Person(Curr_Person,31);
@@ -6068,7 +6071,8 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                        begin
                             y:=PPeriodRec(List.Items[i-1])^.YearZa;
                             m:=PPeriodRec(List.Items[i-1])^.MonthZa;
-                            Recalc_Person_Sql(Curr_Person,Y,M,DebugMode);
+//                            Recalc_Person_Sql(Curr_Person,Y,M,DebugMode);
+                            RecalcAddPerson(y,m,Curr_Person);
                             if M=NMES then
                                Calc_Naud_Person(Curr_Person,31)
                                                  else
@@ -6232,6 +6236,8 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                    end;
                 currD:=IncDay(CurrD,1);
            end;
+       i:=List.Count;
+       if List.Count>0 then    
        for i:=1 to List.Count do
            begin
                 j:=i;
@@ -6247,7 +6253,8 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                         FLAG_NAUD_FOR_OTHER_MONTH:=false;
                    end
            end;
-     { Пометить больничный как перенесеный }
+     { В будущем пометить отпуск без оплаты как перенесеный }
+       if List.Count>0 then
        for i:=0 to List.Count-1 do
            Dispose(PPeriodRec(List.Items[i]));
        List.Free;
@@ -6325,13 +6332,18 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                                                               ELSE CURR_PERSON^.TABEL[L]:=ILLNESS;
   END;
 
- PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
+ PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime;shifrSta:integer);
   VAR I,L,U_BOUND,L_BOUND:INTEGER;
       YFR,MFR,DFR:WORD;
       YTO,MTO,DTO:WORD;
       CurrDate:TDateTime;
       IsBetween:boolean;
+      tabelCode:Byte;
   BEGIN
+        if shifrSta=gosob_shifr then
+           tabelCode:=GOS_OB
+        else
+           tabelCode:=KOMANDIROWKA;
         CurrDate:=EncodeDate(CurrYear,NMES,1);
         L:=LenMonth(CurrDate);
         IsBetween:=false;
@@ -6360,7 +6372,8 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
         FOR L:=L_BOUND TO U_BOUND DO
             IF ((MONTH_DAY[2,NMES,L]=1) OR
                 (MONTH_DAY[2,NMES,L]=2))   THEN
-                CURR_PERSON^.TABEL[L]:=KOMANDIROWKA;
+
+                CURR_PERSON^.TABEL[L]:=tabelCode;
   END;
 
 
@@ -8510,31 +8523,37 @@ function NeedCodePersonLine(Tabno:integer):boolean;
 
  procedure DeleteAllFromTmpBolnTables;
   begin
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_BOLN_SUMMY');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_BOLNA');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_BOLN_RES');
+         SQLExecute('DELETE FROM TMP_BOLN_SUMMY');
+         SQLExecute('DELETE FROM TMP_BOLNA');
+         SQLExecute('DELETE FROM TMP_BOLN_RES');
   end;
 
  procedure DeleteAllFromTmpPersonTables;
   begin
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM tb_tmp_person');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM tb_tmp_fadd');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM tb_tmp_fcn');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM tb_tmp_fud');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM tb_tmp_tabel');
+         SQLExecute('DELETE FROM tb_tmp_person');
+         SQLExecute('DELETE FROM tb_tmp_fadd');
+         SQLExecute('DELETE FROM tb_tmp_fcn');
+         SQLExecute('DELETE FROM tb_tmp_fud');
+         SQLExecute('DELETE FROM tb_tmp_tabel');
   end;
 
  procedure DeleteAllFromTmpOtpTables;
   begin
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_OTP_ADD');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_OTP_SUMMY');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_OTP_RES');
+         SQLExecute('DELETE FROM TMP_OTP_ADD');
+         SQLExecute('DELETE FROM TMP_OTP_SUMMY');
+         SQLExecute('DELETE FROM TMP_OTP_RES');
   end;
  procedure DeleteAllFromTmpKmdTables;
   begin
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_KOMAND_ADD');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_KOMAND_SUMMY');
-         FIB.pFIBDatabaseSal.Execute('DELETE FROM TMP_KOMAND_RES');
+         SQLExecute('DELETE FROM TMP_KOMAND_ADD');
+         SQLExecute('DELETE FROM TMP_KOMAND_SUMMY');
+         SQLExecute('DELETE FROM TMP_KOMAND_RES');
+  end;
+ procedure DeleteAllFromTmpSrdTables;
+  begin
+         SQLExecute('DELETE FROM TMP_SRD_ADD');
+         SQLExecute('DELETE FROM TMP_SRD_SUMMY');
+         SQLExecute('DELETE FROM TMP_SRD_RES');
   end;
   function IsShifrInAddPerson(Curr_Person:Person_Ptr;WantedShifr:integer):boolean;
    var Curr_Add:Add_Ptr;

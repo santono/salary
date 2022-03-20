@@ -1,13 +1,14 @@
 unit UFormUpdKmnd;
 
-interface
+interface                 
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Buttons, DB, FIBDataSet, pFIBDataSet, dxCntner,
   dxEditor, dxExEdtr, dxEdLib, ComCtrls, dxDBTLCl, dxGrClms, dxTL,
   dxDBCtrl, dxDBGrid, FIBQuery, pFIBQuery, pFIBStoredProc, ExtCtrls, Grids,
-  FIBDatabase, pFIBDatabase, Menus;
+  FIBDatabase, pFIBDatabase, Menus, frxClass, frxDBSet, frxExportRTF,
+  frxExportXLS, frxExportPDF;
 
 type
   TFormUpdKmnd = class(TForm)
@@ -91,6 +92,40 @@ type
     dxDBGridSumDayKalend: TdxDBGridColumn;
     LabelWR: TLabel;
     cbWR: TComboBox;
+    pFIBDataSetSummysumma: TFloatField;
+    pFIBDataSetSummySummaSel: TFloatField;
+    pFIBDataSetSummySummaSelUw: TFloatField;
+    TabSheetRas: TTabSheet;
+    dxDBGridRas: TdxDBGrid;
+    dxDBGridRasCONNID: TdxDBGridMaskColumn;
+    dxDBGridRasMONTH_ZA: TdxDBGridMaskColumn;
+    dxDBGridRasYEAR_ZA: TdxDBGridMaskColumn;
+    dxDBGridRasSUMMA_BUD: TdxDBGridCurrencyColumn;
+    dxDBGridRasSUMMA_VNE: TdxDBGridCurrencyColumn;
+    dxDBGridRasSUMMA_GN: TdxDBGridCurrencyColumn;
+    dxDBGridRasSUMMA_NIS: TdxDBGridCurrencyColumn;
+    dxDBGridRasOKLAD_M: TdxDBGridCurrencyColumn;
+    dxDBGridRasDAYS: TdxDBGridMaskColumn;
+    dxDBGridRasGRAPHIC_DAY: TdxDBGridMaskColumn;
+    dxDBGridRasKOEF: TdxDBGridCurrencyColumn;
+    dxDBGridRasSHIFRIDTMP: TdxDBGridMaskColumn;
+    dxDBGridRasDAY_KALEND_WORK: TdxDBGridMaskColumn;
+    dxDBGridRasSumma: TdxDBGridColumn;
+    dxDBGridRasSummaSel: TdxDBGridColumn;
+    dxDBGridRasSummaSelUw: TdxDBGridColumn;
+    dxDBGridRasSEL: TdxDBGridCheckColumn;
+    dxDBGridRasMANUAL_CALC: TdxDBGridCheckColumn;
+    LabelCalc: TLabel;
+    frxReport1: TfrxReport;
+    frxDBDataset1: TfrxDBDataset;
+    PopupMenu1: TPopupMenu;
+    N1: TMenuItem;
+    frxPDFExport1: TfrxPDFExport;
+    frxXLSExport1: TfrxXLSExport;
+    frxRTFExport1: TfrxRTFExport;
+    cbRas: TComboBox;
+    Label1: TLabel;
+    cbShifrSta: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     function Execute: boolean;
@@ -102,7 +137,6 @@ type
       AColumn: TdxTreeListColumn; var AText: String; var AColor: TColor;
       AFont: TFont; var AAlignment: TAlignment; var ADone: Boolean);
     procedure dxDBGridResBeforeCalcSummary(Sender: TObject);
-    procedure ComboBoxShifrStaChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure dxDBGridSumColumnButtonButtonClick(Sender: TObject;
@@ -118,9 +152,19 @@ type
     procedure RadioGroupModeDCClick(Sender: TObject);
     procedure dxDBGridResB_DAYChange(Sender: TObject);
     procedure ComboBoxBuhChange(Sender: TObject);
+    procedure pFIBDataSetSummyCalcFields(DataSet: TDataSet);
+    procedure TabSheetRasShow(Sender: TObject);
+    procedure dxDBGridRasSummaSelUwSummary(Sender: TObject;
+      DataSet: TDataSet; var Value: Extended);
+    procedure frxReport1GetValue(const VarName: String;
+      var Value: Variant);
+    procedure N1Click(Sender: TObject);
+    procedure cbRasChange(Sender: TObject);
+    procedure cbShifrStaChange(Sender: TObject);
 
   private
     { Private declarations }
+    modeSumma          : Integer; // 1-бюджет 2 вне 3 ГН 4 НИС
     NMBOFDAYS          : integer;
     SUMMA_BUD,
     SUMMA_VNE,
@@ -130,10 +174,9 @@ type
     procedure GetSummy;
     procedure ShowSummyMean;
     procedure FillTmpTables(ShifrIdKmnd:integer);
-    function GetPassCountKomandForTabno(ShifrIdKmnd:integer):integer;
-
-
-
+    function  GetPassCountKomandForTabno(ShifrIdKmnd:integer):integer;
+    function  getCaptionSumma:string;
+    procedure getSummaDayTot(var summaSelUwTot : Real; var wDaysTot:Real);
   public
     ShifrIdKmnd        : integer;
     WantedTabno        : integer;
@@ -168,7 +211,7 @@ var
 implementation
  uses uFrmFindKadryFB,UFibModule,ScrDef,UFormWait,
       DateUtils,FIB,ScrUtil,ScrExport, UFormWaitMess,
-      ScrLists,UFormKomandA;
+      ScrLists,UFormKomandA,Math;
 
 {$R *.dfm}
 
@@ -344,6 +387,14 @@ begin
                 cbWR.ItemIndex:=2
              else
                 cbWR.ItemIndex:=0;
+            if WantedShifrSta=gosob_shifr then
+               cbShifrSta.ItemIndex:=1
+            else
+               begin
+                    cbShifrSta.ItemIndex:=0;
+                    wantedShifrSta:=Komandirowki_Shifr;
+               end
+
         end
      else
         begin
@@ -607,20 +658,20 @@ end;
 
 
 
-procedure TFormUpdKmnd.ComboBoxShifrStaChange(Sender: TObject);
-begin
-      WantedShifrSta := OplataKomandirovokShifr ;      {Обычный бошьничный}
 
-end;
 
 procedure TFormUpdKmnd.FormCreate(Sender: TObject);
 var D,M,Y:word;
     Da:TDate;
     i:Integer;
 begin
+     modeSumma:=1; //Бюджет
+     dxDBGridRasSumma.Caption:=getCaptionSumma;
+     cbRas.ItemIndex:=modeSumma-1;
+     cbShifrSta.ItemIndex:=0;
      ModeRecalcClock := 0; {Обычныый перерасчет больничного}
 //     WantedShifrSta := OplataKomandirovokShifr;
-     WantedShifrSta := KomandirovkaShifr;
+     WantedShifrSta := Komandirowki_Shifr;
      WantedProc     := 100;
      ShifrIdKmnd    :=   0;
 //     NomerB         :=  '';
@@ -987,5 +1038,134 @@ begin
         end;
 
 end;
+
+procedure TFormUpdKmnd.pFIBDataSetSummyCalcFields(DataSet: TDataSet);
+var
+    koefUw:Real;
+begin
+      case modeSumma of
+        2:pFIBDataSetSummysumma.Value:=pFIBDataSetSummySUMMA_VNE.Value;
+        3:pFIBDataSetSummysumma.Value:=pFIBDataSetSummySUMMA_GN.Value;
+        4:pFIBDataSetSummysumma.Value:=pFIBDataSetSummySUMMA_NIS.Value;
+       else
+        pFIBDataSetSummysumma.Value:=pFIBDataSetSummySUMMA_BUD.Value;
+      end;
+      if pFIBDataSetSummySEL.Value>0 then
+         pFIBDataSetSummySummaSel.Value := pFIBDataSetSummysumma.Value;
+      koefUw:=pFIBDataSetSummyKOEF.Value;
+      if (koefUw<1.0) or (koefUw>3.0) then
+         koefUw:=1.0;
+      pFIBDataSetSummySummaSelUw.Value := pFIBDataSetSummysummaSel.Value * KOEFUw;
+
+end;
+
+procedure TFormUpdKmnd.TabSheetRasShow(Sender: TObject);
+ var MeanDay:Real;
+     summaSelUwTot:real;
+     wDaysTot:Real;
+
+begin
+     Self.getSummaDayTot(summaSelUwTot,wDaysTot);
+     meanDay:=RoundTo(summaSelUwTot / wDaysTot,-2);
+     LabelCalc.Caption:='Среднедневная ='+FormatFloatPoint(summaSelUwTot)+' / '+FormatFloatPoint(wDaysTot)+' = '+FormatFloatPoint(meanDay)+' руб.';
+end;
+
+procedure TFormUpdKmnd.dxDBGridRasSummaSelUwSummary(Sender: TObject;
+  DataSet: TDataSet; var Value: Extended);
+var v:Real;
+begin
+     v:=Value;
+end;
+
+
+procedure TFormUpdKmnd.getSummaDayTot(var summaSelUwTot : Real; var wDaysTot:Real);
+ var bm:TBookmark;
+ begin
+      summaSelUwTot:=0;
+      wDaysTot:=0;
+      bm:=pFIBDataSetSummy.GetBookmark;
+      pFIBDataSetSummy.First;
+      while not pFIBDataSetSummy.Eof do
+        begin
+             summaSelUwTot:=summaSelUwTot+pFIBDataSetSummySummaSelUw.Value;
+             if pFIBDataSetSummySEL.Value=1 then
+                wDaysTot:=wDaysTot+pFIBDataSetSummyDAYS.Value;
+             pFIBDataSetSummy.Next;
+        end;
+      pFIBDataSetSummy.GotoBookmark(bm);
+      pFIBDataSetSummy.FreeBookmark(bm);
+ end;
+procedure TFormUpdKmnd.frxReport1GetValue(const VarName: String;
+  var Value: Variant);
+  var s,modeS:string;
+      summaTot:Real;
+      wDays:Integer;
+      meanDay:real;
+      wDaysTot1:real;
+      summaSelUwTot1:real;
+begin
+    case modeSumma of
+     2:modeS:='внебюджет';
+     3:modeS:='ГН';
+     4:modeS:='НИС';
+     else
+       modeS:='бюджет';
+    end;
+    if CompareText(VarName,'Header')=0 then
+       begin
+            s:=Trim(Self.Fio)+' c '+FormatDate(DateTimePickerFr.date)+' по '+FormatDate(DateTimePickerTo.date)+' '+modeS;
+            Value := Trim(s);
+       end
+    else
+    if CompareText(VarName,'Meanday')=0 then
+       begin
+            getSummaDayTot(summaSelUwTot1,wDaysTot1);
+            wDays    := Round(wDaysTot1);
+            summaTot := summaSelUwTot1;
+            meanDay  := 0.00;
+            if Abs(wDaysTot1)>0.01 then
+               meanDay:=RoundTo(summaSelUwTot1 / wDaysTot1,-4);
+            s:=FormatFloatPoint(summaSelUwTot1)+' / '+intToStr(WDays)+' = '+formatFloatPoint(meanDay);
+            Value := Trim(s);
+       end;
+end;
+
+procedure TFormUpdKmnd.N1Click(Sender: TObject);
+begin
+     frxReport1.ShowReport();
+end;
+
+function TFormUpdKmnd.getCaptionSumma:string;
+ var retVal:string;
+ begin
+      case modeSumma of
+       2: retVal:='Внебюджет';
+       3: retVal:='Сумма ГН';
+       4: retVal:='Сумма НИС';
+       else
+          retVal:='Сумма бюджет';
+      end;
+      getCaptionSumma:=retVal;
+ end;
+procedure TFormUpdKmnd.cbRasChange(Sender: TObject);
+begin
+     modeSumma:=cbRas.ItemIndex+1;
+     dxDBGridRasSumma.Caption:=getCaptionSumma;
+//     dxDBGridRasSumma.
+     pFIBDataSetSummy.Close;
+     pFIBDataSetSummy.Open;
+     Application.ProcessMessages;
+end;
+
+procedure TFormUpdKmnd.cbShifrStaChange(Sender: TObject);
+begin
+      if cbShifrSta.ItemIndex=1 then
+         wantedShifrSta:= gosob_shifr     // гос обязанности
+      else
+         WantedShifrSta := Komandirowki_Shifr;//OplataKomandirovokShifr ;      {Обычный бошьничный}
+
+end;
+
+
 
 end.
