@@ -8,7 +8,7 @@ uses
   dxEditor, dxExEdtr, dxEdLib, ComCtrls, dxDBTLCl, dxGrClms, dxTL,
   dxDBCtrl, dxDBGrid, FIBQuery, pFIBQuery, pFIBStoredProc, ExtCtrls, Grids,
   FIBDatabase, pFIBDatabase, Menus, frxClass, frxDBSet, frxExportRTF,
-  frxExportXLS, frxExportPDF;
+  frxExportXLS, frxExportPDF,ScrDef;
 
 type
   TFormUpdKmnd = class(TForm)
@@ -126,6 +126,9 @@ type
     cbRas: TComboBox;
     Label1: TLabel;
     cbShifrSta: TComboBox;
+    cbShifrTabel: TComboBox;
+    LabelTabel: TLabel;
+    BitSinglPerson: TBitBtn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     function Execute: boolean;
@@ -161,6 +164,9 @@ type
     procedure N1Click(Sender: TObject);
     procedure cbRasChange(Sender: TObject);
     procedure cbShifrStaChange(Sender: TObject);
+    procedure cbShifrTabelChange(Sender: TObject);
+    procedure BitSinglPersonClick(Sender: TObject);
+    procedure cbWRChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -177,6 +183,11 @@ type
     function  GetPassCountKomandForTabno(ShifrIdKmnd:integer):integer;
     function  getCaptionSumma:string;
     procedure getSummaDayTot(var summaSelUwTot : Real; var wDaysTot:Real);
+    procedure showCbShifrTabel;
+    procedure hideCbShifrTabel;
+    procedure showBitSinglPerson;
+    procedure hideBitSinglPerson;
+
   public
     ShifrIdKmnd        : integer;
     WantedTabno        : integer;
@@ -186,6 +197,7 @@ type
     shifrgru           : integer;
     WantedProc         : real;
     WantedShifrSta     : integer;
+    wantedCurrperson   : Person_Ptr;
     MEANDAY            : real;
     MEANDAY_BUD        : real;
     MEANDAY_VNE        : real;
@@ -201,6 +213,9 @@ type
     WantedCodeIll      : integer;
     ShifrBuh           : Integer;
     MODEWR             : Integer;
+    GUID               : string;
+    mode_six_five_day  : Integer;
+    wantedShifrTabel   : Integer;
 
     { Public declarations }
   end;
@@ -209,9 +224,9 @@ var
   FormUpdKmnd : TFormUpdKmnd;
 
 implementation
- uses uFrmFindKadryFB,UFibModule,ScrDef,UFormWait,
+ uses uFrmFindKadryFB,UFibModule,UFormWait,
       DateUtils,FIB,ScrUtil,ScrExport, UFormWaitMess,
-      ScrLists,UFormKomandA,Math;
+      ScrLists,UFormKomandA,Math,USQLUnit;
 
 {$R *.dfm}
 
@@ -315,6 +330,7 @@ begin
                BitBtn4.Hide;
                Save.Hide;
                BitBtnDelNotSel.Hide;
+               hideBitSinglPerson;
           END
       ELSE
           BEGIN
@@ -323,6 +339,11 @@ begin
                BitBtn4.Show;
                Save.Show;
                BitBtnDelNotSel.Show;
+               if (MODEWR in [1,2]) and (Length(Trim(guid))>10) and (ShifrIdKmnd>0) then
+                  showBitSinglPerson
+               else
+                  hideBitSinglPerson;
+
           END;
   if ActionClar=1 then
      begin
@@ -339,19 +360,22 @@ begin
           try
              FormWait.Show;
              Application.ProcessMessages;
-             v:=UFibModule.FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
+             v:=SQLQueryValue(SQLStmnt);
              FormWait.Hide;
              ks:=v;
           except
               Ks:=''
           end;
-          SQLStmnt:='SELECT name FROM kateg where shifr='+IntToSTr(Self.ShifrKat);
-          try
-             v:=UFibModule.FIB.pFIBDatabaseSal.QueryValue(SQLStmnt,0);
-             gs:=v;
-          except
-              gs:=''
-          end;
+
+          gs:='';
+//          SQLStmnt:='SELECT name FROM kateg where shifr='+IntToSTr(Self.ShifrKat);
+//          try
+//             v:=SQLQueryValue(SQLStmnt);
+//             gs:=v;
+//          except
+//              gs:=''
+//          end;
+
           LabelFio.Caption:=Trim(LabelFio.Caption)+' '+trim(ks)+' '+trim(gs);
           if Mode_V_Z=1 then RadioGroupModeZaVy.ItemIndex:=0
                         else RadioGroupModeZaVy.ItemIndex:=1;
@@ -388,11 +412,22 @@ begin
              else
                 cbWR.ItemIndex:=0;
             if WantedShifrSta=gosob_shifr then
-               cbShifrSta.ItemIndex:=1
+               begin
+                    cbShifrSta.ItemIndex:=1;
+                    showCbShifrTabel;
+                    cbShifrTabel.ItemIndex:=0;
+                    LabelTabel.Show;
+                    if wantedShifrTabel=Mobili_Tabel then
+                       cbShifrTabel.ItemIndex:=1
+                    else
+                       cbShifrTabel.ItemIndex:=0;
+               end
             else
                begin
                     cbShifrSta.ItemIndex:=0;
                     wantedShifrSta:=Komandirowki_Shifr;
+                    wantedShifrTabel:=KOMANDIROWKA; // командировки
+                    hideCbShifrTabel;
                end
 
         end
@@ -460,11 +495,14 @@ begin
      SQLStmnt:='EXECUTE PROCEDURE MKTMPKOMANDSUMMY_01_12_2016 (';
      SQLStmnt:=Trim(SQLSTmnt)+IntToStr(wantedTabno)+',';
      SQLStmnt:=Trim(SQLSTmnt)+''''+IntToStr(Y)+'-'+IntToStr(M)+'-'+IntToStr(D)+''',';
-     SQLStmnt:=Trim(SQLSTmnt)+IntToStr(ModeVyZa)+','+IntToStr(ModeWR)+')';
+     SQLStmnt:=Trim(SQLSTmnt)+IntToStr(ModeVyZa)+','+IntToStr(ModeWR);
+     IF isLNR then
+        SQLStmnt:=Trim(SQLSTmnt)+','''+Trim(guid)+'''';
+     SQLStmnt:=Trim(SQLSTmnt)+')';
      FormWait.Show;
      Application.ProcessMessages;
      try
-     UFibModule.FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+     SQLExecute(SQLStmnt);
      FormWait.Hide;
      Application.ProcessMessages;
      except
@@ -526,18 +564,26 @@ begin
      DecodeDate(DateTimePickerTo.Date,YTo,MTo,DTo);
      DF:=IntToStr(YFR)+'-'+IntToStr(MFR)+'-'+IntToStr(DFR);
      DT:=IntToStr(YTO)+'-'+IntToStr(MTO)+'-'+IntToStr(DTO);
-     SQLStmnt := 'SELECT MeanDay,MeanDay_Bud,MeanDay_VNE,MeanDay_GN,MeanDay_Nis,coalesce(KOMAND_DAY,0) FROM CALCKOMAND_01_12_2016('''+DF+''','''+DT+''','+IntToStr(WantedShifrSta)+','+IntToStr(Mode_V_Z)+')';
+     if length(Trim(GUID))=0 then
+        GUID:=GetGUIDPersonToString(wantedCurrperson);
+     if not (mode_six_five_day in [5,6]) then
+        mode_six_five_day:=5;   
+     if isLNR then
+        SQLStmnt := 'SELECT MeanDay,MeanDay_Bud,MeanDay_VNE,MeanDay_GN,MeanDay_Nis,coalesce(KOMAND_DAY,0) FROM CALCKOMAND_01_12_2016('''+DF+''','''+DT+''','+IntToStr(WantedShifrSta)+','+IntToStr(Mode_V_Z)+','''+Trim(GUID)+''','+IntToStr(MODE_SIX_FIVE_DAY)+')'
+     else
+        SQLStmnt := 'SELECT MeanDay,MeanDay_Bud,MeanDay_VNE,MeanDay_GN,MeanDay_Nis,coalesce(KOMAND_DAY,0) FROM CALCKOMAND_01_12_2016('''+DF+''','''+DT+''','+IntToStr(WantedShifrSta)+','+IntToStr(Mode_V_Z)+')';
+
 
      try
         FormWait.Show;
         Application.ProcessMessages;
-        v:=UFibModule.FIB.pFIBDatabaseSal.QueryValues(SQLStmnt);
+        v:=SQLQueryRecValues(SQLStmnt);
         MEANDAY      := v[0];
         MEANDAY_BUD  := v[1];
         MEANDAY_VNE  := v[2];
         MEANDAY_GN   := v[3];
         MEANDAY_NIS  := v[4];
-        Kmnd_DAY      := v[5];
+        Kmnd_DAY     := v[5];
         FormWait.Hide;
         LabelBDay.Caption:=IntToStr(Kmnd_Day);
         Application.ProcessMessages;
@@ -697,6 +743,9 @@ begin
      RadioGroupModeDC.ItemIndex:=0;
      Mode_V_Z := 1;               // стартовая в
      ModeDC   := 0;
+     GUID     := '';
+     WantedShifrSta := Komandirowki_Shifr;
+     wantedShifrTabel:=KOMANDIROWKA;
      StringGridMean.ColCount:=4;
      StringGridMean.RowCount:=5;
      StringGridMean.Cells[0,1]:='Бюджет';
@@ -712,12 +761,11 @@ begin
      if BuhList.Count>0 then
      for i:=0 to BuhList.Count-1 do
          begin
-         ComboBoxBuh.Items.Add(IntToStr(PTemyRec(buhlist.items[i])^.Shifr)+' '+
+              ComboBoxBuh.Items.Add(IntToStr(PTemyRec(buhlist.items[i])^.Shifr)+' '+
                                         PTemyRec(buhlist.items[i])^.Name);
-         if (PTemyRec(buhlist.items[i])^.Shifr=ShifrBuh) then
-            ComboBoxBuh.ItemIndex:=i;
-
-        end;
+              if (PTemyRec(buhlist.items[i])^.Shifr=ShifrBuh) then
+                 ComboBoxBuh.ItemIndex:=i;
+         end;
 
 
 end;
@@ -851,7 +899,20 @@ begin
      SQLStmnt:=Trim(SQLStmnt)+trim(FormatFloatPoint(MEANDAY_NIS))+',';
      SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(MODE_V_Z))+',';
      SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(ShifrBuh))+',';
-     SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(modeWR))+')';
+     SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(modeWR));
+     if isLNR then
+        begin
+            if Length(trim(GUID))<5 then
+               GUID:=GetGUIDPersonToString(wantedCurrperson);
+            if not (mode_six_five_day in [5,6]) then
+               mode_six_five_day:=5;    
+            SQLStmnt:=Trim(SQLStmnt)+','''+trim(GUID)+''',';
+            SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(mode_SIX_FIVE_DAY))+',';
+            SQLStmnt:=Trim(SQLStmnt)+trim(IntToStr(wantedShifrtabel));
+        end;
+
+
+     SQLStmnt:=Trim(SQLStmnt)+')';
 
      UFibModule.FIB.pFIBDatabaseSal.Execute(SQLStmnt);
 
@@ -1157,15 +1218,107 @@ begin
      Application.ProcessMessages;
 end;
 
+procedure TFormUpdKmnd.showCbShifrTabel;
+ begin
+      cbShifrTabel.Show;
+      cbShifrTabel.Enabled:=True;
+      LabelTabel.Show;
+      Application.ProcessMessages;
+ end;
+procedure TFormUpdKmnd.hideCbShifrTabel;
+ begin
+      cbShifrTabel.hide;
+      cbShifrTabel.Enabled:=false;
+      LabelTabel.hide;
+      Application.ProcessMessages;
+ end;
+
+procedure TFormUpdKmnd.showBitSinglPerson;
+ begin
+      if (self.ShifrIdKmnd>0) and (Length(Trim(Self.GUID))>10)then
+      IF ((WorkYear=CurrYear) and (WorkMonth=Nmes)) THEN
+//        BEGIN
+//              ShowMessage('Расчет только за текущий месяц');
+//              Exit;
+//        END;
+         begin
+               BitSinglPerson.Show;
+               BitSinglPerson.Enabled:=True;
+               Application.ProcessMessages;
+         end;
+ end;
+procedure TFormUpdKmnd.hideBitSinglPerson;
+ begin
+      BitSinglPerson.Hide;
+      BitSinglPerson.Enabled:=false;
+      Application.ProcessMessages;
+ end;
 procedure TFormUpdKmnd.cbShifrStaChange(Sender: TObject);
 begin
       if cbShifrSta.ItemIndex=1 then
          wantedShifrSta:= gosob_shifr     // гос обязанности
       else
          WantedShifrSta := Komandirowki_Shifr;//OplataKomandirovokShifr ;      {Обычный бошьничный}
-
+     if WantedShifrSta=komandirowki_shifr then
+        begin
+             hideCbShifrTabel;
+             wantedShifrTabel:=KOMANDIROWKA;
+        end
+     else
+        begin
+            showCbShifrTabel;
+            wantedShifrTabel:=Mobili_Tabel;
+            cbShifrTabel.ItemIndex:=1;
+        end;
 end;
 
 
+
+procedure TFormUpdKmnd.cbShifrTabelChange(Sender: TObject);
+begin
+    if cbShifrTabel.itemIndex=1 then
+       wantedShifrTabel:=Mobili_Tabel
+    else
+       wantedShifrTabel:=GOS_OB;   
+end;
+
+procedure TFormUpdKmnd.BitSinglPersonClick(Sender: TObject);
+ var SQLStmnt:string;
+begin
+     if Length(Trim(GUID))<10 then Exit;
+     if not (MODEWR in [1,2]) then Exit;
+     if ShifrIdKmnd>0         THEN Exit;
+     IF ((WorkYear<>CurrYear) OR (WorkMonth<>Nmes)) THEN
+        BEGIN
+              ShowMessage('Расчет только за текущий месяц');
+              Exit;
+        END;
+
+     FormWait.Show;
+     Application.ProcessMessages;
+     BitSinglPerson.Enabled:=False;
+     Application.ProcessMessages;
+     SQLStmnt:='update tmp_komand_add a set a.marked=0 where a.connid=current_connection';
+     SQLExecute(SQLStmnt);
+     SQLStmnt:='update tmp_komand_add a set a.marked=1 where a.connid=current_connection and (coalesce((select coalesce(GUID,''1'') from tb_komand b where b.shifrid=a.shifridkomand),''1'')='''+trim(GUID)+''')';
+     SQLExecute(SQLStmnt);
+
+//     SQLStmnt:='update tmp_otp_add a set a.sel=1 where a.connid=current_connection and coalesce((select coalesce(GUID,'1') from tb_komand b where b.shifrid=a.shifridkomand),'1')='''+trim(GUID)+'')';
+
+     BitSinglPerson.Enabled:=True;
+     Application.ProcessMessages;
+     FormWait.Hide;
+     Application.ProcessMessages;
+     BitBtn4Click(Self);
+end;
+
+procedure TFormUpdKmnd.cbWRChange(Sender: TObject);
+begin
+     if cbWR.ItemIndex in [1,2] then
+         showBitSinglPerson
+     else
+         hideBitSinglPerson;
+
+end;
 
 end.

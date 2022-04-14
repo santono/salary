@@ -82,6 +82,7 @@ type
     procedure show156;
     procedure hide156;
     procedure fill156;
+    function getWhoFor156:Integer;
 
 
 
@@ -102,9 +103,10 @@ type
     PAY_TP     : integer;
     Code_priz_1DF : integer;
     Comment156 : string;
-
+    WHO        : Word;
     WantedTabno : Integer;
-    CurrAdd    : Add_Ptr;
+//    wantedCurrAdd : Add_Ptr;
+    wantedCurrPerson  : PERSON_PTR;
     InitialWorkClock: Real;
 
     RetCode    : integer;
@@ -130,7 +132,7 @@ var
 
 implementation
 uses ScrLists,FormSelShifrU,ScrUtil,DateUtils,UGetCurrSummmaTot,
- ScrECB ;
+ ScrECB, Math ;
 {$R *.dfm}
 const F='######0.00';
 
@@ -340,7 +342,10 @@ begin
          dxSpinEditDay.MaxValue:=730;
       if not isSVDN then
          if ShifrSta=PerersZaProshlPeriody then
-            show156
+            begin
+                 show156;
+                 WHO:=getWhoFor156;
+            end
          else
             hide156;
       RePaint;
@@ -384,20 +389,20 @@ end;
 
 
 procedure TFormUpdAdd.CalcNightPrazdn;
- const F='######0.00';
+ const Fo='######0.00';
  var proc:double;
  begin
       if  (NIGHT_PROC>1) then
-          proc := sum(NIGHT_PROC / 100.00)
+          proc := ScrUtil.sum(NIGHT_PROC / 100.00)
       else
           proc := NIGHT_PROC;
       if MonthClock>0.01 then
          begin
               if ShifrSta=Prazdn_Shifr then
-                 Summa := sum(Oklad / MonthClock * WorkClock *2.00)
+                 Summa := ScrUtil.sum(Oklad / MonthClock * WorkClock *2.00)
               else if ShifrSta=Night_Shifr then
-                 Summa := sum(Oklad / MonthClock * WorkClock *proc);
-              dxCalcEditSumm.Text      := FormatFloat(F,Summa);
+                 Summa := ScrUtil.sum(Oklad / MonthClock * WorkClock *proc);
+              dxCalcEditSumm.Text      := FormatFloat(Fo,Summa);
               Application.ProcessMessages;
          end;
  end;
@@ -668,5 +673,45 @@ begin
         Edit156.Text:=Copy(Edit156.Text,1,l);
      Comment156:=Trim(Edit156.Text);
 end;
+
+function TFormUpdAdd.getWhoFor156:Integer;
+ var retVal:Integer;
+     i:Integer;
+ function checkWho(v:integer):Boolean;
+  var retVal:Boolean;
+      c_add:ADD_PTR;
+  begin
+       retVal:=True;
+       c_add:=wantedCurrPerson^.ADD;
+       while (c_add<>nil) do
+         begin
+              if c_add^.SHIFR=PerersZaProshlPeriody then
+              if c_add^.WHO=v then
+                 begin
+                      retVal:=False;
+                      Break;
+                 end;
+              c_add:=c_add^.NEXT;   
+         end;
+       checkWho:=retVal;
+  end;
+ begin
+       retVal:=0;
+       i:=0;
+       while i<10 do
+         begin
+              if checkWho(retVal) then
+                 begin
+                      Break;
+                 end
+              else
+                begin
+                      retVal:=RandomRange(0,100);
+                      Inc(i);
+                end
+         end;
+        getWhoFor156:=retVal;
+ end;
+
 
 end.

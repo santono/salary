@@ -3524,9 +3524,10 @@ begin
                        begin
                             Application.CreateForm(TFormKmndAbo,FormKmndAbo);
                             FormKmndAbo.WantedTabno := Curr_Person^.Tabno;
-                            FormKmndAbo.WantedFIO   := Curr_Person^.FIO+' '+Curr_Person^.Dolg;
+                            FormKmndAbo.WantedFIO   := trim(Curr_Person^.FIO)+' '+Trim(Curr_Person^.Dolg);
                             FormKmndAbo.ShifrKat    := Curr_Person^.Kategorija;
                             FormKmndAbo.ShifrGru    := Curr_Person^.Gruppa;
+                            FormKmndAbo.GUID        := GetGUIDPersonToString(Curr_person);
                             FormKmndAbo.WantedCurrPerson:=Curr_Person;
                             FormKmndAbo.ShowModal;
                        end
@@ -3534,7 +3535,7 @@ begin
                        begin
                             Application.CreateForm(TFormBlnAbo,FormBlnAbo);
                             FormBlnAbo.WantedTabno := Curr_Person^.Tabno;
-                            FormBlnAbo.WantedFIO   := Curr_Person^.FIO+' '+Curr_Person^.Dolg;
+                            FormBlnAbo.WantedFIO   := Trim(Curr_Person^.FIO)+' '+Trim(Curr_Person^.Dolg);
                             FormBlnAbo.ShifrKat    := Curr_Person^.Kategorija;
                             FormBlnAbo.ShifrGru    := Curr_Person^.Gruppa;
                             FormBlnAbo.WantedCurrPerson:=Curr_Person;

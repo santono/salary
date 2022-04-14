@@ -502,6 +502,7 @@ procedure TFormUpdOtp.FormCreate(Sender: TObject);
      S:String;
 begin
       CallMode:=0; { по умолчанию вызов из общей таблицы }
+      GUID:='';
       Mode :=0;
       ComboBoxMode.ItemIndex:=0;
       ModeDC :=0;

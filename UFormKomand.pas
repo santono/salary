@@ -74,7 +74,7 @@ var
 
 implementation
 uses uFrmFindKadryFB,UFibModule,
-     UFormUpdKmnd,ScrDef,UFormWait,
+     UFormUpdKmnd,ScrDef,UFormWait,USQLUnit,
      ComObj,ScrUtil,ScrLists,UFormSelBay,UFormView;
 
 {$R *.dfm}
@@ -162,6 +162,10 @@ var
   Act:integer;
   ShifrIdKmd:integer;
   S:String;
+  v:Variant;
+  shifrSta,shifrTabel:Integer;
+  guid:string;
+  mode_six_five_day:Integer;
 begin
   Act:=0;
   case Button of
@@ -185,7 +189,9 @@ begin
                   ShifrBuh    := CurrWrk;
                   WantedPodr  := NSRV;
                   Mode_V_Z    := 0; // за - для командировочных
-
+                  GUID        := '';
+                  WantedShifrSta := Komandirowki_Shifr;
+                  wantedShifrTabel:=KOMANDIROWKA;
                   if Act=1 then
                      begin
                           s:='EXECUTE PROCEDURE PR_DELETE_ALL_FROM_TMP_KOMAND';
@@ -198,6 +204,7 @@ begin
                           ShifrKat:=SELF.pFIBDataSetKomand.FieldByName('SHIFRKAT').AsInteger;
                           ShifrGru:=SELF.pFIBDataSetKomand.FieldByName('SHIFRGRU').AsInteger;
                           ShifrIdKmnd:=SELF.pFIBDataSetKomand.FieldByName('SHIFRID').AsInteger;
+                          ShifrIdKmd:=ShifrIdKmnd;
                           DateTimePickerFr.Date:=SELF.pFIBDataSetKomand.FieldByName('F_DATA').AsDateTime;
                           DateTimePickerTo.Date:=SELF.pFIBDataSetKomand.FieldByName('L_DATA').AsDateTime;
                           Mode_V_Z    := SELF.pFIBDataSetKomand.FieldByName('MODE_V_Z').AsInteger;
@@ -208,7 +215,23 @@ begin
                           MeanDay_GN  := SELF.pFIBDataSetKomand.FieldByName('MEAN_DAY_GN').AsFloat;
                           MeanDay_NIS := SELF.pFIBDataSetKomand.FieldByName('MEAN_DAY_NIS').AsFloat;
                           WantedShifrSta :=SELF.pFIBDataSetKomand.FieldByName('SHIFR_STA').AsInteger;
-                          ShifrBuh     :=SELF.pFIBDataSetKomand.FieldByName('SHIFRBUH').AsInteger;
+                          ShifrBuh    :=SELF.pFIBDataSetKomand.FieldByName('SHIFRBUH').AsInteger;
+                          if isLNR then
+                             begin
+                                  v:=SQLQueryRecValues('select coalesce(shifr_sta,138),coalesce(shifrtabel,3),coalesce(guid,''''),coalesce(mode_six_five_day,5) from tb_komand where shifrid='+IntToStr(ShifrIdKmd));
+                                  shifrSta:=v[0];
+                                  shifrTabel:=v[1];
+                                  GUID:=v[2];
+                                  mode_six_five_day:=v[3];
+                             end
+                          else
+                             begin
+                                  shifrSta:=Komandirowki_Shifr;
+                                  shifrTabel:=KOMANDIROWKA;
+                                  mode_six_five_day:=6;
+                                  GUID:='';
+                             end;
+
                      end;
                   ShifrIdKmd:=ShifrIdKmnd;
                   if execute then

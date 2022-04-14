@@ -305,7 +305,7 @@ function TPersonRecO.GetSummaAddFakt(wantedShifr:Integer;WantedY:Integer;WantedM
            Self.Oklad:=curr_person^.OKLAD;
            Self.AddPerson(y,m,NSRV,curr_person);
            FillChar(Self.Tabel,SizeOf(Self.Tabel),0);
-           if ((y=CURRYEAR) and (m=NMES)) then
+           if ((y=WORK_YEAR_VAL) and (m=FLOW_MONTH)) then
               begin
                    Move(curr_person^.tabel,Self.Tabel,SizeOf(Self.Tabel));
                    Self.Oklad:=curr_person^.OKLAD;
@@ -517,6 +517,8 @@ procedure TPersonO.FillDataFromDB;
   end;
 
 procedure TPersonO.makeActualTabel;
+  var i:Integer;
+      tabelSQL:TABEL_TYPE;
   procedure makeTabelFor(mode:integer);
    var SQLStmnt:string;
        DateFr,DateTo,dt:TDateTime;
@@ -590,6 +592,18 @@ procedure TPersonO.makeActualTabel;
 
    end;
  begin
+      if (Self.y>WORK_YEAR_VAL)
+         or
+         (
+           (Self.y=work_year_val)
+           and
+           (Self.m>flow_month)
+         ) then
+         begin
+              FILL_STANDARD_TABEL_PERSON_FOR_Y_M(@Self.PersonRec,Self.y,Self.m,tabelSQL);
+              for i:=1 to 31 do
+                  Self.Tabel[i]:=TabelSQL[i];
+         end;
       makeTabelFor(1); //Больничные
       makeTabelFor(2); //Командировка
       makeTabelFor(3); //Отпускные
@@ -699,8 +713,8 @@ procedure TPersonO.calculateNadbawki(curr_person:person_ptr);
              if wantedShifr<LIMIT_CN_BASE then
              if ShifrList.IsAdd(wantedShifr) then
              if curr_cn^.AUTOMATIC=automatic_mode then
-             if curr_cn^.summa<0.01 then
-             if curr_cn^.KOD in [1,2,3,4,5,6] then //1-абс сумма ФЗП 2-% окл фзп
+             if curr_cn^.summa>0.01 then
+             if ((curr_cn^.KOD>0) and (curr_cn^.kod<7)) then //1-абс сумма ФЗП 2-% окл фзп
                                                    //3-абс сумма ФМП 4-% окл фмп
                                                    //5-абс сумма OTH 6-% окл other
                 begin
@@ -708,10 +722,12 @@ procedure TPersonO.calculateNadbawki(curr_person:person_ptr);
                       case curr_cn^.KOD of
                        2,4,6:
                             begin
+                                 summaRas:=0;
                                  proc:=curr_cn^.SUMMA;
                                  if (Proc>1.0) then
                                     Proc:=RoundTo(proc/100.00,-2);
-                                 summaRas:= RoundTo(RoundTo(RoundTo(Self.Oklad/kalendDay,-2)* nadbawkaDay,-2)*Proc,-2);
+                                 if ((kalendDay>0) and (nadbawkaDay<=kalendDay)) then
+                                    summaRas:= RoundTo(RoundTo(RoundTo(Self.Oklad/kalendDay,-2)* nadbawkaDay,-2)*Proc,-2);
                             end
                        else
                             begin
@@ -720,7 +736,7 @@ procedure TPersonO.calculateNadbawki(curr_person:person_ptr);
                             end;
                       end;
                       summaRazn:=RoundTo((summaRas - summaFakt),-2);
-                      if Abs(summaRazn)>0.01 then
+                      if (Abs(summaRazn)>0.01) and (Abs(summaRazn)<100000.00) then
                          begin
                               MAKE_ADD(CURR_ADD,CURR_PERSON);
                               CURR_ADD^.SUMMA  := SummaRazn;

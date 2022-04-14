@@ -197,7 +197,7 @@ function TFormAdd.GetNameShifrAdd(Curr_Person:person_ptr;Curr_Add:add_ptr):strin
       retVal:=GetNameShifr(curr_Add^.SHIFR);
       if curr_add^.shifr=PerersZaProshlPeriody then
          begin
-             rv:=get156MessageFromCn(Curr_Person,curr_add^.period,Curr_Add^.Summa);
+             rv:=get156MessageFromCn(Curr_Person,curr_add^.period,Curr_Add^.Summa,Curr_Add^.WHO);
              if Length(rv)>3 then
                 retVal:=rv;
          end;
@@ -652,23 +652,21 @@ begin
              MonthClock := GetWorkClockForYearMonth(YearZa,MonthZa);
              Oklad    := Curr_Person^.Oklad;
              Fond     := 0;
+             WHO      := curr_add^.WHO;
 
              if abs(Curr_Add^.FMP)>0.001   then Fond:=1
                                            else
              if abs(Curr_Add^.Other)>0.001 then Fond:=2;
              WantedTabno:=Curr_Person^.Tabno;
-             if Curr_Add<>nil then
-                 CurrAdd:=Curr_Add
-             else
-                 CurrAdd:=Nil;
-             ZO            := CurrAdd^.ZO;
+             wantedCurrPerson:=curr_person;
+             ZO            := Curr_Add^.ZO;
              NRC           := curr_add^.nrc;
              OTK           := curr_add^.otk;
              PAY_TP        := curr_add^.PAY_TP;
              CODE_PRIZ_1DF := curr_add^.CODE_PRIZ_1DF;
              Comment156    := '';
              if curr_add^.shifr=PerersZaProshlPeriody then
-                Comment156 :=get156MessageFromCn(Curr_Person,curr_add^.period,Curr_Add^.Summa);
+                Comment156 :=get156MessageFromCn(Curr_Person,curr_add^.period,Curr_Add^.Summa,Curr_Add^.WHO);
              SaveRecord;
              if execute(RetVal) then
                 begin
@@ -684,13 +682,14 @@ begin
                      Curr_Add^.Work_Clock := WorkClock;
                      Curr_Add^.PERIOD:=MonthZa;
                      Curr_Add^.YEAR:=YearZa-1990;
+                     curr_add^.WHO:=WHO;
                      Curr_Add^.ZO   := ZO ;
                      curr_add^.nrc := NRC;
                      curr_add^.otk := OTK;
                      curr_add^.PAY_TP := PAY_TP;
                      curr_add^.CODE_PRIZ_1DF := CODE_PRIZ_1DF;
                      if curr_add^.shifr=PerersZaProshlPeriody then
-                        put156MessageToCn(Curr_Person,Curr_add^.Period,Curr_add^.Summa,Comment156);
+                        put156MessageToCn(Curr_Person,Curr_add^.Period,Curr_add^.Summa,Curr_add^.Who,Comment156);
                      delete156MessageFromCn(Curr_Person);
 
                      if Curr_Person.AUTOMATIC=AUTOMATIC_MODE then
@@ -821,14 +820,13 @@ begin
 
              Oklad    := Curr_Person^.Oklad;
              Fond     := 0;
+             WHO      := curr_add^.WHO;
              if abs(Curr_Add^.FMP)>0.001   then Fond:=1
                                            else
              if abs(Curr_Add^.Other)>0.001 then Fond:=2;
              WantedTabno:=Curr_Person^.Tabno;
-             if Curr_Add<>nil then
-                 CurrAdd:=Curr_Add
-             else
-                 CurrAdd:=Nil;
+             wantedCurrPerson:=Curr_Person;
+
 
              if execute(RetVal) then
                 begin
@@ -844,8 +842,9 @@ begin
                      Curr_Add^.WORK_CLOCK:=WorkClock;
                      Curr_Add^.PERIOD:=MonthZa;
                      Curr_Add^.YEAR:=YearZa-1990;
+                     curr_add^.WHO:=WHO;
                      if Curr_add^.SHIFR=PerersZaProshlPeriody then
-                        put156MessageToCn(Curr_Person,Curr_Add^.PERIOD,Curr_Add^.SUMMA,Trim(Comment156));
+                        put156MessageToCn(Curr_Person,Curr_Add^.PERIOD,Curr_Add^.SUMMA,Curr_Add^.WHO,Trim(Comment156));
                  //    SortedAddList:=TSortedAddList.Init(Curr_Person);
                      if ((Curr_Add^.PERIOD=NMES) or
                          (not IsOtherPeriodECBShifr(Curr_Add^.Shifr))) then

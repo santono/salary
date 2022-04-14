@@ -1,6 +1,6 @@
 object FormUpdKmnd: TFormUpdKmnd
-  Left = 256
-  Top = 115
+  Left = 313
+  Top = 130
   Width = 790
   Height = 712
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1079#1072#1087#1080#1089#1080' '#1088#1072#1089#1095#1077#1090#1072' '#1082#1086#1084#1072#1085#1076#1080#1088#1086#1074#1086#1095#1085#1099#1093
@@ -44,6 +44,13 @@ object FormUpdKmnd: TFormUpdKmnd
     Width = 56
     Height = 20
     Caption = #1057#1090#1072#1090#1100#1103
+  end
+  object LabelTabel: TLabel
+    Left = 470
+    Top = 80
+    Width = 70
+    Height = 20
+    Caption = #1042' '#1090#1072#1073#1077#1083#1100
   end
   object BitBtn1: TBitBtn
     Left = 712
@@ -95,7 +102,7 @@ object FormUpdKmnd: TFormUpdKmnd
     Top = 112
     Width = 737
     Height = 449
-    ActivePage = TabSheetRas
+    ActivePage = TabSheet1
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = #1048#1089#1093'.'#1076#1072#1085#1085#1099#1077
@@ -243,6 +250,7 @@ object FormUpdKmnd: TFormUpdKmnd
         end
         object dxDBGridSumColumnButton: TdxDBGridButtonColumn
           Caption = #1055#1089#1084
+          Sorted = csUp
           Width = 38
           BandIndex = 0
           RowIndex = 0
@@ -656,6 +664,7 @@ object FormUpdKmnd: TFormUpdKmnd
     ItemHeight = 20
     TabOrder = 13
     Text = 'cbWR'
+    OnChange = cbWRChange
     Items.Strings = (
       #1054#1089#1085'. '#1080' '#1089#1086#1074#1084'.'
       #1054#1089#1085#1086#1074#1085#1072#1103
@@ -673,6 +682,30 @@ object FormUpdKmnd: TFormUpdKmnd
     Items.Strings = (
       '138 '#1050#1086#1084#1072#1085#1076#1080#1088#1086#1074#1082#1072
       '173 '#1043#1086#1089#1086#1073#1103#1079#1072#1085#1085#1086#1089#1090#1080)
+  end
+  object cbShifrTabel: TComboBox
+    Left = 544
+    Top = 80
+    Width = 217
+    Height = 28
+    ItemHeight = 20
+    TabOrder = 15
+    OnChange = cbShifrTabelChange
+    Items.Strings = (
+      #1043'    '#1075#1086#1089#1086#1073#1103#1079#1072#1085#1086#1089#1090#1080
+      #1044#1085' '#1076#1088#1091#1075#1072#1103' '#1085#1077#1103#1074#1082#1072' ')
+  end
+  object BitSinglPerson: TBitBtn
+    Left = 416
+    Top = 80
+    Width = 49
+    Height = 25
+    Hint = #1054#1090#1084#1077#1090#1080#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1090#1077#1082#1091#1097#1091#1102' '#1079#1072#1087#1080#1089#1100' '#1089#1086#1090#1088#1091#1076#1085#1080#1082#1072
+    Caption = #1069#1090#1086#1090
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 16
+    OnClick = BitSinglPersonClick
   end
   object DataSourceSummy: TDataSource
     DataSet = pFIBDataSetSummy

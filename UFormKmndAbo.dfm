@@ -63,6 +63,7 @@ object FormKmndAbo: TFormKmndAbo
     KeyField = 'SHIFRID'
     SummaryGroups = <>
     SummarySeparator = ', '
+    PopupMenu = PopupMenu1
     TabOrder = 1
     DataSource = dsKmndAbo
     Filter.Criteria = {00000000}
@@ -138,6 +139,80 @@ object FormKmndAbo: TFormKmndAbo
     end
   end
   object pFIBdsKmndAbo: TpFIBDataSet
+    UpdateSQL.Strings = (
+      'UPDATE TB_KOMAND'
+      'SET '
+      ' SHIFRID = :SHIFRID,'
+      ' F_DATA = :F_DATA,'
+      ' L_DATA = :L_DATA,'
+      ' MONTH_VY = :MONTH_VY,'
+      ' YEAR_VY = :YEAR_VY,'
+      ' K_WO_DAY = :K_WO_DAY,'
+      ' SUMMA_KMD = :SUMMA_KMD,'
+      ' DATA_P_BUD = :DATA_P_BUD,'
+      ' SHIFRKAT = :SHIFRKAT,'
+      ' SHIFRGRU = :SHIFRGRU,'
+      ' MEAN_DAY = :MEAN_DAY,'
+      ' MEAN_DAY_BUD = :MEAN_DAY_BUD,'
+      ' MEAN_DAY_VNE = :MEAN_DAY_VNE,'
+      ' MEAN_DAY_GN = :MEAN_DAY_GN,'
+      ' MEAN_DAY_NIS = :MEAN_DAY_NIS,'
+      ' SHIFR_STA = :SHIFR_STA,'
+      ' SHIFRBUH = :SHIFRBUH,'
+      ' MODE_V_Z = :MODE_V_Z,'
+      ' GUID = :GUID'
+      'WHERE'
+      ' SHIFRID = :OLD_SHIFRID'
+      ' ')
+    DeleteSQL.Strings = (
+      'DELETE FROM'
+      ' TB_KOMAND'
+      'WHERE'
+      '  SHIFRID = :OLD_SHIFRID'
+      ' ')
+    InsertSQL.Strings = (
+      'INSERT INTO TB_KOMAND('
+      ' SHIFRID,'
+      ' F_DATA,'
+      ' L_DATA,'
+      ' MONTH_VY,'
+      ' YEAR_VY,'
+      ' K_WO_DAY,'
+      ' SUMMA_KMD,'
+      ' DATA_P_BUD,'
+      ' SHIFRKAT,'
+      ' SHIFRGRU,'
+      ' MEAN_DAY,'
+      ' MEAN_DAY_BUD,'
+      ' MEAN_DAY_VNE,'
+      ' MEAN_DAY_GN,'
+      ' MEAN_DAY_NIS,'
+      ' SHIFR_STA,'
+      ' SHIFRBUH,'
+      ' MODE_V_Z,'
+      ' GUID'
+      ')'
+      'VALUES('
+      ' :SHIFRID,'
+      ' :F_DATA,'
+      ' :L_DATA,'
+      ' :MONTH_VY,'
+      ' :YEAR_VY,'
+      ' :K_WO_DAY,'
+      ' :SUMMA_KMD,'
+      ' :DATA_P_BUD,'
+      ' :SHIFRKAT,'
+      ' :SHIFRGRU,'
+      ' :MEAN_DAY,'
+      ' :MEAN_DAY_BUD,'
+      ' :MEAN_DAY_VNE,'
+      ' :MEAN_DAY_GN,'
+      ' :MEAN_DAY_NIS,'
+      ' :SHIFR_STA,'
+      ' :SHIFRBUH,'
+      ' :MODE_V_Z,'
+      ' :GUID'
+      ')')
     RefreshSQL.Strings = (
       'SELECT'
       ' SHIFRID,'
@@ -147,11 +222,27 @@ object FormKmndAbo: TFormKmndAbo
       ' YEAR_VY,'
       ' K_WO_DAY,'
       ' SUMMA_KMD,'
-      ' DATA_P_BUD'
+      ' DATA_P_BUD,'
+      ' SHIFRKAT,'
+      ' SHIFRGRU,'
+      ' MEAN_DAY,'
+      ' MEAN_DAY_BUD,'
+      ' MEAN_DAY_VNE,'
+      ' MEAN_DAY_GN,'
+      ' MEAN_DAY_NIS,'
+      ' SHIFR_STA,'
+      ' SHIFRBUH,'
+      ' MODE_V_Z,'
+      ' 0 AS MODEWR,'
+      ' GUID,'
+      ' 5 AS MODE_SIX_FIVE_DAY,'
+      ' 3 AS SHIFRTABEL'
+      ' '
       'FROM'
       ' TB_KOMAND '
-      'where TB_KOMAND.SHIFRID = :OLD_SHIFRID'
-      '  '
+      'where(  TABNO=:TABNO'
+      '  ) and (  TB_KOMAND.SHIFRID = :OLD_SHIFRID'
+      '  )'
       ' ')
     SelectSQL.Strings = (
       'SELECT'
@@ -173,7 +264,10 @@ object FormKmndAbo: TFormKmndAbo
       ' SHIFR_STA,'
       ' SHIFRBUH,'
       ' MODE_V_Z,'
-      ' 0 AS MODEWR'
+      ' 0 AS MODEWR,'
+      ' GUID,'
+      ' 5 AS MODE_SIX_FIVE_DAY,'
+      ' 3 AS SHIFRTABEL'
       ' '
       'FROM'
       ' TB_KOMAND '
@@ -182,6 +276,7 @@ object FormKmndAbo: TFormKmndAbo
     OnCalcFields = pFIBdsKmndAboCalcFields
     Transaction = pFIBtrKmndAboRead
     Database = FIB.pFIBDatabaseSal
+    UpdateTransaction = pFIBtrKmndAbo
     Left = 24
     Top = 72
     object pFIBdsKmndAboSHIFRID: TFIBIntegerField
@@ -283,6 +378,17 @@ object FormKmndAbo: TFormKmndAbo
       FieldName = 'NAMEMODEWR'
       Size = 3
       Calculated = True
+    end
+    object pFIBdsKmndAboGUID: TFIBStringField
+      FieldName = 'GUID'
+      Size = 50
+      EmptyStrToNull = True
+    end
+    object pFIBdsKmndAboMODE_SIX_FIVE_DAY: TFIBIntegerField
+      FieldName = 'MODE_SIX_FIVE_DAY'
+    end
+    object pFIBdsKmndAboSHIFRTABEL: TFIBIntegerField
+      FieldName = 'SHIFRTABEL'
     end
   end
   object pFIBtrKmndAbo: TpFIBTransaction
@@ -1922,6 +2028,14 @@ object FormKmndAbo: TFormKmndAbo
       Caption = #1055#1077#1088#1077#1085#1086#1089' '#1082#1086#1084#1072#1085#1076#1080#1088#1086#1074#1086#1095#1085#1086#1075#1086
       ImageIndex = 5
       OnExecute = ActMovKmndAboExecute
+    end
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 184
+    Top = 160
+    object N1: TMenuItem
+      Caption = #1057#1073#1088#1086#1089' '#1087#1088#1080#1079#1085#1072#1082#1072' '#1087#1077#1088#1077#1085#1086#1089#1072
+      OnClick = N1Click
     end
   end
 end

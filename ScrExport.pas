@@ -2465,7 +2465,15 @@ begin
                      Val(s,iVal,iErr);
                      if iErr=0 then
                         begin
-                            if iVal<2022 then
+                            if (iVal<2022) and
+                               (
+                                 (YearZa<CURRYEAR)
+                                 or
+                                 ((YearZa=CURRYEAR)
+                                  and
+                                  (MonthZa<nmes)
+                                 )
+                                ) then
                                begin
                                     recalcAddPerson(YearZa,MonthZa,Curr_Person);
                                     Exit;

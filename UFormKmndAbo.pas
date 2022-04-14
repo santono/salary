@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ScrDef, DB, FIBDatabase, pFIBDatabase, FIBDataSet, pFIBDataSet,
   ToolWin, ComCtrls, dxExEdtr, dxDBTLCl, dxGrClms, dxTL, dxDBCtrl,
-  dxDBGrid, dxCntner, ActnList, ImgList;
+  dxDBGrid, dxCntner, ActnList, ImgList, Menus;
 
 type
   TFormKmndAbo = class(TForm)
@@ -56,6 +56,11 @@ type
     pFIBdsKmndAboMODEWR: TFIBIntegerField;
     pFIBdsKmndAboNAMEMODEWR: TStringField;
     dxDBGridKmndAboNameWR: TdxDBGridColumn;
+    pFIBdsKmndAboGUID: TFIBStringField;
+    pFIBdsKmndAboMODE_SIX_FIVE_DAY: TFIBIntegerField;
+    pFIBdsKmndAboSHIFRTABEL: TFIBIntegerField;
+    PopupMenu1: TPopupMenu;
+    N1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure ActDelKmndAboExecute(Sender: TObject);
@@ -64,6 +69,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure pFIBdsKmndAboCalcFields(DataSet: TDataSet);
     procedure ActMovKmndAboExecute(Sender: TObject);
+    procedure N1Click(Sender: TObject);
   private
     procedure SeeKomand(Act:integer);
     procedure ShowTable;
@@ -77,6 +83,7 @@ type
     ShifrGru    : integer;
     ModeWR      : Integer;
     WantedCurrPerson : person_ptr;
+    GUID        : string;
     constructor CreateKmndForm(AOwner: TComponent; Curr_Person:PERSON_PTR);
     { Public declarations }
   end;
@@ -85,22 +92,24 @@ var
   FormKmndAbo: TFormKmndAbo;
 
 implementation
- uses UFibModule,UFormUpdKmnd,scrUtil, uFormWait,USQLUnit, UFormMovKmd;
+ uses UFibModule,UFormUpdKmnd,scrUtil, uFormWait,USQLUnit, UFormMovKmd,
+      DateUtils;
 
 {$R *.dfm}
 constructor TFormKmndAbo.CreateKmndForm(AOwner: TComponent; Curr_Person:PERSON_PTR);
  begin
       Self.Create(AOwner);
-      WantedTabno := Curr_Person^.TABNO;
-      WantedFio   := Trim(Curr_Person^.FIO)+' '+trim(Curr_Person^.dolg);
-      ShifrKat    := Curr_Person^.Kategorija;
-      ShifrGru    := Curr_Person^.Gruppa;
-      modeWR      := 0;
+      Self.WantedTabno := Curr_Person^.TABNO;
+      Self.WantedFio   := Trim(Curr_Person^.FIO)+' '+trim(Curr_Person^.dolg);
+      Self.ShifrKat    := Curr_Person^.Kategorija;
+      Self.ShifrGru    := Curr_Person^.Gruppa;
+      Self.GUID        := GetGUIDPersonToString(Curr_Person);
+      Self.modeWR      := 0;
       if isLNR then
       if IS_OSN_WID_RABOTY(Curr_person) then
-         MODEWR := 1
+         Self.MODEWR := 1
       else
-         ModeWR := 2;    
+         Self.ModeWR := 2;
       Self.WantedCurrPerson:=Curr_Person;
       Caption:=' омандировки '+Trim(Curr_Person^.FIO)+' '+trim(Curr_Person^.dolg);
  end;
@@ -155,7 +164,10 @@ begin
                         +'SHIFR_STA,'
                         +'SHIFRBUH,'
                         +'MODE_V_Z,'
-                        +'MODEWR'
+                        +'MODEWR,'
+                        +'GUID,'
+                        +'MODE_SIX_FIVE_DAY,'
+                        +'SHIFRTABEL'
                         +' FROM'
                         +' TB_KOMAND'
                         +' where TABNO=:TABNO'
@@ -183,7 +195,10 @@ begin
                         +'SHIFR_STA,'
                         +'SHIFRBUH,'
                         +'MODE_V_Z,'
-                        +'0 AS MODEWR'
+                        +'0 AS MODEWR,'
+                        + ''' '' AS GUID,'
+                        + '5 AS MODE_SIX_FIVE_DAY,'
+                        + '3 AS SHIFRTABEL'
                         +' FROM'
                         +' TB_KOMAND'
                         +' where TABNO=:TABNO'
@@ -245,7 +260,7 @@ begin
               if ShifrIdKmd>0 then
                  begin
                       SQLStmnt:='DELETE FROM TB_KOMAND WHERE SHIFRID='+IntToSTr(ShifrIdKmd);
-                      FIB.pFIBDatabaseSal.Execute(SQLStmnt);
+                      SQLExecute(SQLStmnt);
                       ShowTable;
                  end;
              Exit;
@@ -264,6 +279,7 @@ begin
                   ShifrIdKmnd := 0;
                   WantedTabno := SELF.WantedTabno;
                   WantedPodr  := NSRV;
+                  WantedCurrPerson := Self.WantedCurrPerson;
                   Mode_V_Z    := 0;  // за
               // 11 10 2012 с недовольством сказали что и командировка "в" а не "за"
 
@@ -273,10 +289,17 @@ begin
                   ShifrBuh       := CurrWrk;
                   Fio            := SELF.WantedFIO;
                   WantedTabno    := Self.WantedTabno;
-                  ShifrKat := SELF.ShifrKat;
-                  ShifrGru := SELF.ShifrGru;
-                  MODEWR   := 0;
-                  if isLNR then modeWR:=Self.ModeWR;
+                  ShifrKat       := SELF.ShifrKat;
+                  ShifrGru       := SELF.ShifrGru;
+                  MODEWR         := 0;
+                  GUID           := Self.GUID;
+                  WantedShifrSta := Komandirowki_Shifr;
+                  if isSixDayMode(WantedCurrPerson) then
+                     mode_six_five_day := 6
+                  else
+                     mode_six_five_day := 5;
+                  wantedShifrTabel     := KOMANDIROWKA;
+                  if isLNR then modeWR := Self.ModeWR;
                   if Act=1 then
                      begin
                           SQLStmnt:='EXECUTE PROCEDURE PR_DELETE_ALL_FROM_TMP_KOMAND';
@@ -304,6 +327,11 @@ begin
                       //    ModeDC      :=SELF.pFIBdsKmndAbo.FieldByName('MODE_DAY_CLOCK').AsInteger;
                           ShifrBuh    :=SELF.pFIBdsKmndAbo.FieldByName('SHIFRBUH').AsInteger;
                           MODEWR      := SELF.pFIBdsKmndAbo.FieldByName('MODEWR').AsInteger;
+                          GUID        :=SELF.pFIBdsKmndAbo.FieldByName('GUID').AsString;
+                          MODE_SIX_FIVE_DAY:=SELF.pFIBdsKmndAbo.FieldByName('MODE_SIX_FIVE_DAY').AsInteger;
+                          wantedShifrTabel  := Self.pFIBdsKmndAbo.FieldByName('SHIFRTABEL').AsInteger;
+                          if (wantedShifrTabel<1) or (WantedShifrTabel>MAX_TABEL_KOD) then
+                             wantedShifrTabel:=komandirowki_shifr;
                      end;
                   ShifrIdKmd:=ShifrIdKmnd;
                   if execute then
@@ -410,13 +438,21 @@ procedure TFormKmndAbo.MoveKomand;
      Sav,Curr:array[1..L_Person_Data] of byte;
      J : integer;
      shifrSta : Integer;
+     shifrTabel : Integer;
  begin
       ShifrIdKmd := pFIBdsKmndAbo.FieldByName('ShifrId').AsInteger;
       MONTH_VY   := pFIBdsKmndAbo.FieldByName('MONTH_VY').AsInteger;
       YEAR_VY    := pFIBdsKmndAbo.FieldByName('YEAR_VY').AsInteger;
       shifrSta   := pFIBdsKmndAbo.FieldByName('SHIFR_STA').AsInteger;
+      shifrTabel := pFIBdsKmndAbo.FieldByName('SHIFRTABEL').AsInteger;
       if shifrSta<>GOSOB_SHIFR then
-         shifrSta:=Komandirowki_Shifr;
+         begin
+              shifrSta:=Komandirowki_Shifr;
+              shifrTabel:=KOMPENS_SHIFR;
+         end
+      else
+      if not (shifrTabel in [Mobili_Tabel,GOS_OB]) then
+         shifrTabel:=Mobili_Tabel;
 //      if ((MONTH_VY<>NMES) OR (YEAR_VY<>CURRYEAR)) AND (CODE<>6) then
 //         begin
 //              ShowMessage('ћожно перенести только начисленные в этом мес€це больничный');
@@ -428,6 +464,7 @@ procedure TFormKmndAbo.MoveKomand;
       FormMovKmd.Curr_Person := WantedCurrPerson;
       FormMovKmd.ShifrIdKmd  := ShifrIdKmd;
       FormMovKmd.shifrSta    := shifrSta;
+      FormMovKmd.shifrTabel  := shifrTabel;
       FormMovKmd.PrepareHints;
       Sav_Person_Rec:=WantedCurrPerson^;
       move(WantedCurrPerson^,Sav,L_Person_Data);
@@ -456,5 +493,31 @@ procedure TFormKmndAbo.MoveKomand;
          WantedCurrPerson:=C_Person;
  end;
 
+
+procedure TFormKmndAbo.N1Click(Sender: TObject);
+var Dt:TDateTime;
+    y,m,d:word;
+begin
+      if pFIBdsKmndAboDATA_P_BUD.IsNull then
+         begin
+              ShowMessage(' омандировочный еще не перенесилс€.');
+              Exit;
+         end;
+      if YearOf(pFIBdsKmndAboDATA_P_BUD.value)<2010 then
+         begin
+              ShowMessage(' омандировочный еще не перенесилс€.');
+              Exit;
+         end;
+      if not YesNo('¬ы уверены, что хотите сбросить признак переноса командировочного?') then Exit;
+      dt:=encodedate(1990,1,1);
+      pFIBdsKmndAbo.Edit;
+      pFIBdsKmndAboDATA_P_BUD.value:=dt;
+      pFIBdsKmndAbo.Post;
+      pFIBdsKmndAbo.ApplyUpdates;
+      pFIBdsKmndAbo.Refresh;
+      dxDBGridKmndAbo.Refresh;
+      Application.ProcessMessages;
+
+end;
 
 end.

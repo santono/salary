@@ -253,6 +253,7 @@ interface
                              Gruppa   : integer;
                              Tabno    : integer;
                              shifrSta : Integer;
+                             shifrTabel:Integer;
                              ShifrPod : integer;
                              ShifrKat : integer;
                              ShifrGru : integer;
@@ -272,7 +273,7 @@ interface
    function  DateBetween(TestedDate,DateB,DateE:TDateTime):boolean;
    function  NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo:TDateTime):boolean;
    PROCEDURE MAKE_ILL_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
-   PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime;shifrSta:integer);
+   PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime;shifrTabel:integer);
    PROCEDURE MAKE_OTP_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
    PROCEDURE MAKE_OTP_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
 //   PROCEDURE MAKE_OTO_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
@@ -561,6 +562,9 @@ interface
   function IsBankShifr(Shifr:integer):Boolean;
   function getOkladLastForRazr(wantedRazr:integer):real;
   PROCEDURE FILL_STANDARD_TABEL_PERSON(CURR_PERSON:Person_Ptr);
+//  PROCEDURE FILL_STANDARD_TABEL_PERSON_FOR_Y_M(CURR_PERSON:Person_Ptr;wantedY:Integer;wantedM:integer);
+  PROCEDURE FILL_STANDARD_TABEL_PERSON_FOR_Y_M(CURR_PERSON:Person_Ptr;wantedY:Integer;wantedM:integer;var tabelSQL:TABEL_TYPE);
+
 //  procedure Make_Otp_Tabel_person(Curr_Person:Person_ptr);
   procedure FILL_TABEL_UW_PERSON(curr_person:person_ptr);
   procedure RestPerson09(Curr_Person:Person_Ptr;fname:string);
@@ -613,8 +617,8 @@ interface
   procedure receiveIOSemaphoreForRead;
   function  getShifrWrForBoln(TABNO:Integer;summa:Real;Y:integer;m:integer):Integer;
   function isSciPedForSwod(curr_person:person_ptr):boolean;
-  function get156MessageFromCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real):string;
-  procedure put156MessageToCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;Mess:string);
+  function get156MessageFromCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;who:integer):string;
+  procedure put156MessageToCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;who:Integer;Mess:string);
   procedure delete156MessageFromCn(Curr_Person:Person_ptr);
   procedure deleteEmpty156MessageFromPodr;
   function getExeFileSize:longint;
@@ -2042,6 +2046,56 @@ FUNCTION THIS_PERSON(CURR_PERSON:PERSON_PTR):BOOLEAN;
                      4 : CURR_PERSON^.TABEL[I]:=VYHODN;
                 END;
   END;
+ PROCEDURE FILL_STANDARD_TABEL_PERSON_FOR_Y_M(CURR_PERSON:Person_Ptr;wantedY:Integer;wantedM:integer;var tabelSQL:TABEL_TYPE);
+  VAR I:INTEGER;
+      SQLStmnt:string;
+      s:string;
+      dayCode,nbDay:Integer;
+      y:integer;
+      v:variant;
+      tabelDayCount:Integer;
+  BEGIN
+       if FIB.pFIBQuery.Open then
+          Exit;
+       y:=wantedY;
+       if y<1990 then
+          y:=1990;
+       s:=IntToStr(Y)+'-'+IntToStr(wantedM)+'-01';
+       SQLStmnt:='select count(*) from tb_months_pr where datefr='''+s+'''';
+       v:=SQLQueryValue(SQLStmnt);
+       tabelDayCount:=v;
+       if tabelDayCount < 28 then
+          begin
+               showMessage('Нет данных по рабочим дням и табелю за '+getMonthRus(wantedM)+' '+IntToStr(wantedY)+' г.');
+               Exit;
+          end;
+       SQLStmnt:='select code,nb_day from tb_months_pr where datefr='''+s+''' ORDER BY NB_DAY';
+       FillChar(tabelSQL,SizeOf(tabelSQL),0);
+       FIB.pFIBQuery.SQL.Clear;
+       FIB.pFIBQuery.SQL.Add(SQLStmnt);
+       if not FIB.pFIBQuery.Transaction.Active then
+          FIB.pFIBQuery.Transaction.StartTransaction;
+       FIB.pFIBQuery.ExecQuery;
+       while not FIB.pFIBQuery.Eof do
+         begin
+              dayCode:=FIB.pFIBQuery.Fields[0].AsInteger;
+              nbDay:=FIB.pFIBQuery.Fields[1].AsInteger;
+              if ((nbDay>0) and (nbDay<=31)) then
+                CASE dayCode OF
+                     0 : tabelSQL[nbDay]:=NEZAPOLN;
+                     1 : tabelSQL[nbDay]:=JAWKA;
+                     2 : IF isFiveDayMode(CURR_PERSON) THEN
+                            tabelSQL[nbDay]:=VYHODN
+                         ELSE
+                            tabelSQL[nbDay]:=JAWKA;
+                     3 : tabelSQL[nbDay]:=VYHODN;
+                     4 : tabelSQL[nbDay]:=VYHODN;
+                END;
+              FIB.pFIBQuery.Next;
+         end;
+       FIB.pFIBQuery.Close;
+       FIB.pFIBQuery.Transaction.Commit;
+  end;
  PROCEDURE FILL_TABEL_UW_PERSON(CURR_PERSON:PERSON_PTR);
   VAR I   : INTEGER;
       Dt  : TDateTime;
@@ -5718,7 +5772,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
        if NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo) then
           begin
                if ShifrSta=Komandirowki_shifr then
-                   Make_Kmd_Tabel(Curr_Person,DateFr,DateTo,Komandirowki_Shifr)
+                   Make_Kmd_Tabel(Curr_Person,DateFr,DateTo,KOMANDIROWKA)
                else
                    Make_Ill_Tabel(Curr_Person,DateFr,DateTo);
                if IsShifrInAddPerson(Curr_Person,138) then
@@ -5825,6 +5879,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                             Gruppa   : integer;
                             Tabno    : integer;
                             shifrSta : Integer;
+                            shifrTabel : Integer;
                             ShifrPod : integer;
                             ShifrKat : integer;
                             ShifrGru : integer;
@@ -6018,7 +6073,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
        if NeedCorrectBolnTabel(DateB,DateE,DateFr,DateTo) then
           begin
      //          if shifrSta=gosob_shifr then
-               Make_Kmd_Tabel(Curr_Person,DateFr,DateTo,shifrSta);
+               Make_Kmd_Tabel(Curr_Person,DateFr,DateTo,shifrTabel);
                if IsShifrInAddPerson(Curr_Person,138) then
                    ShifrSta:=ShifrSta;
                Calc_Naud_Person(Curr_Person,31);
@@ -6042,15 +6097,16 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 //                  begin
                     DebugMode:=1;
                     if Curr_Person^.AUTOMATIC=AUTOMATIC_MODE then
-                    if Curr_Person^.WID_RABOTY<>1 then
+//                    if Curr_Person^.WID_RABOTY<>1 then
                        begin
                             y:=PPeriodRec(List.Items[i-1])^.YearZa;
                             m:=PPeriodRec(List.Items[i-1])^.MonthZa;
-                            Recalc_Person_Sql(Curr_Person,Y,M,DebugMode);
+//                            Recalc_Person_Sql(Curr_Person,Y,M,DebugMode);
                             if M=NMES then
                                Calc_Naud_Person(Curr_Person,31)
                                                  else
                                begin
+                                    recalcAddPerson(Y,M,Curr_Person);
                                     FLAG_NAUD_FOR_OTHER_MONTH:=true;
                                     Update_Podoh(Curr_Person,M,Y-1990,1);
                                     FLAG_NAUD_FOR_OTHER_MONTH:=false;
@@ -6332,7 +6388,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                                                               ELSE CURR_PERSON^.TABEL[L]:=ILLNESS;
   END;
 
- PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime;shifrSta:integer);
+ PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime;shifrTabel:integer);
   VAR I,L,U_BOUND,L_BOUND:INTEGER;
       YFR,MFR,DFR:WORD;
       YTO,MTO,DTO:WORD;
@@ -6340,10 +6396,10 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
       IsBetween:boolean;
       tabelCode:Byte;
   BEGIN
-        if shifrSta=gosob_shifr then
-           tabelCode:=GOS_OB
+        if not (shifrTabel in [KOMANDIROWKA,GOS_OB,Mobili_Tabel]) then
+           tabelCode:=KOMANDIROWKA
         else
-           tabelCode:=KOMANDIROWKA;
+           tabelCode:=shifrTabel;
         CurrDate:=EncodeDate(CurrYear,NMES,1);
         L:=LenMonth(CurrDate);
         IsBetween:=false;
@@ -13364,19 +13420,41 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
          retVal:=True;
       isSciPedForSwod:=retVal;
  end;
- function get156MessageFromCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real):string;
+ function get156MessageFromCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;who:integer):string;
    var currCn:CN_PTR;
        Mess:string;
        finded:boolean;
+       cnt:Integer;
+   function count156:integer;
+     var currcn1:CN_PTR;
+         c:Integer;
+     begin
+         c:=0;
+         CurrCn1 := curr_person^.cn;
+         while (currcn1 <> nil) do
+           begin
+              if currcn1^.SHIFR=cn156_shifr+limit_cn_base then
+              if currcn1^.PRIM=Period then
+              if abs(Abs(currcn1^.summa)-abs(summa))<0.01 then
+                 begin
+                      Inc(c);
+                 end;
+              currcn1:=currcn1^.next;
+         end;
+         count156:=c;
+     end;
    begin
        Mess:='';
        finded:=false;
+       cnt:=count156;
+       who:=Lo(who);
        CurrCn:=curr_person^.cn;
        while (currcn<>nil) do
          begin
               if currcn^.SHIFR=cn156_shifr+limit_cn_base then
               if currcn^.PRIM=Period then
               if abs(Abs(currcn^.summa)-abs(summa))<0.01 then
+              if ((cnt<2) or ((cnt>1) and (currcn^.DEJA_COUNTED=who))) then
                  begin
                       finded:=True;
                       mess:=trim(currCn^.PRIM_1);
@@ -13387,17 +13465,40 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
       get156MessageFromCn:=Trim(Mess);
 
    end;
- procedure put156MessageToCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;Mess:string);
+ procedure put156MessageToCn(Curr_Person:Person_ptr;Period:Integer;Summa:Real;who:Integer;Mess:string);
   var CurrCn:CN_PTR;
       finded:boolean;
+      cnt:Integer;
+   function count156:integer;
+     var currcn1:CN_PTR;
+         c:Integer;
+     begin
+         c:=0;
+         CurrCn1 := curr_person^.cn;
+         while (currcn1 <> nil) do
+           begin
+              if currcn1^.SHIFR=cn156_shifr+limit_cn_base then
+              if currcn1^.PRIM=Period then
+              if abs(Abs(currcn1^.summa)-abs(summa))<0.01 then
+                 begin
+                      Inc(c);
+                 end;
+              currcn1:=currcn1^.next;
+            end;
+         count156:=c;
+     end;
   begin
        finded:=false;
        CurrCn:=curr_person^.cn;
+       cnt:=count156;
+       who:=Lo(who);
        while (currcn<>nil) do
          begin
               if currcn^.SHIFR=cn156_shifr+limit_cn_base then
               if currcn^.PRIM=Period then
               if abs(Abs(currcn^.summa)-abs(summa))<0.01 then
+              if ((cnt<1) or ((cnt>=1) and (currcn^.DEJA_COUNTED=who))) then
+//              if (currcn^.DEJA_COUNTED=who) then
                  begin
                       finded:=True;
                       Break;
@@ -13415,6 +13516,7 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
               currCn^.SHIFR:=cn156_shifr+limit_cn_base;
               currCn^.KOD:=100;
               currCn^.PRIM:=Period;
+              currCn^.DEJA_COUNTED:=WHO;
               currCn^.SUMMA:=Summa; 
               currCn^.PRIM_1:=Trim(mess);
           end;
@@ -13424,6 +13526,26 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
       finded:boolean;
       CurrAdd:ADD_PTR;
       finished:boolean;
+      cnt:Integer;
+   function count156(Period:byte;Summa:real):integer;
+     var currcn1:CN_PTR;
+         c:Integer;
+     begin
+         c:=0;
+         CurrCn1 := curr_person^.cn;
+         while (currcn1 <> nil) do
+           begin
+              if currcn1^.SHIFR=cn156_shifr+limit_cn_base then
+              if currcn1^.PRIM=Period then
+              if abs(Abs(currcn1^.summa)-abs(summa))<0.01 then
+                 begin
+                      Inc(c);
+                 end;
+              currcn1:=currcn1^.next;
+            end;
+         count156:=c;
+     end;
+
   begin
        while True do
          begin
@@ -13441,8 +13563,12 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
                               if CurrAdd^.PERIOD=CurrCn^.PRIM then
                               if abs(Abs(currAdd^.SUMMA)-Abs(currCn^.summa))<0.01 then
                                  begin
-                                      finded:=True;
-                                      Break;
+                                      cnt:=count156(currAdd^.period,curradd^.summa);
+                                      if ((cnt<2) or ((cnt>1) and (currCn^.DEJA_COUNTED=lo(currAdd^.who)))) then
+                                         begin
+                                              finded:=True;
+                                              Break;
+                                         end;
                                  end;
                               CurrAdd:=CurrAdd^.NEXT;
                            end;
