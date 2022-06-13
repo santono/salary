@@ -50,7 +50,7 @@ var
 begin
   FileName:=Application.ExeName;
 {$IFDEF SVDN}
-     FormatString:='Версiя %d.%d.%d збiрка %d'
+     FormatString:='Версiя %d.%d.%d збiрка %d';
 {$ELSE}
      FormatString:='Версия %d.%d.%d сборка %d';
 {$ENDIF}
@@ -97,7 +97,7 @@ begin
    Label1.Caption:='Автоматизована система';
    ProductName.Caption:='розрахунку заробітної плати';
   {$ENDIF}
-   Version.Caption:=GetAppVersionStr+' от 27.03.2022';
+   Version.Caption:=GetAppVersionStr+' от 05.06.2022';
    currentSize:=getExeFileSize;
    if currentSize<>instantExeFileSize then
       begin

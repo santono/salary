@@ -4298,6 +4298,7 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      Razr:Integer;
      koef:real;
      summaDoplFull,summaDoplRas:Real;
+     summaIndex:real;
      shifrDol:Integer;
      existsDopl:Boolean;
      CurrentMinSal:real;
@@ -4340,6 +4341,7 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      Curr_ADD:=CURR_PERSON.ADD;
      Found:=False;
      Summa:=0;
+     summaIndex:=0.0;
      CURR_ADD:=curr_person.ADD;
      while (CURR_ADD<>nil) do
        begin
@@ -4352,7 +4354,10 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
             if not (curr_add^.shifr=NIGHT_SHIFR) then
             if not (curr_add^.shifr=MAT_POOSHR_SHIFR) then
                begin
-                    summa:=summa+curr_add^.SUMMA;
+                    if curr_add^.shifr=index_shifr then
+                       summaIndex:=summaIndex+curr_add^.SUMMA
+                    else
+                       summa:=summa+curr_add^.SUMMA;
                     if curr_add^.SHIFR=WANTED_SHIFR then
                        existsDopl:=True;
                end;
@@ -4373,6 +4378,7 @@ PROCEDURE DOPL_DO_MIN_SAL_PERSON(CURR_PERSON:PERSON_PTR;LAST_DAY:INTEGER);
      if O_PERSON<-0.01 then
      if not existsDopl then
         Exit;
+     o_person:=o_person-summaIndex;
      IF (Abs(O_PERSON)>0.01) THEN
         BEGIN
              MAKE_ADD(CURR_ADD,Curr_person);

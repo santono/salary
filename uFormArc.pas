@@ -219,6 +219,8 @@ type
     dxDBGridYearZa11WS: TdxDBGridColumn;
     pFIBDataSetYearVy114SUMMAWS: TFIBBCDField;
     dxDBGridYearVy20114WS: TdxDBGridColumn;
+    N2: TMenuItem;
+    BitBtn5: TBitBtn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -228,6 +230,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
     procedure N1Click(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure BitBtn5Click(Sender: TObject);
   private
     { Private declarations }
     FIOS        : String;
@@ -253,7 +257,7 @@ var
 
 implementation
 
-uses uFrmFindKadryFB,UFibModule,uFormWait,ScrUtil,ScrDef,UFormView;
+uses uFrmFindKadryFB,UFibModule,uFormWait,ScrUtil,ScrDef,UFormView,UFormFIOHistory;
 
 {$R *.dfm}
 
@@ -1118,6 +1122,20 @@ begin
     withoutJunFeb:=true;
     BitBtn3Click(Nil);
     withoutJunFeb:=false;
+
+end;
+
+procedure TFormArc.N2Click(Sender: TObject);
+
+begin
+      FormFIOHistory:=TFormFIOHistory.CreateByTabno(Self,tabno,fios);
+      FormFIOHistory.showModal;
+end;
+
+procedure TFormArc.BitBtn5Click(Sender: TObject);
+begin
+      FormFIOHistory:=TFormFIOHistory.CreateByTabno(Self,tabno,fios);
+      FormFIOHistory.showModal;
 
 end;
 

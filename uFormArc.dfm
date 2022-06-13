@@ -1,6 +1,6 @@
 object FormArc: TFormArc
-  Left = 221
-  Top = 122
+  Left = 276
+  Top = 150
   Width = 922
   Height = 582
   Caption = #1040#1088#1093#1080#1074
@@ -1111,7 +1111,7 @@ object FormArc: TFormArc
     end
   end
   object BitBtn2: TBitBtn
-    Left = 624
+    Left = 656
     Top = 40
     Width = 161
     Height = 25
@@ -1126,7 +1126,7 @@ object FormArc: TFormArc
     OnClick = BitBtn2Click
   end
   object BitBtn3: TBitBtn
-    Left = 792
+    Left = 824
     Top = 40
     Width = 75
     Height = 25
@@ -1148,6 +1148,15 @@ object FormArc: TFormArc
     Caption = #1055#1077#1095#1072#1090#1100' '#1055
     TabOrder = 5
     OnClick = BitBtn4Click
+  end
+  object BitBtn5: TBitBtn
+    Left = 584
+    Top = 40
+    Width = 75
+    Height = 25
+    Caption = #1048#1079#1084'.'#1092#1072#1084'.'
+    TabOrder = 6
+    OnClick = BitBtn5Click
   end
   object pFIBDataSetVy: TpFIBDataSet
     SelectSQL.Strings = (
@@ -1831,6 +1840,10 @@ object FormArc: TFormArc
     object N1: TMenuItem
       Caption = #1055#1077#1095#1072#1090#1100' '#1073#1077#1079' '#1103#1085#1074' '#1080' '#1092#1074#1088' '#1076#1083#1103' '#1050#1056#1059
       OnClick = N1Click
+    end
+    object N2: TMenuItem
+      Caption = #1048#1089#1090#1086#1088#1080#1103' '#1080#1079#1084#1077#1085#1077#1085#1077#1085#1080#1103' '#1092#1072#1084#1080#1083#1080#1081
+      OnClick = N2Click
     end
   end
 end

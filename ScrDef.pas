@@ -217,6 +217,7 @@ CONST
 { *}     REC6CN_SHIFR              = 498;
 { *}     REC5CN_SHIFR              = 497;
 { *}     REC7CN_SHIFR              = 499;
+{ *}     GOSOB_SHIFR               = 999;   { *}
 {$ELSE}
 { *}     NeedToPersSwod            = 999; { Включать в свод по персонофикации без сумм  }
 { *}     INNERSOWM_SHIFR           = 999;
@@ -790,7 +791,7 @@ begin
     needServerAppData:=False;
     needUseIOSemaphore:=false;
     DDIR:='';
-    instantExeFileSize:=10876928;
+    instantExeFileSize:=10883072;
 
 {$IFDEF SVDN}
     isSVDN := True  ;

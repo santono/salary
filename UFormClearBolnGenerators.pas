@@ -48,12 +48,12 @@ begin
      SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE gkomandrestmp RESTART WITH 1';
      SQLExecute(SQLStmnt);
-     SQLStmnt:='ALTER SEQUENCE GSRDADDTMP RESTART WITH 1';
-     SQLExecute(SQLStmnt);
-     SQLStmnt:='ALTER SEQUENCE GSRDTMPSUMMY RESTART WITH 1';
-     SQLExecute(SQLStmnt);
-     SQLStmnt:='ALTER SEQUENCE GSRDRESTMP RESTART WITH 1';
-     SQLExecute(SQLStmnt);
+//     SQLStmnt:='ALTER SEQUENCE GSRDADDTMP RESTART WITH 1';
+//     SQLExecute(SQLStmnt);
+//     SQLStmnt:='ALTER SEQUENCE GSRDTMPSUMMY RESTART WITH 1';
+//     SQLExecute(SQLStmnt);
+//     SQLStmnt:='ALTER SEQUENCE GSRDRESTMP RESTART WITH 1';
+//     SQLExecute(SQLStmnt);
      FormWait.Hide;
      if not needHideGenerMessages then
         ShowMessage('Готово!.'+^M+'Не забудьте очистить временные таблицы для предотвращения возможности дублирования их первичных ключей.');

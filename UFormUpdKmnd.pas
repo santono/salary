@@ -411,6 +411,9 @@ begin
                 cbWR.ItemIndex:=2
              else
                 cbWR.ItemIndex:=0;
+            if isLNR then
+               begin
+           (*
             if WantedShifrSta=gosob_shifr then
                begin
                     cbShifrSta.ItemIndex:=1;
@@ -429,6 +432,8 @@ begin
                     wantedShifrTabel:=KOMANDIROWKA; // командировки
                     hideCbShifrTabel;
                end
+               *)
+               end;
 
         end
      else
@@ -1255,6 +1260,9 @@ procedure TFormUpdKmnd.hideBitSinglPerson;
  end;
 procedure TFormUpdKmnd.cbShifrStaChange(Sender: TObject);
 begin
+{$IFDEF SVDN}
+ System.Exit;
+{$ELSE}
       if cbShifrSta.ItemIndex=1 then
          wantedShifrSta:= gosob_shifr     // гос обязанности
       else
@@ -1270,6 +1278,8 @@ begin
             wantedShifrTabel:=Mobili_Tabel;
             cbShifrTabel.ItemIndex:=1;
         end;
+{$ENDIF}
+        
 end;
 
 
