@@ -6261,7 +6261,8 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                    end;
                Exit
           end;
-         MAKE_OBO_TABEL_FROM_SQL(curr_person);
+         if isLNR then
+            MAKE_OBO_TABEL_FROM_SQL(curr_person);
          CALC_NAUD_PERSON(Curr_Person,31);
 
          List    := TList.Create;
@@ -6818,6 +6819,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          SetTemplate:=RetVal;
     end;
  BEGIN
+        if isSVDN then Exit;
         if not SetTemplate then Exit;
 //        U_BOUND:=LENMONTH(EnCodeDate(CurrYear,NMes,1));
 //        IF NMES=MTO  THEN U_BOUND:=DTO;

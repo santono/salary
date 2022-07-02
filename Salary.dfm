@@ -1197,6 +1197,9 @@ object MainForm: TMainForm
     object NECBPerson: TMenuItem
       Action = ActionFormECBPerson
     end
+    object N190: TMenuItem
+      Action = ActionMakeOtpTabelPerson
+    end
   end
   object ActionList1: TActionList
     Left = 80
@@ -1752,6 +1755,10 @@ object MainForm: TMainForm
     object ActionOtpBSAboList: TAction
       Caption = #1054#1090#1087#1091#1089#1082#1072' '#1073#1077#1079' '#1086#1087#1083#1072#1090#1099
       OnExecute = ActionOtpBSAboListExecute
+    end
+    object ActionMakeOtpTabelPerson: TAction
+      Caption = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1090#1072#1073#1077#1083#1100' '#1087#1086' '#1041#1044
+      OnExecute = ActionMakeOtpTabelPersonExecute
     end
   end
   object ImageList1: TImageList

@@ -565,6 +565,7 @@ procedure TPersonO.makeActualTabel;
            end
         else
         if mode=4 then //Отпуск без оплаты
+        if not isSVDN then
            begin
                 SQLStmnt:='select DATEFR,DATETO from TB_OTP_BS where tabno='+IntToStr(Self.PersonRec.Tabno)+' and not (DATEFR>'''+LastDataMonthStr+''' or DATETO<'''+FirstDataMonthStr+''')';
                 tabelMark:=OTPUSK_BEZ_OPLATY;

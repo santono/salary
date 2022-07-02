@@ -501,12 +501,12 @@ procedure TFormOtpAbo.MoveOtp;
                 if j<=L_Person_Data then
                 if Sav[j]<>Curr[j] then
                    begin
-                        Eq:=false;
+                        Eq  := false;
                         break;
                    end;
             if Eq then
                begin
-                     Finded:=true;
+                     Finded := true;
                      break;
                end;
             C_Person:=C_Person^.Next;

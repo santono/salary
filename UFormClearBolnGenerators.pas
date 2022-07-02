@@ -42,12 +42,15 @@ begin
      SQLExecute(SQLStmnt);
      SQLStmnt:='ALTER SEQUENCE GOTP_RES_TMP RESTART WITH 1';
      SQLExecute(SQLStmnt);
-     SQLStmnt:='ALTER SEQUENCE gkomandtmpsummy RESTART WITH 1';
-     SQLExecute(SQLStmnt);
-     SQLStmnt:='ALTER SEQUENCE gkomandaddtmp RESTART WITH 1';
-     SQLExecute(SQLStmnt);
-     SQLStmnt:='ALTER SEQUENCE gkomandrestmp RESTART WITH 1';
-     SQLExecute(SQLStmnt);
+     if isLNR then
+        begin
+             SQLStmnt:='ALTER SEQUENCE gkomandtmpsummy RESTART WITH 1';
+             SQLExecute(SQLStmnt);
+             SQLStmnt:='ALTER SEQUENCE gkomandaddtmp RESTART WITH 1';
+             SQLExecute(SQLStmnt);
+             SQLStmnt:='ALTER SEQUENCE gkomandrestmp RESTART WITH 1';
+             SQLExecute(SQLStmnt);
+        end;
 //     SQLStmnt:='ALTER SEQUENCE GSRDADDTMP RESTART WITH 1';
 //     SQLExecute(SQLStmnt);
 //     SQLStmnt:='ALTER SEQUENCE GSRDTMPSUMMY RESTART WITH 1';

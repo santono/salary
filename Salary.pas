@@ -443,6 +443,8 @@ type
     ToolButtonObo: TToolButton;
     ActionOtpBSAboList: TAction;
     NClearTmpTableSRD: TMenuItem;
+    ActionMakeOtpTabelPerson: TAction;
+    N190: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -727,6 +729,7 @@ type
     procedure ActionOtpBSBrowseExecute(Sender: TObject);
     procedure ActionOtpBSAboListExecute(Sender: TObject);
     procedure NClearTmpTableSRDClick(Sender: TObject);
+    procedure ActionMakeOtpTabelPersonExecute(Sender: TObject);
 
 
   private
@@ -5115,6 +5118,34 @@ begin
              FormWaitMess.Hide;
         end;
 
+end;
+
+procedure TMainForm.ActionMakeOtpTabelPersonExecute(Sender: TObject);
+var curr_person:PERSON_PTR;
+    j,i,tabno:Integer;
+begin
+    J:=Count_Person;
+    curr_Person:=nil;
+    if StringGrid1.Row<=j+1 then
+       begin
+            i:=0;
+            Curr_Person:=Head_Person;
+            while (Curr_Person<>Nil) do
+              begin
+                   inc(i);
+                   if (i=StringGrid1.Row-1) then
+                       Break;
+                   Curr_Person:=Curr_Person^.NEXT;
+              end;
+       end;
+    if Curr_Person=nil then Exit;
+    if curr_Person^.tabno<1 then Exit;
+    if curr_person^.AUTOMATIC<>automatic_mode then Exit;
+    if NMES<>FLOW_MONTH then Exit;
+    if WORK_YEAR_VAL<>CURRYEAR then Exit;
+    tabno:=curr_person^.tabno;
+
+     MAKE_OTP_TABEL_FROM_SQL(Curr_Person);
 end;
 
 end.
