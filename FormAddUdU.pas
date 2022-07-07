@@ -640,6 +640,7 @@ begin
 
      with TFormUpdAdd.Create(nil) do
          try
+             ActionAdd := 2;
              ShifrSta := Curr_Add^.Shifr;
              Summa    := Curr_Add^.Summa;
              MonthZa  := Curr_Add^.Period;
@@ -682,10 +683,10 @@ begin
                      Curr_Add^.Work_Clock := WorkClock;
                      Curr_Add^.PERIOD:=MonthZa;
                      Curr_Add^.YEAR:=YearZa-1990;
-                     curr_add^.WHO:=WHO;
+                     curr_add^.WHO  :=WHO;
                      Curr_Add^.ZO   := ZO ;
-                     curr_add^.nrc := NRC;
-                     curr_add^.otk := OTK;
+                     curr_add^.nrc  := NRC;
+                     curr_add^.otk  := OTK;
                      curr_add^.PAY_TP := PAY_TP;
                      curr_add^.CODE_PRIZ_1DF := CODE_PRIZ_1DF;
                      if curr_add^.shifr=PerersZaProshlPeriody then
@@ -805,6 +806,7 @@ begin
      Curr_Add^.Year   := CurrYear-1990;
      with TFormUpdAdd.Create(nil) do
          try
+             ActionAdd := 1;
              ShifrSta := Curr_Add^.Shifr;
              if DOG_POD_PODRAZD(NSRV) then
                 ShifrSta:=DogPodShifr;

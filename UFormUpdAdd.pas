@@ -88,6 +88,7 @@ type
 
   public
     { Public declarations }
+    ActionAdd  : Integer; {1 - add 2 update 3 delete}
     ShifrSta   : Integer;
     Summa      : Real;
     Days       : integer;
@@ -344,7 +345,7 @@ begin
          if ShifrSta=PerersZaProshlPeriody then
             begin
                  show156;
-                 WHO:=getWhoFor156;
+                 Self.WHO:=getWhoFor156;
             end
          else
             hide156;
@@ -383,6 +384,9 @@ end;
 
 procedure TFormUpdAdd.BitBtn2Click(Sender: TObject);
 begin
+     if ActionAdd = 1 then
+     if self.ShifrSta=PerersZaProshlPeriody then
+        Self.WHO:=getWhoFor156;
      ModalResult:=mrOk;
 end;
 

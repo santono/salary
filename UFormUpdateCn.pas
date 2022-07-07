@@ -152,7 +152,7 @@ begin
                          begin
                               btnPodr.Show;
                               btnPodr.Enabled:=true;
-                              if Prim>0 then
+                              if (Prim>0) and (Self.ShifrSta<>(PerersZaProshlPeriody+LIMIT_CN_BASE)) then
                                  LabelAlim.Caption:=getNameDepPodrFromSQL(Prim);
                          end
                       else
@@ -191,7 +191,7 @@ begin
      btnPodr.Hide;
      btnPodr.Enabled:=false;
 
-     if Is_Alimenty_Shifr(ShifrSta) then
+     if not Is_Alimenty_Shifr(ShifrSta) then
         begin
              BitBtn4.Hide;
              BitBtn4.Enabled:=false
