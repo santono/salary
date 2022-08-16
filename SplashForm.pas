@@ -97,7 +97,7 @@ begin
    Label1.Caption:='Автоматизована система';
    ProductName.Caption:='розрахунку заробітної плати';
   {$ENDIF}
-   Version.Caption:=GetAppVersionStr+' от 07.07.2022';
+   Version.Caption:=GetAppVersionStr+' от 16.08.2022';
    currentSize:=getExeFileSize;
    if currentSize<>instantExeFileSize then
       begin

@@ -4347,8 +4347,8 @@ PROCEDURE SELECT(I:INTEGER);
          Summa1:=Su;
        if Summa1<-0.01 then
           Summa1:=Summa1-0.009;
-       IF ABS(SUMMA)<100000000 THEN RetVal:=SimpleRoundTo(SUMMA1,-2)
-                               ELSE RetVal:=ROUND(SUMMA/1000)*1000;
+       IF ABS(SUMMA)<10000000000 THEN RetVal:=SimpleRoundTo(SUMMA1,-2)
+                                 ELSE RetVal:=ROUND(SUMMA/1000)*1000;
 //     IF ABS(SUMMA)<100000000 THEN R10:=ROUND(SUMMA*100)/100
        R10:=RetVal;
   END;

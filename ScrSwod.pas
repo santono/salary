@@ -103,6 +103,8 @@ TYPE
   var
     SQLSwodClass:TSQLSwodClass;
     needSVDNFooter:boolean;
+    SummaTotPerson : real;
+    SummaAddList : real;
     constructor TSQLSwodClass.init(Y,M:integer);
       begin
            Self.List:=TList.Create;
@@ -272,6 +274,9 @@ TYPE
           SwodDetRec : PSwodDetRec;
           SwodDetPersonRec : PSwodDetPersonRec;
       begin
+        //   if IsKassaShifr(Curr_add^.SHIFR)
+        //      then Exit;
+           summaTotPerson:=summaTotPerson+sum(curr_add^.summa);
            finded:=False;
            if list.Count>0 then
               for i:=0 to list.Count-1 do
@@ -395,6 +400,7 @@ TYPE
    var i:integer;
        Cell_Rec:PCell_Rec;
        Finded:Boolean;
+       summa1,summa2:Real;
    begin
         if ((shifrban<0) or (shifrban>100)) then
             shifrBan:=0;
@@ -477,6 +483,13 @@ TYPE
                  if Abs(Cell_Rec^.SUMMA-Cell_Rec^.FZP-Cell_Rec^.FMP-Cell_Rec^.OTHER)>0.005 then
                     Finded:=False;
            end;
+        if ShifrList.IsAdd(Shifr) then
+//                 S_SUMMA   := sum(S_SUMMA) + Sum(PCell_Rec(ItemAddList.Items[i-1]).Summa);
+           begin
+                 summa1:=SUM(SummaAddList);
+                 summa2:=SUM(summa);
+                 SummaAddList:=summa1+summa2;
+           end
      end;
 
 
@@ -948,9 +961,17 @@ BEGIN
                            if not Detail_Swod then Curr_Add^.Period:=nmes;
                            if Curr_Person^.Tabno=4107 then
                               SummaTot:=SummaTot;
+                           if curr_person^.tabno=13284 then
+                           if nsrv=202 then
+                              SummaTot:=SummaTot;
                            SummaTot:=SummaTot+Sum(Curr_Add^.Summa);
                            ItemAddList.AddItem(Kod,Curr_Add^.PERIOD,Curr_Add^.Summa,Curr_Add^.FZP,Curr_Add^.FMP,Curr_Add^.Other,0);
                            SQLSwodClass.AddItemAdd(curr_person,CURR_ADD,NSRV);
+                           if abs(abs(SummaTot)-abs(SummaTotPerson))>1.0 then
+                              SummaTot:=SummaTot;
+                           if abs(abs(SummaTot)-abs(SummaAddList))>0.01 then
+                              SummaTot:=SummaTot;
+
 
                            if needTestMem then
                               TestListClass.addaddrec(curr_add,curr_person);
@@ -1627,6 +1648,7 @@ BEGIN
      FormProgress.Caption             := 'Создание свода';
      FormProgress.Show;
      SummaTot:=0;
+     summaTotPerson:=0;
      FOR III:=1 TO COUNT_SERV DO
          BEGIN
            NSRV:=III;
