@@ -518,6 +518,7 @@ object MainForm: TMainForm
         end
         object RepWorkersForPlan: TMenuItem
           Action = ActionRepWorkersForPlan
+          Caption = #1057#1074#1086#1076' '#1076#1083#1103' '#1087#1083#1072#1085#1086#1074#1086#1075#1086' 2022'
         end
         object N174: TMenuItem
           Action = ActionRepPomKOtp

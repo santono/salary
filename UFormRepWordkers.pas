@@ -87,7 +87,7 @@ function TFormRepWordkers.initListPlanRecs:boolean;
       shifrKat,shifrDol:integer;
       rec:pIniRec;
 begin
-     fname:=CDIR+'PlanWorkers.txt';
+     fname:=CDIR+'PlanWorkers2022.txt';
      if not FileExists(fname) then
         begin
              initListPlanRecs:=false;
@@ -224,7 +224,7 @@ procedure TFormRepWordkers.CreateReport;
            end;
        Application.ProcessMessages;
        list.Sort(@Compare);
-     FName:=TemplateDIR+'WorkersPlan_2020.xlt';
+     FName:=TemplateDIR+'WorkersPlan_2022.xlt';
      if not FileExists(FName) then
         begin
              ShowMessage('Отсутствует шаблон '+FName);
@@ -350,7 +350,8 @@ procedure TFormRepWordkers.fillPerson(curr_person:person_ptr);
                         break;
                    end;
            end;
-       if shifrKat=0 then exit;
+       if shifrKat=0 then
+       if curr_person^.KATEGORIJA=3 then shifrKat:=12;
        summaAdd:=getSummaSummaOsnAddForPerson(curr_person);
        summaNal:=getSummaNalogiPerson(curr_person);
        if abs(summaAdd)<0.01 then exit;
@@ -472,7 +473,7 @@ procedure TFormRepWordkers.moveToExcel;
   end;
 
 procedure TFormRepWordkers.SwodToExcel;
-const maxKat=10;
+const maxKat=15;
 var
     S:String;
     SummaTot,SummaClear,nmbOfSt,avgChisl:real;
@@ -489,8 +490,8 @@ begin
 
      h:='Показатель средней заработной платы бюджетных учреждений за '+GetMonthRus(MonthOf(dtIn.date))+' '+intToStr(yearOf(dtIn.date))+' года';
      wbs:=E.WorkBooks[1].WorkSheets[1];
-     wbs.Cells[2,1] := h;
-     for k:=1 to maxKat do
+ //    wbs.Cells[2,1] := h;
+     for k:=6 to maxKat do
         begin
              SummaTot   := 0;
              SummaClear := 0;
@@ -511,12 +512,16 @@ begin
                       if pDistinctTabnoRec(listDistinctTabno.Items[i]).shifrLine=k then
                          avgChisl   := avgChisl   + 1.0;
                  end;
-             exRow:=6+k;
-             wbs.Cells[ExRow,3] := nmbOfSt;
-             wbs.Cells[ExRow,4] := avgChisl;
+ //            exRow:=6+k;
+             exRow:=k;
+             if exRow in [6,12,13,14,15] then
+                begin
+//             wbs.Cells[ExRow,3] := nmbOfSt;
+             wbs.Cells[ExRow,3] := avgChisl;
              wbs.Cells[ExRow,5] := SummaTot;
              if avgChisl>0.01 then
-             wbs.Cells[ExRow,7] := SummaClear/avgChisl;
+             wbs.Cells[ExRow,4] := SummaClear/avgChisl;
+                end;
         end;
 
 end;

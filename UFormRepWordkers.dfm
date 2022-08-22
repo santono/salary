@@ -25,7 +25,7 @@ object FormRepWordkers: TFormRepWordkers
   object LabelFio: TLabel
     Left = 24
     Top = 176
-    Width = 601
+    Width = 61
     Height = 20
     Caption = 'LabelFio'
   end
