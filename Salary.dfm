@@ -517,8 +517,14 @@ object MainForm: TMainForm
           Action = ActionRepAUPPPS
         end
         object RepWorkersForPlan: TMenuItem
-          Action = ActionRepWorkersForPlan
-          Caption = #1057#1074#1086#1076' '#1076#1083#1103' '#1087#1083#1072#1085#1086#1074#1086#1075#1086' 2022'
+          Caption = #1057#1074#1086#1076#1099' '#1076#1083#1103' '#1087#1083#1072#1085#1086#1074#1086#1075#1086
+          object N20202: TMenuItem
+            Action = ActionRepWorkers2020
+          end
+          object N189: TMenuItem
+            Action = ActionRepWorkersForPlan
+            Caption = #1057#1074#1086#1076' '#1087#1086' '#1088#1072#1073#1086#1095#1080#1084' '#1076#1083#1103' '#1087#1083#1072#1085#1086#1074#1086#1075#1086' 2022'
+          end
         end
         object N174: TMenuItem
           Action = ActionRepPomKOtp
@@ -1760,6 +1766,10 @@ object MainForm: TMainForm
     object ActionMakeOtpTabelPerson: TAction
       Caption = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1090#1072#1073#1077#1083#1100' '#1087#1086' '#1041#1044
       OnExecute = ActionMakeOtpTabelPersonExecute
+    end
+    object ActionRepWorkers2020: TAction
+      Caption = #1057#1074#1086#1076' '#1087#1086' '#1089#1088#1077#1076#1085#1077#1081' '#1079'.'#1087'. 2020'
+      OnExecute = ActionRepWorkers2020Execute
     end
   end
   object ImageList1: TImageList

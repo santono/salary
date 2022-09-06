@@ -791,7 +791,7 @@ begin
     needServerAppData:=False;
     needUseIOSemaphore:=false;
     DDIR:='';
-    instantExeFileSize:=10883584;
+    instantExeFileSize:=10893824;
 
 {$IFDEF SVDN}
     isSVDN := True  ;

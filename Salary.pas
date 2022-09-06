@@ -445,6 +445,9 @@ type
     NClearTmpTableSRD: TMenuItem;
     ActionMakeOtpTabelPerson: TAction;
     N190: TMenuItem;
+    ActionRepWorkers2020: TAction;
+    N20202: TMenuItem;
+    N189: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -730,6 +733,7 @@ type
     procedure ActionOtpBSAboListExecute(Sender: TObject);
     procedure NClearTmpTableSRDClick(Sender: TObject);
     procedure ActionMakeOtpTabelPersonExecute(Sender: TObject);
+    procedure ActionRepWorkers2020Execute(Sender: TObject);
 
 
   private
@@ -827,7 +831,7 @@ implementation
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
   UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
-  UFormOtpBSListAbo;
+  UFormOtpBSListAbo, UFormRepWorkers2020;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -5146,6 +5150,13 @@ begin
     tabno:=curr_person^.tabno;
 
      MAKE_OTP_TABEL_FROM_SQL(Curr_Person);
+end;
+
+procedure TMainForm.ActionRepWorkers2020Execute(Sender: TObject);
+begin
+     Application.CreateForm(TFormRepWorkers2020,FormRepWorkers2020);
+     FormRepWorkers2020.showModal;
+
 end;
 
 end.
