@@ -107,6 +107,7 @@ type
     pFIBDataSetSummyDAY_KALEND_WORK: TFIBSmallIntField;
     dxDBGridSumDay_Kalend_Work: TdxDBGridColumn;
     rgModeWR: TRadioGroup;
+    BitBtn6: TBitBtn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     function Execute: boolean;
@@ -142,6 +143,7 @@ type
     procedure ComboBoxBuhChange(Sender: TObject);
     procedure rgModeWRClick(Sender: TObject);
     procedure RadioGroupModeZaVyClick(Sender: TObject);
+    procedure BitBtn6Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -196,7 +198,7 @@ var
 implementation
  uses uFrmFindKadryFB,UFibModule,uFormTmpBolna,ScrDef,UFormWait,
       DateUtils,uFormSelParentBoln,{FIB,}ScrUtil,ScrExport, UFormWaitMess,
-      ScrLists;
+      ScrLists, UFormRepRLForBoln;
 
 {$R *.dfm}
 
@@ -1406,4 +1408,15 @@ begin
 
 end;
 
+procedure TFormUpdBoln.BitBtn6Click(Sender: TObject);
+
+begin
+if ShifrIdBoln>0 then
+   begin
+       FormRepRLForBoln:=TFormRepRLForBoln.MyCreate(Self,ShifrIdBoln);
+       FormRepRLForBoln.showModal;
+   end;
+end;
+
 end.
+

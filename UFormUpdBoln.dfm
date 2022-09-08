@@ -1,6 +1,6 @@
 object FormUpdBoln: TFormUpdBoln
-  Left = 214
-  Top = 35
+  Left = 444
+  Top = 82
   Width = 790
   Height = 665
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1073#1086#1083#1100#1085#1080#1095#1085#1086#1075#1086
@@ -521,6 +521,15 @@ object FormUpdBoln: TFormUpdBoln
       #1057#1086#1074#1084#1077#1097#1077#1085#1080#1077)
     TabOrder = 19
     OnClick = rgModeWRClick
+  end
+  object BitBtn6: TBitBtn
+    Left = 440
+    Top = 584
+    Width = 75
+    Height = 25
+    Caption = #1055#1077#1095#1072#1090#1100
+    TabOrder = 20
+    OnClick = BitBtn6Click
   end
   object DataSourceSummy: TDataSource
     DataSet = pFIBDataSetSummy

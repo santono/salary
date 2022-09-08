@@ -78,6 +78,8 @@ type
     pFIBDataSetBAMODEWR: TFIBIntegerField;
     pFIBDataSetBAMODEWRNAME: TStringField;
     dxDBGridBAMODEWRNAME: TdxDBGridColumn;
+    ActionRepRlBoln: TAction;
+    ToolButton8: TToolButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure pFIBDataSetBACalcFields(DataSet: TDataSet);
     procedure FormCreate(Sender: TObject);
@@ -97,6 +99,7 @@ type
     procedure ActionMoveBolnNot5Execute(Sender: TObject);
     procedure N1Click(Sender: TObject);
     procedure N51Click(Sender: TObject);
+    procedure ActionRepRlBolnExecute(Sender: TObject);
 
 
   private
@@ -119,7 +122,7 @@ var
 
 implementation
 uses  uFIBModule, uFormWait, UFormUpdBoln, ScrUtil, uFormMovBol,
-      uFormBoln,DateUtils,USQLUnit;
+      uFormBoln,DateUtils,USQLUnit, UFormRepRLForBoln;
 
 {$R *.dfm}
 
@@ -985,5 +988,18 @@ begin
       pFIBDataSetBA.Refresh;
 
 end;
+
+procedure TFormBlnAbo.ActionRepRlBolnExecute(Sender: TObject);
+var ShifrIdBoln:integer;
+begin
+     ShifrIdBoln:=SELF.pFIBDataSetBA.FieldByName('SHIFRID').AsInteger;
+     if ShifrIdBoln>0 then
+        begin
+             FormRepRLForBoln:=TFormRepRLForBoln.MyCreate(Self,ShifrIdBoln);
+             FormRepRLForBoln.showModal;
+        end;
+end;
+
+
 
 end.

@@ -191,6 +191,11 @@ object FormBlnAbo: TFormBlnAbo
       Caption = #1055'CC'
       ImageIndex = 9
     end
+    object ToolButton8: TToolButton
+      Left = 287
+      Top = 2
+      Action = ActionRepRlBoln
+    end
   end
   object DBNavigator1: TDBNavigator
     Left = 0
@@ -458,6 +463,11 @@ object FormBlnAbo: TFormBlnAbo
     object ActionMoveBolnNot5: TAction
       Caption = #1055#1088#1054
       OnExecute = ActionMoveBolnNot5Execute
+    end
+    object ActionRepRlBoln: TAction
+      Caption = #1057#1087#1080#1089#1086#1082' '#1085#1072#1095#1080#1089#1083#1077#1085#1080#1081
+      ImageIndex = 6
+      OnExecute = ActionRepRlBolnExecute
     end
   end
   object PopupMenu1: TPopupMenu
