@@ -174,6 +174,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
         Width = 1122.520410000000000000
         Child = frxReport1.Child1
         RowCount = 1
+        Stretched = True
         object Memo1: TfrxMemoView
           Left = 37.795300000000000000
           Width = 302.362400000000000000
@@ -318,18 +319,18 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Height = 18.897650000000000000
           Page = frxReport1.Page7
         end
+        object Subreport7: TfrxSubreport
+          Left = 944.882500000000000000
+          Top = 22.677180000000000000
+          Width = 94.488250000000000000
+          Height = 18.897650000000000000
+          Page = frxReport1.Page8
+        end
       end
       object Child2: TfrxChild
         Height = 22.677180000000000000
         Top = 616.063390000000000000
         Width = 1122.520410000000000000
-      end
-      object Subreport7: TfrxSubreport
-        Left = 944.882500000000000000
-        Top = 385.512060000000000000
-        Width = 94.488250000000000000
-        Height = 18.897650000000000000
-        Page = frxReport1.Page8
       end
     end
     object Page2: TfrxReportPage
@@ -2458,5 +2459,53 @@ object FormRepRLForBoln: TFormRepRLForBoln
     TPBMode = tpbDefault
     Left = 496
     Top = 64
+  end
+  object frxXLSExport1: TfrxXLSExport
+    UseFileCache = True
+    ShowProgress = True
+    AsText = False
+    Background = True
+    FastExport = True
+    PageBreaks = True
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 352
+    Top = 168
+  end
+  object frxRTFExport1: TfrxRTFExport
+    UseFileCache = True
+    ShowProgress = True
+    Wysiwyg = True
+    Creator = 'FastReport http://www.fast-report.com'
+    SuppressPageHeadersFooters = False
+    HeaderFooterMode = hfText
+    Left = 392
+    Top = 168
+  end
+  object frxSimpleTextExport1: TfrxSimpleTextExport
+    UseFileCache = True
+    ShowProgress = True
+    Frames = False
+    EmptyLines = False
+    OEMCodepage = False
+    Left = 432
+    Top = 168
+  end
+  object frxTXTExport1: TfrxTXTExport
+    UseFileCache = True
+    ShowProgress = True
+    ScaleWidth = 1.000000000000000000
+    ScaleHeight = 1.000000000000000000
+    Borders = False
+    Pseudogrpahic = False
+    PageBreaks = True
+    OEMCodepage = False
+    EmptyLines = False
+    LeadSpaces = False
+    PrintAfter = False
+    PrinterDialog = True
+    UseSavedProps = True
+    Left = 472
+    Top = 168
   end
 end

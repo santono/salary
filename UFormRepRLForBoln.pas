@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, DBClient, frxClass, frxDBSet, StdCtrls, Buttons, ExtCtrls,
-  FIBDataSet, pFIBDataSet, FIBDatabase, pFIBDatabase;
+  FIBDataSet, pFIBDataSet, FIBDatabase, pFIBDatabase, frxExportRTF,
+  frxExportXLS, frxExportTXT, frxExportText;
 
 type
   TFormRepRLForBoln = class(TForm)
@@ -160,6 +161,10 @@ type
     cds6MrkS: TStringField;
     cds6ZaS: TStringField;
     cds6VyS: TStringField;
+    frxXLSExport1: TfrxXLSExport;
+    frxRTFExport1: TfrxRTFExport;
+    frxSimpleTextExport1: TfrxSimpleTextExport;
+    frxTXTExport1: TfrxTXTExport;
     procedure BitOkClick(Sender: TObject);
     procedure frxReport1GetValue(const VarName: String;
       var Value: Variant);
