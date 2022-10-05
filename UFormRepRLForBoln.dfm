@@ -72,7 +72,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
     PrintOptions.Printer = 'Default'
     PrintOptions.PrintOnSheet = 0
     ReportOptions.CreateDate = 44811.682354502300000000
-    ReportOptions.LastChange = 44812.689823217600000000
+    ReportOptions.LastChange = 44816.887190138890000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       'begin'
@@ -149,6 +149,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
       PaperWidth = 297.000000000000000000
       PaperHeight = 210.000000000000000000
       PaperSize = 9
+      TopMargin = 5.000000000000000000
       object ReportTitle1: TfrxReportTitle
         Height = 22.677180000000000000
         Top = 18.897650000000000000
@@ -169,7 +170,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
         end
       end
       object MasterData1: TfrxMasterData
-        Height = 238.110390000000000000
+        Height = 226.771800000000000000
         Top = 102.047310000000000000
         Width = 1122.520410000000000000
         Child = frxReport1.Child1
@@ -233,14 +234,14 @@ object FormRepRLForBoln: TFormRepRLForBoln
         end
         object Subreport2: TfrxSubreport
           Left = 340.157700000000000000
-          Top = 22.677180000000000000
-          Width = 94.488250000000000000
-          Height = 18.897650000000000000
+          Top = 18.897650000000000000
+          Width = 94.488188980000000000
+          Height = 18.897637800000000000
           Page = frxReport1.Page3
         end
         object Subreport3: TfrxSubreport
           Left = 642.520100000000000000
-          Top = 22.677180000000000000
+          Top = 18.897637800000000000
           Width = 94.488250000000000000
           Height = 18.897650000000000000
           Page = frxReport1.Page4
@@ -248,7 +249,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
       end
       object Child1: TfrxChild
         Height = 230.551330000000000000
-        Top = 362.834880000000000000
+        Top = 351.496290000000000000
         Width = 1122.520410000000000000
         object Memo4: TfrxMemoView
           Left = 37.795300000000000000
@@ -321,16 +322,11 @@ object FormRepRLForBoln: TFormRepRLForBoln
         end
         object Subreport7: TfrxSubreport
           Left = 944.882500000000000000
-          Top = 22.677180000000000000
+          Top = 18.897637795275590000
           Width = 94.488250000000000000
           Height = 18.897650000000000000
           Page = frxReport1.Page8
         end
-      end
-      object Child2: TfrxChild
-        Height = 22.677180000000000000
-        Top = 616.063390000000000000
-        Width = 1122.520410000000000000
       end
     end
     object Page2: TfrxReportPage
@@ -372,6 +368,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset1."shifrSta"]')
           ParentFont = False
@@ -460,7 +457,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           VAlign = vaCenter
         end
         object Memo22: TfrxMemoView
-          Left = 294.803149606299200000
+          Left = 294.803149610000000000
           Width = 18.897637800000000000
           Height = 18.897650000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -470,6 +467,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset1."shifrPod"]')
           ParentFont = False
@@ -485,6 +483,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haRight
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset1."MrkS"]')
           ParentFont = False
@@ -506,7 +505,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
       TopMargin = 10.000000000000000000
       BottomMargin = 10.000000000000000000
       object MasterData3: TfrxMasterData
-        Height = 22.677180000000000000
+        Height = 18.897637800000000000
         Top = 18.897650000000000000
         Width = 718.110700000000000000
         DataSet = frxDBDataset2
@@ -526,6 +525,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset2."shifrSta"]')
           ParentFont = False
@@ -629,6 +629,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset2."shifrPod"]')
           ParentFont = False
@@ -663,7 +664,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
       TopMargin = 10.000000000000000000
       BottomMargin = 10.000000000000000000
       object MasterData4: TfrxMasterData
-        Height = 18.897637795275590000
+        Height = 18.897637800000000000
         Top = 18.897650000000000000
         Width = 718.110700000000000000
         DataSet = frxDBDataset3
@@ -682,6 +683,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset3."shifrSta"]')
           ParentFont = False
@@ -784,6 +786,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset3."shifrPod"]')
           ParentFont = False
@@ -817,7 +820,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
       TopMargin = 10.000000000000000000
       BottomMargin = 10.000000000000000000
       object MasterData5: TfrxMasterData
-        Height = 22.677180000000000000
+        Height = 18.897637795275590000
         Top = 18.897650000000000000
         Width = 718.110700000000000000
         DataSet = frxDBDataset4
@@ -836,6 +839,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset4."shifrSta"]')
           ParentFont = False
@@ -938,6 +942,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset4."shifrPod"]')
           ParentFont = False
@@ -990,6 +995,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset5."shifrSta"]')
           ParentFont = False
@@ -1092,6 +1098,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset5."shifrPod"]')
           ParentFont = False
@@ -1144,6 +1151,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset6."shifrSta"]')
           ParentFont = False
@@ -1246,6 +1254,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haCenter
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset6."shifrPod"]')
           ParentFont = False
@@ -1263,6 +1272,7 @@ object FormRepRLForBoln: TFormRepRLForBoln
           Font.Name = 'Arial'
           Font.Style = []
           HAlign = haRight
+          HideZeros = True
           Memo.UTF8 = (
             '[frxDBDataset6."MrkS"]')
           ParentFont = False

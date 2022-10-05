@@ -3,7 +3,7 @@ object FormMakeALLTabel032011: TFormMakeALLTabel032011
   Top = 310
   Width = 679
   Height = 159
-  Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1072' '#1090#1072#1073#1077#1083#1103' '#1074' '#1084#1072#1077' 2020'
+  Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1072' '#1090#1072#1073#1077#1083#1103' '#1074' '#1089#1077#1085#1090#1103#1073#1088#1077' 2022'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -45,12 +45,14 @@ object FormMakeALLTabel032011: TFormMakeALLTabel032011
     Height = 25
     Caption = #1042#1099#1073#1086#1088' '#1087#1086#1076#1088#1072#1079#1076#1077#1083#1077#1085#1080#1081
     TabOrder = 3
+    Visible = False
     OnClick = BitBtn3Click
   end
   object cxSpinEditAmntOfDay: TcxSpinEdit
     Left = 496
     Top = 72
     TabOrder = 4
+    Visible = False
     Width = 121
   end
 end

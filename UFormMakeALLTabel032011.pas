@@ -78,24 +78,24 @@ var savnsrv,i_nsrv : integer;
 
  procedure Fill_Tabel(var need:boolean);
   begin
-       if (Curr_Person^.Tabel[8]=JAWKA) and
-          (Curr_Person^.Tabel[10]=JAWKA) and
-          (Curr_Person^.Tabel[11]=VYHODN) then
+       if (Curr_Person^.Tabel[27]=JAWKA) Then
+//          (Curr_Person^.Tabel[10]=JAWKA) and
+//          (Curr_Person^.Tabel[11]=VYHODN) then
           begin
 //               Curr_Person^.Tabel[8]:=JAWKA;
-               Curr_Person^.Tabel[10]:=VYHODN;
-               Curr_Person^.Tabel[11]:=JAWKA;
-               need:=true;
-          end
-       else
-       if (Curr_Person^.Tabel[8]=VYHODN) and
-          (Curr_Person^.Tabel[10]=JAWKA) and
-          (Curr_Person^.Tabel[11]=VYHODN) then
-          begin
-               Curr_Person^.Tabel[8]:=JAWKA;
-               Curr_Person^.Tabel[10]:=VYHODN;
+               Curr_Person^.Tabel[27]:=VYHODN;
+//               Curr_Person^.Tabel[11]:=JAWKA;
                need:=true;
           end;
+//       else
+//       if (Curr_Person^.Tabel[8]=VYHODN) and
+//          (Curr_Person^.Tabel[10]=JAWKA) and
+//          (Curr_Person^.Tabel[11]=VYHODN) then
+//          begin
+//               Curr_Person^.Tabel[8]:=JAWKA;
+//               Curr_Person^.Tabel[10]:=VYHODN;
+//               need:=true;
+//          end;
 (*
        or (Curr_Person^.Tabel[30]=JAWKA)
        or (Curr_Person^.Tabel[29]=JAWKA)) then exit;
@@ -147,43 +147,43 @@ var savnsrv,i_nsrv : integer;
 begin
     if not isLNR then exit;
     BitBtn1.Enabled:=false;
-    if not YesNo('Внести корректировки в табель университета в мае 2020?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then
+    if not YesNo('Внести корректировки в табель университета в сентябре 2022?'+#13+#10+'(Если не знаете , что это. Лучше выйти.)') then
        begin
             BitBtn1.Enabled:=true;
             Exit;
        end;
-    IF not ((CurrYear=2020) and (nmes=05)) THEN
+    IF not ((CurrYear=2022) and (nmes=09)) THEN
        begin
-            ShowMessage('Внести корректировки можно только в мае 2020');
+            ShowMessage('Внести корректировки можно только в сентябре 2022');
             BitBtn1.Enabled:=true;
             Exit;
        end;
 
-    if NameServList.CountSelected<=0 then
-       begin
-            BitBtn1.Enabled:=true;
-            ShowMessage('Не выбраны подразделения');
-            Exit;
-       end;
-    if GruppyList.CountSelected<=0 then
-       begin
-            BitBtn1.Enabled:=true;
-            ShowMessage('Не выбраны счета');
-            Exit;
-       end;
-    if KategList.CountSelected<=0 then
-       begin
-            BitBtn1.Enabled:=true;
-            ShowMessage('Не выбраны категории сотрудников');
-            Exit;
-       end;
+//    if NameServList.CountSelected<=0 then
+//       begin
+//            BitBtn1.Enabled:=true;
+//            ShowMessage('Не выбраны подразделения');
+//            Exit;
+//       end;
+//    if GruppyList.CountSelected<=0 then
+//       begin
+//            BitBtn1.Enabled:=true;
+//            ShowMessage('Не выбраны счета');
+//            Exit;
+//       end;
+//    if KategList.CountSelected<=0 then
+//       begin
+//            BitBtn1.Enabled:=true;
+//            ShowMessage('Не выбраны категории сотрудников');
+//            Exit;
+//       end;
     self.amntOfDay:=cxSpinEditAmntOfDay.Value;
-    if ((amntOfDay<1) or (amntOfDay>31)) then
-       begin
-            ShowMessage('Неверно указано количество дней.');
-            BitBtn1.Enabled:=true;
-            exit;
-       end;
+//    if ((amntOfDay<1) or (amntOfDay>31)) then
+//       begin
+//            ShowMessage('Неверно указано количество дней.');
+//            BitBtn1.Enabled:=true;
+//            exit;
+//       end;
     BitBtn1.Enabled:=false;
     ProgressBar1.Min      := 0;
     ProgressBar1.Max      := Count_Serv;
@@ -196,7 +196,7 @@ begin
              nsrv:=i_nsrv;
              ProgressBar1.Position := i_nsrv;
              Application.ProcessMessages;
-             if not NameServList.IsSelected(NSRV) then continue;
+//             if not NameServList.IsSelected(NSRV) then continue;
              mkflnm;
              if not fileexists(fninf) then continue;
              getinf(true);
@@ -204,8 +204,8 @@ begin
              curr_Person:=head_Person;
              while (curr_person<>nil) do
               begin
-                   if GruppyList.IsSelected(curr_person^.GRUPPA) then
-                   if KategList.IsSelected(curr_person^.KATEGORIJA) then
+//                   if GruppyList.IsSelected(curr_person^.GRUPPA) then
+//                   if KategList.IsSelected(curr_person^.KATEGORIJA) then
                       Fill_Tabel(need);
 //                      Fill_Tabel_For_Amnt_Of_Day(need);
                    if Curr_Person^.Tabno=1356 then

@@ -198,6 +198,7 @@ type
                          year_Za:Integer;
                          shifrWr:integer;
                          marked:integer);
+    procedure fillCdsFooters(Number:Integer);
   public
     { Public declarations }
     constructor myCreate(AOwner: TComponent;shifrIdBoln:Integer);
@@ -207,7 +208,7 @@ var
   FormRepRLForBoln: TFormRepRLForBoln;
 
 implementation
-  uses USQLUnit,DateUtils,UFibModule,ScrUtil,uFormWait;
+  uses USQLUnit,DateUtils,UFibModule,ScrUtil,uFormWait,ScrDef;
   type pRecSummy=^TRecSummy;
        trecSummy=record
                  shifridBolnSummy:Integer;
@@ -226,8 +227,8 @@ constructor TFormRepRLForBoln.myCreate(AOwner: TComponent;shifrIdBoln:Integer);
   begin
        inherited Create(AOwner);
        self.shifrIdBoln:=shifrIdBoln;
-       modeMark:=0;
-       modeWr  :=0;
+       modeMark:=2;
+       modeWr  :=2;
        modePart:=0;
        SQLStmnt := 'select first 1 coalesce(fio,''Не указана''),coalesce(tabno,0),coalesce(modeWR,1),f_data,l_data,coalesce(nomer_b,'' '') from boln where shifrid='+IntToStr(Self.shifridBoln);
        v:=SQLQueryRecValues(SQLStmnt);
@@ -242,6 +243,7 @@ constructor TFormRepRLForBoln.myCreate(AOwner: TComponent;shifrIdBoln:Integer);
            else
                Self.modeWr:=2;
        end;
+       modeWr:=2;
        rgWr.ItemIndex:=Self.modeWr;
        rgMark.ItemIndex:=modeMark;
        rgPart.ItemIndex:=modePart;
@@ -344,7 +346,7 @@ procedure TFormRepRLForBoln.createReport;
                            ((modeMark=1) and (dsBolnAMARKED.Value<>1)) or
                             (modeMark=2) then
                         if ((modeWR=0) and (dsBolnAW_R.Value=1)) or
-                           ((modeWR=1) and (dsBolnAMARKED.Value=2)) or
+                           ((modeWR=1) and (dsBolnAW_R.Value=2)) or
                             (modeWR=2) then
                            begin
                                 fillCdsRec(j,
@@ -368,6 +370,8 @@ procedure TFormRepRLForBoln.createReport;
         end;
       dsBolnA.Transaction.Commit;
       formWait.Hide;
+      for i:=1 to 6 do
+          fillCdsFooters(startI+i);
       Application.ProcessMessages;
       frxReport1.ShowReport;
  end;
@@ -559,6 +563,356 @@ procedure TFormRepRLForBoln.fillCdsRec(number:Integer;
             cds6ZaS.Value := IntToStr(Month_za)+' '+IntToStr(year_Za);
             cds6VyS.Value := IntToStr(Month_Vy)+' '+IntToStr(year_Vy);
             cds6.Post;
+        end;
+  end;
+procedure TFormRepRLForBoln.fillCdsFooters(Number:Integer);
+  var SummaMark,Summa:Real;
+      i,cnt:Integer;
+  begin
+     SummaMark:=0.0;
+     Summa:=0;
+     cnt:=0;
+     if number in [1,7] then
+        begin
+            cds1.First;
+            while not cds1.Eof do
+              begin
+                   inc(cnt);
+                   summa:=summa+cds1summa.Value;
+                   if cds1Mark.Value=1 then
+                      summaMark:=SummaMark + cds1summa.Value;
+                   cds1.Next;
+              end;
+            if cnt>0 then
+              begin
+            cds1.Append;
+            cds1ShifrSta.Value:= 0;
+            cds1NameSta.Value := 'Итого отмечено';
+            cds1ShifrKat.Value:= 1;
+            cds1NameKat.Value := '';
+            cds1ShifrGru.Value:= 1;
+            cds1nameGru.Value := '';
+            cds1ShifrPod.Value:= 0;
+            cds1namePod.Value := '';
+            cds1Summa.Value   := summaMark;
+            cds1monthVy.Value := nmes;
+            cds1yearVy.Value  := CurrYear;
+            cds1monthZa.Value := nmes;
+            cds1yearZa.Value  := curryear;
+            cds1ShifrWr.Value := 1;
+            cds1nameWR.Value  := '';
+            cds1Mark.Value    := 0;
+            cds1MrkS.Value    := ' ';
+            cds1ZaS.Value := '';
+            cds1VyS.Value := '';
+            cds1.Post;
+            cds1.Append;
+            cds1ShifrSta.Value:= 0;
+            cds1NameSta.Value := 'Итого';
+            cds1ShifrKat.Value:= 1;
+            cds1NameKat.Value := '';
+            cds1ShifrGru.Value:= 1;
+            cds1nameGru.Value := '';
+            cds1ShifrPod.Value:= 0;
+            cds1namePod.Value := '';
+            cds1Summa.Value   := summa;
+            cds1monthVy.Value := nmes;
+            cds1yearVy.Value  := curryear;
+            cds1monthZa.Value := nmes;
+            cds1yearZa.Value  := curryear;
+            cds1ShifrWr.Value := 1;
+            cds1nameWR.Value  := '';
+            cds1Mark.Value    := 0;
+            cds1MrkS.Value    := ' ';
+            cds1ZaS.Value     := '';
+            cds1VyS.Value     := '';
+            cds1.Post;
+              end
+        end;
+     if number in [2,8] then
+        begin
+            cds2.First;
+            while not cds2.Eof do
+              begin
+                   Inc(cnt);
+                   summa:=summa+cds2summa.Value;
+                   if cds2Mark.Value=1 then
+                      summaMark:=SummaMark + cds2summa.Value;
+                   cds2.Next;
+              end;
+            if cnt>0 then
+              begin
+            cds2.Append;
+            cds2ShifrSta.Value:= 0;
+            cds2NameSta.Value := 'Итого отмечено';
+            cds2ShifrKat.Value:= 1;
+            cds2NameKat.Value := '';
+            cds2ShifrGru.Value:= 1;
+            cds2nameGru.Value := '';
+            cds2ShifrPod.Value:= 0;
+            cds2namePod.Value := '';
+            cds2Summa.Value   := summaMark;
+            cds2monthVy.Value := nmes;
+            cds2yearVy.Value  := CurrYear;
+            cds2monthZa.Value := nmes;
+            cds2yearZa.Value  := curryear;
+            cds2ShifrWr.Value := 1;
+            cds2nameWR.Value  := '';
+            cds2Mark.Value    := 0;
+            cds2MrkS.Value    := ' ';
+            cds2ZaS.Value := '';
+            cds2VyS.Value := '';
+            cds2.Post;
+            cds2.Append;
+            cds2ShifrSta.Value:= 0;
+            cds2NameSta.Value := 'Итого';
+            cds2ShifrKat.Value:= 1;
+            cds2NameKat.Value := '';
+            cds2ShifrGru.Value:= 1;
+            cds2nameGru.Value := '';
+            cds2ShifrPod.Value:= 0;
+            cds2namePod.Value := '';
+            cds2Summa.Value   := summa;
+            cds2monthVy.Value := nmes;
+            cds2yearVy.Value  := curryear;
+            cds2monthZa.Value := nmes;
+            cds2yearZa.Value  := curryear;
+            cds2ShifrWr.Value := 1;
+            cds2nameWR.Value  := '';
+            cds2Mark.Value    := 0;
+            cds2MrkS.Value    := ' ';
+            cds2ZaS.Value     := '';
+            cds2VyS.Value     := '';
+            cds2.Post;
+              end;
+        end;
+     if number in [3,9] then
+        begin
+            cds3.First;
+            while not cds3.Eof do
+              begin
+                   Inc(cnt);
+                   summa:=summa+cds3summa.Value;
+                   if cds3Mark.Value=1 then
+                      summaMark:=SummaMark + cds3summa.Value;
+                   cds3.Next;
+              end;
+            if cnt>0 then
+              begin
+            cds3.Append;
+            cds3ShifrSta.Value:= 0;
+            cds3NameSta.Value := 'Итого отмечено';
+            cds3ShifrKat.Value:= 1;
+            cds3NameKat.Value := '';
+            cds3ShifrGru.Value:= 1;
+            cds3nameGru.Value := '';
+            cds3ShifrPod.Value:= 0;
+            cds3namePod.Value := '';
+            cds3Summa.Value   := summaMark;
+            cds3monthVy.Value := nmes;
+            cds3yearVy.Value  := CurrYear;
+            cds3monthZa.Value := nmes;
+            cds3yearZa.Value  := curryear;
+            cds3ShifrWr.Value := 1;
+            cds3nameWR.Value  := '';
+            cds3Mark.Value    := 0;
+            cds3MrkS.Value    := ' ';
+            cds3ZaS.Value := '';
+            cds3VyS.Value := '';
+            cds3.Post;
+            cds3.Append;
+            cds3ShifrSta.Value:= 0;
+            cds3NameSta.Value := 'Итого';
+            cds3ShifrKat.Value:= 1;
+            cds3NameKat.Value := '';
+            cds3ShifrGru.Value:= 1;
+            cds3nameGru.Value := '';
+            cds3ShifrPod.Value:= 0;
+            cds3namePod.Value := '';
+            cds3Summa.Value   := summa;
+            cds3monthVy.Value := nmes;
+            cds3yearVy.Value  := curryear;
+            cds3monthZa.Value := nmes;
+            cds3yearZa.Value  := curryear;
+            cds3ShifrWr.Value := 1;
+            cds3nameWR.Value  := '';
+            cds3Mark.Value    := 0;
+            cds3MrkS.Value    := ' ';
+            cds3ZaS.Value     := '';
+            cds3VyS.Value     := '';
+            cds3.Post;
+              end;
+        end;
+     if number in [4,10] then
+        begin
+            cds4.First;
+            while not cds4.Eof do
+              begin
+                   Inc(cnt);
+                   summa:=summa+cds4summa.Value;
+                   if cds4Mark.Value=1 then
+                      summaMark:=SummaMark + cds4summa.Value;
+                   cds4.Next;
+              end;
+            if cnt>0 then
+              begin
+            cds4.Append;
+            cds4ShifrSta.Value:= 0;
+            cds4NameSta.Value := 'Итого отмечено';
+            cds4ShifrKat.Value:= 1;
+            cds4NameKat.Value := '';
+            cds4ShifrGru.Value:= 1;
+            cds4nameGru.Value := '';
+            cds4ShifrPod.Value:= 0;
+            cds4namePod.Value := '';
+            cds4Summa.Value   := summaMark;
+            cds4monthVy.Value := nmes;
+            cds4yearVy.Value  := CurrYear;
+            cds4monthZa.Value := nmes;
+            cds4yearZa.Value  := curryear;
+            cds4ShifrWr.Value := 1;
+            cds4nameWR.Value  := '';
+            cds4Mark.Value    := 0;
+            cds4MrkS.Value    := ' ';
+            cds4ZaS.Value := '';
+            cds4VyS.Value := '';
+            cds4.Post;
+            cds4.Append;
+            cds4ShifrSta.Value:= 0;
+            cds4NameSta.Value := 'Итого';
+            cds4ShifrKat.Value:= 1;
+            cds4NameKat.Value := '';
+            cds4ShifrGru.Value:= 1;
+            cds4nameGru.Value := '';
+            cds4ShifrPod.Value:= 0;
+            cds4namePod.Value := '';
+            cds4Summa.Value   := summa;
+            cds4monthVy.Value := nmes;
+            cds4yearVy.Value  := curryear;
+            cds4monthZa.Value := nmes;
+            cds4yearZa.Value  := curryear;
+            cds4ShifrWr.Value := 1;
+            cds4nameWR.Value  := '';
+            cds4Mark.Value    := 0;
+            cds4MrkS.Value    := ' ';
+            cds4ZaS.Value     := '';
+            cds4VyS.Value     := '';
+            cds4.Post;
+              end;
+        end;
+     if number in [5,11] then
+        begin
+            cds5.First;
+            while not cds5.Eof do
+              begin
+                   inc(cnt);
+                   summa:=summa+cds5summa.Value;
+                   if cds5Mark.Value=1 then
+                      summaMark:=SummaMark + cds5summa.Value;
+                   cds5.Next;
+              end;
+            if cnt>0 then
+              begin
+            cds5.Append;
+            cds5ShifrSta.Value:= 0;
+            cds5NameSta.Value := 'Итого отмечено';
+            cds5ShifrKat.Value:= 1;
+            cds5NameKat.Value := '';
+            cds5ShifrGru.Value:= 1;
+            cds5nameGru.Value := '';
+            cds5ShifrPod.Value:= 0;
+            cds5namePod.Value := '';
+            cds5Summa.Value   := summaMark;
+            cds5monthVy.Value := nmes;
+            cds5yearVy.Value  := CurrYear;
+            cds5monthZa.Value := nmes;
+            cds5yearZa.Value  := curryear;
+            cds5ShifrWr.Value := 1;
+            cds5nameWR.Value  := '';
+            cds5Mark.Value    := 0;
+            cds5MrkS.Value    := ' ';
+            cds5ZaS.Value := '';
+            cds5VyS.Value := '';
+            cds5.Post;
+            cds5.Append;
+            cds5ShifrSta.Value:= 0;
+            cds5NameSta.Value := 'Итого';
+            cds5ShifrKat.Value:= 1;
+            cds5NameKat.Value := '';
+            cds5ShifrGru.Value:= 1;
+            cds5nameGru.Value := '';
+            cds5ShifrPod.Value:= 0;
+            cds5namePod.Value := '';
+            cds5Summa.Value   := summa;
+            cds5monthVy.Value := nmes;
+            cds5yearVy.Value  := curryear;
+            cds5monthZa.Value := nmes;
+            cds5yearZa.Value  := curryear;
+            cds5ShifrWr.Value := 1;
+            cds5nameWR.Value  := '';
+            cds5Mark.Value    := 0;
+            cds5MrkS.Value    := ' ';
+            cds5ZaS.Value     := '';
+            cds5VyS.Value     := '';
+            cds5.Post;
+              end;
+        end;
+     if number in [6,12] then
+        begin
+            cds6.First;
+            while not cds6.Eof do
+              begin
+                   Inc(cnt);
+                   summa:=summa+cds6summa.Value;
+                   if cds6Mark.Value=1 then
+                      summaMark:=SummaMark + cds6summa.Value;
+                   cds6.Next;
+              end;
+            if cnt>0 then
+              begin
+            cds6.Append;
+            cds6ShifrSta.Value:= 0;
+            cds6NameSta.Value := 'Итого отмечено';
+            cds6ShifrKat.Value:= 1;
+            cds6NameKat.Value := '';
+            cds6ShifrGru.Value:= 1;
+            cds6nameGru.Value := '';
+            cds6ShifrPod.Value:= 0;
+            cds6namePod.Value := '';
+            cds6Summa.Value   := summaMark;
+            cds6monthVy.Value := nmes;
+            cds6yearVy.Value  := CurrYear;
+            cds6monthZa.Value := nmes;
+            cds6yearZa.Value  := curryear;
+            cds6ShifrWr.Value := 1;
+            cds6nameWR.Value  := '';
+            cds6Mark.Value    := 0;
+            cds6MrkS.Value    := ' ';
+            cds6ZaS.Value := '';
+            cds6VyS.Value := '';
+            cds6.Post;
+            cds6.Append;
+            cds6ShifrSta.Value:= 0;
+            cds6NameSta.Value := 'Итого';
+            cds6ShifrKat.Value:= 1;
+            cds6NameKat.Value := '';
+            cds6ShifrGru.Value:= 1;
+            cds6nameGru.Value := '';
+            cds6ShifrPod.Value:= 0;
+            cds6namePod.Value := '';
+            cds6Summa.Value   := summa;
+            cds6monthVy.Value := nmes;
+            cds6yearVy.Value  := curryear;
+            cds6monthZa.Value := nmes;
+            cds6yearZa.Value  := curryear;
+            cds6ShifrWr.Value := 1;
+            cds6nameWR.Value  := '';
+            cds6Mark.Value    := 0;
+            cds6MrkS.Value    := ' ';
+            cds6ZaS.Value     := '';
+            cds6VyS.Value     := '';
+            cds6.Post;
+              end; 
         end;
   end;
 
