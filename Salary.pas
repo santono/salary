@@ -448,6 +448,8 @@ type
     ActionRepWorkers2020: TAction;
     N20202: TMenuItem;
     N189: TMenuItem;
+    ActionRepPlanZP: TAction;
+    N191: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -734,6 +736,7 @@ type
     procedure NClearTmpTableSRDClick(Sender: TObject);
     procedure ActionMakeOtpTabelPersonExecute(Sender: TObject);
     procedure ActionRepWorkers2020Execute(Sender: TObject);
+    procedure ActionRepPlanZPExecute(Sender: TObject);
 
 
   private
@@ -831,7 +834,7 @@ implementation
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
   UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
-  UFormOtpBSListAbo, UFormRepWorkers2020;
+  UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -5156,6 +5159,13 @@ procedure TMainForm.ActionRepWorkers2020Execute(Sender: TObject);
 begin
      Application.CreateForm(TFormRepWorkers2020,FormRepWorkers2020);
      FormRepWorkers2020.showModal;
+
+end;
+
+procedure TMainForm.ActionRepPlanZPExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormRepPlanZP,FormRepPlanZP);
+     FormRepPlanZP.showModal;
 
 end;
 

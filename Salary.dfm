@@ -525,6 +525,9 @@ object MainForm: TMainForm
             Action = ActionRepWorkersForPlan
             Caption = #1057#1074#1086#1076' '#1087#1086' '#1088#1072#1073#1086#1095#1080#1084' '#1076#1083#1103' '#1087#1083#1072#1085#1086#1074#1086#1075#1086' 2022'
           end
+          object N191: TMenuItem
+            Action = ActionRepPlanZP
+          end
         end
         object N174: TMenuItem
           Action = ActionRepPomKOtp
@@ -1770,6 +1773,10 @@ object MainForm: TMainForm
     object ActionRepWorkers2020: TAction
       Caption = #1057#1074#1086#1076' '#1087#1086' '#1089#1088#1077#1076#1085#1077#1081' '#1079'.'#1087'. 2020'
       OnExecute = ActionRepWorkers2020Execute
+    end
+    object ActionRepPlanZP: TAction
+      Caption = #1047#1055'-'#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1077
+      OnExecute = ActionRepPlanZPExecute
     end
   end
   object ImageList1: TImageList
