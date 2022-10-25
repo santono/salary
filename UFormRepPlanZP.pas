@@ -19,17 +19,21 @@ type
     LabelFio: TLabel;
     Label1: TLabel;
     dtTo: TDateTimePicker;
+    rgBudMode: TRadioGroup;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
+    gruKadryMode:Integer;
     procedure CreateReport;
     procedure fillPerson(curr_person:person_ptr);
  //   procedure moveToExcel;
     procedure fillFinalList;
+    procedure fillFinalKadryList;
     procedure SwodToExcel;
     function  initDolgList : boolean;
+    function  initDolgKadryList : boolean;
     function  initPodrList : boolean;
     function  initShifrList : boolean;
   public
@@ -52,6 +56,7 @@ implementation
        pDetRec=^TDetRec;
        TDetRec=record
                  shifrLine : integer;
+                 shifrLineKadry : Integer;
                  shifrWR   : Integer;
                  shifrGru  : Integer;
                  dolg      : string;
@@ -81,16 +86,25 @@ implementation
                    summaBudVne:Real;
                    summaVneVne:Real;
                  end;
+       pFinalKadryRec=^TFinalKadryRec;
+       TFinalKadryRec=record
+                   shifrRow:Integer;
+                   summaTot:Real;
+                   summaSowm:real;
+                   summaVne:Real;
+                 end;
 
 //  const nup=
 //  const notusedpodr:array[1..nup] of integer =
-  var list         : TList;
-      DolgList     : TList;
-      modeSort     : Integer;
+  var list          : TList;
+      DolgList      : TList;
+      DolgKadryList : TList;
+      modeSort      : Integer;
       listDistinctTabno : TList;
       notUsedPodrList:TList;
       notUsedShifrList:TList;
       finalList:TList;
+      finalKadryList:TList;
       E:Variant;
       FName:String;
 
@@ -183,6 +197,89 @@ begin
       end;
      CloseFile(fi);
      initDolgList:=true;
+end;
+function TFormRepPlanZP.initDolgKadryList:boolean;
+  var fi:system.text;
+      fname:string;
+      line:string;
+      s,s1:string;
+      i:integer;
+      iVal,iErr:integer;
+      shifrRow,shifrDol:integer;
+      rec:pDolgRec;
+      findedHeader:boolean;
+      keyString:string;
+begin
+     keyString:='### Dolgnosti ###';
+     fname:=CDIR+'Kadry_ZP.txt';
+     if not FileExists(fname) then
+        begin
+             ShowMessage('Не найден файл '+CDIR+fname);
+             initDolgKadryList:=false;
+             exit;
+        end;
+     assignFile(fi,fname);
+     reset(fi);
+     findedHeader:=false;
+     while (not eof(fi)) do
+      begin
+           readln(fi,line);
+           line:=Trim(line);
+           if Pos(keyString,line)=1 then
+              begin
+                   findedHeader:=true;
+                   Break;
+              end;
+      end;
+     if not  findedHeader  then
+        begin
+             ShowMessage('Неверная структура файлф '+CDIR+'planZP.txt. Нет заголовка должности');
+             initDolgKadryList:=false;
+             exit;
+        end;
+     DolgKadryList:=TList.Create;
+     while (not eof(fi)) do
+      begin
+           readln(fi,line);
+           line:=Trim(line);
+           i:=Pos('end',line);
+           if i>0 then
+              break;
+           i:=Pos('#',line);
+           if i>0 then Continue;
+           i:=pos('--',line);
+           if i>=3 then
+             begin
+                  s:=copy(line,1,i-1);
+             end
+           else
+             begin
+                 s:=copy(line,1,length(line));
+             end;
+           s:=trim(s);
+           if (length(s)<3) then continue;
+           i:=pos(' ',s);
+           if (i<=0) then continue;
+           s1:=copy(s,1,i-1);
+           val(s1,iVal,iErr);
+           if (iErr=0) then
+              begin
+                   ShifrRow:=iVal;
+                   s1:=copy(s,i+1,length(s)-i);
+                   val(s1,iVal,iErr);
+                   if (iErr=0) then
+                      begin
+                           ShifrDol:=iVal;
+                           rec:=new(pDolgRec);
+                           rec^.shifrDol:=shifrDol;
+                           rec^.shifrRow:=shifrRow;
+                           DolgKadryList.add(rec);
+                      end;
+              end;
+
+      end;
+     CloseFile(fi);
+     initDolgKadryList:=true;
 end;
 function TFormRepPlanZP.initPodrList:boolean;
   var fi:system.text;
@@ -330,14 +427,23 @@ begin
      LabelFio.Caption := '';
      cbListToExcel.Checked:=True;
      caption:='Свод ЗП образование c '+GetMonthRus(MonthOf(dtFr.date))+ ' '+IntToStr(YearOf(dtFr.date))+' г. по '+GetMonthRus(MonthOf(dtTo.date))+ ' '+IntToStr(YearOf(dtTo.date));
+     rgBudMode.ItemIndex:=0;
      Application.ProcessMessages;
 end;
 
 procedure TFormRepPlanZP.BitBtn1Click(Sender: TObject);
 begin
+     gruKadryMode:=rgBudMode.ItemIndex;
+     if (gruKadryMode>2) or (gruKadryMode<0) then
+         gruKadryMode:=0; // 0 -бюджет 1 внебюджет 2 - все счета
      if not initDolgList then
         begin
              error('Ошибка чтения исходного файла PlanZP.txt');
+             exit;
+        end;
+     if not initDolgKadryList then
+        begin
+             error('Ошибка чтения исходного файла Kadry_Zp.txt');
              exit;
         end;
      if not initPodrList then
@@ -469,6 +575,7 @@ procedure TFormRepPlanZP.CreateReport;
            end;
        Application.ProcessMessages;
        fillFinalList;
+       fillFinalKadryList;
        list.Sort(@Compare);
        FName:=TemplateDIR+'PlanZP.xlt';
        if not FileExists(FName) then
@@ -505,6 +612,17 @@ procedure TFormRepPlanZP.CreateReport;
               dispose(pDistinctTabnoRec(listDistinctTabno.Items[i]));
        listDistinctTabno.Free;
        listDistinctTabno:=nil;
+       if finalList.Count>0 then
+          for i:=0 to finalList.count-1 do
+              dispose(pFinalRec(finalList.Items[i]));
+       finalList.Free;
+       finalList:=nil;
+       if finalKadryList.Count>0 then
+          for i:=0 to finalKadryList.count-1 do
+              dispose(pFinalKadryRec(finalKadryList.Items[i]));
+       finalKadryList.Free;
+       finalKadryList:=nil;
+
        CURRyEAR:=savYear;
        NMES:=savNMES;
        NSRV:=savNSRV;
@@ -521,6 +639,7 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
   var rec:pRec;
       shifrDol:integer;
       shifrRow:integer;
+      shifrKadryRow:Integer;
       i:integer;
       summaAdd,summaNal:real;
     function inForbiddenDolgList(shifrDol:integer):Boolean;
@@ -579,15 +698,53 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
                     end;
           getRowByDolCode:=retVal;
      end;
+    function getKadryRowByDolCode(shifrDol:integer):Integer;
+     var i:Integer;
+         retVal:Integer;
+         finded:Boolean;
+         podrName:string;
+         function isKafedra:Boolean;
+          var retVal:Boolean;
+              s:string;
+          begin
+               retVal:=false;
+               s:=Name_Serv(nsrv);
+               s:=Trim(s);
+               s:=UPPER_STRING(s);
+               if Pos('КАФЕДР',s)>0 then
+                  retVal:=True;
+               if nsrv=0 then
+                  retVal:=True;
+               isKafedra:=retVal;
+          end;
+     begin
+          retVal:=0;
+          finded:=False;
+          if DolgKadryList.count>0 then
+             for i:=0 to DolgKadryList.Count-1 do
+                 if pDolgRec(DolgKadryList.Items[i])^.shifrDol=shifrDol then
+                    begin
+                         finded:=True;
+                         retVal:=pDolgRec(DolgKadryList.Items[i])^.shifrRow;
+                         Break;
+                    end;
+
+          if (retVal in [11,12]) and isKafedra then
+             retVal:=14;
+          getKadryRowByDolCode:=retVal;
+     end;
     procedure insertIntoCollection(curr_person:PERSON_PTR;summaAdd:real);
      var rec:pRec;
          detRec:pDetRec;
          finded:Boolean;
          i:Integer;
          shifrRow:Integer;
+         shifrKadryRow:Integer;
          shifrDol:Integer;
          shifrWR:Integer;
      begin
+         if curr_person^.TABNO=331 then
+            curr_person^.tabno:=331;
          finded:=False;
          if list.Count>0 then
             for i:=0 to list.Count-1 do
@@ -609,22 +766,40 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
        shifrDol := 0;
        shifrDol := GET_DOL_CODE(curr_person);
        shifrRow := 0;
+       shifrKadryRow := 0;
        // Проверить ИПДО                      13 - счет
        if ((nsrv=115) or (curr_person^.gruppa=22)) then
-           shifrRow:=11
+          begin
+               shifrKadryRow:=28;
+               shifrRow:=11;
+          end
        else    
        if shifrDol>0 then
           if shifrDol<10 then //Договора подряда
              case curr_person^.KATEGORIJA of
-               1 : shifrRow:=10;  // ППС
-               3 : shifrRow:=12;  // Научный сотрудник
+               1 : begin
+                        shifrRow:=10;  // ППС
+                        shifrKadryRow:=9;
+                   end ;
+               3 : begin
+                        shifrRow:=12;  // Научный сотрудник
+                        shifrKadryRow:=10;
+                   end ;
               else
-                   shifrRow:=21;
+                   begin
+                        shifrRow:=21;
+                        shifrKadryRow:=15; //Иной персонал
+                   end
              end       
           else
-          shifrRow:=getRowByDolCode(shifrDol);
+             begin
+                  shifrRow:=getRowByDolCode(shifrDol);
+                  shifrKadryRow:=getKadryRowByDolCode(shifrDol);
+             end;
        if shifrRow=0 then
           shifrRow:=21; //Прочие
+       if shifrKadryRow=0 then
+          shifrKadryRow:=15; //Прочие
        if IS_OSN_WID_RABOTY(curr_person) then
           shifrWR:=1
        else
@@ -647,6 +822,7 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
                New(detRec);
                FillChar(detRec^,SizeOf(tdetrec),0);
                detRec.shifrLine:=shifrRow;
+               detRec.shifrLineKadry:=shifrKadryRow;
                detRec.shifrWR:=shifrWR;
                detRec.shifrDol:=shifrDol;
                detRec.dolg:=curr_person^.DOLG;
@@ -706,6 +882,7 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
        shifrDol:=GET_DOL_CODE(curr_person);
        if inForbiddenDolgList(shifrDol) then Exit;
        shifrRow:=0;
+       shifrKadryRow:=0;
        if dolgList.Count=0 then exit;
        for i:=0 to dolgList.Count-1 do
            begin
@@ -717,6 +894,17 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
            end;
        if shifrRow=0 then
        if curr_person^.KATEGORIJA=3 then shifrRow:=12;
+       if dolgKadryList.Count=0 then exit;
+       for i:=0 to dolgKadryList.Count-1 do
+           begin
+                if shifrDol=pDolgRec(dolgKadryList.Items[i]).shifrDol then
+                   begin
+                        shifrKadryRow:=pDolgRec(dolgKadryList.Items[i]).shifrRow;
+                        break;
+                   end;
+           end;
+       if shifrKadryRow=0 then
+       if curr_person^.KATEGORIJA in [4,6] then shifrKadryRow:=15;
        summaAdd:=getSummaSummaOsnAddForPerson(curr_person);
        summaNal:=getSummaNalogiPerson(curr_person);
        if abs(summaAdd)<0.01 then exit;
@@ -879,7 +1067,91 @@ procedure TFormRepPlanZP.fillFinalList;
                               finalRec.summaVneVne:=finalRec.summaVneVne+detRec.summaAdd
                    end;
           end;
-       i:=finalList.Count;   
+       i:=finalList.Count;
+
+   end;
+procedure TFormRepPlanZP.fillFinalKadryList;
+   var i,j,k:Integer;
+       finalKadryRec:pFinalKadryRec;
+       rec:pRec;
+       detRec:pDetRec;
+       finded:Boolean;
+   begin
+        finalKadryList:=TList.Create;
+        for i:=0 to list.Count-1 do
+          begin
+               rec:=pRec(list.Items[i]);
+               if rec.list.count<1 then
+                  Continue;
+               if rec^.tabno=5636 then
+                  finded:=True;
+               for j:=0 to rec.list.Count-1 do
+                   begin
+                        detRec := pDetRec(rec.list.Items[j]);
+                        if not (
+                            (
+                             (gruKadryMode=0) and
+                             (detRec.shifrGru=1)
+                            ) or
+                            (
+                             (gruKadryMode=1) and
+                             (detRec.shifrGru<>1)
+                            ) or
+                            (gruKadryMode=2)
+                        )then
+                            continue;
+                        finded:=false;
+                        if finalKadryList.count>0 then
+                           for k:=0 to finalKadryList.Count-1 do
+                               if pFinalKadryRec(finalKadryList.Items[k]).shifrRow=detRec.shifrLineKadry then
+                                  begin
+                                       finded:=True;
+                                       finalKadryRec:=pFinalKadryRec(finalKadryList.Items[k]);
+                                       Break;
+                                  end;
+                        if not finded then
+                           begin
+                                New(finalKadryRec);
+                                FillChar(finalKadryRec^,sizeof(finalKadryRec^),0);
+                                finalKadryRec.shifrRow:=Detrec.shifrLineKadry;
+                                finalKadryList.Add(finalKadryRec);
+                           end;
+                        if detRec.shifrWR<>3 then
+                           finalKadryRec.summaTot:=finalKadryRec.summaTot+detRec.summaAdd;
+                        if detRec.shifrWR=2 then
+                           finalKadryRec.summaSowm:=finalKadryRec.summaSowm+detRec.summaAdd
+                        else
+                        if detRec.shifrWR=3 then
+                           finalKadryRec.summaVne:=finalKadryRec.summaVne+detRec.summaAdd;
+                        if detRec.shifrLineKadry=28 then // Добавить в 3-ю строку
+                           begin
+                             if finalKadryList.count>0 then
+                                for k:=0 to finalKadryList.Count-1 do
+                                    if pFinalKadryRec(finalKadryList.Items[k]).shifrRow=9 then
+                                       begin
+                                            finded:=True;
+                                            finalKadryRec:=pFinalKadryRec(finalKadryList.Items[k]);
+                                            Break;
+                                       end;
+                                    if not finded then
+                                       begin
+                                            New(finalKadryRec);
+                                            FillChar(finalKadryRec^,sizeof(finalKadryRec^),0);
+                                            finalKadryRec.shifrRow:=9;
+                                            finalKadryList.Add(finalKadryRec);
+                                       end;
+                                    if detRec.shifrWR<>3 then
+                                       finalKadryRec.summaTot:=finalKadryRec.summaTot+detRec.summaAdd;
+                                    if detRec.shifrWR=2 then
+                                       finalKadryRec.summaSowm:=finalKadryRec.summaSowm+detRec.summaAdd
+                                    else
+                                    if detRec.shifrWR=3 then
+                                       finalKadryRec.summaVne:=finalKadryRec.summaVne+detRec.summaAdd;
+
+                           end;
+                   end;
+          end;
+       i:=finalKadryList.Count;
 
    end;
 procedure TFormRepPlanZP.SwodToExcel;
@@ -889,8 +1161,9 @@ var
     k,i:integer;
     exRow:integer;
     h:string;
-    wbs:variant;
+    wbs,wbsKadry:variant;
     finalRec:pFinalRec;
+    finalKadryRec:pFinalKadryRec;
     shifrRow:Integer;
 begin
 //     FName:=TemplateDIR+'WorkersPlan.xlt';
@@ -927,6 +1200,29 @@ begin
                 wbs.Cells[shifrRow,12]:= finalRec.summaBudVne;
              if finalRec.summaVneVne>1.0 then
                 wbs.Cells[shifrRow,14]:= finalRec.summaVneVne;
+        end;
+     wbsKadry:=E.WorkBooks[1].WorkSheets[2];
+     for k:=0 to finalKadryList.Count-1 do
+        begin
+             finalKadryRec:=pFinalKadryRec(finalKadryList.Items[k]);
+             shifrRow:=finalKadryRec^.shifrRow;
+             if shifrRow=8 then
+                shifrRow:=7;
+             if not ((shifrRow>6) and (shifrRow<29)) then
+                begin
+//                     ShowMessage('Ошибка shifRow='+intToStr(ShifrRow));
+//                     continue;
+                      if shifrRow=0 then
+                         shifrRow:=15;
+                end;
+//             if finalRec.summaFond>1.0 then
+//                wbs.Cells[shifrRow,6] := finalRec.summaFond;
+             if finalkadryRec.summaTot>1.0 then
+                wbsKadry.Cells[shifrRow,5] := finalKadryRec.summaTot;
+             if finalKadryRec.summaSowm>1.0 then
+                wbsKadry.Cells[shifrRow,6] := finalKadryRec.summaSowm;
+             if finalKadryRec.summaVne>1.0 then
+                wbsKadry.Cells[shifrRow,7] := finalKadryRec.summaVne;
         end;
 
 end;

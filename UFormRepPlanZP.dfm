@@ -90,4 +90,18 @@ object FormRepPlanZP: TFormRepPlanZP
     DateFormat = dfLong
     TabOrder = 5
   end
+  object rgBudMode: TRadioGroup
+    Left = 224
+    Top = 96
+    Width = 409
+    Height = 49
+    Caption = #1044#1083#1103' '#1089#1074#1086#1076#1072' '#1085#1072' '#1074#1090#1086#1088#1086#1081' '#1074#1082#1083#1072#1076#1082#1077
+    Columns = 3
+    ItemIndex = 0
+    Items.Strings = (
+      #1041#1102#1076#1078#1077#1090
+      #1042#1085#1077' '#1073#1102#1076#1078#1077#1090
+      #1042#1089#1077' '#1089#1095#1077#1090#1072)
+    TabOrder = 6
+  end
 end

@@ -1133,9 +1133,13 @@ implementation
                            else
                               begin
                                    C:=Curr_Cn^.Prim_1;
+                                   c:=Trim(C);
+                                   if Length(c)>30 then
+                                      c:=Copy(c,1,30);
                                    if Length(Trim(C))=0 then C:=' ';
                                    C:=ReplQuot(C);
-                                   S:=Trim(S)+Trim(Curr_Cn^.Prim_1)+''',''';
+//                                   S:=Trim(S)+Trim(Curr_Cn^.Prim_1)+''',''';
+                                   S:=Trim(S)+Trim(c)+''',''';
                               end;
                            C:=Curr_Cn^.Count;
                            if Length(Trim(C))=0 then C:=' ';
@@ -1166,6 +1170,7 @@ implementation
                              on e:Exception do
                                 begin
                               FIB.pFIBTransactionSAL.Rollback;
+                              ShowMessage(S);
                               MessageDlg('Ошибка вставки в таблицу FCN '+e.message,
                                   mtInformation, [mbOk], 0);
                               if DstMode=salarcDstMode then
