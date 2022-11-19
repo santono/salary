@@ -106,7 +106,7 @@ implementation
   UFormMovRecalc0416, UFormMoveRecalcOtp2016, UFormImportFromKU,
   UFormRepRecalcOtp2015,DateUtils,UFormMovePremFromSQL,
   UFormCalcPrem_11_2017,UFormMoveAwans2017_12,ScrIoSQL,
-  UFormMakeVypl082020;
+  UFormMakeVypl082020, UFormMoveDoplTo156;
 
 {$R *.dfm}
 
@@ -1984,8 +1984,10 @@ end;
 procedure TFormMkEmpList.btnMov0416Click(Sender: TObject);
  
 begin
-      Application.CreateForm(TFormMovRecalc0416,FormMovRecalc0416);
-      FormMovRecalc0416.ShowModal;
+//      Application.CreateForm(TFormMovRecalc0416,FormMovRecalc0416);
+//      FormMovRecalc0416.ShowModal;
+      Application.CreateForm(TFormMoveDoplTo156,FormMoveDoplTo156);
+      FormMoveDoplTo156.showModal;
 end;
 
 procedure TFormMkEmpList.BitBtn18Click(Sender: TObject);

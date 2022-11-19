@@ -1075,6 +1075,9 @@ object MainForm: TMainForm
         object NSVDN610: TMenuItem
           Action = ActionMakeAllTable6ECBRecs
         end
+        object NMoveDopl: TMenuItem
+          Action = ActionMoveDopl
+        end
       end
       object N170: TMenuItem
         Caption = #1058#1077#1089#1090#1099
@@ -1777,6 +1780,10 @@ object MainForm: TMainForm
     object ActionRepPlanZP: TAction
       Caption = #1047#1055'-'#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1077
       OnExecute = ActionRepPlanZPExecute
+    end
+    object ActionMoveDopl: TAction
+      Caption = #1055#1077#1088#1077#1085#1086#1089' '#1076#1086#1087#1083#1072#1090' '#1076#1086' '#1084#1080#1085'.'#1079#1072#1088#1087#1083#1072#1090#1099
+      OnExecute = ActionMoveDoplExecute
     end
   end
   object ImageList1: TImageList

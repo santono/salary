@@ -398,7 +398,12 @@ uses
   UVersionAPP in 'UVersionAPP.pas',
   UORecalcAddPerson in 'UORecalcAddPerson.pas',
   UFormCNSrd in 'UFormCNSrd.pas' {FormCNSrd},
-  UFormFIOHistory in 'UFormFIOHistory.pas' {FormFIOHistory};
+  UFormFIOHistory in 'UFormFIOHistory.pas' {FormFIOHistory},
+  UFormRepWorkers2020 in 'UFormRepWorkers2020.pas' {FormRepWorkers2020},
+  UFormRepRLForBoln in 'UFormRepRLForBoln.pas' {FormRepRLForBoln},
+  UFormRepPlanZP in 'UFormRepPlanZP.pas' {FormRepPlanZP},
+  UFormMoveDoplFromCSV in 'UFormMoveDoplFromCSV.pas' {FormMoveDoplFromCSV},
+  UFormMoveDoplTo156 in 'UFormMoveDoplTo156.pas' {FormMoveDoplTo156};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

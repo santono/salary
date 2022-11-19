@@ -450,6 +450,8 @@ type
     N189: TMenuItem;
     ActionRepPlanZP: TAction;
     N191: TMenuItem;
+    ActionMoveDopl: TAction;
+    NMoveDopl: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -737,6 +739,7 @@ type
     procedure ActionMakeOtpTabelPersonExecute(Sender: TObject);
     procedure ActionRepWorkers2020Execute(Sender: TObject);
     procedure ActionRepPlanZPExecute(Sender: TObject);
+    procedure ActionMoveDoplExecute(Sender: TObject);
 
 
   private
@@ -834,7 +837,8 @@ implementation
   UFormTestKassaBank, UFormMakeVypl156082020, SplashForm, UFormECBPerson,
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
   UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
-  UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP;
+  UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
+  UFormMoveDoplFromCSV;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -5166,6 +5170,13 @@ procedure TMainForm.ActionRepPlanZPExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormRepPlanZP,FormRepPlanZP);
      FormRepPlanZP.showModal;
+
+end;
+
+procedure TMainForm.ActionMoveDoplExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormMoveDoplFromCSV,FormMoveDoplFromCSV);
+     FormMoveDoplFromCSV.showModal;
 
 end;
 

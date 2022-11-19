@@ -1,7 +1,7 @@
 {$H-}
 {$WARNINGS OFF}
 {$HINTS OFF}             
-{$I+}
+{$I+}                 
 unit ScrUtil;
 
 interface
@@ -13442,7 +13442,7 @@ function isSciPedForSwod(curr_person:person_ptr):boolean;
                       Inc(c);
                  end;
               currcn1:=currcn1^.next;
-         end;
+           end;
          count156:=c;
      end;
    begin

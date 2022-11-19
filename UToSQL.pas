@@ -134,7 +134,7 @@ begin
                          ' nmes='+IntToStr(nmes)+' nsrv='+IntToStr(NSRV));
              EXIT;
         end;
-
+     BitBtn1.Enabled:=False;
      if NeedClear then
      if (ModeArc and not ModeIskra) or (not ModeArc) then
         begin
@@ -246,6 +246,7 @@ begin
                      FIB.pFIBQuery.DataBase:=FIB.pFIBDatabaseSal;
                 end
         end;
+     BitBtn1.Enabled:=true;
      NMES:=NMES_T;
      NSRV:=NSRVT;
   //   Error('Перенос закончен');
