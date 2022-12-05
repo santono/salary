@@ -97,6 +97,7 @@ procedure TFormMakeAwansLNR.BitBtn2Click(Sender: TObject);
       SummaAdd:real;
       SummaUd:real;
       SummaAwa:real;
+      summaPrem:Real;
       SummaAwaInt:integer;
       W_Sta : integer;
       function GetWSta:integer;
@@ -115,9 +116,13 @@ procedure TFormMakeAwansLNR.BitBtn2Click(Sender: TObject);
        SummaAdd := 0;
        SummaUd  := 0;
        Curr_Add:=Curr_Person^.Add;
+       summaPrem:=0;
        while (Curr_Add<>Nil) do
          begin
                SummaAdd:=Sum(SummaAdd) + Sum(Curr_Add^.Summa);
+               if ((NMES=12) and (CURRYEAR=2022)) then
+                  if curr_Add^.shifr=46 then
+                     summaPrem:=curr_add^.SUMMA;
                Curr_Add:=Curr_Add^.Next;
          end;
        Curr_Ud:=Curr_Person^.Ud;
@@ -126,7 +131,10 @@ procedure TFormMakeAwansLNR.BitBtn2Click(Sender: TObject);
                SummaUd:=Sum(SummaUd) + Sum(Curr_Ud^.Summa);
                Curr_Ud:=Curr_Ud^.Next;
          end;
-       SummaAwa:=Sum((SummaAdd-SummaUd)*NeedProc/100);
+       if ((NMES=12) and (CURRYEAR=2022)) then
+          SummaAwa:=summaPrem+Sum((SummaAdd-summaPrem-SummaUd)*NeedProc/100)
+       else
+          SummaAwa:=Sum((SummaAdd-SummaUd)*NeedProc/100);
        if SummaAwa<0.009 then Exit;
        if NeedOkrugl>0.01 then
           begin
@@ -252,7 +260,7 @@ begin
      ProgressBar1.Max      := COUNT_SERV;
      ProgressBar1.Min      := 0;
      ProgressBar1.Position := 0;
-
+     BitBtn2.Enabled:=False;
      SAVE_NSRV := NSRV;
      FOR I:=1 TO COUNT_SERV DO
          BEGIN
@@ -280,9 +288,12 @@ begin
               if ChangedPodr then PutInf;
               EMPTY_ALL_PERSON;
          end;
+     BitBtn2.Enabled:=tRUE;
      NSRV := SAVE_NSRV;
      MKFLNM;
      GetInf(TRUE);
+     ShowMessage('Расчет аванса выполнен!');
+     Self.Close;
 
 
 end;

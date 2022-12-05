@@ -528,6 +528,9 @@ object MainForm: TMainForm
           object N191: TMenuItem
             Action = ActionRepPlanZP
           end
+          object N192: TMenuItem
+            Action = ActionRepPlanSoc
+          end
         end
         object N174: TMenuItem
           Action = ActionRepPomKOtp
@@ -1784,6 +1787,10 @@ object MainForm: TMainForm
     object ActionMoveDopl: TAction
       Caption = #1055#1077#1088#1077#1085#1086#1089' '#1076#1086#1087#1083#1072#1090' '#1076#1086' '#1084#1080#1085'.'#1079#1072#1088#1087#1083#1072#1090#1099
       OnExecute = ActionMoveDoplExecute
+    end
+    object ActionRepPlanSoc: TAction
+      Caption = #1057#1074#1086#1076' '#1076#1083#1103' '#1052#1080#1085#1057#1086#1094
+      OnExecute = ActionRepPlanSocExecute
     end
   end
   object ImageList1: TImageList

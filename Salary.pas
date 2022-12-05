@@ -452,6 +452,8 @@ type
     N191: TMenuItem;
     ActionMoveDopl: TAction;
     NMoveDopl: TMenuItem;
+    ActionRepPlanSoc: TAction;
+    N192: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -740,6 +742,7 @@ type
     procedure ActionRepWorkers2020Execute(Sender: TObject);
     procedure ActionRepPlanZPExecute(Sender: TObject);
     procedure ActionMoveDoplExecute(Sender: TObject);
+    procedure ActionRepPlanSocExecute(Sender: TObject);
 
 
   private
@@ -5168,7 +5171,7 @@ end;
 
 procedure TMainForm.ActionRepPlanZPExecute(Sender: TObject);
 begin
-     Application.CreateForm(TFormRepPlanZP,FormRepPlanZP);
+     FormRepPlanZP:=TFormRepPlanZP.myCreate(Self,1);
      FormRepPlanZP.showModal;
 
 end;
@@ -5177,6 +5180,13 @@ procedure TMainForm.ActionMoveDoplExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormMoveDoplFromCSV,FormMoveDoplFromCSV);
      FormMoveDoplFromCSV.showModal;
+
+end;
+
+procedure TMainForm.ActionRepPlanSocExecute(Sender: TObject);
+begin
+     FormRepPlanZP:=TFormRepPlanZP.myCreate(Self,2);
+     FormRepPlanZP.showModal;
 
 end;
 

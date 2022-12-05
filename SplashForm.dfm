@@ -1,6 +1,6 @@
 object AboutBox: TAboutBox
-  Left = 285
-  Top = 216
+  Left = 289
+  Top = 199
   BorderStyle = bsNone
   ClientHeight = 241
   ClientWidth = 412

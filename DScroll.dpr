@@ -403,7 +403,8 @@ uses
   UFormRepRLForBoln in 'UFormRepRLForBoln.pas' {FormRepRLForBoln},
   UFormRepPlanZP in 'UFormRepPlanZP.pas' {FormRepPlanZP},
   UFormMoveDoplFromCSV in 'UFormMoveDoplFromCSV.pas' {FormMoveDoplFromCSV},
-  UFormMoveDoplTo156 in 'UFormMoveDoplTo156.pas' {FormMoveDoplTo156};
+  UFormMoveDoplTo156 in 'UFormMoveDoplTo156.pas' {FormMoveDoplTo156},
+  UFormMovePremFromCSV in 'UFormMovePremFromCSV.pas' {FormMovePremFromCSV};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

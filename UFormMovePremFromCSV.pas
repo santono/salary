@@ -1,4 +1,4 @@
-unit UFormMoveDoplFromCSV;
+unit UFormMovePremFromCSV;
 
 interface
 
@@ -8,15 +8,17 @@ uses
   FIBDataSet, pFIBDataSet;
 
 type
-  TFormMoveDoplFromCSV = class(TForm)
+  TFormMovePremFromCSV = class(TForm)
     ProgressBar1: TProgressBar;
     Label1: TLabel;
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
     BitBtn3: TBitBtn;
     LabelPodr: TLabel;
+    Memo1: TMemo;
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
      procedure ExecuteMoveDopl;
@@ -28,35 +30,40 @@ type
   end;
 
 var
-  FormMoveDoplFromCSV: TFormMoveDoplFromCSV;
+  FormMovePremFromCSV: TFormMovePremFromCSV;
 
 implementation
   Uses UFibModule,ScrDef,ScrIo,ScrUtil,UFormSelPKG,ScrLists,uSQLUnit,ScrNalog;
 
 {$R *.dfm}
- type pRecDopl=^tRecDopl;
-      tRecDopl=record
+ type pRecPrem=^tRecPrem;
+      tRecPrem=record
                 tabno     : Integer;
                 GUID      : string;
-                summaDopl : Real;
+                summaPrem : Real;
                 shifrWR   : Integer;
                 shifrGru  : Integer;
                 shifrKat  : Integer;
                end;
  var list:tList;
-function TFormMoveDoplFromCSV.initList:boolean;
+function TFormMovePremFromCSV.initList:boolean;
+ const tabnocol=1;
+       guidcol=6; //guid_bud
+       summapremcol=8;
  var retVal:boolean;
      fName:string;
      dev:TextFile;
      line:string;
-     recDopl:pRecDopl;
+     recPrem:pRecPrem;
      arrStr:TArrOfString;
      iVal,iErr:Integer;
      aVal:Real;
      s:string;
+     lineno:Integer;
+     size:integer;
  begin
       retVal:=false;
-      fName:=cdir+'dopl11all.csv';
+      fName:=cdir+'prem2022.csv';
       if not FileExists(FName) then
          begin
               ShowMessage('Отсутстует файл '+fname);
@@ -66,61 +73,66 @@ function TFormMoveDoplFromCSV.initList:boolean;
       list:=TList.Create;   
       AssignFile(dev,fname);
       Reset(dev);
+      lineno:=0;
       while not Eof(dev) do
         begin
              Readln(dev,line);
+             Inc(lineno);
+             if lineno< 2 then
+                Continue;
              line:=Trim(line);
              if Length(line)<50 then
                 Continue;
              arrStr:=Split(line,';');
-             if high(arrStr)<14 then
+             size:=high(arrStr);
+             if size<9 then
                 Continue;
-             New(recDopl);
-             FillChar(recDopl^,SizeOf(recDopl^),0);
-             s:=arrStr[1];
+             New(recPrem);
+             FillChar(recPrem^,SizeOf(recPrem^),0);
+             s:=arrStr[tabnocol];
              s:=Trim(s);
              Val(s,iVal,iErr);
              if iErr=0 then
-                recDopl^.tabno:=iVal
+                recPrem^.tabno:=iVal
              else
                 Continue;
-             s:=arrStr[14];
-             recDopl^.GUID:=trim(s);
-             s:=arrStr[12];
+             s:=arrStr[Guidcol];
+             recPrem^.GUID:=trim(s);
+             s:=arrStr[summapremcol];
              s:=Trim(s);
              Val(s,aVal,iErr);
              if iErr=0 then
-                recDopl^.summaDopl:=aVal
+                recPrem^.summaPrem:=aVal
              else
                 Continue;
-             list.add(recDopl);
+             list.add(recPrem);
         end;
       CloseFile(dev);
       if list.count>0 then
          retVal:=True;
       initList:=retVal;
  end;
-procedure TFormMoveDoplFromCSV.emptyList;
+procedure TFormMovePremFromCSV.emptyList;
  var retVal:boolean;
      fName:string;
      dev:TextFile;
      line:string;
-     recDopl:pRecDopl;
+     recPrem:pRecPrem;
      s:string;
      i:Integer;
  begin
       if list.count>0 then
          for i:=0 to list.count-1 do
-             Dispose(pRecDopl(list.Items[i]));
+             Dispose(pRecPrem(list.Items[i]));
       list.Clear;
       list.Free;
       list:=nil;
  end;
-procedure TFormMoveDoplFromCSV.BitBtn1Click(Sender: TObject);
+procedure TFormMovePremFromCSV.BitBtn1Click(Sender: TObject);
 begin
-     if not ((nmes=11) and (CURRYEAR=2022)) then
+     if not ((nmes=12) and (CURRYEAR=2022)) then
         begin
-             ShowMessage('Перенос возможен только в ноябре 2022 г.');
+             ShowMessage('Перенос возможен только в декабре 2022 г.');
              exit;
         end;
 (*
@@ -140,10 +152,11 @@ begin
              Exit;
         end;
 *)
-     if MessageDlg('Выполнить перенос доплат в ноябре 2022 г.?',
+     if MessageDlg('Выполнить перенос премии в декабре 2022 г.?',
         mtConfirmation, [mbYes, mbNo], 0) = mrYes  then
         begin
              BitBtn1.Enabled:=False;
+             Label1.Caption:='';
              if InitList then
                 begin
                      ExecuteMoveDopl;
@@ -156,10 +169,10 @@ end;
 
 
 
-procedure TFormMoveDoplFromCSV.ExecuteMoveDopl;
-const wantedShifr=DOPL_DO_MIN_SHIFR;
+procedure TFormMovePremFromCSV.ExecuteMoveDopl;
+const wantedShifr=46;
       id=37;
-      wantedPeriod=11;
+      wantedPeriod=12;
       wantedYear=2022;
 var NMES_Sav,NSRV_Sav:Integer;  
     I_NSRV,SC:Integer;
@@ -168,7 +181,8 @@ var NMES_Sav,NSRV_Sav:Integer;
     I:Integer;
     shifrDol:integer;
     amntOfMoved:integer;
-        procedure Delete_Dopl_Person(Curr_person:person_ptr);
+    line:string;
+        procedure Delete_Prem_Person(Curr_person:person_ptr);
          var Finished:Boolean;
              Curr_Add:Add_PTR;
          begin
@@ -192,17 +206,17 @@ var NMES_Sav,NSRV_Sav:Integer;
                      if Finished then Break;
                end;
          end;
-        procedure Delete_Dopl_Pod;
+        procedure Delete_Prem_Pod;
          var Curr_Person:Person_Ptr;
          begin
               curr_person:=head_person;
               while (curr_person<>nil) do
                 begin
-                     Delete_Dopl_person(curr_person);
+                     Delete_Prem_person(curr_person);
                      curr_person:=curr_person^.NEXT;
                 end;
          end;
-   function findSummaDoplInList(curr_Person:Person_ptr):real;
+   function findSummaPremInList(curr_Person:Person_ptr):real;
     var i:Integer;
         GUID:string;
         finded:Boolean;
@@ -210,18 +224,18 @@ var NMES_Sav,NSRV_Sav:Integer;
     begin
          finded:=false;
          GUID:=GetGUIDPersonToString(Curr_Person);
-         findSummaDoplInList:=-10.00;
+         findSummaPremInList:=-10.00;
          if list.Count>0 then
             for i:=0 to list.Count-1 do
-                if Trim(pRecDopl(list.Items[i])^.GUID)=Trim(GUID) then
+                if Trim(pRecPrem(list.Items[i])^.GUID)=Trim(GUID) then
                    begin
                         finded:=true;
-                        aVal:=pRecDopl(list.Items[i])^.summaDopl;
+                        aVal:=pRecPrem(list.Items[i])^.summaPrem;
                         list.Delete(i);
                         Break;
                    end;
          if finded then
-            findSummaDoplInList:=aVal;
+            findSummaPremInList:=aVal;
     end;
    function fillPersons:boolean;
      var Curr_Person : Person_Ptr;
@@ -233,7 +247,7 @@ var NMES_Sav,NSRV_Sav:Integer;
          GUIDString  : string;
          v,vv:Variant;
          npp:integer;
-         SummaDopl:real;
+         SummaPrem:real;
      begin
          retVal := false;
          tabno  := 0;
@@ -243,9 +257,9 @@ var NMES_Sav,NSRV_Sav:Integer;
                 GUIDString:=GetGUIDPersonToString(curr_person);
                 if curr_person^.tabno=1356 then
                    curr_person^.TABNO:=1356;
-                summaDopl:=0.00;
-                summaDopl:=findSummaDoplInList(Curr_Person);
-                if summaDopl<-0.05 then
+                summaPrem:=0.00;
+                summaPrem:=findSummaPremInList(Curr_Person);
+                if summaPrem<-0.05 then
                    begin
                         curr_person:=curr_person^.NEXT;
                         continue;
@@ -254,8 +268,8 @@ var NMES_Sav,NSRV_Sav:Integer;
                 curr_ADD^.SHIFR  := wantedShifr;
                 curr_add^.period := wantedPeriod;
                 curr_add^.year   := wantedYear-1990;
-                curr_add^.summa  := summaDopl;
-                curr_add^.fzp    := summaDopl;
+                curr_add^.summa  := summaPrem;
+                curr_add^.fzp    := summaPrem;
                 curr_add^.who    := id;
                 retVal           := true;
                 inc(amntofmoved);
@@ -287,12 +301,27 @@ begin
               if not FileExists(fninf) then Continue;
               GetInf(False);
               Maked:=false;
-              Delete_Dopl_Pod;
+              Delete_Prem_Pod;
               fillPersons;
               if Maked then PUTINF;
               EMPTY_ALL_PERSON;
          end;
      showMessage('Перенесено '+intToStr(amntOfMoved)+' строк ');
+     SC := list.Count;
+     if SC>0 then
+       begin
+            ShowMessage(' Не перенесено '+IntToStr(sc)+' Записей');
+            memo1.lines.Clear;
+            line:='Не перенесенные записи';
+            Memo1.Lines.Add(line);
+            for i:=0 to sc-1 do
+               begin
+                   line:=IntToStr(i+1)+' '+IntToStr(pRecPrem(list.items[i])^.tabno);
+                   line:=line+' '+GetFullRusFioPerson(pRecPrem(list.items[i])^.tabno);
+                   line:=line+' '+CurrToStrF(pRecPrem(list.items[i])^.SummaPrem,ffFixed,2);
+                   Memo1.Lines.Add(Line);
+               end
+       end;
      NMES:=NMES_Sav;
      NSRV:=NSRV_Sav;
      MKFLNM;
@@ -300,10 +329,17 @@ begin
 
 end;
 
-procedure TFormMoveDoplFromCSV.BitBtn3Click(Sender: TObject);
+procedure TFormMovePremFromCSV.BitBtn3Click(Sender: TObject);
 begin
     Application.CreateForm(TFormSelPKG, FormSelPKG);
     FormSelPKG.ShowModal;
+
+end;
+
+procedure TFormMovePremFromCSV.FormCreate(Sender: TObject);
+begin
+     Memo1.Lines.Clear;
+     Memo1.Lines.Add('Здесь будут выведены возможные ошибки переноса');
 
 end;
 

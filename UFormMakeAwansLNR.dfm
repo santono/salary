@@ -41,7 +41,7 @@ object FormMakeAwansLNR: TFormMakeAwansLNR
     Top = 40
     Width = 29
     Height = 20
-    Caption = #1075#1088#1085'.'
+    Caption = #1088#1091#1073'.'
   end
   object LabelPodr: TLabel
     Left = 8

@@ -1,6 +1,6 @@
 object FormRepPlanZP: TFormRepPlanZP
-  Left = 253
-  Top = 275
+  Left = 203
+  Top = 265
   Width = 657
   Height = 283
   Caption = #1047#1055' '#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1077

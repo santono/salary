@@ -25,6 +25,7 @@ type
     procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
+    moderep:Integer; //1-PlanZp 2 - Минсоц
     gruKadryMode:Integer;
     procedure CreateReport;
     procedure fillPerson(curr_person:person_ptr);
@@ -32,11 +33,13 @@ type
     procedure fillFinalList;
     procedure fillFinalKadryList;
     procedure SwodToExcel;
+    procedure SwodToExcelSoc;
     function  initDolgList : boolean;
     function  initDolgKadryList : boolean;
     function  initPodrList : boolean;
     function  initShifrList : boolean;
   public
+    constructor myCreate(AOwner: TComponent;wantedMode:integer);
     { Public declarations }
   end;
 
@@ -105,11 +108,46 @@ implementation
       notUsedShifrList:TList;
       finalList:TList;
       finalKadryList:TList;
+      finalSocList:TList;
       E:Variant;
       FName:String;
 
 {$R *.dfm}
-
+constructor TFormRepPlanZP.myCreate(AOwner: TComponent;wantedMode:integer);
+  begin
+       inherited Create(AOwner);
+       modeRep:=wantedMode;
+       dtFr.Date        := IncMonth(Date,-1);
+       dtFr.Date        := RecodeDay(dtFr.Date,1);
+       dtTo.Date        := dtFr.Date;
+       BitBtn1.Enabled  := True;
+       LabelFio.Caption := '';
+       cbListToExcel.Checked:=True;
+       caption:='Свод ЗП образование c '+GetMonthRus(MonthOf(dtFr.date))+ ' '+IntToStr(YearOf(dtFr.date))+' г. по '+GetMonthRus(MonthOf(dtTo.date))+ ' '+IntToStr(YearOf(dtTo.date));
+       rgBudMode.ItemIndex:=0;
+       Application.ProcessMessages;
+       if moderep=2 then
+          begin
+               rgBudMode.Hide;
+               rgBudMode.Enabled:=False;
+               dtTo.Hide;
+               dtTo.Enabled:=False;
+               Label1.Hide;
+               Label2.Caption:='За ';
+               Caption:='МинСоц за '+ GetMonthRus(MonthOf(dtFr.date))+ ' '+IntToStr(YearOf(dtFr.date))+' г.';
+          end
+       else
+          begin
+               rgBudMode.Show;
+               rgBudMode.Enabled:=true;
+               dtTo.Show;
+               dtTo.Enabled:=True;
+               Label1.Show;
+               Label2.Caption:='C';
+//               Caption:='ЗП-Образование';
+               caption:='Свод ЗП образование c '+GetMonthRus(MonthOf(dtFr.date))+ ' '+IntToStr(YearOf(dtFr.date))+' г. по '+GetMonthRus(MonthOf(dtTo.date))+ ' '+IntToStr(YearOf(dtTo.date));
+          end;
+  end;
 procedure TFormRepPlanZP.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
@@ -420,20 +458,27 @@ end;
 
 procedure TFormRepPlanZP.FormCreate(Sender: TObject);
 begin
-     dtFr.Date        := IncMonth(Date,-1);
-     dtFr.Date        := RecodeDay(dtFr.Date,1);
-     dtTo.Date        := dtFr.Date;
-     BitBtn1.Enabled  := True;
-     LabelFio.Caption := '';
-     cbListToExcel.Checked:=True;
-     caption:='Свод ЗП образование c '+GetMonthRus(MonthOf(dtFr.date))+ ' '+IntToStr(YearOf(dtFr.date))+' г. по '+GetMonthRus(MonthOf(dtTo.date))+ ' '+IntToStr(YearOf(dtTo.date));
-     rgBudMode.ItemIndex:=0;
-     Application.ProcessMessages;
+//     dtFr.Date        := IncMonth(Date,-1);
+//     dtFr.Date        := RecodeDay(dtFr.Date,1);
+//     dtTo.Date        := dtFr.Date;
+//     BitBtn1.Enabled  := True;
+//     LabelFio.Caption := '';
+//     cbListToExcel.Checked:=True;
+//     caption:='Свод ЗП образование c '+GetMonthRus(MonthOf(dtFr.date))+ ' '+IntToStr(YearOf(dtFr.date))+' г. по '+GetMonthRus(MonthOf(dtTo.date))+ ' '+IntToStr(YearOf(dtTo.date));
+//     rgBudMode.ItemIndex:=0;
+//     Application.ProcessMessages;
 end;
 
 procedure TFormRepPlanZP.BitBtn1Click(Sender: TObject);
 begin
-     gruKadryMode:=rgBudMode.ItemIndex;
+     if moderep<>2 then
+        begin
+             gruKadryMode:=rgBudMode.ItemIndex;
+        end
+     else
+        begin
+             gruKadryMode:=2;
+        end;
      if (gruKadryMode>2) or (gruKadryMode<0) then
          gruKadryMode:=0; // 0 -бюджет 1 внебюджет 2 - все счета
      if not initDolgList then
@@ -478,6 +523,7 @@ function compare(Item1:Pointer;Item2:pointer):Integer;
 
 procedure TFormRepPlanZP.CreateReport;
   var savNMES,savNSRV,savYear:integer;
+      savNMES1,savYear1:integer;
       iNSRV,i,j:Integer;
       curr_person:PERSON_PTR;
       iCountMonth,countMonth:Integer;
@@ -502,18 +548,28 @@ procedure TFormRepPlanZP.CreateReport;
        savNSRV:=NSRV;
        savYear:=CURRyEAR;
        dateFr:=EncodeDate(YearOf(dtFr.Date),MonthOf(dtFr.Date),1);
-       dateTo:=EncodeDate(YearOf(dtTo.Date),MonthOf(dtTo.Date),1);
+       if modeRep=2 then
+          dateTo:=dateFr
+       else
+          dateTo:=EncodeDate(YearOf(dtTo.Date),MonthOf(dtTo.Date),1);
        if dateFr > dateTo then
           begin
                ShowMessage('Начальная дата больше конечной');
                Exit;
           end;
+       if moderep=2 then
+          caption:='Свод МинСоц за '+GetMonthRus(MonthOf(dateFr))+ ' '+IntToStr(YearOf(dateFr))+' г.'
+       else
+          caption:='Свод ЗП образование c '+GetMonthRus(MonthOf(dateFr))+ ' '+IntToStr(YearOf(dateFr))+' г. по '+GetMonthRus(MonthOf(dateTo))+ ' '+IntToStr(YearOf(dateTo));
+
        EMPTY_ALL_PERSON;
-       NMES:=MonthOf(dtFr.Date);
-       CurrYear:=yearOf(dtFr.Date);
+       NMES:=MonthOf(dateFr);
+       CurrYear:=yearOf(dateFr);
+       savNMES1:=MonthOf(dateTo);
+       savYear1:=yearOf(dateTo);
        countMonth := 0;
-       if (nmes=monthOf(dtTo.date)) and
-          (currYear=yearOf(dtTo.date)) then
+       if (nmes=savNMES1) and
+          (currYear=savYEAR1) then
           countMonth:=1;
        if countMonth=0 then
        while True do
@@ -577,7 +633,10 @@ procedure TFormRepPlanZP.CreateReport;
        fillFinalList;
        fillFinalKadryList;
        list.Sort(@Compare);
-       FName:=TemplateDIR+'PlanZP.xlt';
+       if moderep<>2 then
+          FName:=TemplateDIR+'PlanZP.xlt'
+       else
+          FName:=TemplateDIR+'PlanSoc.xlt';
        if not FileExists(FName) then
           begin
              ShowMessage('Отсутствует шаблон '+FName);
@@ -595,7 +654,10 @@ procedure TFormRepPlanZP.CreateReport;
 
 //       if cbListToExcel.Checked then
 //          moveToExcel;
-       swodToExcel;
+       if moderep<>2 then
+          swodToExcel
+       else
+          swodToExcelSoc;
        if list.count>0 then
           for i:=0 to list.count-1 do
               begin
@@ -1017,10 +1079,24 @@ procedure TFormRepPlanZP.moveToExcel;
 *)
 procedure TFormRepPlanZP.fillFinalList;
    var i,j,k:Integer;
-       finalRec:pFinalRec;
+       finalRec,finalRecF:pFinalRec;
        rec:pRec;
        detRec:pDetRec;
        finded:Boolean;
+       shifrLine:Integer;
+       shifrRowOld:Integer;
+       summa:Real;
+   function getSocShifrLine(finalRec:pFinalRec):Integer;
+     var retVal:Integer;
+     begin
+          retVal:=25;
+          if finalRec^.shifrRow in [8,9,10] then
+             retVal:=23
+          else
+          if finalRec^.shifrRow=12 then
+             retVal:=24;
+          getSocShifrLine:=retVal;
+     end;
    begin
         finalList:=TList.Create;
         for i:=0 to list.Count-1 do
@@ -1068,6 +1144,42 @@ procedure TFormRepPlanZP.fillFinalList;
                    end;
           end;
        i:=finalList.Count;
+       if moderep<>2 then
+          Exit;
+       finalSocList := TList.Create;
+       for i:=0 to finalList.Count-1 do
+           begin
+                finalRec:=pFinalRec(finalList.Items[i]);
+                shifrRowOld:=finalRec.shifrRow;
+                shifrLine:=getSocShifrLine(finalRec);
+                finded:=false;
+                if finalSocList.count>0 then
+                   for k:=0 to finalSocList.Count-1 do
+                       if pFinalRec(finalSocList.Items[k]).shifrRow=shifrLine then
+                          begin
+                              finded:=True;
+                              finalRecF:=pFinalRec(finalSocList.Items[k]);
+                              Break;
+                          end;
+                if not finded then
+                   begin
+                        New(finalRecF);
+                        FillChar(finalRecF^,sizeof(finalRecF^),0);
+                        finalRecF.shifrRow:=shifrLine;
+                        finalSocList.Add(finalRecF);
+                   end;
+                summa:=finalRec.summaBud   +
+                       finalRec.summaBudVne+
+                       finalRec.summaVne   +
+                       finalRec.summaVneVne;
+//             if finalRec.summaVne>1.0 then
+//                wbs.Cells[shifrRow,11]:= finalRec.summaVne;
+//             if finalRec.summaBudVne>1.0 then
+//                wbs.Cells[shifrRow,12]:= finalRec.summaBudVne;
+//             if finalRec.summaVneVne>1.0 then
+//                wbs.Cells[shifrRow,14]:= finalRec.summaVneVne;
+                finalRecF.summaFond:=finalRecF.summaFond+summa;
+           end;
 
    end;
 procedure TFormRepPlanZP.fillFinalKadryList;
@@ -1223,6 +1335,33 @@ begin
                 wbsKadry.Cells[shifrRow,6] := finalKadryRec.summaSowm;
              if finalKadryRec.summaVne>1.0 then
                 wbsKadry.Cells[shifrRow,7] := finalKadryRec.summaVne;
+        end;
+
+end;
+procedure TFormRepPlanZP.SwodToExcelSoc;
+const maxKat=15;
+var
+    S:String;
+    k,i:integer;
+    exRow:integer;
+    h:string;
+    wbs,wbsKadry:variant;
+    finalRec:pFinalRec;
+    shifrRow:Integer;
+begin
+
+     wbs:=E.WorkBooks[1].WorkSheets[2];
+     for k:=0 to finalSocList.Count-1 do
+        begin
+             finalRec:=pFinalRec(finalSocList.Items[k]);
+             shifrRow:=finalRec^.shifrRow;
+             if not ((shifrRow>=23) and (shifrRow<=25)) then
+                begin
+                     ShowMessage('Ошибка Соц  shifRow='+intToStr(ShifrRow));
+                     continue;
+                end;
+             if finalRec.summaFond>1.0 then
+                wbs.Cells[shifrRow,7] := finalRec.summaFond/1000.00;
         end;
 
 end;
