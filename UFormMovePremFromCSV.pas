@@ -259,6 +259,7 @@ var NMES_Sav,NSRV_Sav:Integer;
                    curr_person^.TABNO:=1356;
                 summaPrem:=0.00;
                 summaPrem:=findSummaPremInList(Curr_Person);
+                summaPrem:=R10(summaPrem);
                 if summaPrem<-0.05 then
                    begin
                         curr_person:=curr_person^.NEXT;

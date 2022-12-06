@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 312
-  Top = 186
+  Left = 231
+  Top = 284
   Width = 782
   Height = 493
   HorzScrollBar.Visible = False
@@ -1012,6 +1012,9 @@ object MainForm: TMainForm
         object nViruses: TMenuItem
           Action = ActionDeleteViruses
         end
+        object N193: TMenuItem
+          Action = ActionPerformOkr
+        end
       end
       object N98: TMenuItem
         Caption = #1056#1077#1077#1089#1090#1088#1099' '#1041#1086#1083#1100#1085#1080#1095#1085#1099#1093' '#1083#1080#1089#1090#1082#1086#1074
@@ -1791,6 +1794,10 @@ object MainForm: TMainForm
     object ActionRepPlanSoc: TAction
       Caption = #1057#1074#1086#1076' '#1076#1083#1103' '#1052#1080#1085#1057#1086#1094
       OnExecute = ActionRepPlanSocExecute
+    end
+    object ActionPerformOkr: TAction
+      Caption = #1042#1099#1087#1086#1083#1085#1080#1090#1100' '#1086#1082#1088#1091#1075#1083#1077#1085#1080#1077' '#1089#1091#1084#1084
+      OnExecute = ActionPerformOkrExecute
     end
   end
   object ImageList1: TImageList

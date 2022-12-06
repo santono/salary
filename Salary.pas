@@ -454,6 +454,8 @@ type
     NMoveDopl: TMenuItem;
     ActionRepPlanSoc: TAction;
     N192: TMenuItem;
+    ActionPerformOkr: TAction;
+    N193: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -743,6 +745,7 @@ type
     procedure ActionRepPlanZPExecute(Sender: TObject);
     procedure ActionMoveDoplExecute(Sender: TObject);
     procedure ActionRepPlanSocExecute(Sender: TObject);
+    procedure ActionPerformOkrExecute(Sender: TObject);
 
 
   private
@@ -841,7 +844,7 @@ implementation
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
   UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
-  UFormMoveDoplFromCSV;
+  UFormMoveDoplFromCSV, UFormMakeOkr;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -5187,6 +5190,13 @@ procedure TMainForm.ActionRepPlanSocExecute(Sender: TObject);
 begin
      FormRepPlanZP:=TFormRepPlanZP.myCreate(Self,2);
      FormRepPlanZP.showModal;
+
+end;
+
+procedure TMainForm.ActionPerformOkrExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormMakeOkr,FormMakeOkr);
+     FormMakeOkr.showModal;
 
 end;
 

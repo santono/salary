@@ -404,7 +404,8 @@ uses
   UFormRepPlanZP in 'UFormRepPlanZP.pas' {FormRepPlanZP},
   UFormMoveDoplFromCSV in 'UFormMoveDoplFromCSV.pas' {FormMoveDoplFromCSV},
   UFormMoveDoplTo156 in 'UFormMoveDoplTo156.pas' {FormMoveDoplTo156},
-  UFormMovePremFromCSV in 'UFormMovePremFromCSV.pas' {FormMovePremFromCSV};
+  UFormMovePremFromCSV in 'UFormMovePremFromCSV.pas' {FormMovePremFromCSV},
+  UFormMakeOkr in 'UFormMakeOkr.pas' {FormMakeOkr};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

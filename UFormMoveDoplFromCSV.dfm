@@ -11,6 +11,7 @@ object FormMoveDoplFromCSV: TFormMoveDoplFromCSV
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -25,6 +26,13 @@ object FormMoveDoplFromCSV: TFormMoveDoplFromCSV
     Top = 8
     Width = 3
     Height = 13
+  end
+  object Label2: TLabel
+    Left = 16
+    Top = 96
+    Width = 144
+    Height = 13
+    Caption = #1059#1082#1072#1078#1080#1090#1077' '#1092#1072#1081#1083'  '#1089' '#1076#1086#1087#1083#1072#1090#1072#1084#1080
   end
   object ProgressBar1: TProgressBar
     Left = 16
@@ -60,5 +68,18 @@ object FormMoveDoplFromCSV: TFormMoveDoplFromCSV
     TabOrder = 3
     Visible = False
     OnClick = BitBtn3Click
+  end
+  object BitBtn4: TBitBtn
+    Left = 16
+    Top = 120
+    Width = 75
+    Height = 25
+    Caption = '. . .'
+    TabOrder = 4
+    OnClick = BitBtn4Click
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 312
+    Top = 88
   end
 end
