@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 231
-  Top = 284
-  Width = 782
+  Left = 211
+  Top = 211
+  Width = 854
   Height = 493
   HorzScrollBar.Visible = False
   Caption = 'ion'
@@ -23,15 +23,15 @@ object MainForm: TMainForm
   OnPaint = FormPaint
   OnShow = FormShow
   DesignSize = (
-    766
+    838
     435)
   PixelsPerInch = 96
   TextHeight = 20
   object StringGrid1: TStringGrid
     Left = 8
-    Top = 40
-    Width = 760
-    Height = 309
+    Top = 32
+    Width = 832
+    Height = 321
     Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 8
     FixedCols = 0
@@ -58,7 +58,7 @@ object MainForm: TMainForm
   object StringGrid2: TStringGrid
     Left = 8
     Top = 354
-    Width = 760
+    Width = 832
     Height = 35
     Anchors = [akLeft, akRight, akBottom]
     ColCount = 7
@@ -78,7 +78,7 @@ object MainForm: TMainForm
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 766
+    Width = 838
     Height = 26
     ButtonHeight = 21
     ButtonWidth = 30
@@ -260,7 +260,7 @@ object MainForm: TMainForm
   object StatusBar1: TStatusBar
     Left = 0
     Top = 416
-    Width = 766
+    Width = 838
     Height = 19
     Panels = <
       item
@@ -530,6 +530,9 @@ object MainForm: TMainForm
           end
           object N192: TMenuItem
             Action = ActionRepPlanSoc
+          end
+          object N194: TMenuItem
+            Action = ActionRepPlanSowmVne
           end
         end
         object N174: TMenuItem
@@ -1799,6 +1802,10 @@ object MainForm: TMainForm
       Caption = #1042#1099#1087#1086#1083#1085#1080#1090#1100' '#1086#1082#1088#1091#1075#1083#1077#1085#1080#1077' '#1089#1091#1084#1084
       OnExecute = ActionPerformOkrExecute
     end
+    object ActionRepPlanSowmVne: TAction
+      Caption = #1057#1074#1086#1076' '#1087#1086' '#1074#1085#1077#1096#1085#1080#1084' '#1089#1086#1074#1084#1077#1089#1090#1080#1090#1077#1083#1103#1084
+      OnExecute = ActionRepPlanSowmVneExecute
+    end
   end
   object ImageList1: TImageList
     Left = 216
@@ -1946,8 +1953,8 @@ object MainForm: TMainForm
   object TimerMain: TTimer
     Interval = 100
     OnTimer = TimerMainTimer
-    Left = 336
-    Top = 200
+    Left = 432
+    Top = 192
   end
   object TimerSavePodr: TTimer
     Interval = 300000000

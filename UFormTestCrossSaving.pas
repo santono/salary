@@ -65,7 +65,9 @@ procedure TFormTestCrossSaving.CreateReport;
        ProgressBar1.Min      := 0 ;
        ProgressBar1.Max      := Count_Serv ;
        ProgressBar1.Position := 0 ;
+       ProgressBar1.Step     := 1;
        cntErr:=0;
+       BitBtn1.Enabled:=False;
        for i_count:=1 to count_Serv do
            begin
                 ProgressBar1.stepIt;
@@ -90,7 +92,8 @@ procedure TFormTestCrossSaving.CreateReport;
                 EMPTY_ALL_PERSON;
            end;
        if cntErr=0 then
-          showMessage('Пересортицы подразделений не обнаружено.'); 
+          showMessage('Пересортицы подразделений не обнаружено.');
+       BitBtn1.Enabled:=true;
        NSRV:=tmpNSRV;
        NMES:=tmpNMES;
        MKFLNM;

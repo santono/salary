@@ -120,9 +120,9 @@ procedure TFormMakeAwansLNR.BitBtn2Click(Sender: TObject);
        while (Curr_Add<>Nil) do
          begin
                SummaAdd:=Sum(SummaAdd) + Sum(Curr_Add^.Summa);
-               if ((NMES=12) and (CURRYEAR=2022)) then
-                  if curr_Add^.shifr=46 then
-                     summaPrem:=curr_add^.SUMMA;
+//               if ((NMES=12) and (CURRYEAR=2022)) then
+//                  if curr_Add^.shifr=46 then
+//                     summaPrem:=curr_add^.SUMMA;
                Curr_Add:=Curr_Add^.Next;
          end;
        Curr_Ud:=Curr_Person^.Ud;
@@ -131,9 +131,9 @@ procedure TFormMakeAwansLNR.BitBtn2Click(Sender: TObject);
                SummaUd:=Sum(SummaUd) + Sum(Curr_Ud^.Summa);
                Curr_Ud:=Curr_Ud^.Next;
          end;
-       if ((NMES=12) and (CURRYEAR=2022)) then
-          SummaAwa:=summaPrem+Sum((SummaAdd-summaPrem-SummaUd)*NeedProc/100)
-       else
+//       if ((NMES=12) and (CURRYEAR=2022)) then
+//          SummaAwa:=summaPrem+Sum((SummaAdd-summaPrem-SummaUd)*NeedProc/100)
+//       else
           SummaAwa:=Sum((SummaAdd-SummaUd)*NeedProc/100);
        if SummaAwa<0.009 then Exit;
        if NeedOkrugl>0.01 then

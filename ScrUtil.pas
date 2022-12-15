@@ -12926,12 +12926,14 @@ function getMORForPutInf:integer;
       curr_person := head_person;
       while (curr_person<>nil) do
        begin
-            if curr_person.WID_RABOTY=1 then
+            if IS_OSN_WID_RABOTY(curr_person) then
                begin
-                    if (curr_person^.main<>2) then
+                    if (curr_person^.main=2) then
+//                       addToList(Curr_Person^.from)
                        addToList(NSRV)
                     else
-                    addToList(Curr_Person^.mesto_osn_raboty);
+//                    addToList(Curr_Person^.mesto_osn_raboty);
+                    addToList(Curr_Person^.from);
                end
             else
                addToList(Curr_Person^.from);
