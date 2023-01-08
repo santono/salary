@@ -210,6 +210,37 @@ var I_A,I,JJ : Integer;
     Curr_Add : Add_Ptr;
     S        : string;
     a        : real;
+    summaKVyd:real;
+    procedure correctBan(summa:real;curr_person:person_ptr);
+      var curr_ud:ud_ptr;
+          finded:Boolean;
+      begin
+           if nmes<>12 then exit;
+           if currYear<>2022 then exit;
+           finded:=false;
+           curr_ud:=curr_person^.ud;
+           while (curr_ud<>nil) do
+             begin
+                  if curr_ud^.shifr=102 then
+            //      if curr_ud^.vyplacheno<>GET_OUT then
+                     begin
+                          finded:=True;
+                          Break;
+                     end;
+                  curr_ud:=curr_ud^.next;
+             end;
+           if finded then
+              begin
+                   if summa>0.005 then
+                      curr_ud^.summa:=R10(curr_ud^.summa+0.01)
+                   else
+                   if summa<-0.005 then
+                      curr_ud^.summa:=R10(curr_ud^.summa-0.01);
+
+
+              end;
+
+      end;
  begin
      I_A:=Count_Add(Curr_Person);
      if i_a<1 then i_a:=1;
@@ -253,7 +284,7 @@ var I_A,I,JJ : Integer;
      while Curr_Add<>Nil do
        begin
             inc(i);
-            a:=a+Curr_Add^.Summa;
+            a:=r10(r10(a)+r10(Curr_Add^.Summa));
             StringAdd.Cells[0,i]:=IntToStr(Curr_Add^.Shifr);
 //            StringAdd.Cells[1,i]:=ShifrList.GetName(Curr_Add^.Shifr);
             StringAdd.Cells[1,i]:=GetNameShifrAdd(Curr_Person,Curr_Add);
@@ -295,7 +326,10 @@ var I_A,I,JJ : Integer;
      StringGridAddTot.Cells[1,0]:='Итого начислено';
      StringGridAddTot.Cells[2,0]:=FloatToStrF(A,ffFixed,12,2);
      StringGridAddTot.Cells[1,1]:='К выдаче';
-     StringGridAddTot.Cells[2,1]:=FloatToStrF(A-u,ffFixed,12,2);
+     summakVyd:=r10(r10(A)-r10(u));
+//     if (abs(summaKVyd)>0.009) and (abs(summaKVyd)<0.015) then
+//        correctBan(summakVyd,curr_person);
+     StringGridAddTot.Cells[2,1]:=FloatToStrF(summakVyd,ffFixed,12,2);
 
 
  end;
@@ -337,7 +371,7 @@ begin
      while Curr_Ud<>Nil do
        begin
             Inc(I);
-            u:=u+Curr_Ud^.Summa;
+            u:=r10(r10(u)+r10(Curr_Ud^.Summa));
             StringUd.Cells[0,i]:=IntToStr(Curr_Ud^.Shifr);
             StringUd.Cells[1,i]:=ShifrList.GetName(Curr_Ud^.Shifr);
             StringUd.Cells[2,i]:=FloatToStrF(Curr_Ud^.Summa,ffFixed,12,2);

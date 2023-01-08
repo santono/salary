@@ -859,20 +859,20 @@ procedure TFormGen.Make_Cn_Back;
        da:=EncodeDate(ya,ma,1);
        SQLStmnt:='select first 1 month_vy,year_vy from fud where month_za='+IntToStr(NMES)+' and year_za='+IntToStr(CurrYear)+' and month_vy<>'+IntToStr(NMES)+' order by year_vy||''-''||month_vy||''-01''';
        v:=SQLQueryRecValues(SQLStmnt);
-       if not (VarIsNull(v) or varisEmpty(v)) then
-          begin
-               mu:=v[0];
-               if mu=0 then mu:=nmes;
-               yu:=v[1];
-               if yu<2000 then yu:=CURRYEAR;
-               du:=EncodeDate(yu,mu,1);
-               if du<da then
-                  begin
-                       ma:=mu;
-                       ya:=yu;
-                  end;
-          end
-       else
+//       if not (VarIsNull(v) or varisEmpty(v)  or varIsNull(v[1])) then
+//          begin
+//               mu:=v[0];
+//               if mu=0 then mu:=nmes;
+//               yu:=v[1];
+//               if yu<2000 then yu:=CURRYEAR;
+//               du:=EncodeDate(yu,mu,1);
+//               if du<da then
+//                  begin
+//                       ma:=mu;
+//                       ya:=yu;
+//                  end;
+//          end
+//       else
           begin
                ma:=nmes-1;
                ya:=CURRYEAR;

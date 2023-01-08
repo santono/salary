@@ -1183,7 +1183,7 @@ procedure FillDayCodesCol(Y:Integer;JIndex:integer);
       IF NOT FILEEXIST(B) THEN
          BEGIN
               KZ:=-1;
-              ShowMessage('Нет календаря коледжа для '+IntToStr(y)+' года.');
+              ShowMessage('Нет календаря коледжа '+b+' для '+IntToStr(y)+' года.');
               Exit;
          END;
       ASSIGNFILE(DEV,B);

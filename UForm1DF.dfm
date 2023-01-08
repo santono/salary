@@ -5638,4 +5638,247 @@ object Form1DF: TForm1DF
     Left = 392
     Top = 264
   end
+  object frxReportSummyLNR: TfrxReport
+    Version = '4.3'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 40366.476863391200000000
+    ReportOptions.LastChange = 40366.513058321760000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    OnGetValue = frxReportSummyGetValue
+    Left = 256
+    Top = 320
+    Datasets = <
+      item
+        DataSet = frxDBDsSummyLNR
+        DataSetName = 'frxDBDsSummyLNR'
+      end>
+    Variables = <
+      item
+        Name = ' h'
+        Value = Null
+      end
+      item
+        Name = 'd'
+        Value = ''
+      end>
+    Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      PaperWidth = 210.000000000000000000
+      PaperHeight = 297.000000000000000000
+      PaperSize = 9
+      LeftMargin = 10.000000000000000000
+      RightMargin = 10.000000000000000000
+      TopMargin = 10.000000000000000000
+      BottomMargin = 10.000000000000000000
+      object Header1: TfrxHeader
+        Height = 45.354360000000000000
+        Top = 18.897650000000000000
+        Width = 718.110700000000000000
+        object Memo1: TfrxMemoView
+          Left = 173.858380000000000000
+          Width = 306.141930000000000000
+          Height = 18.897650000000000000
+          AutoWidth = True
+          Memo.UTF8 = (
+            #1056#1038#1056#1030#1056#1109#1056#1169' '#1056#1111#1056#1109' '#1056#1105#1057#8218#1056#1109#1056#1110#1056#176#1056#1112' '#1057#1027#1056#1111#1057#1026#1056#176#1056#1030#1056#1108#1056#1105' 1'#1056#8221#1056#164' [d]')
+        end
+        object Memo6: TfrxMemoView
+          Top = 26.456710000000000000
+          Width = 113.385826770000000000
+          Height = 18.897650000000000000
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1113#1056#176#1057#8218#1056#181#1056#1110#1056#1109#1057#1026#1056#1105#1057#1039)
+        end
+        object Memo7: TfrxMemoView
+          Left = 113.385900000000000000
+          Top = 26.456710000000000000
+          Width = 75.590551181102360000
+          Height = 18.897650000000000000
+          Frame.Typ = [ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1113#1056#1109#1056#187'-'#1056#1030#1056#1109)
+        end
+        object Memo8: TfrxMemoView
+          Left = 188.976500000000000000
+          Top = 26.456710000000000000
+          Width = 113.385826771653500000
+          Height = 18.897650000000000000
+          Frame.Typ = [ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1038#1057#1107#1056#1112#1056#1112#1056#176' '#1056#1169#1056#1109#1057#8230#1056#1109#1056#1169#1056#176)
+        end
+        object Memo9: TfrxMemoView
+          Left = 302.362400000000000000
+          Top = 26.456710000000000000
+          Width = 113.385826771653500000
+          Height = 18.897650000000000000
+          Frame.Typ = [ftRight, ftTop, ftBottom]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            #1056#1038#1057#1107#1056#1112#1056#1112#1056#176' '#1056#1029#1056#176#1056#187#1056#1109#1056#1110#1056#176)
+        end
+      end
+      object MasterData1: TfrxMasterData
+        Height = 18.897650000000000000
+        Top = 86.929190000000000000
+        Width = 718.110700000000000000
+        DataSet = frxDBDsSummyLNR
+        DataSetName = 'frxDBDsSummyLNR'
+        RowCount = 0
+        object Memo2: TfrxMemoView
+          Width = 113.385826770000000000
+          Height = 18.897650000000000000
+          DataSet = frxDBDatasetSummy
+          DataSetName = 'frxDBDatasetSummy'
+          DisplayFormat.DecimalSeparator = ','
+          Frame.Typ = [ftLeft, ftRight, ftBottom]
+          Memo.UTF8 = (
+            '[frxDBDsSummyLNR."nameb"]')
+        end
+        object Memo3: TfrxMemoView
+          Left = 113.385826770000000000
+          Width = 75.590551180000000000
+          Height = 18.897650000000000000
+          DataSet = frxDBDatasetSummy
+          DataSetName = 'frxDBDatasetSummy'
+          DisplayFormat.DecimalSeparator = ','
+          Frame.Typ = [ftRight, ftBottom]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDsSummyLNR."nmbOfLIne"]')
+        end
+        object Memo4: TfrxMemoView
+          Left = 188.976377950000000000
+          Width = 113.385826770000000000
+          Height = 18.897650000000000000
+          DataSet = frxDBDatasetSummy
+          DataSetName = 'frxDBDatasetSummy'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%15.2f'
+          DisplayFormat.Kind = fkNumeric
+          Frame.Typ = [ftRight, ftBottom]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[frxDBDsSummyLNR."summaAdd"]')
+        end
+        object Memo5: TfrxMemoView
+          Left = 302.362204720000000000
+          Width = 113.385826770000000000
+          Height = 18.897650000000000000
+          DataSet = frxDBDatasetSummy
+          DataSetName = 'frxDBDatasetSummy'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%15.2f'
+          DisplayFormat.Kind = fkNumeric
+          Frame.Typ = [ftRight, ftBottom]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[frxDBDsSummyLNR."summaPod"]')
+        end
+      end
+    end
+  end
+  object cds1DFSummyLNR: TClientDataSet
+    Active = True
+    Aggregates = <>
+    FieldDefs = <
+      item
+        Name = 'nameb'
+        DataType = ftString
+        Size = 32
+      end
+      item
+        Name = 'nmbOfLIne'
+        DataType = ftInteger
+      end
+      item
+        Name = 'summaAdd'
+        DataType = ftFloat
+      end
+      item
+        Name = 'summaPod'
+        DataType = ftFloat
+      end>
+    IndexDefs = <>
+    Params = <>
+    StoreDefs = True
+    Left = 152
+    Top = 312
+    Data = {
+      680000009619E0BD0100000018000000040000000000030000006800056E616D
+      65620100490000000100055749445448020002002000096E6D624F664C496E65
+      04000100000000000873756D6D6141646408000400000000000873756D6D6150
+      6F6408000400000000000000}
+    object cds1DFSummyLNRnameb: TStringField
+      FieldName = 'nameb'
+      Size = 32
+    end
+    object cds1DFSummyLNRnmbOfLIne: TIntegerField
+      FieldName = 'nmbOfLIne'
+    end
+    object cds1DFSummyLNRsummaAdd: TFloatField
+      FieldName = 'summaAdd'
+    end
+    object cds1DFSummyLNRsummaPod: TFloatField
+      FieldName = 'summaPod'
+    end
+  end
+  object frxDBDsSummyLNR: TfrxDBDataset
+    UserName = 'frxDBDsSummyLNR'
+    CloseDataSource = False
+    DataSet = cds1DFSummyLNR
+    Left = 192
+    Top = 312
+  end
+  object dsSummyLNR: TpFIBDataSet
+    SelectSQL.Strings = (
+      'SELECT'
+      ' NAMEB,'
+      ' NMBOFLINE,'
+      ' SUMMAADD,'
+      ' SUMMAPOD'
+      'FROM'
+      ' PR_1DF_ITOGI_DET(:Y,'
+      ' :M,:shifrBAY) ')
+    Transaction = FIB.pFIBTransactionSAL
+    Database = FIB.pFIBDatabaseSal
+    Left = 104
+    Top = 304
+    object dsSummyLNRNAMEB: TFIBStringField
+      FieldName = 'NAMEB'
+      EmptyStrToNull = True
+    end
+    object dsSummyLNRNMBOFLINE: TFIBIntegerField
+      FieldName = 'NMBOFLINE'
+    end
+    object dsSummyLNRSUMMAADD: TFIBBCDField
+      FieldName = 'SUMMAADD'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsSummyLNRSUMMAPOD: TFIBBCDField
+      FieldName = 'SUMMAPOD'
+      Size = 2
+      RoundByScale = True
+    end
+  end
 end

@@ -106,6 +106,18 @@ type
     pFIBDataSet1DFSUMMAWS: TFIBBCDField;
     dxDBGrid1DFSummaWs: TdxDBGridColumn;
     iDFECB: TMenuItem;
+    frxReportSummyLNR: TfrxReport;
+    cds1DFSummyLNR: TClientDataSet;
+    frxDBDsSummyLNR: TfrxDBDataset;
+    dsSummyLNR: TpFIBDataSet;
+    dsSummyLNRNAMEB: TFIBStringField;
+    dsSummyLNRNMBOFLINE: TFIBIntegerField;
+    dsSummyLNRSUMMAADD: TFIBBCDField;
+    dsSummyLNRSUMMAPOD: TFIBBCDField;
+    cds1DFSummyLNRnameb: TStringField;
+    cds1DFSummyLNRnmbOfLIne: TIntegerField;
+    cds1DFSummyLNRsummaAdd: TFloatField;
+    cds1DFSummyLNRsummaPod: TFloatField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
@@ -865,15 +877,60 @@ begin
 end;
 
 procedure TForm1DF.N3Click(Sender: TObject);
-begin
-     pFIBDataSetSummy.Params[0].AsInteger:=y;
-     pFIBDataSetSummy.Params[1].AsInteger:=m;
-     pFibDataSetSummy.Transaction.StartTransaction;
-     pFibDataSetSummy.Open;
-     frxReportSummy.ShowReport();
-     pFibDataSetSummy.Close;
-     pFibDataSetSummy.Transaction.Commit;
+ procedure fillStep(iStep:Integer);
+  var s:string;
+  iTmp:Integer;
+  begin
+      dsSummyLNR.Params[0].AsInteger:=y;
+      dsSummyLNR.Params[1].AsInteger:=m;
+      dsSummyLNR.Params[2].AsInteger:=iStep;
+      dsSummyLNR.Transaction.StartTransaction;
+      dsSummyLNR.Open;
+      dsSummyLNR.First;
+      while not dsSummyLNR.Eof do
+        begin
+             if iStep=1 then
+                s:=' унив'
+             else
+             if iStep=17 then
+                s:=' Алч'
+             else
+                s:=' все';
+             cds1DFSummyLNR.Append;
+             cds1DFSummyLNRnameb.Value:=Trim(dsSummyLNRNAMEB.Value)+s;
+             cds1DFSummyLNRnmbOfLIne.Value:=dsSummyLNRnmbOfLine.Value;
+             cds1DFSummyLNRsummaAdd.Value:=dsSummyLNRsummaAdd.Value;
+             cds1DFSummyLNRsummaPod.Value:=dsSummyLNRsummaPod.Value;
+             cds1DFSummyLNR.Post;
+             iTmp:=cds1DFSummyLNR.RecordCount;
+             dsSummyLNR.Next;
+        end;
+      dsSummyLNR.Close;
+      dsSummyLNR.Transaction.Commit;
+  end;
 
+begin
+     if isSVDN then
+        begin
+             pFIBDataSetSummy.Params[0].AsInteger:=y;
+             pFIBDataSetSummy.Params[1].AsInteger:=m;
+             pFibDataSetSummy.Transaction.StartTransaction;
+             pFibDataSetSummy.Open;
+             frxReportSummy.ShowReport();
+             pFibDataSetSummy.Close;
+             pFibDataSetSummy.Transaction.Commit;
+        end
+     else
+        begin
+             cds1DFSummyLNR.Open;
+             fillStep(0);
+             fillStep(1);
+             fillStep(17);
+             frxReportSummyLNR.ShowReport();
+             cds1DFSummyLNR.EmptyDataSet;
+             cds1DFSummyLNR.Close;
+
+        end
 end;
 
 procedure TForm1DF.FillXMLDocumentJ0500105;

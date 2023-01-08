@@ -1118,7 +1118,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                              while Curr_ud<>Nil do
                                    begin
                                         if Curr_ud^.Shifr= MainScreen[j].Shifr then
-                                           a:=a+Curr_Ud^.Summa;
+                                           a:=R10(r10(a)+r10(Curr_Ud^.Summa));
                                         Curr_Ud:=Curr_Ud.Next;
                                    end;
                              MainScreen[j].Summa:=MainScreen[j].Summa+a;
@@ -1157,7 +1157,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                              a:=0;
                              while Curr_ud<>Nil do
                                    begin
-                                        a:=a+Curr_Ud^.Summa;
+                                        a:=R10(R10(a)+r10(Curr_Ud^.Summa));
                                         Curr_Ud:=Curr_Ud.Next;
                                    end;
                              MainScreen[j].Summa:=MainScreen[j].Summa+a;
@@ -1177,16 +1177,16 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                              a:=0;
                              while Curr_add<>Nil do
                                    begin
-                                        a:=a+Curr_Add^.Summa;
+                                        a:=R10(r10(a)+r10(Curr_Add^.Summa));
                                         Curr_Add:=Curr_Add.Next;
                                    end;
                              Curr_ud:=Curr_person^.ud;
                              while Curr_ud<>Nil do
                                    begin
-                                        a:=a-Curr_Ud^.Summa;
+                                        a:=r10(R10(a)-r10(Curr_Ud^.Summa));
                                         Curr_Ud:=Curr_Ud.Next;
                                    end;
-                             MainScreen[j].Summa:=MainScreen[j].Summa+a;
+                             MainScreen[j].Summa:=r10(R10(MainScreen[j].Summa)+r10(a));
                              StringGrid1.Cells[j+1,I+1]:='';
                              if abs(a)>0.001 then
                                 begin
