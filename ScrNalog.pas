@@ -310,7 +310,7 @@ FUNCTION PODOH_2004_2011(SS,ECB_NALOG,ECB_ILL_NALOG:REAL;W_NMES,W_YEAR:INTEGER;C
 
 if isLNR then
    begin
-          PODOH_2004_2011:=R10(ss*0.13);
+          PODOH_2004_2011:=R10_PODOH(ss*0.13);
           Exit;
    end;
 if (W_YEAR>2015) then    // c 2016 - ํๅ๒ ลัย
@@ -391,6 +391,8 @@ if (W_YEAR>2015) then    // c 2016 - ํๅ๒ ลัย
      IF SUMMA<0.001 THEN SUMMA:=0;
      A:=PODOH_2011(SummaFirst,SUMMA);
      if ZnakMode then a:=-a;
+     if isLNR then
+        a:=R10_PODOH(a);
      PODOH_2004_2011:=a;
 
  END;

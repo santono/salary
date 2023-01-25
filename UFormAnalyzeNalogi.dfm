@@ -24,7 +24,7 @@ object FormAnalyzeNalogi: TFormAnalyzeNalogi
     Top = 32
     Width = 671
     Height = 481
-    ActivePage = TabSheetMatHelp
+    ActivePage = TabSheetPodI
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object TabSheetPod: TTabSheet

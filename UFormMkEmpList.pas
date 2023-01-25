@@ -515,9 +515,9 @@ procedure TFormMkEmpList.SetBudgetForAll;
      RetVal :Integer;
      Curr_Person:PERSON_PTR;
 begin
-     if not ((NMES=10) and (CURRYEAR=2014)) then
+     if not ((NMES=1) and (CURRYEAR=2023)) then
         begin
-             ShowMessage('Можно запустить только в октябре 2014');
+             ShowMessage('Можно запустить только в январе 2023');
              Exit;
         end;
      if not YesNo('Сформировать бюджет всем ?') then Exit;

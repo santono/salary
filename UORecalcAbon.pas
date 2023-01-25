@@ -1482,7 +1482,7 @@ procedure CreateTestPerson(WantedY:Integer;WantedM:Integer;Curr_Person:Person_Pt
           ) then
          begin
               MAKE_UD(CURR_UD,CURR_PERSON);
-              CURR_UD^.SUMMA  := R10(SummaUdPod);
+              CURR_UD^.SUMMA  := R10_Podoh(SummaUdPod);
               CURR_UD^.PERIOD := WantedM;
               CURR_UD^.YEAR   := YY;
               CURR_UD^.SHIFR  := PODOH_SHIFR;

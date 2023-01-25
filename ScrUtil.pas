@@ -219,6 +219,7 @@ interface
    FUNCTION  SUM_VYPLACHENO_ADD(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER):REAL;
    FUNCTION  SUM_VYPLACHENO_ADD_ID(WANTED_SHIFR:INTEGER;CURR_PERSON:PERSON_PTR;START_MONTH:INTEGER;ID:WORD):REAL;
    FUNCTION  R10(SUMMA:REAL):REAL;
+   FUNCTION  R10_PODOH(SUMMA:REAL):REAL;
    FUNCTION  FORMAT_S(B:REAL;L:INTEGER):STRING;
    FUNCTION  FORMAT_SE(B:REAL;L:INTEGER):STRING;
    FUNCTION  FORMAT_K(A:REAL;L:INTEGER):STRING;
@@ -4351,6 +4352,23 @@ PROCEDURE SELECT(I:INTEGER);
                                  ELSE RetVal:=ROUND(SUMMA/1000)*1000;
 //     IF ABS(SUMMA)<100000000 THEN R10:=ROUND(SUMMA*100)/100
        R10:=RetVal;
+  END;
+
+ FUNCTION R10_PODOH(SUMMA:REAL):REAL;
+  VAR I,A:INTEGER;
+      I64:Int64;
+      RetVal        : real;
+      CurrSumma     : real;
+      Summa1,su     : Double;
+  BEGIN
+       if not isLNR then
+          begin
+               R10_PODOH:=r10(SUMMA);
+               Exit;
+          end;
+       currsumma:=r10(summa);
+       retval:=roundto(currsumma,0);
+       R10_Podoh:=RetVal;
   END;
 
  FUNCTION SUM(SUMMA:REAL):REAL;
@@ -12991,7 +13009,7 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
             curr_ud:=curr_ud^.NEXT;
        end;
       summaPodRas:=summaAdd*procPod;
-      if abs(summaPod-summaPodRas)>0.02 then
+      if abs(summaPod-summaPodRas)>0.51 then
          retVal:=false
       else
          retVal:=true;
