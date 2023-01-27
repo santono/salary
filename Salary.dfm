@@ -1124,6 +1124,9 @@ object MainForm: TMainForm
         Caption = #1054#1095#1080#1089#1090#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1099' '#1074' '#1088#1077#1077#1089#1090#1088#1077' WIndows'
         OnClick = WIndows1Click
       end
+      object SQL1: TMenuItem
+        Action = ActionExSQLScript
+      end
     end
     object N42: TMenuItem
       Caption = #1057#1087#1088#1072#1074#1082#1080
@@ -1805,6 +1808,10 @@ object MainForm: TMainForm
     object ActionRepPlanSowmVne: TAction
       Caption = #1057#1074#1086#1076' '#1087#1086' '#1074#1085#1077#1096#1085#1080#1084' '#1089#1086#1074#1084#1077#1089#1090#1080#1090#1077#1083#1103#1084
       OnExecute = ActionRepPlanSowmVneExecute
+    end
+    object ActionExSQLScript: TAction
+      Caption = #1042#1099#1087#1086#1083#1085#1080#1090#1100' SQL '#1089#1082#1088#1080#1087#1090
+      OnExecute = ActionExSQLScriptExecute
     end
   end
   object ImageList1: TImageList

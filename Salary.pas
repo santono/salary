@@ -458,6 +458,8 @@ type
     N193: TMenuItem;
     ActionRepPlanSowmVne: TAction;
     N194: TMenuItem;
+    ActionExSQLScript: TAction;
+    SQL1: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -749,6 +751,7 @@ type
     procedure ActionRepPlanSocExecute(Sender: TObject);
     procedure ActionPerformOkrExecute(Sender: TObject);
     procedure ActionRepPlanSowmVneExecute(Sender: TObject);
+    procedure ActionExSQLScriptExecute(Sender: TObject);
 
 
   private
@@ -847,7 +850,8 @@ implementation
   UFormMakeECBRec6ForAll, UFormRepPlanFondy, UFormRepPersonsByPodr,
   UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
-  UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne;
+  UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
+  UFormExeSQLScript;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1406,7 +1410,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
 }   
 {   FIB.StatusMessage:=StatusMessage;   }
 
-       {$IFDEF SVDN}
+       if isSVDN then
+        begin
           Nlnr1.Visible:=False;
           NLNR2.Visible:=false;
           Nlnr1.Enabled:=false;
@@ -1504,7 +1509,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NClearTmpTableSRD.visible:=False;
           NClearTmpTableSRD.enabled:=False;
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
-       {$ELSE}
+        end
+       else
+        begin  // LNR
 
           NLNR2.Visible:=true;
           Nlnr1.Visible:=true;
@@ -1632,6 +1639,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
                   ActionFormMonthGener.Enabled:=true;
                   NFormMonthGener.Visible := true;
                   NFormMonthGener.Enabled := true;
+                  SQL1.Visible:=True;
+                  SQL1.Enabled:=True;
+                  ActionExSQLScript.Enabled:=True;
              end
           else
              begin
@@ -1644,9 +1654,11 @@ procedure TMainForm.FormCreate(Sender: TObject);
                   ActionFormMonthGener.Enabled:=false;
                   NFormMonthGener.Visible := false;
                   NFormMonthGener.Enabled := false;
+                  SQL1.Visible:=True;
+                  SQL1.Enabled:=True;
+                  ActionExSQLScript.Enabled:=True;
              end
-
-       {$ENDIF}
+        end
 
 end;
 
@@ -5207,6 +5219,13 @@ procedure TMainForm.ActionRepPlanSowmVneExecute(Sender: TObject);
 begin
      FormRepPlanSowmVne:=TFormRepPlanSowmVne.myCreate(Self,1);
      FormRepPlanSowmVne.showModal;
+
+end;
+
+procedure TMainForm.ActionExSQLScriptExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormExeSQLScript,FormExeSQLScript);
+     FormExeSQLScript.showModal;
 
 end;
 
