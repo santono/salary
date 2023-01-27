@@ -29,11 +29,13 @@ implementation
 procedure TFormExeSQLScript.BitBtn1Click(Sender: TObject);
  const
        CRLF = #$D#$A;
+       separator = '=^=';
  var fName:string;
-     SQLStmnt:WideString;
+     SQLStmnt:AnsiString;
      s:string;
      dev:TextFile;
-
+     SQLStmnts:TArrOfAnsiString;
+     L,i:Integer;
 begin
       BitBtn1.Enabled:=False;
       fName:=CDIR+'script.sql';
@@ -51,13 +53,24 @@ begin
              SQLStmnt:=SQLStmnt+CRLF+S;
         end;
       CloseFile(dev);
-      try
-         SQLExecute(SQLStmnt);
-         ShowMessage('Скрипт выполнен успешно');
-      except
-           else
-            ShowMessage('Ошибка выполнения скрипта');
-      end;
+      SQLStmnts:=AnsiSplit(SQLStmnt,separator);
+      l:=Length(SQLStmnts);
+      if l>0 then
+         for i:=1 to l do
+           begin
+                try
+                   SQLStmnt:=SQLStmnts[i-1];
+                   SQLExecute(SQLStmnt);
+                   if i=l then
+                      ShowMessage('Скрипт выполнен успешно');
+                except
+                 else
+                    begin
+                        ShowMessage('Ошибка выполнения скрипта. Выполненно '+intToStr(i)+' предложений.');
+                        Break;
+                    end;
+                end;
+           end;
 //      BitBtn1.Enabled:=True;
       Self.Close;
 end;

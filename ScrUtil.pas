@@ -8,6 +8,7 @@ interface
    USES SCRDEF;
    type DWord = LongWord;
         TArrOfString = array of string;
+        TArrOfAnsiString = array of AnsiString;
 
    PROCEDURE MKFLNM;
    FUNCTION testFninf : boolean;
@@ -43,6 +44,7 @@ interface
    function GetMonthShortUkr(N:Integer):string;
    FUNCTION SHORT_FIO(FFIO:STRING):STRING;
    function Split(const StringParam: String; const DelimChar: String): TArrOfString;
+   function AnsiSplit(const StringParam: AnsiString; const DelimChar: String): TArrOfAnsiString;
    function SplitFIO(FIO:STRING;var FAM,NAM,OTC:string):boolean;
    FUNCTION GET_kat_name(n_kat:INTEGER):string;
    FUNCTION GET_kat_short_name(n_kat:INTEGER):string;
@@ -1528,7 +1530,7 @@ FUNCTION ALLTRIM(T:STRING):STRING;
        SHORT_FIO:=COPY(FLSTR+'                    ',1,20);
  END;
 function Split(const StringParam: String; const DelimChar: String): TArrOfString;
-  
+
 var
   sTMP  : string;
   sa      : TArrOfString;
@@ -1541,7 +1543,8 @@ begin
       i:=0;
       y:=Length(DelimChar);
 
-    while n>0 do begin
+    while n>0 do
+    begin
       i:=i+1;
       SetLength(sa,i);
       sa[i-1]:=Copy(sTMP,1,n);
@@ -1555,6 +1558,37 @@ begin
       SetLength(sa,i);
       sa[i-1]:=Copy(sTMP,1,n);
       Result:=sa;
+  finally
+      sTMP:='';
+      sa:=nil;
+  end;
+end;
+function AnsiSplit(const StringParam: AnsiString; const DelimChar: String): TArrOfAnsiString;
+
+var
+  sTMP  : AnsiString;
+  sa      : TArrOfAnsiString;
+  n,i,y   : Integer;
+
+begin
+  try
+      sTMP:=StringParam;
+      n:=Pos(DelimChar, sTMP)-1;
+      i:=0;
+      y:=Length(DelimChar);
+    while n>0 do
+       begin
+            inc(i);
+            SetLength(sa,i);
+            sa[i-1]:=Copy(sTMP,1,n);
+            Delete(sTMP,1,n+y);
+            n:=Pos(DelimChar, sTMP)-1;
+       end;
+    inc(i);
+    n:=Length(sTMP);
+    SetLength(sa,i);
+    sa[i-1]:=Copy(sTMP,1,n);
+    Result:=sa;
   finally
       sTMP:='';
       sa:=nil;
