@@ -12,6 +12,7 @@ object FormExeSQLScript: TFormExeSQLScript
   Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object BitBtn1: TBitBtn
@@ -23,5 +24,24 @@ object FormExeSQLScript: TFormExeSQLScript
     TabOrder = 0
     OnClick = BitBtn1Click
     Kind = bkOK
+  end
+  object ProgressBar1: TProgressBar
+    Left = 8
+    Top = 72
+    Width = 489
+    Height = 17
+    TabOrder = 1
+  end
+  object trExec: TpFIBTransaction
+    DefaultDatabase = FIB.pFIBDatabaseSal
+    TimeoutAction = TARollback
+    Left = 248
+    Top = 16
+  end
+  object qExec: TpFIBQuery
+    Transaction = trExec
+    Database = FIB.pFIBDatabaseSal
+    Left = 184
+    Top = 16
   end
 end
