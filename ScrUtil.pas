@@ -185,6 +185,10 @@ interface
    Function  IsColedgPodr(nserv:integer):boolean;
    Function  IsGKHPodr(nserv:integer):boolean;
    Function  IsIskraPodr(nserv:integer):boolean;
+   Function  IsAlchevskPodr(nserv:integer):boolean;
+   Function  IsSeverodonetskPodr(nserv:integer):boolean;
+   Function  IsSeverodonetskColedgPodr(nserv:integer):boolean;
+   Function  IsUniversitetPodr(nserv:integer):boolean;
    FUNCTION  IS_FOND5(CURR_PERSON:PERSON_PTR):BOOLEAN;
    PROCEDURE MAKE_FOND5(CURR_PERSON:PERSON_PTR);
    FUNCTION  IS_NOTFOND5(CURR_PERSON:PERSON_PTR):BOOLEAN;
@@ -4440,6 +4444,33 @@ Function IsIskraPodr(nserv:integer):boolean;
        or (Nomer_Serv(nserv)=180) then
           IsIskraPodr:=true;
   end;
+Function  IsAlchevskPodr(nserv:integer):boolean;
+  begin
+       IsAlchevskPodr:=false;
+       if (Nomer_Serv(nserv)>=199) and (Nomer_Serv(nserv)<=208) then IsAlchevskPodr:=true;
+  end;
+Function  IsSeverodonetskPodr(nserv:integer):boolean;
+  begin
+       IsSeverodonetskPodr:=false;
+       if (Nomer_Serv(nserv)>=213) and (Nomer_Serv(nserv)<=213) then IsSeverodonetskPodr:=true;
+  end;
+Function  IsSeverodonetskColedgPodr(nserv:integer):boolean;
+  begin
+       IsSeverodonetskColedgPodr:=false;
+       if (Nomer_Serv(nserv)>=214) and (Nomer_Serv(nserv)<=214) then IsSeverodonetskColedgPodr:=true;
+  end;
+Function  IsUniversitetPodr(nserv:integer):boolean;
+  begin
+       IsUniversitetPodr:=true;
+       if IsColedgPodr(nserv) then IsUniversitetPodr:=false
+       else
+       if IsAlchevskPodr(nserv) then IsUniversitetPodr:=false
+       else
+       if IsSeverodonetskPodr(nserv) then IsUniversitetPodr:=false
+       else
+       if IsSeverodonetskColedgPodr(nserv) then IsUniversitetPodr:=false;
+  end;
+
 
 FUNCTION IS_NOTFOND5(CURR_PERSON:PERSON_PTR):BOOLEAN;
    VAR

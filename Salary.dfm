@@ -715,6 +715,9 @@ object MainForm: TMainForm
         object NRepPersonsByPodr: TMenuItem
           Action = ActionRepPersonsByPodr
         end
+        object N195: TMenuItem
+          Action = ActionRepPodohDetailSwod
+        end
       end
     end
     object N14: TMenuItem
@@ -1812,6 +1815,10 @@ object MainForm: TMainForm
     object ActionExSQLScript: TAction
       Caption = #1042#1099#1087#1086#1083#1085#1080#1090#1100' SQL '#1089#1082#1088#1080#1087#1090
       OnExecute = ActionExSQLScriptExecute
+    end
+    object ActionRepPodohDetailSwod: TAction
+      Caption = #1044#1077#1090#1072#1083#1100#1085#1099#1081' '#1089#1074#1086#1076' '#1087#1086' '#1085#1072#1083#1086#1075#1091' '#1085#1072' '#1076#1086#1093#1086#1076#1099
+      OnExecute = ActionRepPodohDetailSwodExecute
     end
   end
   object ImageList1: TImageList

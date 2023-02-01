@@ -460,6 +460,8 @@ type
     N194: TMenuItem;
     ActionExSQLScript: TAction;
     SQL1: TMenuItem;
+    ActionRepPodohDetailSwod: TAction;
+    N195: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -752,6 +754,7 @@ type
     procedure ActionPerformOkrExecute(Sender: TObject);
     procedure ActionRepPlanSowmVneExecute(Sender: TObject);
     procedure ActionExSQLScriptExecute(Sender: TObject);
+    procedure ActionRepPodohDetailSwodExecute(Sender: TObject);
 
 
   private
@@ -851,7 +854,7 @@ implementation
   UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
   UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
-  UFormExeSQLScript;
+  UFormExeSQLScript, UFormRepPodohByPerson;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -5227,6 +5230,12 @@ begin
      Application.CreateForm(TFormExeSQLScript,FormExeSQLScript);
      FormExeSQLScript.showModal;
 
+end;
+
+procedure TMainForm.ActionRepPodohDetailSwodExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormRepPodohByPerson,FormRepPodohByPerson);
+     FormRepPodohByPerson.showModal;
 end;
 
 end.

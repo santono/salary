@@ -407,7 +407,8 @@ uses
   UFormMovePremFromCSV in 'UFormMovePremFromCSV.pas' {FormMovePremFromCSV},
   UFormMakeOkr in 'UFormMakeOkr.pas' {FormMakeOkr},
   UFormRepPlanSowmVne in 'UFormRepPlanSowmVne.pas' {FormRepPlanSowmVne},
-  UFormExeSQLScript in 'UFormExeSQLScript.pas' {FormExeSQLScript};
+  UFormExeSQLScript in 'UFormExeSQLScript.pas' {FormExeSQLScript},
+  UFormRepPodohByPerson in 'UFormRepPodohByPerson.pas' {FormRepPodohByPerson};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 
