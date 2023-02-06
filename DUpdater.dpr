@@ -9,7 +9,11 @@ uses
   ShellAPI,
   Windows,
   DateUtils,
-  types;
+  types,
+  Console in 'Console.pas';
+
+type
+ECopyException=class(Exception);
 
 var iniFileName:string;
     iniFile:TIniFile;
@@ -19,11 +23,10 @@ var iniFileName:string;
     srcDt,dstDt:TDateTime;
     sizeBefore:LongInt;
     sizeAfter:longInt;
+    nmbOfAtmp:Integer;
 
  function getFileSize(fName:string):longInt;
   var retVal:LongInt;
-      retValS:string;
-      Rec: LongRec;
       f: file of Byte;
   begin
        retVal:=0;
@@ -39,8 +42,47 @@ var iniFileName:string;
           end;
        getFileSize:=retVal;
   end;
+  function selfCopyFile(srcFName,dstFName:string):Boolean;
+   var retVal:Boolean;
+       i:integer;
+       sizeResult:LongInt;
+       sizeStart:longInt;
+   begin
+        sizeStart:=sizeBefore;
+        retval:=false;
+        i:=0;
+        while (i<nmbOfAtmp) do
+          begin
+               inc(i);
+               if not CopyFile(PChar(srcFName), PChar(dstFName), false) then
+                  Continue;
+               sizeResult:=getFileSize(dstFName);
+               if sizeResult=sizeStart then
+                  begin
+                       retVal:=true;
+                       Break;
+                  end;
+          end;
+        selfCopyFile:=retVal;
+   end;
+procedure pressAnyKey;
+  var h:cardinal;
+      c:TInputRecord;
+      i:DWord;
+ begin
+      h := GetStdHandle(STD_INPUT_HANDLE);
+      if h <> INVALID_HANDLE_VALUE then
+         begin
+//WriteDebugMsg("Press any key...");
+              Writeln('Press any key...');
+              SetConsoleMode( h, 0);
+              ReadConsole( h, @c, 1, i, nil);
+              CloseHandle(h);
+         end;
+ end;
 
 begin
+  nmbOfAtmp:=5;
   iniFileName:='DUpdater.ini';
   currDirName:=GetCurrentDir;
   iniFileName:=currDirName+'\'+iniFileName;
@@ -57,14 +99,41 @@ begin
   if FileExists(tmpName) then
      DeleteFile(PChar(tmpName));
   sizeBefore:=getFileSize(srcName);
+//  pressAnyKey;
+//  Console.WaitAnyKeyPressed('Press any key to continue ...');
+//  WriteLn;
+//  Writeln('Pressed');
   if FileExists(srcName) then
      begin
           srcDt:=FileDateToDateTime(FileAge(srcName));
           dstDt:=FileDateToDateTime(FileAge(dstName));
           if CompareDateTime(srcDt, dstDt)=GreaterThanValue then
+             try
+                 Writeln('copying new application');
+//                 if CopyFile(PChar(srcName), PChar(tmpName), false) then
+//                 raise ECopyException.Create('Testing ');
+                 if not selfCopyFile(srcName, tmpName) then
+                    raise ECopyException.Create('Error copying file from '+srcName+' to '+tmpName);
+                 if not MoveFile(PChar(dstName), PChar(bakName)) then
+                    raise ECopyException.Create('Error renaming file from '+dstName+' to '+bakName);
+                 if not MoveFile(PChar(tmpName), PChar(dstName)) then
+                    raise ECopyException.Create('Error renaming file from '+tmpName+' to '+dstName);
+                 if not DeleteFile(PChar(bakName)) then
+                    raise ECopyException.Create('Error when deleting file '+bakName);
+                 writeln('Program has been updates succesfully.');
+                 pressAnyKey;
+             except on e:ECopyException do
+                 begin
+                      Writeln(e.message);
+                      pressAnyKey;
+                 end
+             end;
+(*
+          if CompareDateTime(srcDt, dstDt)=GreaterThanValue then
              begin
                  Writeln('copying new application');
-                 if CopyFile(PChar(srcName), PChar(tmpName), false) then
+//                 if CopyFile(PChar(srcName), PChar(tmpName), false) then
+                 if selfCopyFile(srcName, tmpName) then
                     begin
                         sizeAfter:=getFileSize(tmpName);
                         if sizeBefore=sizeAfter then
@@ -88,7 +157,7 @@ begin
                     Writeln('Error copying file from '+srcName+' to '+tmpName);
 //                 CopyFile(PChar(srcName), PChar(dstName), false);
              end;
-
+*)
      end;
   if FileExists(dstName) then
      begin
