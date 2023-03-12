@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Buttons, FIBQuery, pFIBQuery, FIBDatabase,
-  pFIBDatabase, ComCtrls;
+  pFIBDatabase, ComCtrls, pFIBSQLLog;
 
 type
   TFormExeSQLScript = class(TForm)
@@ -13,6 +13,8 @@ type
     trExec: TpFIBTransaction;
     qExec: TpFIBQuery;
     ProgressBar1: TProgressBar;
+    Memo1: TMemo;
+    FIBSQLLogger1: TFIBSQLLogger;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -59,6 +61,10 @@ begin
               Exit;
          end;
       SQLStmnt:='';
+      Memo1.Lines.Clear;
+      Memo1.Lines.Add('Обработка файла script.com');
+      Application.ProcessMessages;
+
       AssignFile(dev,fname);
       Reset(dev);
       while not Eof(dev) do
@@ -78,6 +84,8 @@ begin
                  ProgressBar1.Max:=l;
                  ProgressBar1.Min:=0;
                end;
+//            qExec.Database.SQLLogger.ActiveLogging:=True;
+//            FIB.FIBSQLLoggerSal.ForceSaveLog:=TRUE;
             qExec.Transaction.StartTransaction;
             for i:=1 to l do
               begin
@@ -88,25 +96,53 @@ begin
                    end;
                 try
                    SQLStmnt:=SQLStmnts[i-1];
+                   SQLStmnt:=trim(SQLStmnt);
+                   if length(SQLStmnt)<5 then continue;
+//                   if Pos('COMMIT',UpperCase(SQLStmnt))>0 then Continue;
+                   if Pos('COMMIT',UpperCase(SQLStmnt))>0 then
+                      begin
+                           qExec.Transaction.Commit;
+                           qExec.Transaction.StartTransaction;
+                           Continue;
+                      end;
+                   Memo1.Lines.Clear;
+                   Memo1.Lines.Add(SQLStmnt);
+                   Application.ProcessMessages;
                    qExec.SQL.Add(SQLStmnt);
+                   qExec.Prepare;
                    qExec.ExecQuery;
                    qExec.SQL.Clear;
+//                   qExec.Transaction.CommitRetaining;
                    qExec.Close;
 //                   SQLExecute(SQLStmnt);
                    if i=l then
                       begin
-                           qExec.Transaction.Commit;
+                           if qExec.Transaction.Active then
+                              qExec.Transaction.Commit;
+//                           FIB.FIBSQLLoggerSal.SaveLog;
                            ShowMessage('Скрипт выполнен успешно');
                       end
                 except
                  else
                     begin
-                        qExec.Transaction.Rollback;
+                         if qExec.Transaction.Active then
+                            qExec.Transaction.Rollback;
+//                        FIB.FIBSQLLoggerSal.SaveLog;
+//                        FIB.FIBSQLLoggerSal.ForceSaveLog:=FALSE;
+//                        qExec.Database.SQLLogger.ActiveLogging:=False;
                         ShowMessage('Ошибка выполнения скрипта. Выполненно '+intToStr(i)+' предложений.');
                         Break;
                     end;
                 end;
               end;
+         end;
+      if qExec.Transaction.Active then
+         qExec.Transaction.Commit;
+      if qExec.Database.SQLLogger.ActiveLogging then
+         begin
+              FIB.FIBSQLLoggerSal.SaveLog;
+              FIB.FIBSQLLoggerSal.ForceSaveLog:=FALSE;
+              qExec.Database.SQLLogger.ActiveLogging:=False;
          end;
 //      BitBtn1.Enabled:=True;
       Self.Close;

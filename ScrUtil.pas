@@ -373,6 +373,7 @@ interface
    function DeCodeReasonILL(SrcCode:integer):integer;
    function CodeReasonILL(SrcCode:integer):integer;
    function IsLgotyPN2011(CURR_PERSON:PERSON_PTR):boolean;
+   function getLgotyPN2023(CURR_PERSON:PERSON_PTR):real;
    function IsSciPed(Curr_Person:Person_Ptr):boolean;
    function CalcECB(Curr_Person : Person_Ptr;
                     W_Place     : integer;
@@ -526,6 +527,7 @@ interface
 
   FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
   procedure MakeLgotyPNInCN(Curr_Person:Person_Ptr);
+  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real);
   function CanModify:Boolean;
   function SavePodr : boolean;
   function RestorePodr : boolean;
@@ -632,6 +634,7 @@ interface
   function getExeFileSizeNew:longint;
   function getApplicationVersion:String;
   function GetAppVersionStr: string;
+  function checkSNILS(SNILS:string):boolean;
 
 
 
@@ -5667,6 +5670,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 
  (*  Изменения от 16 04 2011
      добавить льготы ПН в F4 *)
+     if not isLNR then
         MakeLgotyPNInCN(NewPerson);
 
 
@@ -9068,6 +9072,34 @@ function IsLgotyPN2011(CURR_PERSON:PERSON_PTR):boolean;
 {$ENDIF}
       IsLgotyPN2011:=RetVal;
   end;
+function getLgotyPN2023(CURR_PERSON:PERSON_PTR):real;
+  var retVal:real;
+      curr_Cn:CN_PTR;
+  begin
+       retval:=0.00;
+       if isLnr then
+          begin
+               if (Curr_Person=nil) then
+                  begin
+                    getLgotyPN2023:=retval;
+                    Exit;
+                  end;
+               Curr_Cn:=Curr_Person^.Cn;
+               while (Curr_Cn<>Nil) do
+                  begin
+                      if Curr_Cn^.Shifr=Limit_Cn_Base+LgotyPn2011Shifr then
+                      if Curr_Cn^.Kod=100                              then
+                         begin
+                             RetVal:=curr_cn^.summa;
+                             Break;
+                            end;
+                      Curr_Cn:=Curr_Cn^.Next;
+                  end;
+          end;
+       getLgotyPN2023:=retVal;
+
+  end;
+
 
 function IsSciPed(Curr_Person:Person_Ptr):boolean;
  var RetVal:boolean;
@@ -10400,12 +10432,41 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
                      end;
              end
      end;
+  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real);
+     var  isel:integer;
+          Finded:boolean;
+          Curr_cn:CN_PTR;
 
-   function CanModify:Boolean;
-    begin
-         Result:=True;
-         if FLOW_MONTH<>NMES then Result:=False;
-    end;
+     begin
+          if Curr_Person.Wid_Raboty<>1 then Exit;
+          Finded:=false;
+          curr_cn:=Curr_Person^.CN;
+          while (curr_cn<>NIl) do
+            begin
+                if Curr_Cn^.SHIFR=LgotyPN2011Shifr+Limit_Cn_Base then
+                   begin
+                        Finded:=true;
+                        Curr_Cn^.SUMMA:=summavy;
+                        break;
+                   end;
+                Curr_CN:=Curr_CN^.Next;
+            end;
+          if not finded then
+            begin
+                Make_CN(Curr_Cn,Curr_Person);
+                Curr_Cn^.SHIFR:=LgotyPN2011Shifr;
+                Curr_Cn^.KOD:=100;
+                Curr_Cn^.SUMMA:=summavy;
+                Curr_Cn^.PRIM:=0;
+                Curr_Cn^.PRIM_1:='';
+            end;
+     end;
+
+function CanModify:Boolean;
+ begin
+      Result:=True;
+      if FLOW_MONTH<>NMES then Result:=False;
+ end;
 
 function ExistWantedUdShifrInPerson(WantedShifr:integer;
                                     Curr_Person:Person_Ptr;
@@ -13045,12 +13106,12 @@ function getMORForPutInf:integer;
       getIniFileName:=s3;
   end;
 function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
- const procPod=0.13;
- var curr_add:add_ptr;
+  var curr_add:add_ptr;
      curr_ud:ud_ptr;
      summaAdd:real;
      summaPod,summaPodRas:real;
      retVal:boolean;
+     summaVy:Real;
  begin
       if not isLNR then
          begin
@@ -13059,6 +13120,7 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
          end;
       summaPod:=0;
       summaAdd:=0;
+      summaVy:=getLgotyPN2023(curr_person);
       curr_add:=curr_person^.add;
       while (curr_add<>nil) do
        begin
@@ -13073,7 +13135,9 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
                summaPod:=summaPod+curr_ud^.SUMMA;
             curr_ud:=curr_ud^.NEXT;
        end;
-      summaPodRas:=summaAdd*procPod;
+      if summaAdd>summaVy then
+         summaAdd:=summaAdd-summaVy;
+      summaPodRas:=summaAdd*proc_nalog_LNR;
       if abs(summaPod-summaPodRas)>0.51 then
          retVal:=false
       else
@@ -13800,7 +13864,92 @@ begin
   end;
   getexeFileSizeNew:=iFileLength;
 end;
+function checkSNILS(SNILS:string):boolean;
+ var s:string;
+     i,l,k,  LastDigit, LastDigitCount : integer;
+     flag:boolean;
+     retval:boolean;
+     digitstring:string;
+     iVal,iErr:integer;
+     testedCheckSum:integer;
+     currdigit:integer;
+     currsum:integer;
+     checkSUM:Integer;
 
+ begin
+      retval:=true;
+      s:='068-619-801 04';
+      checkSNILS:=retval;
+      snils:=trim(snils);
+      l:=length(snils);
+      if l<11 then
+         begin
+              checkSNILS:=false;
+              exit;
+         end;
+      if l>14 then
+         begin
+              checkSNILS:=false;
+              exit;
+         end;
+      digitstring:='';
+      for i:=1 to l do
+          if snils[i] in ['0'..'9'] then
+             digitstring:=digitstring+snils[i];
+      l:=length(digitstring);
+      if l<>11 then
+         begin
+              checkSNILS:=false;
+              exit;
+         end;
+      s:=copy(digitstring,10,11);
+      val(s,iVal,iErr);
+      testedCheckSum:=iVal;
+      s:=Copy(digitstring,1,9);
+      val(s,iVal,iErr);
+      if iVal<1001998 then   // СнИЛС менее '001-001-998' не проверяется
+         begin
+              checkSNILS:=false;
+              exit;
+         end;
+      k:=9;
+      LastDigit:=-1;
+      LastDigitCount:=0;
+      currSum:=0;
+      flag:=true;
+      for i:=1 to 9 do
+          begin
+               currDigit:=ord(digitstring[i])-ord('0');
+               if lastDigit=currDigit then
+                  begin
+                       inc(LastDigitCount);
+                       if LastDigitCount>=3 then
+                          begin
+//                               flag:=false;
+//                               break;
+                          end;
+                  end
+               else
+                  begin
+                     lastDigit:=currDigit;
+                     LastDigitCount:=1;
+                  end;
+               currSum:=currSum+k*currDigit;
+               dec(k);
+          end;
+      if not flag then
+         begin
+              checkSNILS:=false;
+              exit;
+         end;
+      checkSUM:=currsum mod 101;
+      if checkSUM=100 then
+         checkSum:=0;
+      if checkSUM<>testedCheckSum then
+         retVal:=false;
+      checkSNILS:=retval;
+
+ end;
 
 end.
 

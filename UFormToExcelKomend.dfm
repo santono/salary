@@ -1,6 +1,6 @@
 object FormToExcelKomend: TFormToExcelKomend
-  Left = 246
-  Top = 176
+  Left = 273
+  Top = 73
   Width = 608
   Height = 512
   Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1085#1080#1077' '#1074#1099#1087#1083#1072#1090' '#1074' Excel '
@@ -242,6 +242,15 @@ object FormToExcelKomend: TFormToExcelKomend
     Height = 17
     Caption = #1046#1077#1083#1090#1080#1090#1100
     TabOrder = 21
+  end
+  object Button1: TButton
+    Left = 8
+    Top = 445
+    Width = 297
+    Height = 25
+    Caption = #1044#1086#1083#1075#1080' 2014-2015'
+    TabOrder = 22
+    OnClick = Button1Click
   end
   object pFIBQuery1: TpFIBQuery
     Transaction = pfbtrnsctnRead
@@ -7584,5 +7593,52 @@ object FormToExcelKomend: TFormToExcelKomend
         end
       end
     end
+  end
+  object dsDolgi: TpFIBDataSet
+    SelectSQL.Strings = (
+      'select tabno,ud summa from'
+      '('
+      'select tabno,case :m'
+      '               when 11 then u11'
+      '               when 12 then u12'
+      '               when 1  then u01'
+      '               when 2  then u02'
+      '               when 3  then u03'
+      '               else'
+      '                   u04'
+      '             end ud'
+      '  from tb_dolgi_vldtn'
+      '  where uk=:mo'
+      '     and uw=1'
+      ') i'
+      '  where ud>0.01'
+      ''
+      '/*'
+      'select tabno,summa from fud'
+      '     where year_vy=:y'
+      '       and month_vy=:m'
+      
+        '       and (select retval from pr_is_coledgpodr(fud.w_place))=:m' +
+        'o'
+      '       and shifrsta=102'
+      '*/ ')
+    Transaction = trDolgi
+    Database = FIB.pFIBDatabaseSal
+    Left = 336
+    Top = 392
+    object dsDolgiTABNO: TFIBIntegerField
+      FieldName = 'TABNO'
+    end
+    object dsDolgiSUMMA: TFIBBCDField
+      FieldName = 'SUMMA'
+      Size = 2
+      RoundByScale = True
+    end
+  end
+  object trDolgi: TpFIBTransaction
+    DefaultDatabase = FIB.pFIBDatabaseSal
+    TimeoutAction = TARollback
+    Left = 376
+    Top = 392
   end
 end

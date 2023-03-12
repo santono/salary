@@ -1,8 +1,8 @@
 object FIB: TFIB
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Left = 443
-  Top = 166
+  Left = 300
+  Top = 169
   Height = 490
   Width = 697
   object pFIBDatabaseSal: TpFIBDatabase

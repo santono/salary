@@ -188,7 +188,7 @@ begin
       end;
      if not  findedHeader  then
         begin
-             ShowMessage('Неверная структура файлф '+CDIR+'planZP.txt. Нет заголовка должности');
+             ShowMessage('Неверная структура файла '+CDIR+'planZP.txt. Нет заголовка должности');
              initDolgList:=false;
              exit;
         end;
@@ -271,7 +271,7 @@ begin
       end;
      if not  findedHeader  then
         begin
-             ShowMessage('Неверная структура файлф '+CDIR+'planZP.txt. Нет заголовка должности');
+             ShowMessage('Неверная структура файла '+CDIR+'kadryZP.txt. Нет заголовка должности');
              initDolgKadryList:=false;
              exit;
         end;
@@ -348,7 +348,7 @@ begin
       end;
      if not  findedHeader  then
         begin
-             ShowMessage('Неверная структура файлф '+CDIR+'planZP.txt. Нет заголовка подразделений');
+             ShowMessage('Неверная структура файла '+CDIR+'planZP.txt. Нет заголовка подразделений');
              initPodrList:=false;
              exit;
         end;

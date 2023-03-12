@@ -304,15 +304,20 @@ FUNCTION PODOH_2004_2011(SS,ECB_NALOG,ECB_ILL_NALOG:REAL;W_NMES,W_YEAR:INTEGER;C
      SummaFirst,S : real;
      ZnakMode:Boolean;
      isMotherSingle:Boolean;
+     summavy,summacalc:real;
  BEGIN
         if (W_YEAR>0) and (W_YEAR<50) then
          W_YEAR:=W_YEAR+1990;
 
-if isLNR then
-   begin
-          PODOH_2004_2011:=R10_PODOH(ss*0.13);
-          Exit;
-   end;
+        if isLNR then
+          begin
+             summavy:=getLgotyPN2023(curr_person);
+             summacalc:=Ss;
+             if (SS>summavy) then
+                summacalc:=ss-summavy;
+             PODOH_2004_2011:=R10_PODOH(summaCalc*proc_nalog_LNR);
+             Exit;
+          end;
 if (W_YEAR>2015) then    // c 2016 - ํๅ๒ ลัย
     begin
          ECB_NALOG:=0;

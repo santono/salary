@@ -63,6 +63,11 @@ type
     cxCalcEdit1: TcxCalcEdit;
     Label2: TLabel;
     cbVypl: TCheckBox;
+    dsDolgi: TpFIBDataSet;
+    trDolgi: TpFIBTransaction;
+    Button1: TButton;
+    dsDolgiTABNO: TFIBIntegerField;
+    dsDolgiSUMMA: TFIBBCDField;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -89,6 +94,7 @@ type
     procedure PrintDeponenty;
     procedure frxReportDotGetValue(const VarName: String;
       var Value: Variant);
+    procedure Button1Click(Sender: TObject);
 
   private
     koefVypl:Real;
@@ -144,7 +150,9 @@ implementation
                kind  : integer;
               end;
 
-
+   var dolgi1415Mode:boolean;
+       yDolg:Integer;
+       mDolg:Integer;
 
 
 {$R *.dfm}
@@ -281,6 +289,9 @@ end;
 procedure TFormToExcelKomend.FormCreate(Sender: TObject);
 var i:Integer;
 begin
+     yDolg:=2014;
+     mDolg:=10;
+     dolgi1415Mode:=false;
      rgMode.ItemIndex:=0;
      koefVypl:=1.00;
      dxCalcEdit1.Text:=Format('%6.2f' ,[KoefVypl]);
@@ -1004,6 +1015,7 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
      KoefVypl    : Real;
      KoefS       : string;
      modified    : boolean;
+     fio         : string;  
      procedure AddToList;
        var rec:pRec;
            i:Integer;
@@ -1215,6 +1227,58 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
             E.WorkBooks[1].WorkSheets[1].Cells[2,5]:=summaTot;
 
        end;  //-----------------------
+ procedure FillListFromSalDb;
+   var tabno:Integer;
+       summa:Real;
+       i:integer;
+     procedure AddToList(tabno:Integer;summa:real);
+       var rec:pRec;
+           i:Integer;
+           finded:Boolean;
+       begin
+           finded:=False;
+           if list.count>0 then
+              for i:=0 to list.Count-1 do
+                  if pRec(list.Items[i])^.tabno=TABNO then
+                     begin
+                          pRec(list.Items[i])^.summagrn:=R10(pRec(list.Items[i])^.summagrn+SUMMA);
+                          pRec(list.Items[i])^.summarub:=R10(pRec(list.Items[i])^.summarub+summa);
+                          finded:=True;
+                          Break;
+                     end;
+           if not finded then
+              begin
+                   New(Rec);
+                   Rec.tabno    := tabno;
+                   rec.summagrn := R10(SUMMA);
+                   rec.summarub := R10(SUMMA);
+                   list.add(Rec);
+              end;
+
+       end;
+
+  begin
+       trDolgi.StartTransaction;
+//       dsDolgi.Params[0].AsInteger:=yDolg;
+//       dsDolgi.Params[1].AsInteger:=mDolg;
+//       dsDolgi.Params[2].AsInteger:=uMode-1;
+       dsDolgi.Params[0].AsInteger:=mDolg;
+       dsDolgi.Params[1].AsInteger:=uMode;
+       dsDolgi.Open;
+       while not dsDolgi.Eof do
+         begin
+               tabno:=dsDolgiTabno.Value;
+               summa:=dsDolgiSUMMA.Value;
+               if tabno=11095 then
+                  i:=1;
+               AddToList(tabno,summa);
+               dsDolgi.Next;
+         end;
+       dsDolgi.Close;
+       trDolgi.Commit;
+
+  end;
+
 
  begin
 
@@ -1247,6 +1311,9 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
       ProgressBar1.Min:=0;
       ProgressBar1.Position:=0;
       list:=TList.Create;
+      if dolgi1415Mode then
+            FillListFromSalDb
+         else
       for i_nsrv:=1 to Count_Serv do
           begin
                ProgressBar1.Position:=i_nsrv;
@@ -1314,7 +1381,13 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
       if list.Count>0 then
          begin
               for i:=0 to list.Count-1 do
-                  prec(list.Items[i]).fio:=GetFullRusFioPerson(prec(list.Items[i]).tabno);
+                  begin
+                       fio:=GetFullRusFioPerson(prec(list.Items[i]).tabno);
+                       fio:=trim(fio);
+                       if Length(fio) =0 then
+                          fio:=GetFullUkrFioPerson(prec(list.Items[i]).tabno);
+                       prec(list.Items[i]).fio:=fio;
+                  end;
               list.Sort(@CompareFio);
               cdsRub.Open;
               cdsRub.EmptyDataSet;
@@ -1341,9 +1414,11 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
                  SummaTotRubKopS:='00';
 
               summaTotRubS:=NumeralToPhrase(summaTotRub,0,true);
-
               DateFr:=EncodeDate(CURRYEAR,NMES,1);
-              DateTo:=EncodeDate(CURRYEAR,NMES,DaysInMonth(DateFr));
+              if dolgi1415Mode then
+                 DateFr:=EncodeDate(YDolg,mDolg,1);
+              DateTo:=EncodeDate(YearOf(DateFr),monthOf(DateFr),DaysInMonth(DateFr));
+
               ds:=IntToStr(DayOf(DateFr));
               if DayOf(DateFr)<10 then
                  ds:='0'+ds;
@@ -1761,6 +1836,7 @@ procedure TFormToExcelKomend.BitBtn11Click(Sender: TObject);
 var shifrSta:Integer;
     i:Integer;
 begin
+     
      if GruppyList.CountSelected<1 then
         begin
              ShowMessage('Не указаны счета');
@@ -1822,5 +1898,44 @@ begin
 end;
 
 
+
+procedure TFormToExcelKomend.Button1Click(Sender: TObject);
+ var s,s1:string;
+     iValM,iValY,iErr,iPos,l:Integer;
+     mode_u_k:Integer;
+begin
+     s:=InputBox('Месяц и год долга','Год и месяц в формате мм гг','11 14');
+     s:=Trim(s);
+     l:=Length(s);
+     if not (l in [4,5]) then Exit;
+     iPos := Pos(' ',s);
+     if (iPos<2) or (iPos>3) then Exit;
+     s1:=Copy(s,1,iPos-1);
+     s1:=trim(s1);
+     Val(s1,iValM,iErr);
+     if iErr<>0 then Exit;
+     s1:=Copy(s,iPos+1,99);
+     s1:=trim(s1);
+     Val(s1,iValY,iErr);
+     if iErr<>0 then Exit;
+     if ((iValY<14) or (iValY>15)) then Exit;
+     if iValY=14 then
+        if ((iValM<11) or (iValM>12)) then Exit;
+     if iValY=15 then
+        if ((iValM<0) or (iValM>4)) then Exit;
+     yDolg:=iValY+2000;
+     mDolg:=iValM;
+     s:=InputBox('Укажите колледж или университет','Университет - 1; Колледж - 2','1');
+     s:=Trim(s);
+     l:=Length(s);
+     if l<>1 then Exit;
+     Val(s,mode_U_K,iErr);
+     if iErr<>0 then Exit;
+     if ((mode_u_k<1) or (mode_u_k>2)) then Exit;
+     dolgi1415Mode:=True;
+     MakeCurrentPlat(mode_U_K,shifrSta,0);
+     dolgi1415Mode:=False;
+
+end;
 
 end.

@@ -408,7 +408,8 @@ uses
   UFormMakeOkr in 'UFormMakeOkr.pas' {FormMakeOkr},
   UFormRepPlanSowmVne in 'UFormRepPlanSowmVne.pas' {FormRepPlanSowmVne},
   UFormExeSQLScript in 'UFormExeSQLScript.pas' {FormExeSQLScript},
-  UFormRepPodohByPerson in 'UFormRepPodohByPerson.pas' {FormRepPodohByPerson};
+  UFormRepPodohByPerson in 'UFormRepPodohByPerson.pas' {FormRepPodohByPerson},
+  UFormPersonLgo in 'UFormPersonLgo.pas' {FormPersonLgo};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

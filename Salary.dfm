@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 146
-  Top = 211
+  Left = 145
+  Top = 107
   Width = 854
   Height = 493
   HorzScrollBar.Visible = False
@@ -255,6 +255,12 @@ object MainForm: TMainForm
       Top = 2
       Action = ActionOtpBSAboList
       Caption = #1054#1073#1086
+    end
+    object ToolButton23: TToolButton
+      Left = 780
+      Top = 2
+      Action = ActionEditPersonLgoty
+      Caption = #1051#1100#1075
     end
   end
   object StatusBar1: TStatusBar
@@ -1819,6 +1825,10 @@ object MainForm: TMainForm
     object ActionRepPodohDetailSwod: TAction
       Caption = #1044#1077#1090#1072#1083#1100#1085#1099#1081' '#1089#1074#1086#1076' '#1087#1086' '#1085#1072#1083#1086#1075#1091' '#1085#1072' '#1076#1086#1093#1086#1076#1099
       OnExecute = ActionRepPodohDetailSwodExecute
+    end
+    object ActionEditPersonLgoty: TAction
+      Caption = #1051#1100#1075#1086#1090#1072' '#1089#1086#1090#1088#1091#1076#1085#1080#1082#1072
+      OnExecute = ActionEditPersonLgotyExecute
     end
   end
   object ImageList1: TImageList

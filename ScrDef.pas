@@ -663,6 +663,7 @@ var
                   end;
 
     personList:TList;
+    proc_nalog_LNR:Double;
 {$IFDEF SVDN}
 const LenBlSta=38;
 {$ELSE}
@@ -791,7 +792,8 @@ begin
     needServerAppData:=False;
     needUseIOSemaphore:=false;
     DDIR:='';
-    instantExeFileSize:=11008512;
+    proc_nalog_LNR := 0.13;
+    instantExeFileSize:=11024384;
 
 {$IFDEF SVDN}
     isSVDN := True  ;

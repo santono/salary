@@ -32,6 +32,15 @@ object FormExeSQLScript: TFormExeSQLScript
     Height = 17
     TabOrder = 1
   end
+  object Memo1: TMemo
+    Left = 8
+    Top = 96
+    Width = 489
+    Height = 145
+    Lines.Strings = (
+      'Memo1')
+    TabOrder = 2
+  end
   object trExec: TpFIBTransaction
     DefaultDatabase = FIB.pFIBDatabaseSal
     TimeoutAction = TARollback
@@ -42,6 +51,12 @@ object FormExeSQLScript: TFormExeSQLScript
     Transaction = trExec
     Database = FIB.pFIBDatabaseSal
     Left = 184
+    Top = 16
+  end
+  object FIBSQLLogger1: TFIBSQLLogger
+    LogFileName = 'FIBLog.log'
+    ForceSaveLog = False
+    Left = 296
     Top = 16
   end
 end

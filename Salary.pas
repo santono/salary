@@ -462,6 +462,8 @@ type
     SQL1: TMenuItem;
     ActionRepPodohDetailSwod: TAction;
     N195: TMenuItem;
+    ActionEditPersonLgoty: TAction;
+    ToolButton23: TToolButton;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -755,6 +757,7 @@ type
     procedure ActionRepPlanSowmVneExecute(Sender: TObject);
     procedure ActionExSQLScriptExecute(Sender: TObject);
     procedure ActionRepPodohDetailSwodExecute(Sender: TObject);
+    procedure ActionEditPersonLgotyExecute(Sender: TObject);
 
 
   private
@@ -854,7 +857,7 @@ implementation
   UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
   UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
-  UFormExeSQLScript, UFormRepPodohByPerson;
+  UFormExeSQLScript, UFormRepPodohByPerson, UFormPersonLgo;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1142,6 +1145,8 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                              if isLNR then
                              if MainScreen[j].Shifr=podoh_shifr then
                                 begin
+                                     if curr_person^.tabno=10144 then
+                                        fio:=curr_person^.fio;
                                      if not isCorrectLNRPodoh13Person(curr_person) then
                                         begin
                                             fio:=curr_person^.fio;
@@ -1154,7 +1159,25 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                                            (StringGrid1.Objects[j+1,i+1] as TStrColor).Color         := clWhite;
                                            (StringGrid1.Objects[j+1,i+1] as TStrColor).BackColor     := clRed;
                                            (StringGrid1.Objects[j+1,i+1] as TStrColor).SelectedColor := clYellow;
-                                        end;
+                                           if getLgotyPN2023(curr_person)>1.0 then
+                                             (StringGrid1.Objects[j+1,i+1] as TStrColor).BackColor     := clPurple;
+
+                                        end
+                                     else
+                                       if getLgotyPN2023(curr_person)>1.0 then
+                                          begin
+                                            if Assigned(StringGrid1.Objects[j+1,i+1]) then
+                                               begin
+                                                    StringGrid1.Objects[j+1,i+1].Free;
+                                                    StringGrid1.Objects[j+1,i+1]:=Nil;
+                                               end;
+                                            StringGrid1.Objects[j+1,i+1]:=TStrColor.Create;
+                                           (StringGrid1.Objects[j+1,i+1] as TStrColor).Color         := clBlack;
+                                           (StringGrid1.Objects[j+1,i+1] as TStrColor).BackColor     := clLime;
+                                           (StringGrid1.Objects[j+1,i+1] as TStrColor).SelectedColor := clYellow;
+                                          end;
+
+
                                 end;
 
                         end;
@@ -5236,6 +5259,45 @@ procedure TMainForm.ActionRepPodohDetailSwodExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormRepPodohByPerson,FormRepPodohByPerson);
      FormRepPodohByPerson.showModal;
+end;
+
+procedure TMainForm.ActionEditPersonLgotyExecute(Sender: TObject);
+var curr_person:PERSON_PTR;
+    j,i,tabno:Integer;
+begin
+    J:=Count_Person;
+    curr_Person:=nil;
+    if StringGrid1.Row<=j+1 then
+       begin
+            i:=0;
+            Curr_Person:=Head_Person;
+            while (Curr_Person<>Nil) do
+              begin
+                   inc(i);
+                   if (i=StringGrid1.Row-1) then
+                       Break;
+                   Curr_Person:=Curr_Person^.NEXT;
+              end;
+       end;
+    if Curr_Person=nil then Exit;
+    if curr_Person^.tabno<1 then Exit;
+    if curr_person^.AUTOMATIC<>automatic_mode then Exit;
+    if NMES<>FLOW_MONTH then Exit;
+    if WORK_YEAR_VAL<>CURRYEAR then Exit;
+    if not (curr_person^.WID_RABOTY=OSN_WID_RABOTY) then
+       begin
+            ShowMessage('Ћьготу можно ввести только по основному месту работы');
+            Exit;
+       end;
+
+    tabno:=curr_person^.tabno;
+    try
+       FormPersonLgo:=TFormPersonLgo.myCreate(nil,curr_person);
+       FormPersonLgo.showModal;
+    except
+      else
+    end;
+
 end;
 
 end.
