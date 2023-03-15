@@ -86,6 +86,7 @@ implementation
                        m:Integer;
                        PersonList:TList;
                        PersonRec:PERSON;
+                       Saved_Curr_Person:PERSON_PTR;
                        ModeCalcOnlyThisLinePerson:boolean;
                        GUIDS:string;
                        RecPod  : TRecNal;
@@ -113,6 +114,7 @@ implementation
                        procedure GetSummyForECBTot;
                        procedure CalculateNalogi;
                        function GetOsnPerson:PERSON_PTR;
+                       function getSavedCurr_person:PERSON_PTR;
                       end;
 procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
  begin
@@ -560,6 +562,7 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
            inherited Create;
            y:=newY;
            m:=newM;
+           Self.Saved_curr_person:=curr_person;
            if not GetGUIDPerson(Curr_Person,GUIDS) then
               GUIDS:='';
            Self.ModeCalcOnlyThisLinePerson:=true;
@@ -1288,6 +1291,8 @@ procedure TPersonO.CalculateNalogi;
 
       { Налог с дохода }
       CurrPerson:=Self.GetOsnPerson;
+//      if isLNR and (FLOW_MONTH=Self.m) and (WORK_YEAR_VAL=Self.y) then
+//         currPerson:=Self.getSavedCurr_person;
       Self.RecPod.SummaUdNalRas:=PODOH_2004_2011(Self.RecPod.SummaAddForNalTot,SummaECB,0,Self.M,Self.Y,CurrPerson);
 
       Self.RecPod.SummaUdNalRazn:=r10(Self.RecPod.SummaUdNalRas-Self.RecPod.SummaUdNalTot);
@@ -1310,6 +1315,8 @@ procedure TPersonO.CalculateNalogi;
 
              { Налог с дохода }
               CurrPerson:=Self.GetOsnPerson;
+              if isLNR and (FLOW_MONTH=Self.m) and (WORK_YEAR_VAL=Self.y) then
+                 currPerson:=Self.getSavedCurr_person;
               Self.RecPodSelf.SummaUdNalRas:=PODOH_2004_2011(Self.RecPodSelf.SummaAddForNalTot,SummaECB,0,Self.M,Self.Y,CurrPerson);
 //              if NSRV=102 then  { Для 102-го взять процент 28 11 2011 }
 //                 Self.RecPodSelf.SummaUdNalRas:=R10((Self.RecPodSelf.SummaAddForNalTot-SummaECB)*0.15);
@@ -1358,6 +1365,11 @@ function TPersonO.GetOsnPerson:PERSON_PTR;
                  Exit;
             end;
   end;
+function TPersonO.getSavedCurr_person:PERSON_PTR;
+  begin
+       getSavedCurr_person:=Self.Saved_Curr_Person;
+  end;
+
 
 function Need102(Curr_Person:Person_Ptr):Boolean;
   var SummaAdd : Real;

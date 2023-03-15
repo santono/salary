@@ -409,7 +409,9 @@ uses
   UFormRepPlanSowmVne in 'UFormRepPlanSowmVne.pas' {FormRepPlanSowmVne},
   UFormExeSQLScript in 'UFormExeSQLScript.pas' {FormExeSQLScript},
   UFormRepPodohByPerson in 'UFormRepPodohByPerson.pas' {FormRepPodohByPerson},
-  UFormPersonLgo in 'UFormPersonLgo.pas' {FormPersonLgo};
+  UFormPersonLgo in 'UFormPersonLgo.pas' {FormPersonLgo},
+  UFormEditLgotniki in 'UFormEditLgotniki.pas' {FormEditLgotniki},
+  UFormUpdateLgotnik in 'UFormUpdateLgotnik.pas' {FormUpdateLgotnik};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -735,6 +735,7 @@ procedure TFormAnalyzeNalogi.CalcPodoh;
  //    IsLgotaPN,KD:Integer;
      s : string;
      Podoh_Person:PERSON_PTR;
+(*
   procedure SetPersonForPodoh;
    var SQLStmnt : string;
        finded  : Integer;
@@ -846,11 +847,12 @@ procedure TFormAnalyzeNalogi.CalcPodoh;
 
               end;
     end;
-
+*)
  begin
       CalculatePodoh;
       showItogi;
       Exit;
+(*
       SummaAdd           := 0;
       SummaUd            := 0;
       SummaAddECBN       := 0;
@@ -1012,7 +1014,7 @@ procedure TFormAnalyzeNalogi.CalcPodoh;
             lblLgDop.Caption:='Дополнительные льготы - льгота на '+IntToStr(kd)+' детей.'
          else
             lblLgDop.Caption:='Дополнительные льготы - нет';
-
+*)
 
  end;
 //------------------------------
@@ -1020,19 +1022,26 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
  var
      CurrPerson:PERSON_PTR;
      s : string;
-     Podoh_Person:PERSON_PTR;
+     Podoh_Person : PERSON_PTR;
+     summavy  : Real;
   procedure SetPersonForPodoh;
-   var SQLStmnt : string;
-       finded  : Integer;
-       lgotypn : real;
-       islgoty : Integer;
-       kwod    : Integer;
-       Curr_Cn : CN_PTR;
+   var SQLStmnt : string  ;
+       finded   : Integer ;
+       lgotypn  : real    ;
+       islgoty  : Integer ;
+       kwod     : Integer ;
+       Curr_Cn  : CN_PTR  ;
+       v        : Variant ;
    begin
-        if ((CURRYEAR=YearVy) and (MonthVy=FLOW_MONTH)) then
+        if (
+            (CURRYEAR=YearVy) and
+            (MonthVy=FLOW_MONTH) and
+            (Wanted_Person^.WID_RABOTY=OSN_wid_raboty)
+           ) then
        //    (CURRYEAR<YearVy)or
        //    ((CURRYEAR=YearVy) and (MonthVy>FLOW_MONTH)) then
            begin
+                summavy:=getLgotyPN2023(Wanted_Person);
                 Podoh_Person:=Wanted_Person;
                 Exit;
            end;
@@ -1048,26 +1057,64 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
         lgotypn := 0;
         islgoty := 0;
         kwod    := 0;
-        if FIB.pFIBQuery.Open then
-           FIB.pFIBQuery.Close;
-        if FIB.pFIBQuery.Transaction.Active then
-           FIB.pFIBQuery.Transaction.Commit;
-        FIB.pFIBQuery.SQL.Clear;
-        SQLStmnt := ' select first 1 LGOTYPN,ISLGOTY,KWOD,FINDED from PR_GETLGCNPN2011('+IntToStr(Self.Tabno)+','+IntToStr(YearVy)+','+IntToStr(MonthVy)+')';
-        FIB.pFIBQuery.SQL.Add(SQLStmnt);
-        FIB.pFIBQuery.Transaction.StartTransaction;
-        FIB.pFIBQuery.ExecQuery;
-        lgotypn := FIB.pFIBQuery.Fields[0].AsFloat;
-        islgoty := FIB.pFIBQuery.Fields[1].AsInteger;
-        kwod    := FIB.pFIBQuery.Fields[2].AsInteger;;
-        finded  := FIB.pFIBQuery.Fields[3].AsInteger;;
+        summavy := 0.00; //Сумма вычетов
+        if isLNR then
+           SQLStmnt := ' select first 1 summavy from PR_GETLGCNPN2023('+IntToStr(Self.Tabno)+','+IntToStr(YearVy)+','+IntToStr(MonthVy)+')'
+        else
+           SQLStmnt := ' select first 1 LGOTYPN,ISLGOTY,KWOD,FINDED from PR_GETLGCNPN2011('+IntToStr(Self.Tabno)+','+IntToStr(YearVy)+','+IntToStr(MonthVy)+')';
+//        if FIB.pFIBQuery.Open then
+//           FIB.pFIBQuery.Close;
+//        if FIB.pFIBQuery.Transaction.Active then
+//           FIB.pFIBQuery.Transaction.Commit;
+//        FIB.pFIBQuery.SQL.Clear;
+//        FIB.pFIBQuery.SQL.Add(SQLStmnt);
+//        FIB.pFIBQuery.Transaction.StartTransaction;
+//        FIB.pFIBQuery.ExecQuery;
+//        lgotypn := FIB.pFIBQuery.Fields[0].AsFloat;
+//        islgoty := FIB.pFIBQuery.Fields[1].AsInteger;
+//        kwod    := FIB.pFIBQuery.Fields[2].AsInteger;
+//        finded  := FIB.pFIBQuery.Fields[3].AsInteger;
+
+        v := SQLQueryRecValues(SQLStmnt);
+        if isLNR then
+           begin
+                if (not VarIsNull(v)) and
+                   (not VarIsNull(v[0]))then
+                summavy:=v[0];
+                if (WORK_YEAR_VAL=curryear) and
+                   (NMES=FLOW_MONTH) then
+                if Wanted_Person^.WID_RABOTY=SOWM_WID_RABOTY then
+                   begin
+                        SQLStmnt:='SELECT FIRST 1 summaVy from tb_lgotniki where tabno='+intToStr(wanted_person^.tabno)+' and coalesce(enabled,0)>0';
+                        v:=SQLQueryValue(SQLStmnt);
+                        if not VarIsNull(v) then
+                        if VarIsFloat(v) then
+                           summavy:=v;
+                   end;
+
+           end
+        else
+           begin
+             lgotypn := v[0];
+             islgoty := v[1];
+             kwod    := v[2];
+             finded  := v[3];
+           end;
+
+        if (summavy>1.00) then
+           begin
+                MAKE_CN(Curr_Cn,Podoh_Person);
+                Curr_Cn^.SUMMA := summavy;
+                Curr_Cn^.Shifr := LgotyPN2011Shifr+Limit_Cn_Base;
+                Curr_Cn^.KOD   := 100;
+           end;
         if finded=1 then
            begin
                 if Abs(Lgotypn)>0.005 then
                    begin
                         MAKE_CN(Curr_Cn,Podoh_Person);
                         Curr_Cn^.SUMMA := lgotypn;
-                        Curr_Cn^.Shifr := LgotyPN2004Shifr+Limit_Cn_Base;
+                        Curr_Cn^.Shifr := LgotyPN2011Shifr+Limit_Cn_Base;
                         Curr_Cn^.KOD   := 100;
                    end;
                 if IsLgoty=1 then
@@ -1076,16 +1123,16 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
                         Curr_Cn^.Shifr := LgotyPN2011Shifr+Limit_Cn_Base;
                         Curr_Cn^.KOD   := 100;
                    end;
-                if kwod>0 then
-                   begin
-                        MAKE_CN(Curr_Cn,Podoh_Person);
-                        Curr_Cn^.Prim  := Kwod;
-                        Curr_Cn^.Shifr := KwoDetejOdMateriShifr+Limit_Cn_Base;
-                        Curr_Cn^.KOD   := 100;
-                   end;
+//                if kwod>0 then
+//                   begin
+//                        MAKE_CN(Curr_Cn,Podoh_Person);
+//                        Curr_Cn^.Prim  := Kwod;
+//                        Curr_Cn^.Shifr := KwoDetejOdMateriShifr+Limit_Cn_Base;
+//                        Curr_Cn^.KOD   := 100;
+//                   end;
            end;
-        FIB.pFIBQuery.Close;
-        FIB.pFIBQuery.Transaction.Commit;
+//        FIB.pFIBQuery.Close;
+//        FIB.pFIBQuery.Transaction.Commit;
    end;
   procedure SetUpMaxECBs;
    var LimitForECB:Real;
@@ -1122,15 +1169,14 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
                    SummaMaxECBDP  := SummaAddECBDP;
                    SummaMaxECBIll := LimitForECB-(SummaAddECBN+SummaAddECB+SummaAddECBDP);
               end
-        else
+           else
               begin
                    SummaMaxECBN   := SummaAddECBN;
                    SummaMaxECB    := SummaAddECB;
                    SummaMaxECBDP  := SummaAddECBDP;
                    SummaMaxECBIll := SummaAddECBIll;
-
               end;
-    end;
+   end;
 
  begin
       SummaAdd           := 0;
@@ -1264,8 +1310,8 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
       SummaPodRas:=PODOH_2004_2011(SummaAdd,SummaECB,0,MonthVy,YearVy,Podoh_PERSON);
 
 //FUNCTION PODOH_2004_2011(S,ECB_NALOG,ECB_ILL_NALOG:REAL;W_NMES,W_YEAR:INTEGER;CURR_PERSON:PERSON_PTR):REAL;
-      SummaPodRazn:=SummaPodRas-SummaUd;
-      P:=GetLgotyPN2004(Podoh_Person);
+      SummaPodRazn := SummaPodRas - SummaUd;
+      P := GetLgotyPN2004(Podoh_Person);
       if p>0.005 then IsLgotaPN:=1;
       if IsLgotaPN=0 then
          if IsLgotyPN2011(Podoh_Person) then
@@ -1283,6 +1329,15 @@ procedure TFormAnalyzeNalogi.CalculatePodoh;
               while Assigned(Podoh_Person^.Cn) do DEL_CN(Podoh_Person^.Cn,Podoh_Person);
               Dispose(Podoh_Person);
          end;
+
+     if isLNR then
+        begin
+            if summaVy>1.00 then
+               lblLgSobstw.Caption:='Налоговые вычеты - '+FormatFloatPoint(SummaVy)+' руб.'
+            else
+               lblLgSobstw.Caption:='Налоговые вычеты - 0.00 руб.';
+            Application.ProcessMessages;   
+        end;
 {
       lbSummaAddPod.Caption   := Trim(Format('%15.2f',[SummaAdd]));
       lblSummaPodFakt.Caption := Trim(Format('%15.2f',[SummaUd]));
@@ -1360,22 +1415,24 @@ procedure TFormAnalyzeNalogi.showItogi;
       lblSummaPodFakt.Caption := Trim(Format('%15.2f',[SummaUd]));
       lblSummaPodRas.Caption  := Trim(Format('%15.2f',[SummaPodRas]));
       lblSummaPodRazn.Caption := Trim(Format('%15.2f',[SummaPodRazn]));
-      if (IsLgotaPN=0 )then
-         lblLgSobstw.Caption:='Собственная льгота - нет'
-      else
-         lblLgSobstw.Caption:='Собственная льгота - есть';
-      if (p>0.005) then
-         if (kd>0) then
-            lblLgDop.Caption:='Дополнительные льготы - '+trim(Format('%7.2f',[p]))+' + льгота на '+IntToStr(kd)+' детей.'
-         else
-            lblLgDop.Caption:='Дополнительные льготы - '+trim(Format('%7.2f',[p]))
-      else
-         if (kd>0) then
-            lblLgDop.Caption:='Дополнительные льготы - льгота на '+IntToStr(kd)+' детей.'
-         else
-            lblLgDop.Caption:='Дополнительные льготы - нет';
+      if isSVDN then
+         begin
+           if (IsLgotaPN=0 )then
+              lblLgSobstw.Caption:='Собственная льгота - нет'
+           else
+              lblLgSobstw.Caption:='Собственная льгота - есть';
+           if (p>0.005) then
+             if (kd>0) then
+                lblLgDop.Caption:='Дополнительные льготы - '+trim(Format('%7.2f',[p]))+' + льгота на '+IntToStr(kd)+' детей.'
+             else
+                lblLgDop.Caption:='Дополнительные льготы - '+trim(Format('%7.2f',[p]))
+           else
+             if (kd>0) then
+                lblLgDop.Caption:='Дополнительные льготы - льгота на '+IntToStr(kd)+' детей.'
+             else
+                lblLgDop.Caption:='Дополнительные льготы - нет';
 
-
+         end;
 
  end;
 
@@ -1871,6 +1928,7 @@ begin
               TabSheetIll.Enabled   := false;
               TabSheetECBI.Enabled  := false;
               lblECB.Hide;
+              lblSummaECB.Hide;
         end
      else
         begin
@@ -1904,6 +1962,12 @@ begin
              TabSheetMatHelp.Enabled := false;
              TabSheetMatHelp.TabVisible:=false;
         end;
+    if isLNR then
+       begin
+            lblLgSobstw.Caption := '';
+            lblLgDop.Caption    := '';
+       end;
+    Application.ProcessMessages;   
 
 end;
 

@@ -464,6 +464,8 @@ type
     N195: TMenuItem;
     ActionEditPersonLgoty: TAction;
     ToolButton23: TToolButton;
+    ActionEditLgotniki: TAction;
+    N196: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -758,6 +760,7 @@ type
     procedure ActionExSQLScriptExecute(Sender: TObject);
     procedure ActionRepPodohDetailSwodExecute(Sender: TObject);
     procedure ActionEditPersonLgotyExecute(Sender: TObject);
+    procedure ActionEditLgotnikiExecute(Sender: TObject);
 
 
   private
@@ -857,7 +860,8 @@ implementation
   UFormKreditSprSvdn, UFormRepFondyPPSSvdn, UFormOtpBSList,
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
   UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
-  UFormExeSQLScript, UFormRepPodohByPerson, UFormPersonLgo;
+  UFormExeSQLScript, UFormRepPodohByPerson, UFormPersonLgo,
+  UFormEditLgotniki;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -5298,6 +5302,12 @@ begin
       else
     end;
 
+end;
+
+procedure TMainForm.ActionEditLgotnikiExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormEditLgotniki,FormEditLgotniki);
+     FormEditLgotniki.showModal;
 end;
 
 end.

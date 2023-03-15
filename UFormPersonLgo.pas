@@ -128,6 +128,9 @@ constructor TFormPersonLgo.myCreate(AOwner: TComponent;curr_person:person_ptr);
                                 ShowMessage('Ћьгота учитываетс€ по другому месту работы');
                                 raise Exception.Create('Exist Lgota');
                            end;
+                     if not dsLgotnikiID.IsNull then
+                     if dsLgotnikiID.AsInteger>0 then
+                        Self.Id:=dsLgotnikiID.AsInteger;
                      if not dsLgotnikiENABLED.IsNull then
                      if dsLgotnikiENABLED.AsInteger>0 then
                         Self.Enabled:=True;
@@ -166,7 +169,7 @@ procedure TFormPersonLgo.fillForm;
          begin
               lines:=AnsiSplit(Self.comment,'=^=');
               if High(lines)>0 then
-                 for i:=0 to High(lines)-1 do
+                 for i:=0 to High(lines) do
                      MemoComment.lines.Add(lines[i]);
          end;
  end;
@@ -216,10 +219,20 @@ procedure TFormPersonLgo.saveRecord;
       dsLgotnikiSUMMAVY.Value:=Self.summavy;
       dsLgotnikiSUMMAYEARLIMIT.Value:=Self.summaYearLimit;
       dsLgotnikiSHIFRLG.Value:=Self.shifrlg;
+      dsLgotnikiCOMMENT.Value:=trim(Self.Comment);
       dsLgotniki.Post;
       dsLgotniki.Close;
       if dsLgotniki.UpdateTransaction.Active then
          dsLgotniki.UpdateTransaction.Commit;
+      if self.id=0 then
+         begin
+              dsLgotniki.Params[0].AsInteger:=Self.tabno;
+              dsLgotniki.Open;
+              if not dsLgotnikiID.IsNull then
+                 Self.id:=dsLgotnikiID.Value;
+              dsLgotniki.Close;
+         end;
+
       dsLgotniki.Transaction.Commit;
  end;
 
@@ -234,8 +247,11 @@ procedure TFormPersonLgo.BitBtn1Click(Sender: TObject);
 begin
      fillRecord;
      saveRecord;
-     MakeLgotyPNInCN2023(Self.Curr_person,Self.summavy);
-     putInf;
+     if Abs(getLgotyPN2023(curr_person)-Self.summavy)>1.0 then
+        begin
+             MakeLgotyPNInCN2023(Self.Curr_person,Self.summavy,Self.id);
+             putInf;
+        end;     
      Self.Close;
 end;
 

@@ -1,8 +1,8 @@
 object FIB: TFIB
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Left = 300
-  Top = 169
+  Left = 363
+  Top = 337
   Height = 490
   Width = 697
   object pFIBDatabaseSal: TpFIBDatabase
@@ -10,7 +10,8 @@ object FIB: TFIB
     DBParams.Strings = (
       'user_name=SYSDBA'
       'password=masterkey'
-      'lc_ctype=WIN1251')
+      'lc_ctype=WIN1251'
+      'sql_role_name=')
     DefaultTransaction = pFIBTransactionSAL
     DefaultUpdateTransaction = pFIBTransactionSAL
     SQLDialect = 3

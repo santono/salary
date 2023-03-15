@@ -38,6 +38,7 @@ type
     function  initDolgKadryList : boolean;
     function  initPodrList : boolean;
     function  initShifrList : boolean;
+    procedure fillSQLDb;
   public
     constructor myCreate(AOwner: TComponent;wantedMode:integer);
     { Public declarations }
@@ -49,7 +50,7 @@ var
 implementation
   uses
       uFIBModule,UFormWait,ScrUtil,DateUtils,ComObj,ScrIO,
-      scrLists;
+      scrLists,USQLUnit;
   type pRec=^TRec;
        TRec=record
              fio      : string;
@@ -631,6 +632,7 @@ procedure TFormRepPlanZP.CreateReport;
            end;
        Application.ProcessMessages;
        fillFinalList;
+       fillSQLDb;
        fillFinalKadryList;
        list.Sort(@Compare);
        if moderep<>2 then
@@ -889,6 +891,9 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
                detRec.shifrDol:=shifrDol;
                detRec.dolg:=curr_person^.DOLG;
                detRec.shifrGru:=curr_person^.GRUPPA;
+               if not ((detRec.shifrGru=1) and (detRec.ShifrGru=3)) then
+                 detRec.shifrGru:=curr_person^.GRUPPA;
+
                detRec.shifrpod:=NSRV;
                detRec.summaAdd:=0.00;
                rec.list.Add(detRec);
@@ -905,7 +910,7 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
                for i:=0 to notUsedShifrList.count-1 do
                    if PInteger(notUsedShifrList.Items[i])^=shifr then
                       begin
-                           retVal:=False;
+                           retVal:=true;
                            break;
                       end;
             isInForbiddenShifr:=retVal;
@@ -965,6 +970,8 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
                         break;
                    end;
            end;
+       if curr_person^.tabno=12549 then
+          summaAdd:=0.00;
        if shifrKadryRow=0 then
        if curr_person^.KATEGORIJA in [4,6] then shifrKadryRow:=15;
        summaAdd:=getSummaSummaOsnAddForPerson(curr_person);
@@ -1182,6 +1189,41 @@ procedure TFormRepPlanZP.fillFinalList;
            end;
 
    end;
+procedure TFormRepPlanZP.fillSQLDb;
+ var SQLStmnt:string;
+     i,j,k:Integer;
+     finalRec,finalRecF:pFinalRec;
+     rec:pRec;
+     detRec:pDetRec;
+     finded:Boolean;
+     shifrLine:Integer;
+     shifrRowOld:Integer;
+     summa:Real;
+
+ begin
+     FormWait.Show;
+     Application.ProcessMessages;
+     SQLStmnt:='delete from TB_ZP_ORRAZOVANIE';
+     SQLExecute(SQLStmnt);
+     for i:=0 to list.Count-1 do
+         begin
+              rec:=pRec(list.Items[i]);
+              if rec.list.count<1 then
+                 Continue;
+              if rec^.tabno=5636 then
+                 finded:=True;
+              for j:=0 to rec.list.Count-1 do
+                  begin
+                        SQLStmnt:='insert into TB_ZP_ORRAZOVANIE (ID,TABNO,FIO,SHIFRLINE,SHIFRLINEKADRY,SHIFRWR,SHIFRGRU,DOLG,SHIFRPOD,SHIFRDOL,SUMMAADD)  values(';
+                        SQLStmnt:=SQLStmnt+intToStr(i+1)+','+intToStr(rec.tabno)+','''+Trim(rec^.fio)+''',';
+                        detRec := pDetRec(rec.list.Items[j]);
+                        SQLStmnt:=SQLStmnt+intToStr(detRec^.shifrLine)+','+intToStr(detRec^.shifrLineKadry)+','+intToStr(detRec^.shifrWR)+','+intToStr(detRec^.shifrGru)+','''+Trim(detRec^.dolg)+''','+intToStr(detRec^.shifrPod)+','+intToStr(detRec^.shifrDol)+','+FormatFloatPoint(detRec^.summaAdd)+')';
+                        SQLExecute(SQLStmnt);
+                   end;
+          end;
+     FormWait.Hide;
+     Application.ProcessMessages;
+ end;
 procedure TFormRepPlanZP.fillFinalKadryList;
    var i,j,k:Integer;
        finalKadryRec:pFinalKadryRec;

@@ -527,7 +527,7 @@ interface
 
   FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
   procedure MakeLgotyPNInCN(Curr_Person:Person_Ptr);
-  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real);
+  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;id:integer);
   function CanModify:Boolean;
   function SavePodr : boolean;
   function RestorePodr : boolean;
@@ -5241,10 +5241,14 @@ FUNCTION FORMAT_S(B:REAL;L:INTEGER):STRING;
      A:REAL;
      {   XX,XXX,XXX,XXX,XXX,XXX }
      {   1 3   7  11  15  19    }
+     SS:string;
  BEGIN
       A:=B;
       IF FORMAT_MODE=NEW_FORMAT_MODE THEN
-         FORMAT_S:=FORMAT_K(A,L)
+         begin
+              SS:=FORMAT_K(A,L);
+              FORMAT_S:=SS;
+         end
       ELSE
          BEGIN
               A:=B / 1000;
@@ -10432,7 +10436,7 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
                      end;
              end
      end;
-  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real);
+  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;Id:integer);
      var  isel:integer;
           Finded:boolean;
           Curr_cn:CN_PTR;
@@ -10454,18 +10458,20 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
           if not finded then
             begin
                 Make_CN(Curr_Cn,Curr_Person);
-                Curr_Cn^.SHIFR:=LgotyPN2011Shifr;
+                Curr_Cn^.SHIFR:=LgotyPN2011Shifr+Limit_Cn_Base;
                 Curr_Cn^.KOD:=100;
                 Curr_Cn^.SUMMA:=summavy;
-                Curr_Cn^.PRIM:=0;
+                Curr_Cn^.PRIM:=id;
                 Curr_Cn^.PRIM_1:='';
             end;
      end;
 
 function CanModify:Boolean;
  begin
-      Result:=True;
-      if FLOW_MONTH<>NMES then Result:=False;
+      Result:=False;
+      if ((FLOW_MONTH=NMES) and
+           (CURRYEAR=WORK_YEAR_VAL)) then
+         Result:=true;
  end;
 
 function ExistWantedUdShifrInPerson(WantedShifr:integer;

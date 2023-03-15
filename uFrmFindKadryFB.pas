@@ -64,7 +64,7 @@ var
   FormFindKadryFB: TFormFindKadryFB;
 
 implementation
- uses UFibModule,DBTables;
+ uses UFibModule,DBTables,ScrDef;
 
 {$R *.dfm}
 
@@ -138,13 +138,14 @@ procedure TFormFindKadryFB.BitBtn1Click(Sender: TObject);
  var Ser,Nom:String;
 begin
      Tabno := pFIBDataSet1.FieldByName('TABNO').AsInteger;
-     {$IFDEF SVDN}
-        Fio   := pFIBDataSet1.FieldByName('FIO').AsString;
-     {$ELSE}
-        Fio   := pFIBDataSet1.FieldByName('PIB').AsString;
-        if Length(Trim(fio))=0 then
-           Fio   := pFIBDataSet1.FieldByName('FIO').AsString;
-     {$ENDIF}
+     if isSVDN then
+        Fio   := pFIBDataSet1.FieldByName('FIO').AsString
+     else
+        begin
+           Fio   := pFIBDataSet1.FieldByName('PIB').AsString;
+           if Length(Trim(fio))=0 then
+              Fio   := pFIBDataSet1.FieldByName('FIO').AsString;
+        end;
      Ser   := pFIBDataSet1.FieldByName('SWID_SS_SER').AsString;
      Nom   := pFIBDataSet1.FieldByName('SWID_SS_NOM').AsString;
      Ser   := trim(Ser);
