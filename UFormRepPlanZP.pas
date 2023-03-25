@@ -9,6 +9,7 @@ uses
   scrDef;
 
 type
+  TPodrMode=(FullUnivWithoutColledgMode,UnivWithoutAllBayMode,SeverodonetskBayMode,IPDOBayMode,SanatoriyBayMode);
   TFormRepPlanZP = class(TForm)
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
@@ -20,6 +21,7 @@ type
     Label1: TLabel;
     dtTo: TDateTimePicker;
     rgBudMode: TRadioGroup;
+    cbPodrMode: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -27,6 +29,7 @@ type
     { Private declarations }
     moderep:Integer; //1-PlanZp 2 - Минсоц
     gruKadryMode:Integer;
+    podrMode:TPodrMode;
     procedure CreateReport;
     procedure fillPerson(curr_person:person_ptr);
  //   procedure moveToExcel;
@@ -51,7 +54,8 @@ implementation
   uses
       uFIBModule,UFormWait,ScrUtil,DateUtils,ComObj,ScrIO,
       scrLists,USQLUnit;
-  type pRec=^TRec;
+  type
+       pRec=^TRec;
        TRec=record
              fio      : string;
              tabno    : Integer;
@@ -114,10 +118,66 @@ implementation
       FName:String;
 
 {$R *.dfm}
+
+function isSeverPodr(shifrPod:integer):boolean;
+ var retVal:Boolean;
+ begin
+      retVal:=False;
+      if shifrPod in [213,214] then
+         retVal:=True;
+      isSeverPodr:=retVal;
+ end;
+function isIPDOPodr(shifrPod:integer):boolean;
+ var retVal:Boolean;
+ begin
+      retVal:=False;
+      if shifrPod in [185,190] then
+         retVal:=True;
+      isIPDOPodr:=retVal;
+ end;
+function isProfilakPodr(shifrPod:integer):boolean;
+ var retVal:Boolean;
+ begin
+      retVal:=False;
+      if shifrPod in [20] then
+         retVal:=True;
+      isProfilakPodr:=retVal;
+ end;
+function isUniverPodr(shifrPod:integer):boolean;
+ var retVal:Boolean;
+ begin
+      retVal:=True;
+      if isSeverPodr(shifrPod) then
+         retVal:=False
+      else
+      if isIPDOPodr(shifrPod) then
+         retVal:=False
+      else
+      if isProfilakPodr(shifrPod) then
+         retVal:=False;
+
+      isUniverPodr:=retVal;
+ end;
+
+function getPodrModeName(PodrMode:TPodrMode):String;
+ var retVal:string;
+ begin
+     case PodrMode of
+       FullUnivWithoutColledgMode:retVal:='Университет без колледжа';
+       UnivWithoutAllBayMode:retVal:='Университет без самостоятельных подразделений';
+       SeverodonetskBayMode:retVal:='Северодонецк';
+       IPDOBayMode:retVal:='ИПДО';
+       SanatoriyBayMode:retVal:='Санаторий-профилакторий';
+     else
+           retVal:='Университет без колледжа';
+     end;
+     getPodrModeName:=retVal;
+ end;
+
 constructor TFormRepPlanZP.myCreate(AOwner: TComponent;wantedMode:integer);
   begin
        inherited Create(AOwner);
-       modeRep:=wantedMode;
+       modeRep          := wantedMode;
        dtFr.Date        := IncMonth(Date,-1);
        dtFr.Date        := RecodeDay(dtFr.Date,1);
        dtTo.Date        := dtFr.Date;
@@ -148,6 +208,8 @@ constructor TFormRepPlanZP.myCreate(AOwner: TComponent;wantedMode:integer);
 //               Caption:='ЗП-Образование';
                caption:='Свод ЗП образование c '+GetMonthRus(MonthOf(dtFr.date))+ ' '+IntToStr(YearOf(dtFr.date))+' г. по '+GetMonthRus(MonthOf(dtTo.date))+ ' '+IntToStr(YearOf(dtTo.date));
           end;
+       PodrMode:=FullUnivWithoutColledgMode;
+       cbPodrMode.ItemIndex:=0;
   end;
 procedure TFormRepPlanZP.FormClose(Sender: TObject;
   var Action: TCloseAction);
@@ -502,6 +564,16 @@ begin
              error('Ошибка чтения исходного файла PlanZP.txt');
              exit;
         end;
+     case cbPodrMode.ItemIndex of
+        0: Self.podrMode:=FullUnivWithoutColledgMode;
+        1: Self.podrMode:=UnivWithoutAllBayMode;
+        2: Self.podrMode:=SeverodonetskBayMode;
+        3: Self.podrMode:=IPDOBayMode;
+        4: Self.podrMode:=SanatoriyBayMode;
+        else
+           Self.podrMode:=FullUnivWithoutColledgMode;
+     end;
+
      BitBtn1.Enabled  := false;
      Application.ProcessMessages;
      CreateReport;
@@ -538,9 +610,33 @@ procedure TFormRepPlanZP.CreateReport;
                for i:=0 to notUsedPodrList.count-1 do
                    if PInteger(notUsedPodrList.Items[i])^=shifrPod then
                       begin
-                           retVal:=False;
+                           retVal:=True;
                            break;
                       end;
+//            if Self.podrMode=FullUnivWithoutColledgModev then
+            if Self.podrMode=UnivWithoutAllBayMode then
+               begin
+                    if not isUniverPodr(shifrPod) then
+                       retVal:=True;
+               end
+            else
+            if Self.podrMode=SeverodonetskBayMode then
+               begin
+                    if not isSeverPodr(shifrPod) then
+                       retVal:=True;
+               end
+            else
+            if Self.podrMode=IPDOBayMode then
+               begin
+                    if not isIPDOPodr(shifrPod) then
+                       retVal:=True;
+               end
+            else
+            if Self.podrMode=SanatoriyBayMode then
+               begin
+                    if not isProfilakPodr(shifrPod) then
+                       retVal:=True;
+               end;        
             isInForbiddenPodr:=retVal;
        end;
       
@@ -832,7 +928,8 @@ procedure TFormRepPlanZP.fillPerson(curr_person:person_ptr);
        shifrRow := 0;
        shifrKadryRow := 0;
        // Проверить ИПДО                      13 - счет
-       if ((nsrv=115) or (curr_person^.gruppa=22)) then
+//       if ((nsrv=115) or (curr_person^.gruppa=22)) then
+       if nsrv in [185,190] then    // Замечание от 16 03 2023
           begin
                shifrKadryRow:=28;
                shifrRow:=11;
@@ -1104,6 +1201,14 @@ procedure TFormRepPlanZP.fillFinalList;
              retVal:=24;
           getSocShifrLine:=retVal;
      end;
+   function isBudget(shifrGru:integer):Boolean;
+     var retVal:Boolean;
+     begin
+          retVal:=False;
+          if shifrGru in [1,3] then
+             retVal:=True;
+          isBudget:=retVal;   
+     end;
    begin
         finalList:=TList.Create;
         for i:=0 to list.Count-1 do
@@ -1138,7 +1243,7 @@ procedure TFormRepPlanZP.fillFinalList;
                         else
                         if detRec.shifrWR=3 then
                            finalRec.summaSowmVne:=finalRec.summaSowmVne+detRec.summaAdd;
-                        if detRec.shifrGru=1 then
+                        if IsBudget(detRec.shifrGru) then
                            if detRec.shifrWR<=2 then
                               finalRec.summaBud:=finalRec.summaBud+detRec.summaAdd
                            else

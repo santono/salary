@@ -49,10 +49,11 @@ type PSwodDetRec=^TSwodDetRec;
                  end;
       TSQLSwodClass=class
                      private
-                      list        : TList;
-                      personList  : TList;
-                      ShifrIdSwod : Integer;
-                      Y,M         : Integer;
+                      list          : TList;
+                      personAddList : TList;
+                      personUdList  : TList;
+                      ShifrIdSwod   : Integer;
+                      Y,M           : Integer;
                       public
                       constructor init(Y,M:Integer);
                       destructor Done;
@@ -109,7 +110,10 @@ TYPE
       begin
            Self.List:=TList.Create;
            if needSwodSQLLogByPerson then
-              Self.PersonList:=TList.Create;
+              begin
+                  Self.PersonAddList:=TList.Create;
+                  Self.PersonUdList:=TList.Create;
+              end;
          //  Self.ShifrIdSwod:=ShifrIdSwod;
            Self.Y:=Y;
            Self.M:=M;
@@ -121,15 +125,22 @@ TYPE
               for i:=0 to list.Count-1 do
                   Dispose(PSwodDetRec(list.Items[i]));
            if needSwodSQLLogByPerson then
-           if personlist.Count>0 then
-              for i:=0 to personList.Count-1 do
-                  Dispose(PSwodDetPersonRec(personList.Items[i]));
+              begin
+                if personAddlist.Count>0 then
+                  for i:=0 to personAddList.Count-1 do
+                    Dispose(PSwodDetPersonRec(personAddList.Items[i]));
+                if personUdlist.Count>0 then
+                  for i:=0 to personUdList.Count-1 do
+                    Dispose(PSwodDetPersonRec(personUdList.Items[i]));
+              end;
            List.Free;
            List:=nil;
            if needSwodSQLLogByPerson then
               begin
-                   personList.Free;
-                   personList:=nil;
+                   personAddList.Free;
+                   personAddList:=nil;
+                   personUdList.Free;
+                   personUdList:=nil;
               end;
       end;
 //    procedure TSQLSwodClass.PutToSQL(name:string;NameSQL:WideString);
@@ -255,16 +266,28 @@ TYPE
                        SQLExecute(SQLStmnt);
                   end;
            if needSwodSQLLogByPerson then
-           if personList.Count>0 then
-              for i:=0 to personList.count-1 do
-                  begin
-                       SQLStmnt:='insert into tb_swody_det_person_add(shifridswod,tabno,summa)';
-                       SQLStmnt:=Trim(SQLStmnt)+' values (';
-                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(Shifrid)+',';
-                       SQLStmnt:=Trim(SQLStmnt)+IntToStr(PSwodDetPersonRec(personList.Items[i]).tabno)+',';
-                       SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetPersonRec(personlist.Items[i]).Summa)+')';
-                       SQLExecute(SQLStmnt);
-                  end;
+              begin
+                   if Self.personAddList.Count>0 then
+                      for i:=0 to Self.personAddList.count-1 do
+                        begin
+                          SQLStmnt:='insert into tb_swody_det_person_add(shifridswod,tabno,summa)';
+                          SQLStmnt:=Trim(SQLStmnt)+' values (';
+                          SQLStmnt:=Trim(SQLStmnt)+IntToStr(Shifrid)+',';
+                          SQLStmnt:=Trim(SQLStmnt)+IntToStr(PSwodDetPersonRec(Self.personAddList.Items[i]).tabno)+',';
+                          SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetPersonRec(Self.personAddList.Items[i]).Summa)+')';
+                          SQLExecute(SQLStmnt);
+                        end;
+                   if Self.personUdList.Count>0 then
+                      for i:=0 to Self.personUdList.count-1 do
+                        begin
+                          SQLStmnt:='insert into tb_swody_det_person_ud(shifridswod,tabno,summa)';
+                          SQLStmnt:=Trim(SQLStmnt)+' values (';
+                          SQLStmnt:=Trim(SQLStmnt)+IntToStr(Shifrid)+',';
+                          SQLStmnt:=Trim(SQLStmnt)+IntToStr(PSwodDetPersonRec(Self.personUdList.Items[i]).tabno)+',';
+                          SQLStmnt:=Trim(SQLStmnt)+FormatFloatPoint(PSwodDetPersonRec(Self.personUdList.Items[i]).Summa)+')';
+                          SQLExecute(SQLStmnt);
+                        end;
+              end;
 
 
       end;
@@ -316,13 +339,13 @@ TYPE
                begin
 
                  finded:=False;
-                 if personList.count>0 then
-                    for i:=0 to personList.Count-1 do
+                 if Self.personAddList.count>0 then
+                    for i:=0 to Self.personAddList.Count-1 do
                         begin
-                             if PSwodDetPersonRec(personlist.Items[i]).tabno=Curr_person^.TABNO then
+                             if PSwodDetPersonRec(Self.personAddList.Items[i]).tabno=Curr_person^.TABNO then
                                 begin
-                                     PSwodDetPersonRec(personlist.Items[i]).summa:=
-                                          PSwodDetPersonRec(personlist.Items[i]).summa + curr_add^.SUMMA;
+                                     PSwodDetPersonRec(Self.personAddList.Items[i]).summa:=
+                                          PSwodDetPersonRec(Self.personAddList.Items[i]).summa + curr_add^.SUMMA;
                                      finded:=True;
                                      Break;
                                 end;
@@ -332,7 +355,7 @@ TYPE
                         New(swodDetPersonRec);
                         swodDetPersonRec.tabno:=curr_person^.tabno;
                         swodDetPersonRec.summa:=curr_add^.SUMMA;
-                        personList.add(swodDetPersonRec);
+                        Self.personAddList.add(swodDetPersonRec);
                     end;
                end;
 
@@ -343,6 +366,7 @@ TYPE
           finded     : boolean;
           SwodDetRec : PSwodDetRec;
           shifrBan   : Integer;
+          SwodDetPersonRec : PSwodDetPersonRec;
       begin
            shifrBan := Curr_Person^.Bank;
            if (shifrBan<1) or
@@ -384,6 +408,29 @@ TYPE
                    SwodDetRec.shifrBan := shifrBan;
                    list.Add(SwodDetRec);
               end;
+            if needSwodSQLLogByPerson then
+               begin
+
+                 finded:=False;
+                 if Self.personUdList.count>0 then
+                    for i:=0 to Self.personUdList.Count-1 do
+                        begin
+                             if PSwodDetPersonRec(Self.personUdlist.Items[i]).tabno=Curr_person^.TABNO then
+                                begin
+                                     PSwodDetPersonRec(Self.personUdlist.Items[i]).summa:=
+                                          PSwodDetPersonRec(Self.personUdlist.Items[i]).summa + curr_ud^.SUMMA;
+                                     finded:=True;
+                                     Break;
+                                end;
+                        end;
+                 if not finded then
+                    begin
+                        New(swodDetPersonRec);
+                        swodDetPersonRec.tabno:=curr_person^.tabno;
+                        swodDetPersonRec.summa:=curr_ud^.SUMMA;
+                        Self.personUdList.add(swodDetPersonRec);
+                    end;
+               end;
 
       end;
 

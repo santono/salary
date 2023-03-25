@@ -1313,17 +1313,18 @@ procedure TFormMemBud.MakeOrder;
               V.Visible:=false;
               V.DisplayAlerts:=False;
               V.WorkBooks.Open(FName);
+     //        showMessage('Тест названия '+V.WorkBooks[1].WorkSheets[1].Name);
         //     showMessage('Книга открыта');
               I:=V.WorkBooks[1].WorkSheets.Count;
         //     showMessage('Количство листов в книге '+intToStr(i));
-             l:=length(V.WorkBooks[1].WorkSheets[1].Name);
+   //          l:=length(V.WorkBooks[1].WorkSheets[1].Name);
        //      showMessage('Длина названия '+intToStr(l));
        //      showMessage('Тест названия '+V.WorkBooks[1].WorkSheets[1].Name);
 //         V.ScreenUpdating := true;
              if i>1 then
              for i:=1 to V.WorkBooks[1].WorkSheets.Count do
                  begin
-         //             showMessage('i='+IntToStr(i)+' '+V.WorkBooks[1].WorkSheets[i].Name);
+                      showMessage('i='+IntToStr(i)+' '+V.WorkBooks[1].WorkSheets[i].Name);
                 if V.WorkBooks[1].WorkSheets[i].Name=N[NMES] then
                    BEGIN
                         V.WorkBooks[1].WorkSheets[i].Delete;

@@ -73,7 +73,10 @@ function TFormSwodMNFR.Swod_To_FR:boolean;
        H3:='';
        if TotalMode then
           begin
-               s:='свод по всім підрозділам, всім нарахуванням і всім вирахуванням';
+               if isLNR then
+                  s:='свод по всем подразделениям, всем начислениям и всем удержаниям'
+               else
+                  s:='свод по всім підрозділам, всім нарахуванням і всім вирахуванням';
                s:=ReplQuot(s);
                H1:=s;
           end
@@ -81,7 +84,10 @@ function TFormSwodMNFR.Swod_To_FR:boolean;
           begin
                case Selected_Mode of
                      2 : begin      { По источникам финансирования }
-                           S:='Джерела фінансування - ';
+                           if isLNR then
+                              s:='Источники финансирования - '
+                           else
+                              S:='Джерела фінансування - ';
                            for i:=1 to MAX_GRUPPA do
                                if CURR_GRUPPA[I] then
                                   s:=s+' '+Get_Ist_Name(i)+' ';
@@ -89,7 +95,10 @@ function TFormSwodMNFR.Swod_To_FR:boolean;
                            h1:=s;
                          end;
                      3 : begin      { По категориям работников     }
-                           S:='Категорії робітників - ';
+                           if isLNR then
+                              s:='Категории работников - '
+                           else
+                              S:='Категорії робітників - ';
                            for i:=1 to MAX_KATEGORIJA do
                                if CURR_KATEGORIJA[I] then
                                   S:=S+' '+GET_KAT_NAME(I);
@@ -97,13 +106,19 @@ function TFormSwodMNFR.Swod_To_FR:boolean;
                            h1:=s;
                          end;
                      4 : begin      { По категориям работников и по группам}
-                           S:='Категорії рабітників - ';
+                           if isLNR then
+                              s:='Категории работников - '
+                           else
+                              S:='Категорії рабітників - ';
                            for i:=1 to MAX_KATEGORIJA do
                                if CURR_KATEGORIJA[i] then
                                   S:=S+' '+trim(GET_KAT_NAME(i));
                            s:=ReplQuot(s);
                            h1:=s;
-                           S:='Джерела фінансування - ';
+                           if isLNR then
+                              s:='Источники финансирования - '
+                           else
+                              S:='Джерела фінансування - ';
                            for i:=1 to MAX_GRUPPA do
                                if CURR_GRUPPA[i] then
                                   s:=s+' '+trim(Get_Ist_Name(i));
@@ -111,13 +126,19 @@ function TFormSwodMNFR.Swod_To_FR:boolean;
                            h2:=s;
                          end;
                      5 : begin      { Сохраненные отчеты }
+                           if isLNR then
+                              s:='Категории работников - '
+                           else
                            S:=' Категорії рабітників - ';
                            for i:=1 to MAX_KATEGORIJA do
                                if CURR_KATEGORIJA[i] then
                                   S:=S+' '+trim(GET_KAT_NAME(i));
                            s:=ReplQuot(s);
                            h1:=s;
-                           S:='Джерела фінансування - ';
+                           if isLNR then
+                              s:='Источники финансирования - '
+                           else
+                              S:='Джерела фінансування - ';
                            for i:=1 to MAX_GRUPPA do
                                if CURR_GRUPPA[i] then
                                   s:=s+' '+trim(Get_Ist_Name(i));
@@ -127,9 +148,15 @@ function TFormSwodMNFR.Swod_To_FR:boolean;
                end;  { CASE }
                s:='';
                if (swod_mode=invalid_swod) then // s:=' Інваліди (c коледжем)'
-                                                s:=' Інваліди'
+                                               if isLNR then
+                                                  s:='Инвалиды'
+                                               else
+                                                  s:=' Інваліди'
                                            else
                if (swod_mode=pens_swod) then //s:=' Пенсіонери (с коледжем)';
+                                             if isLNR then
+                                                s:='Пенсионеры'
+                                             else
                                                s:='Пенсіонери';
                if length(s)>0 then
                   if length(trim(h1))>length(trim(h2)) then
@@ -226,7 +253,7 @@ function TFormSwodMNFR.Swod_To_FR:boolean;
            s:='Институт строительства архитектуры и жилищно-коммунального хозяйства'
         else
         if isLNR then
-           s:='Луганский национальный университет имени  В.Даля';
+           s:='Луганский государственный университет имени  В.Даля';
         s:=ReplQuot(s);
         frxReport1.Variables['nameUni']:=''''+s+'''';
         s1:=ReplQuot(s1);

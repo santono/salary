@@ -2,7 +2,7 @@ object FormRepPlanZP: TFormRepPlanZP
   Left = 203
   Top = 265
   Width = 657
-  Height = 283
+  Height = 315
   Caption = #1047#1055' '#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1077
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -24,7 +24,7 @@ object FormRepPlanZP: TFormRepPlanZP
   end
   object LabelFio: TLabel
     Left = 24
-    Top = 176
+    Top = 224
     Width = 61
     Height = 20
     Caption = 'LabelFio'
@@ -65,8 +65,8 @@ object FormRepPlanZP: TFormRepPlanZP
     TabOrder = 2
   end
   object ProgressBar1: TProgressBar
-    Left = 16
-    Top = 152
+    Left = 24
+    Top = 200
     Width = 609
     Height = 17
     TabOrder = 3
@@ -103,5 +103,21 @@ object FormRepPlanZP: TFormRepPlanZP
       #1042#1085#1077' '#1073#1102#1076#1078#1077#1090
       #1042#1089#1077' '#1089#1095#1077#1090#1072)
     TabOrder = 6
+  end
+  object cbPodrMode: TComboBox
+    Left = 16
+    Top = 152
+    Width = 601
+    Height = 28
+    ItemHeight = 20
+    ItemIndex = 0
+    TabOrder = 7
+    Text = #1042#1077#1089#1100' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090' '#1073#1077#1079' '#1082#1086#1083#1083#1077#1076#1078#1072
+    Items.Strings = (
+      #1042#1077#1089#1100' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090' '#1073#1077#1079' '#1082#1086#1083#1083#1077#1076#1078#1072
+      #1059#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090' '#1073#1077#1079' '#1086#1090#1076#1077#1083#1100#1085#1099#1093' '#1087#1086#1076#1088#1072#1079#1076#1077#1083#1077#1085#1080#1081
+      #1057#1077#1074#1077#1088#1086#1076#1086#1085#1077#1094#1082
+      #1048#1055#1044#1054
+      #1057#1072#1085#1072#1090#1086#1088#1080#1081'-'#1087#1088#1086#1092#1080#1083#1072#1082#1090#1086#1088#1080#1081)
   end
 end
