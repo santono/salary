@@ -1346,7 +1346,7 @@ PROCEDURE  INIT_NEED_THIS_SERV;
                          NeedPodrList.Add(NeedPodrRec);
                    end;
 
-      { Включить 165 если только боличные и СС ModeIllSS=2 }
+      { Включить 165 если только больничные и СС ModeIllSS=2 }
       { 23 10 2013 }
       if not Is_Need_This_Serv(165) then
       if not (isLNR and isGKH) then

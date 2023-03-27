@@ -1,7 +1,7 @@
 object FormMemBud: TFormMemBud
   Left = 192
   Top = 142
-  Width = 696
+  Width = 706
   Height = 439
   Caption = 'Rows'
   Color = clBtnFace
@@ -129,8 +129,8 @@ object FormMemBud: TFormMemBud
     OnClick = BitBtn10Click
   end
   object CheckBoxBol: TCheckBox
-    Left = 152
-    Top = 72
+    Left = 9
+    Top = 75
     Width = 385
     Height = 17
     Caption = #1042#1082#1083#1102#1095#1072#1090#1100' '#1073#1086#1083#1100#1085#1080#1095#1085#1099#1077' '#1083#1080#1089#1090#1099' '#1087#1086' '#1089#1086#1094'.'#1089#1090#1088#1072#1093#1091
@@ -144,5 +144,13 @@ object FormMemBud: TFormMemBud
     Caption = #1048#1089#1082#1088#1072
     TabOrder = 11
     OnClick = BitBtn11Click
+  end
+  object cbNeedPlan: TCheckBox
+    Left = 400
+    Top = 72
+    Width = 289
+    Height = 17
+    Caption = #1056#1072#1079#1073#1080#1074#1082#1072' "'#1085#1072' '#1088#1091#1082#1080'" '#1087#1086' '#1082#1072#1090#1077#1075#1086#1088#1080#1103#1084
+    TabOrder = 12
   end
 end

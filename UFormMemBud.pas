@@ -23,6 +23,7 @@ type
     BitBtn10: TBitBtn;
     CheckBoxBol: TCheckBox;
     BitBtn11: TBitBtn;
+    cbNeedPlan: TCheckBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
@@ -160,6 +161,7 @@ procedure TFormMemBud.MakeOrder;
    ExcelList   : TExcelList;
    Ini         : TIniFile;
    NeedBoln    : boolean;
+   needPlan    : Boolean; //27 03 23 разбивка "на руки" для бюджета по категориям
    NameSwod,
    NameSQL      : string;
    l:integer;
@@ -319,6 +321,34 @@ procedure TFormMemBud.MakeOrder;
                     V.WorkBooks[1].WorkSheets[N[NMES]].Columns[i].Hidden:=true;
             end;
   end;
+ procedure unMergeUdExcel;
+  var   StartCol,EndCol : integer;
+        HideRow         : integer;
+        HideModeRow     : integer;
+        I,J,M,R         : Integer;
+        cellFr,cellTo   : Variant;
+        range           : Variant;
+
+  begin
+        if MemMode=MemBudMode then
+           begin
+                HideRow     :=  16;
+                StartCol    :=  19;
+                EndCol      := 116;
+                HideModeRow :=   5;
+           end;
+        r:=hideRow-5;
+        for i:=StartCol to EndCOl do
+            begin
+                 if (i=33) then
+                    begin
+                        j:=V.WorkBooks[1].WorkSheets[N[NMES]].Cells[HideRow,i];
+                    end;
+                 cellFr := V.WorkBooks[1].WorkSheets[N[NMES]].Cells.Item[r,i];
+                 cellTo := V.WorkBooks[1].WorkSheets[N[NMES]].Cells.Item[r+4,i];
+                 V.WorkBooks[1].WorkSheets[N[NMES]].Range[CellFr, CellTo].UnMerge;
+            end;
+  end;
 
  procedure HideZeroRowsExcel(ColStart:Integer;ColFinish:integer;RowStart:Integer;RowFinish:integer);
   var   StartCol,EndCol : integer;
@@ -377,7 +407,7 @@ procedure TFormMemBud.MakeOrder;
                          EndRowInv    := 23;
                          HeaderCol    :=  1;
                     end
-                else
+                 else
                     begin
                          StartCol     :=  4;
                          EndCol       :=116;
@@ -935,6 +965,7 @@ procedure TFormMemBud.MakeOrder;
 //      FNameDebug := CDOC+'MemInv.txt';
 //      Rewrite(devDebug,FNameDebug);
       NeedBoln    := CheckBoxBol.Checked;;
+      NeedPlan    := cbNeedPlan.Checked;;
       EmptyInSQL;
       FNAME:='';
       fIniFileName:=getIniFileName;
@@ -946,22 +977,26 @@ procedure TFormMemBud.MakeOrder;
                 FName := Ini.ReadString( 'Parameters', 'MEMBUDNAME', '' );
                 nameSQL:='Бюджет университет';
             end
-         else if MemMode=MemLeraMode then
+         else
+         if MemMode=MemLeraMode then
             begin
                 FName := Ini.ReadString( 'Parameters', 'MEMLERANAME', '' );
                 nameSQL:='Внебюджет университет';
             end
-         else if MemMode=memColBudMode then
+         else
+         if MemMode=memColBudMode then
             begin
                 FName   := Ini.ReadString( 'Parameters', 'MEMCOLBUDNAME', '' );
                 nameSQL := 'Бюджет колледж';
             end
-         else if MemMode=memColVneMode then
+         else
+         if MemMode=memColVneMode then
             begin
                 FName   := Ini.ReadString( 'Parameters', 'MEMCOLVNENAME', '' );
                 nameSQL := 'Внебюджет колледж';
             end
-         else if MemMode=memMag802Mode then
+         else
+         if MemMode=memMag802Mode then
             begin
                 FName   := Ini.ReadString( 'Parameters', 'MEMMAG802NAME', '' );
                 nameSQL := 'Магистратура бюджет';
@@ -971,12 +1006,14 @@ procedure TFormMemBud.MakeOrder;
                 FName   := Ini.ReadString( 'Parameters', 'MEMMAG811NAME', '' );
                 nameSQL := 'Магистратура внебюджет';
             end
-         else if MemMode=memGNMode then
+         else
+         if MemMode=memGNMode then
             begin
                 FName   := Ini.ReadString( 'Parameters', 'MEMGNNAME', '' );
                 nameSQL := 'Г Н';
             end
-         else if MemMode=memNISMode then
+         else
+         if MemMode=memNISMode then
             begin
                 if isSVDN then
                    FName := Ini.ReadString( 'Parameters', 'MEMNISNAME', '' )
@@ -985,12 +1022,14 @@ procedure TFormMemBud.MakeOrder;
 
                 nameSQL := 'Н И С';
             end
-         else if MemMode=memMatHelpMode then
+         else
+         if MemMode=memMatHelpMode then
             begin
                 FName   := Ini.ReadString( 'Parameters', 'MEMMPNAME', '' );
                 nameSQL := 'Материальная помощь';
             end
-         else if MemMode=memIskraMode then
+         else
+         if MemMode=memIskraMode then
             begin
                 FName := Ini.ReadString( 'Parameters', 'MEMISKRANAME', '' );
                 nameSQL := 'Искра';
@@ -1045,11 +1084,11 @@ procedure TFormMemBud.MakeOrder;
                                         Application.ProcessMessages;
                                         shifrDol:=Get_Dol_Code(Curr_Person);
                                         if ((shifrDol=1500) and (not NeedBoln)) then { Больничные - не включать с 03 04 2011 }
-//                                        if ((Get_Dol_Code(Curr_Person)=1500) and (not NeedBoln)) then
+                                        if ((Get_Dol_Code(Curr_Person)=1500) and (not NeedBoln)) then
                                         if isLNR then
                                            begin
                                                 Curr_Person:=curr_Person^.NEXT;
-                                                Continue;
+                                               Continue;
                                            end;
                                         if (isGKH and (curr_person^.Gruppa<>1)) then
                                            shifrRow:=0;
@@ -1164,7 +1203,18 @@ procedure TFormMemBud.MakeOrder;
                                                 Curr_Ud:=Curr_Person^.Ud;
                                                 while (Curr_Ud<>Nil) do
                                                  begin
-                                                      if MemMode=MemBudMode then ShifrRow:=1106;
+                                                      if MemMode=MemBudMode then
+                                                         if (isLNR and needPlan) then
+                                                            case  Curr_Person^.Kategorija of
+                                                              1:ShifrRow:=1101;   { ППС  }
+                                                              2:ShifrRow:=1105;   { УВП }
+                                                              4,6:ShifrRow:=1104;   { АДМ ХОЗ }
+                                                              5,7:ShifrRow:=1103;   { АУП }
+                                                            else
+                                                               ShifrRow:=1101;
+                                                            end
+                                                         else
+                                                            ShifrRow:=1106;
                                                       // с больничный в свод по бюджету не включать
                                                       // ничего с 26 09 2017
                                                       if isLNR then
@@ -1176,17 +1226,19 @@ procedure TFormMemBud.MakeOrder;
                                                          end;
                                                       if ShifrRow=0 then
                                                          case MemMode of
-                                                           MemBudMode:ShifrRow:=1106;
-                                                            (*
-                                                            case  Curr_Person^.Kategorija of
-                                                               1:ShifrRow:=1101;   { ППС  }
-                                                               2:ShifrRow:=1105;   { УВП }
-                                                             4,6:ShifrRow:=1104;   { АДМ ХОЗ }
-                                                             5,7:ShifrRow:=1103;   { АУП }
-                                                            else
-                                                              ShifrRow:=1101;
+                                                           MemBudMode:
+                                                            begin
+                                                                 ShifrRow:=1106;
+                                                                 if (isLNR and needPlan) then
+                                                                    case  Curr_Person^.Kategorija of
+                                                                     1:ShifrRow:=1101;   { ППС  }
+                                                                     2:ShifrRow:=1105;   { УВП }
+                                                                   4,6:ShifrRow:=1104;   { АДМ ХОЗ }
+                                                                   5,7:ShifrRow:=1103;   { АУП }
+                                                                    else
+                                                                       ShifrRow:=1101;
+                                                                    end;
                                                             end;
-                                                             *)
                                                            memLeraMode:
                                                               ShifrRow:=Curr_Person^.Gruppa;
                                                            memColBudMode:
@@ -1203,7 +1255,7 @@ procedure TFormMemBud.MakeOrder;
                                                               ShifrRow:=444;
                                                            else
                                                               ShifrRow:=Nsrv;
-                                                         end;
+                                                            end;
                                                          ShifrCol:=Curr_Ud^.Shifr;
                                                          IF IS_ALIMENTY_SHIFR(Curr_Ud^.Shifr) THEN
                                                          if (MemMode<>MemBudMode)    and
@@ -1228,6 +1280,7 @@ procedure TFormMemBud.MakeOrder;
                                         Curr_Person:=Curr_Person^.Next;
                                   end;
 // Для ЛНР в мемориальный ордер по бюджету включить в начислении больничные соц.страх а подоходный и прочие удержания - не включать
+//                                  if false then //отключено 26 03 2023
                                   if (isLNR and ((memmode=memBudMode)
                                               or (memmode=memColBudMode)
                                               ) and not NeedBoln) then
@@ -1324,12 +1377,12 @@ procedure TFormMemBud.MakeOrder;
              if i>1 then
              for i:=1 to V.WorkBooks[1].WorkSheets.Count do
                  begin
-                      showMessage('i='+IntToStr(i)+' '+V.WorkBooks[1].WorkSheets[i].Name);
-                if V.WorkBooks[1].WorkSheets[i].Name=N[NMES] then
-                   BEGIN
-                        V.WorkBooks[1].WorkSheets[i].Delete;
-                        BREAK;
-                   END;
+//                      showMessage('i='+IntToStr(i)+' '+V.WorkBooks[1].WorkSheets[i].Name);
+                      if V.WorkBooks[1].WorkSheets[i].Name=N[NMES] then
+                         BEGIN
+                              V.WorkBooks[1].WorkSheets[i].Delete;
+                              BREAK;
+                         END;
                  end;
       //      showMessage('Удаление листа пройдено');
              while true do
@@ -1362,13 +1415,17 @@ procedure TFormMemBud.MakeOrder;
               end;
 {             V.ScreenUpdating := false;}
       //      showMessage('Переименование закончено');
+              if (isLNR and needPlan and (MemMode=MemBudMode)) then
+                  unMergeUdExcel;
               FillExcelFromList;
       //      showMessage('Заполнение  закончено');
 //         SQLSwodClass.PutToSQL(NameSwod,NameSQL,Select_key,Select_Bay_Mode,SelectedBay,NeedDogPod,TotalMode,ModeIllSS,SwodSowmMode,ChernobMode);
+              FormWait.Show;
+              Application.ProcessMessages;
               SQLSwodClass.PutToSQL(NameSwod,NameSQL,0,0,0,true,true,0,0,0);
               SQLSwodClass.Done;
       //   SQLSwodClass.Free;
-              FormWait.Show;
+//              FormWait.Show;
               Application.ProcessMessages;
               HideZeroColumnExcel;
               if isLNR then
@@ -1507,6 +1564,7 @@ end;
 procedure TFormMemBud.FormCreate(Sender: TObject);
 begin
      CheckBoxBol.Checked:=FALSE;
+    
      if not modeIskra then
         begin
              BitBtn1.Enabled  := true;
@@ -1539,6 +1597,8 @@ begin
                      BitBtn11.Visible := false;
                      BitBtn1.Caption  := 'Бюджет';
                      BitBtn2.Caption  := 'Спецфонд';
+                     cbNeedPlan.Visible:=True;
+                     cbNeedPlan.Enabled:=True;
                 end;
 
         end
@@ -1554,6 +1614,9 @@ begin
              BitBtn7.Enabled  := false;
              BitBtn8.Enabled  := false;
              BitBtn10.Enabled := false;
+             cbNeedPlan.Visible:=False;
+             cbNeedPlan.Enabled:=false;
+
         end;
 
 end;
