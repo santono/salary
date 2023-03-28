@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Buttons, ComCtrls, FIBDatabase, pFIBDatabase, DB,
   FIBDataSet, pFIBDataSet, cxControls, cxContainer, cxEdit, cxTextEdit,
-  cxMaskEdit, cxDropDownEdit, cxCalc;
+  cxMaskEdit, cxDropDownEdit, cxCalc, ExtCtrls;
 
 type
   TFormCalcPrem_11_2017 = class(TForm)
@@ -14,29 +14,20 @@ type
     Label1: TLabel;
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
-    pFIBDataSet1: TpFIBDataSet;
-    pFIBTransactionRead: TpFIBTransaction;
-    pFIBTransactionWrite: TpFIBTransaction;
     BitBtn3: TBitBtn;
     LabelPodr: TLabel;
-    pFIBDataSet1NPP: TFIBIntegerField;
-    pFIBDataSet1TABNO: TFIBSmallIntField;
-    pFIBDataSet1FIO: TFIBStringField;
-    pFIBDataSet1DOLG: TFIBStringField;
-    pFIBDataSet1PROC: TFIBBCDField;
-    pFIBDataSet1SUMMA: TFIBBCDField;
-    pFIBDataSet1FIOS: TFIBStringField;
-    pFIBDataSet1MOVED: TFIBSmallIntField;
-    pFIBDataSet1SHIFRPOD: TFIBSmallIntField;
     cxCalcEdit1: TcxCalcEdit;
     Label2: TLabel;
+    Label3: TLabel;
+    rgModeRead: TRadioGroup;
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
      wantedProc:real;
      wantedShifr:integer;
     { Private declarations }
-     procedure ExecuteCalcPrem11_2017;
+     procedure ExecuteCalcPrem03_2023;
 
   public
     { Public declarations }
@@ -50,13 +41,14 @@ implementation
 
 {$R *.dfm}
 
+  var tabnoList:TList;
 procedure TFormCalcPrem_11_2017.BitBtn1Click(Sender: TObject);
 var iErr:integer;
     i:integer;
 begin
-     if not ((nmes=11) and (CURRYEAR=2017)) then
+     if not ((nmes=03) and (CURRYEAR=2023)) then
         begin
-             ShowMessage('Расчет возможен только в ноябре 2017 г.');
+             ShowMessage('Расчет возможен только в марте 2023 г.');
              exit;
         end;
      if NameServList.CountSelected<=0 then
@@ -113,18 +105,19 @@ begin
              exit;
         end;
 
-     if MessageDlg('Выполнить расчет премии в ноябре 2017 г.?',
+     if MessageDlg('Выполнить расчет премии в марте 2023 г.?',
         mtConfirmation, [mbYes, mbNo], 0) = mrYes  then
         begin
-             ExecuteCalcPrem11_2017;
+             ExecuteCalcPrem03_2023;
              showMessage('Рассчет закончен');
         end;
 end;
 
-procedure TFormCalcPrem_11_2017.ExecuteCalcPrem11_2017;
+procedure TFormCalcPrem_11_2017.ExecuteCalcPrem03_2023;
 const
       id=37;
-      wantedPeriod=11;
+      wantedPeriod=03;
+      wantedYear=2023;
 var NMES_Sav,NSRV_Sav:Integer;
     I_NSRV,SC:Integer;
     Curr_Person:Person_Ptr;
@@ -132,6 +125,7 @@ var NMES_Sav,NSRV_Sav:Integer;
     I:Integer;
     shifrDol:integer;
     shifrWR:integer;
+    summaPreTot:real;
         procedure Delete_Prem_Person(Curr_person:person_ptr);
          var Finished:Boolean;
              Curr_Add:Add_PTR;
@@ -146,7 +140,7 @@ var NMES_Sav,NSRV_Sav:Integer;
                        begin
                             if Curr_Add^.SHIFR  = WantedShifr   then
                             if Curr_Add^.Period = wantedPeriod  then
-                            if Curr_Add^.YEAR   = 2017-1990     then
+                            if Curr_Add^.YEAR   = wantedYear-1990     then
                             if Curr_Add^.WHO    = Id            then
                                begin
                                     DEL_Add(Curr_Add,Curr_Person);
@@ -168,6 +162,31 @@ var NMES_Sav,NSRV_Sav:Integer;
                      curr_person:=curr_person^.NEXT;
                 end;
          end;
+   function findTabnoInList(tabno:integer):Boolean;
+     var i:Integer;
+         retVal:boolean;
+         finded:Boolean;
+         PInt:PInteger;
+     begin
+          retVal:=false;
+          finded:=false;
+          if tabnoList.count>0 then
+             for i:=0 to tabnoList.count-1 do
+                 begin
+                      if PInteger(tabnoList.Items[i])^=tabno then
+                         begin
+                              finded:=True;
+                              Break;
+                         end;
+                 end;
+          if not finded then
+             begin
+                  New(PInt);
+                  PInt^:=tabno;
+                  tabnoList.add(PInt);
+             end;
+          findTabnoInList:=finded;
+     end;
 
    function fillPersonPrem(curr_person:person_ptr):boolean;
      var
@@ -185,16 +204,34 @@ var NMES_Sav,NSRV_Sav:Integer;
          if oklad<1.00 then exit;
          summa:=roundTo(oklad*wantedProc,0);
          Make_add(Curr_add,curr_person);
-         curr_ADD^.SHIFR:=wantedShifr;
-         curr_add^.period:=wantedPeriod;
-         curr_add^.year:=2017-1990;
-         curr_add^.summa:=summa;
-         curr_add^.fzp:=summa;
-         curr_add^.who:=id;
+         curr_ADD^.SHIFR  := wantedShifr;
+         curr_add^.period := wantedPeriod;
+         curr_add^.year   := wantedYear-1990;
+         curr_add^.summa  := summa;
+         curr_add^.fzp    := summa;
+         curr_add^.who    := id;
          retVal := true;
          maked  := true;
+         summaPreTot:=roundTo(summaPreTot,0)+roundTo(summa,0);
          fillPersonPrem:=retVal;
      end;
+  function existsDoplDoMinZp(curr_person:person_ptr):boolean;
+    var retVal:Boolean;
+        curr_add:ADD_PTR;
+    begin
+         retval:=False;
+         curr_add:=curr_person^.ADD;
+         while (curr_add<>nil) do
+          begin
+               if curr_add^.shifr=DOPL_DO_MIN_SHIFR then
+                  begin
+                       retval:=True;
+                       Break;
+                  end;
+               curr_add:=curr_add^.NEXT;
+          end;
+         existsDoplDoMinZp:=retVal;
+    end;
 
 begin
      NMES_Sav  := NMES;
@@ -204,7 +241,11 @@ begin
      ProgressBar1.Min := 0;
      ProgressBar1.Position := 0;
      SC:=0;
-     pFIBDataSet1.Transaction.StartTransaction;
+     tabnoList:=TList.Create;
+     summaPreTot:=0;
+     Label3.Show;
+     Label3.Caption:=FormatFloatPoint(SummaPreTot);
+     Application.ProcessMessages;
      for I_NSRV:=1 to COUNT_SERV do
          begin
               Sc:=Sc+1;
@@ -229,14 +270,23 @@ begin
                      if shifrWR=1 then
                      if KategList.IsSelected(curr_person^.KATEGORIJA) then
                      if GruppyList.IsSelected(curr_person^.GRUPPA) then
-                        FillPersonPrem(curr_person);
+                     if not existsDoplDoMinZp(curr_person) then
+                     if not findTabnoInList(curr_person^.tabno) then
+                     if curr_person^.Oklad>10 then
+                        begin
+                             FillPersonPrem(curr_person);
+                             Label3.Caption:=FormatFloatPoint(SummaPreTot);
+                             Application.ProcessMessages;
+                        end;
                      curr_person:=curr_person^.NEXT;
                 end;
-
-              if Maked then PUTINF;
-              EMPTY_ALL_PERSON;
+              if rgModeRead.ItemIndex=1 then
+                 if Maked then PUTINF;
+                    EMPTY_ALL_PERSON;
 
          end;
+     tabnoList.Clear;
+     tabnoList.Free;
      NMES:=NMES_Sav;
      NSRV:=NSRV_Sav;
      MKFLNM;
@@ -249,6 +299,17 @@ begin
     Application.CreateForm(TFormSelPKG, FormSelPKG);
     FormSelPKG.ShowModal;
 
+end;
+
+procedure TFormCalcPrem_11_2017.FormCreate(Sender: TObject);
+begin
+     if not ((NMES=3) and (CURRYEAR=2023)) then
+        begin
+ //            ShowMessage('Рассчитать премию можно тольков марте 2023 г.');
+             raise Exception.Create('Рассчитать премию можно только в марте 2023 г.');
+
+        end;
+     Label3.Hide   
 end;
 
 end.

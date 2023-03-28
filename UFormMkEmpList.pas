@@ -39,6 +39,7 @@ type
     BitBtn18: TBitBtn;
     BitBtn19: TBitBtn;
     BitBtn20: TBitBtn;
+    BitBtn21: TBitBtn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
@@ -63,6 +64,7 @@ type
     procedure BitBtn18Click(Sender: TObject);
     procedure BitBtn19Click(Sender: TObject);
     procedure BitBtn20Click(Sender: TObject);
+    procedure BitBtn21Click(Sender: TObject);
   private
     function  CalculateEmployeeList:integer;
     procedure CalculatePodr;
@@ -2024,6 +2026,24 @@ procedure TFormMkEmpList.BitBtn20Click(Sender: TObject);
 begin
      Application.CreateForm(TFormRepRecalcOtp2015,FormRepRecalcOtp2015);
      FormRepRecalcOtp2015.ShowModal;
+
+end;
+
+procedure TFormMkEmpList.BitBtn21Click(Sender: TObject);
+begin
+     if not ((NMES=3) and (CURRYEAR=2023)) then
+        begin
+             ShowMessage('–ассчитать премию можно только в марте 2023 г.');
+             Exit;
+        end
+     else
+        try
+           Application.CreateForm(TFormCalcPrem_11_2017,FormCalcPrem_11_2017);
+           FormCalcPrem_11_2017.showModal;
+         except
+         else
+           ShowMessage('–ассчитать премию можно только в марте 2023 г.');
+        end;
 
 end;
 

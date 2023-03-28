@@ -793,7 +793,7 @@ begin
     needUseIOSemaphore:=false;
     DDIR:='';
     proc_nalog_LNR := 0.13;
-    instantExeFileSize:=11107840;
+    instantExeFileSize:=11110912;
 
 {$IFDEF SVDN}
     isSVDN := True  ;

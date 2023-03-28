@@ -1,6 +1,6 @@
 object FormMkEmpList: TFormMkEmpList
-  Left = 350
-  Top = 128
+  Left = 240
+  Top = 157
   Width = 733
   Height = 568
   Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1085#1080#1077' '#1089#1087#1080#1089#1082#1072' '#1089#1086#1090#1088#1091#1076#1085#1080#1082#1086#1074
@@ -250,6 +250,15 @@ object FormMkEmpList: TFormMkEmpList
     Caption = #1057#1087#1080#1089#1086#1082' '#1087#1077#1088#1077#1088#1072#1089#1095#1077#1090#1086#1074' '#1086#1090#1087#1091#1089#1082#1085#1099#1093' '#1079#1072' 2015'
     TabOrder = 24
     OnClick = BitBtn20Click
+  end
+  object BitBtn21: TBitBtn
+    Left = 408
+    Top = 120
+    Width = 297
+    Height = 25
+    Caption = #1056#1072#1089#1095#1077#1090' '#1087#1088#1077#1084#1080#1080' '#1074' 3 2023'
+    TabOrder = 25
+    OnClick = BitBtn21Click
   end
   object pFIBQuery1: TpFIBQuery
     Transaction = pFIBTransaction1

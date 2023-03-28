@@ -13144,7 +13144,7 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
       if summaAdd>summaVy then
          summaAdd:=summaAdd-summaVy;
       summaPodRas:=summaAdd*proc_nalog_LNR;
-      if abs(summaPod-summaPodRas)>0.51 then
+      if abs(summaPod-summaPodRas)>0.75 then
          retVal:=false
       else
          retVal:=true;

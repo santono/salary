@@ -1149,7 +1149,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                              if isLNR then
                              if MainScreen[j].Shifr=podoh_shifr then
                                 begin
-                                     if curr_person^.tabno=10144 then
+                                     if curr_person^.tabno=10401 then
                                         fio:=curr_person^.fio;
                                      if not isCorrectLNRPodoh13Person(curr_person) then
                                         begin
