@@ -64,7 +64,7 @@ type
     summaYearLimit:Real;
     DataFr:TDate;
     DataTo:TDate;
-    Enabled:Boolean;
+    EnabledLgo:Boolean;
     GUID:string;
     id:Integer;
     curr_person:PERSON_PTR;
@@ -100,7 +100,7 @@ constructor TFormPersonLgo.myCreate(AOwner: TComponent;curr_person:person_ptr);
       Self.summavy:=0.00;
       Self.DataFr:=Now;
       Self.DataTo:=EncodeDate(1900,1,1);
-      Self.Enabled:=True;
+      Self.EnabledLgo:=True;
       Self.GUID:=GetGUIDPersonToString(curr_person);
 //      Self.MemoComment.Lines.Clear;
 //      Self.MemoComment.Lines.Add(Self.comment);
@@ -133,7 +133,9 @@ constructor TFormPersonLgo.myCreate(AOwner: TComponent;curr_person:person_ptr);
                         Self.Id:=dsLgotnikiID.AsInteger;
                      if not dsLgotnikiENABLED.IsNull then
                      if dsLgotnikiENABLED.AsInteger>0 then
-                        Self.Enabled:=True;
+                        Self.EnabledLgo:=True
+                     else
+                        Self.EnabledLgo:=False;
                      if not dsLgotnikiSUMMAVY.IsNull then
                         Self.summavy:=dsLgotnikiSUMMAVY.AsFloat;
                      if not dsLgotnikiSUMMAYEARLIMIT.IsNull then
@@ -159,7 +161,7 @@ procedure TFormPersonLgo.fillForm;
  var lines:TArrOfAnsiString;
      i:Integer;
  begin
-      cbEnabled.Checked:=Self.Enabled;
+      cbEnabled.Checked:=Self.EnabledLgo;
       dtFrom.Date:=Self.DataFr;
       dtTo.Date:=Self.DataTo;
       SSummVy.Text:=FormatFloatPoint(Self.SummaVy);
@@ -179,7 +181,10 @@ procedure TFormPersonLgo.fillRecord;
      iErr:Integer;
      aVal:Real;
  begin
-      Self.Enabled:=cbEnabled.Checked;
+      if cbEnabled.Checked then
+         Self.EnabledLgo:=True
+      else
+         Self.EnabledLgo:=false;
       Self.DataFr:=dtFrom.Date;
       Self.DataTo:=dtTo.Date;
       Val(SSummVy.text,aVal,iErr);
@@ -220,6 +225,11 @@ procedure TFormPersonLgo.saveRecord;
       dsLgotnikiSUMMAYEARLIMIT.Value:=Self.summaYearLimit;
       dsLgotnikiSHIFRLG.Value:=Self.shifrlg;
       dsLgotnikiCOMMENT.Value:=trim(Self.Comment);
+      if Self.EnabledLgo then
+         dsLgotnikiENABLED.Value:=1
+      else
+         dsLgotnikiENABLED.Value:=0;
+
       dsLgotniki.Post;
       dsLgotniki.Close;
       if dsLgotniki.UpdateTransaction.Active then
@@ -247,9 +257,10 @@ procedure TFormPersonLgo.BitBtn1Click(Sender: TObject);
 begin
      fillRecord;
      saveRecord;
-     if Abs(getLgotyPN2023(curr_person)-Self.summavy)>1.0 then
+     if (Abs(getLgotyPN2023(curr_person)-Self.summavy)>1.0)
+     or (isEnabledLgotyPN2023(curr_person)<>Self.EnabledLgo) then
         begin
-             MakeLgotyPNInCN2023(Self.Curr_person,Self.summavy,Self.id);
+             MakeLgotyPNInCN2023(Self.Curr_person,Self.summavy,Self.id,Self.EnabledLgo);
              putInf;
         end;     
      Self.Close;

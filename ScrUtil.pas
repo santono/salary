@@ -307,6 +307,7 @@ interface
    FUNCTION GetKwoDetOdMPN2004(CURR_PERSON:PERSON_PTR):integer;
    FUNCTION getSingleMonherForPN2004(CURR_PERSON:PERSON_PTR):Boolean;
    function GetPorNomerPerson(CURR_PERSON:PERSON_PTR):INTEGER;
+   procedure setPorNomerPerson(CURR_PERSON:PERSON_PTR;N:integer);
    FUNCTION GetKreditNomerDog(CURR_PERSON:PERSON_PTR):integer;
    function CompareUkrText(S1, S2: string): integer;
    function ReplCommaOnPoint(src:string):string;
@@ -374,6 +375,7 @@ interface
    function CodeReasonILL(SrcCode:integer):integer;
    function IsLgotyPN2011(CURR_PERSON:PERSON_PTR):boolean;
    function getLgotyPN2023(CURR_PERSON:PERSON_PTR):real;
+   function isEnabledLgotyPN2023(CURR_PERSON:PERSON_PTR):boolean;
    function IsSciPed(Curr_Person:Person_Ptr):boolean;
    function CalcECB(Curr_Person : Person_Ptr;
                     W_Place     : integer;
@@ -527,7 +529,7 @@ interface
 
   FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
   procedure MakeLgotyPNInCN(Curr_Person:Person_Ptr);
-  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;id:integer);
+  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;id:integer;Enabled:boolean);
   function CanModify:Boolean;
   function SavePodr : boolean;
   function RestorePodr : boolean;
@@ -5328,6 +5330,35 @@ FUNCTION FORMAT_S(B:REAL;L:INTEGER):STRING;
        GetPorNomerPerson:=RetVal;
    END;
 
+ procedure setPorNomerPerson(CURR_PERSON:PERSON_PTR;N:integer);
+   VAR
+       CURR_CN:CN_PTR;
+       RETVAL:Integer;
+   BEGIN
+       RETVAL:=0;
+       CURR_CN:=CURR_PERSON^.CN;
+       WHILE (CURR_CN<>NIL) DO
+        BEGIN
+             IF ((CURR_CN^.SHIFR=PorNomerShifr) OR (CURR_CN^.SHIFR=PorNomerShifr+LIMIT_CN_BASE)) THEN
+                BEGIN
+                     RETVAL:=CURR_CN^.PRIM;
+                     BREAK;
+                END;
+             CURR_CN:=CURR_CN^.NEXT;
+        END;
+       if retVal>0 then
+          begin
+               curr_cn^.prim:=n;
+          end
+       else
+          begin
+               make_cn(curr_cn,curr_person);
+               CURR_CN^.SHIFR:=PorNomerShifr+LIMIT_CN_BASE;
+               CURR_CN^.KOD:=100;
+               CURR_CN^.PRIM:=N;
+          end;
+   END;
+
  FUNCTION GetKreditNomerDog(CURR_PERSON:PERSON_PTR):integer;
   var RetVal:integer;
       Curr_Cn:Cn_Ptr;
@@ -7463,6 +7494,7 @@ function IsUkrSibBankPerson(Curr_Person:Person_Ptr):boolean;
           Result:=false;
  end;
 
+
 function IsKassaPerson(Curr_Person:Person_Ptr):boolean;
  var s:string;
      retVal:Boolean;
@@ -9093,14 +9125,43 @@ function getLgotyPN2023(CURR_PERSON:PERSON_PTR):real;
                   begin
                       if Curr_Cn^.Shifr=Limit_Cn_Base+LgotyPn2011Shifr then
                       if Curr_Cn^.Kod=100                              then
+                      if AnsiCompareText(Trim(Curr_Cn^.PRIM_1),trim('Заблокирована'))<>0 then
                          begin
                              RetVal:=curr_cn^.summa;
                              Break;
-                            end;
+                         end;
                       Curr_Cn:=Curr_Cn^.Next;
                   end;
           end;
        getLgotyPN2023:=retVal;
+
+  end;
+function isEnabledLgotyPN2023(CURR_PERSON:PERSON_PTR):boolean;
+  var retVal:boolean;
+      curr_Cn:CN_PTR;
+  begin
+       retval:=false;
+       if isLnr then
+          begin
+               if (Curr_Person=nil) then
+                  begin
+                    isEnabledLgotyPN2023:=retval;
+                    Exit;
+                  end;
+               Curr_Cn:=Curr_Person^.Cn;
+               while (Curr_Cn<>Nil) do
+                  begin
+                      if Curr_Cn^.Shifr=Limit_Cn_Base+LgotyPn2011Shifr then
+                      if Curr_Cn^.Kod=100                              then
+                      if AnsiCompareText(Trim(Curr_Cn^.PRIM_1),trim('Заблокирована'))<>0 then
+                         begin
+                             RetVal:=true;
+                             Break;
+                         end;
+                      Curr_Cn:=Curr_Cn^.Next;
+                  end;
+          end;
+       isEnabledLgotyPN2023:=retVal;
 
   end;
 
@@ -10436,7 +10497,7 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
                      end;
              end
      end;
-  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;Id:integer);
+  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;Id:integer;Enabled:boolean);
      var  isel:integer;
           Finded:boolean;
           Curr_cn:CN_PTR;
@@ -10451,6 +10512,16 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
                    begin
                         Finded:=true;
                         Curr_Cn^.SUMMA:=summavy;
+                        if Enabled then
+                           begin
+                             Curr_Cn^.AUTOMATIC:=AUTOMATIC_MODE;
+                             Curr_Cn^.PRIM_1:='Активна';
+                           end
+                        else
+                           begin
+                             Curr_Cn^.AUTOMATIC:=MANUAL_MODE;
+                             Curr_Cn^.PRIM_1:='Заблокирована';
+                           end;
                         break;
                    end;
                 Curr_CN:=Curr_CN^.Next;
@@ -10462,7 +10533,18 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
                 Curr_Cn^.KOD:=100;
                 Curr_Cn^.SUMMA:=summavy;
                 Curr_Cn^.PRIM:=id;
-                Curr_Cn^.PRIM_1:='';
+                Curr_Cn^.PRIM_1:='Заблокирована';
+                if Enabled then
+                   begin
+                        Curr_Cn^.AUTOMATIC:=AUTOMATIC_MODE;
+                        Curr_Cn^.PRIM_1:='Активна';
+                   end
+                else
+                   begin
+                        Curr_Cn^.AUTOMATIC:=MANUAL_MODE;
+                        Curr_Cn^.PRIM_1:='Заблокирована';
+                   end;
+
             end;
      end;
 
@@ -13144,7 +13226,7 @@ function isCorrectLNRPodoh13Person(curr_person:person_ptr):boolean;
       if summaAdd>summaVy then
          summaAdd:=summaAdd-summaVy;
       summaPodRas:=summaAdd*proc_nalog_LNR;
-      if abs(summaPod-summaPodRas)>0.75 then
+      if abs(summaPod-summaPodRas)>3.00 then
          retVal:=false
       else
          retVal:=true;

@@ -364,10 +364,10 @@ begin
                                 begin
                                      shifrdol:=get_dol_code(curr_person);
                                      case shifrdol of
-                                      20,30,40: Curr_Person^.OKLAD := OkladProrektor;
-                                      520:      Curr_Person^.OKLAD := OkladPomRektora;
-                                      605:      Curr_Person^.OKLAD := OkladGlBuh;
-                                      1424:     Curr_Person^.OKLAD := OkladZamGlBuh;
+                                      20,30,40: if NSRV=1 then Curr_Person^.OKLAD := OkladProrektor;
+                                      520:      if NSRV=1 then Curr_Person^.OKLAD := OkladPomRektora;
+                                      605:      if NSRV=3 then Curr_Person^.OKLAD := OkladGlBuh;
+                                      1424:     if NSRV=3 then Curr_Person^.OKLAD := OkladZamGlBuh;
                                       80,1531:  Curr_Person^.OKLAD := OkladZamDekana;
                                       1532:     Curr_Person^.OKLAD := OkladZamDirInst;
                                       185:      Curr_Person^.OKLAD := OkladZamDirStudGorodka;
@@ -379,6 +379,7 @@ begin
 //                                        begin
 //                                             MakeOzdorov(Curr_person);
 //                                        end;
+(*
                                      if isInSpecDolgList(shifrDol) then
                                         begin
                                             testOklad:=getOkladByShifrDol(shifrDol);
@@ -391,6 +392,7 @@ begin
                                             curr_person^.OKLAD:=testOklad;
                                             newOklad:=testOklad;
                                         end;
+*)
                                 end;
                              NeedPut:=true;
                              if abs(abs(newOklad)-abs(oldOklad))<1.00 then

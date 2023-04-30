@@ -466,6 +466,8 @@ type
     ToolButton23: TToolButton;
     ActionEditLgotniki: TAction;
     N196: TMenuItem;
+    ActionEditPSB: TAction;
+    ToolButtonPSB: TToolButton;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -761,6 +763,7 @@ type
     procedure ActionRepPodohDetailSwodExecute(Sender: TObject);
     procedure ActionEditPersonLgotyExecute(Sender: TObject);
     procedure ActionEditLgotnikiExecute(Sender: TObject);
+    procedure ActionEditPSBExecute(Sender: TObject);
 
 
   private
@@ -861,7 +864,7 @@ implementation
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
   UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
   UFormExeSQLScript, UFormRepPodohByPerson, UFormPersonLgo,
-  UFormEditLgotniki;
+  UFormEditLgotniki, UFormBrowsePSB;
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1149,7 +1152,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
                              if isLNR then
                              if MainScreen[j].Shifr=podoh_shifr then
                                 begin
-                                     if curr_person^.tabno=10401 then
+                                     if curr_person^.tabno=6905 then
                                         fio:=curr_person^.fio;
                                      if not isCorrectLNRPodoh13Person(curr_person) then
                                         begin
@@ -1538,6 +1541,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
 //          ToolbottonObo.visible:=false;
           NClearTmpTableSRD.visible:=False;
           NClearTmpTableSRD.enabled:=False;
+          ToolButtonPSB.Enabled := False;
+          ToolButtonPSB.Visible := False;
+
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
         end
        else
@@ -1642,6 +1648,11 @@ procedure TMainForm.FormCreate(Sender: TObject);
           ToolButtonPrikazy.visible:=False;
           ToolButtonInd.Enabled:=False;
           ToolButtonInd.visible:=False;
+          if not enabledPSB then
+             begin
+                  ToolButtonPSB.Enabled := False;
+                  ToolButtonPSB.Visible := False;
+             end;     
 
 
    //       if DirectoryExists('Y:') then
@@ -5308,6 +5319,13 @@ procedure TMainForm.ActionEditLgotnikiExecute(Sender: TObject);
 begin
      Application.CreateForm(TFormEditLgotniki,FormEditLgotniki);
      FormEditLgotniki.showModal;
+end;
+
+procedure TMainForm.ActionEditPSBExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormBrowsePSB,FormBrowsePSB);
+     FormBrowsePSB.showModal;
+
 end;
 
 end.

@@ -40,6 +40,7 @@ type
     BitBtn19: TBitBtn;
     BitBtn20: TBitBtn;
     BitBtn21: TBitBtn;
+    BitBtn22: TBitBtn;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
@@ -65,6 +66,7 @@ type
     procedure BitBtn19Click(Sender: TObject);
     procedure BitBtn20Click(Sender: TObject);
     procedure BitBtn21Click(Sender: TObject);
+    procedure BitBtn22Click(Sender: TObject);
   private
     function  CalculateEmployeeList:integer;
     procedure CalculatePodr;
@@ -108,7 +110,8 @@ implementation
   UFormMovRecalc0416, UFormMoveRecalcOtp2016, UFormImportFromKU,
   UFormRepRecalcOtp2015,DateUtils,UFormMovePremFromSQL,
   UFormCalcPrem_11_2017,UFormMoveAwans2017_12,ScrIoSQL,
-  UFormMakeVypl082020, UFormMoveDoplTo156, UFormMovePremFromCSV;
+  UFormMakeVypl082020, UFormMoveDoplTo156, UFormMovePremFromCSV,
+  UFormMoveRclcToVneCSV;
 
 {$R *.dfm}
 
@@ -2045,6 +2048,13 @@ begin
            ShowMessage('–ассчитать премию можно только в марте 2023 г.');
         end;
 
+end;
+
+procedure TFormMkEmpList.BitBtn22Click(Sender: TObject);
+begin
+     if NMES<>4 then Exit;
+     Application.CreateForm(TFormMoveRclcToVneCSV,FormMoveRclcToVneCSV);
+     FormMoveRclcToVneCSV.showModal;
 end;
 
 end.

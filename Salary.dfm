@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 145
-  Top = 107
+  Left = 234
+  Top = 108
   Width = 854
   Height = 493
   HorzScrollBar.Visible = False
@@ -261,6 +261,12 @@ object MainForm: TMainForm
       Top = 2
       Action = ActionEditPersonLgoty
       Caption = #1051#1100#1075
+    end
+    object ToolButtonPSB: TToolButton
+      Left = 810
+      Top = 2
+      Action = ActionEditPSB
+      Caption = #1055#1057#1041
     end
   end
   object StatusBar1: TStatusBar
@@ -1836,6 +1842,11 @@ object MainForm: TMainForm
     object ActionEditLgotniki: TAction
       Caption = #1051#1100#1075#1086#1090#1085#1080#1082#1080' '#1087#1086' '#1085#1072#1083#1086#1075#1091' '#1085#1072' '#1076#1086#1093#1086#1076#1099
       OnExecute = ActionEditLgotnikiExecute
+    end
+    object ActionEditPSB: TAction
+      Caption = #1057#1087#1080#1089#1086#1082' '#1089#1095#1077#1090#1086#1074' '#1055#1057#1041
+      Hint = #1055#1088#1086#1089#1084#1086#1090#1088' '#1080' '#1088#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1089#1087#1089#1080#1082#1072' '#1089#1095#1077#1090#1086#1074' '#1055#1057#1041
+      OnExecute = ActionEditPSBExecute
     end
   end
   object ImageList1: TImageList

@@ -131,7 +131,7 @@ function isIPDOPodr(shifrPod:integer):boolean;
  var retVal:Boolean;
  begin
       retVal:=False;
-      if shifrPod in [185,190] then
+      if shifrPod in [115,185,190] then
          retVal:=True;
       isIPDOPodr:=retVal;
  end;

@@ -640,7 +640,7 @@ var
     needUseIOSemaphore:Boolean;
     versionInfo:string;
     instantExeFileSize:integer;
-
+    enabledPSB : Boolean;
     SVDNfooterRec:record
                        summaAdd         : Real;
                        summa_MP_31      : Real;
@@ -793,7 +793,8 @@ begin
     needUseIOSemaphore:=false;
     DDIR:='';
     proc_nalog_LNR := 0.13;
-    instantExeFileSize:=11110912;
+    instantExeFileSize:=11204608;
+    enabledPSB:=True;
 
 {$IFDEF SVDN}
     isSVDN := True  ;
