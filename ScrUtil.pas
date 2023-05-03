@@ -292,6 +292,10 @@ interface
    FUNCTION IS_KASSA(S:STRING):BOOLEAN;
    FUNCTION IS_PRAVEKSBANK(S:STRING):BOOLEAN;
    FUNCTION IS_PRIVATBANK(S:STRING):BOOLEAN;
+   FUNCTION GET_PSBBANK_COUNT_REZ(tabno:integer):STRING;
+   FUNCTION GET_PSBBANK_COUNT_NEREZ(tabno:integer):STRING;
+   FUNCTION GET_PSBBANK_COUNT(tabno:integer):STRING;
+   FUNCTION GET_PSBBANK_PASSPORT(tabno:integer):STRING;
    FUNCTION GET_ALIMENTY_PRIM(ALABEL:WORD):WORD;
    FUNCTION CODE_ALIMENTY_PRIM(ALABEL:WORD;MODE:BYTE):WORD;
    function DOG_POD_PODRAZD(wanted_serv:integer):boolean;
@@ -7423,6 +7427,63 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
      IF POS(LU,SS)>0 THEN  L:=TRUE;
      IS_PRIVATBANK:=L;
  END;
+FUNCTION GET_PSBBANK_COUNT_REZ(tabno:integer):STRING;
+ var SQLStmnt:string;
+     retVal:string;
+     v:variant;
+ begin
+       retVal:='-1';
+       SQLStmnt:='select first 1 nomer_scheta from tb_psb_rez where tabno='+intToStr(TABNO)+' and rezident=''21''';
+       v:=SQLQueryValue(SQLStmnt);
+       if not varIsNull(v) then
+          retVal:=trim(v);
+       if length(retVal)<>20 then
+          retVal:='-1';
+       GET_PSBBANK_COUNT_REZ:=retVal;
+ end;
+FUNCTION GET_PSBBANK_COUNT_NEREZ(TABNO:integer):STRING;
+ var SQLStmnt:string;
+     retVal:string;
+     v:variant;
+ begin
+       retVal:='-1';
+       SQLStmnt:='select first 1 nomer_scheta from tb_psb_rez where tabno='+intToStr(TABNO)+' and rezident=''10''';
+       v:=SQLQueryValue(SQLStmnt);
+       if not varIsNull(v) then
+          retVal:=trim(v);
+       if length(retVal)<>20 then
+          retVal:='-1';
+       GET_PSBBANK_COUNT_NEREZ:=retVal;
+ end;
+FUNCTION GET_PSBBANK_COUNT(tabno:integer):STRING;
+ var SQLStmnt:string;
+     retVal:string;
+     v:variant;
+ begin
+       retVal:='-1';
+       SQLStmnt:='select first 1 nomer_scheta from tb_psb_rez where tabno='+intToStr(tabno);
+       v:=SQLQueryValue(SQLStmnt);
+       if not varIsNull(v) then
+          retVal:=trim(v);
+       if length(retVal)<>20 then
+          retVal:='-1';
+       GET_PSBBANK_COUNT:=retVal;
+ end;
+FUNCTION GET_PSBBANK_PASSPORT(tabno:integer):STRING;
+ var SQLStmnt:string;
+     retVal:string;
+     v:variant;
+ begin
+       retVal:='-1';
+       SQLStmnt:='select first 1 passport from tb_psb_rez where tabno='+intToStr(tabno);
+       v:=SQLQueryValue(SQLStmnt);
+       if not varIsNull(v) then
+          retVal:=trim(v);
+       if length(retVal)<8 then
+          retVal:='-1';
+       GET_PSBBANK_PASSPORT:=retVal;
+ end;
+
 
 FUNCTION GET_ALIMENTY_PRIM(ALABEL:WORD):WORD;
  VAR K:WORD;

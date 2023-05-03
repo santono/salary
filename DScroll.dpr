@@ -412,7 +412,6 @@ uses
   UFormPersonLgo in 'UFormPersonLgo.pas' {FormPersonLgo},
   UFormEditLgotniki in 'UFormEditLgotniki.pas' {FormEditLgotniki},
   UFormUpdateLgotnik in 'UFormUpdateLgotnik.pas' {FormUpdateLgotnik},
-  UFormMoveRclcToVneCSV in 'UFormMoveRclcToVneCSV.pas' {FormMoveRclcToVneCSV},
   UFormBrowsePSB in 'UFormBrowsePSB.pas' {FormBrowsePSB},
   UFormUpdatePSB in 'UFormUpdatePSB.pas' {FormUpdatePSB};
 

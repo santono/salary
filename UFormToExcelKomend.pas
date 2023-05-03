@@ -1090,6 +1090,63 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
 
 
        end;  //-----------------------
+     procedure ExportToPSBBankExcel(RezStr:string);
+       var FName:string;
+           E,WC:Variant;
+           sc,i:Integer;
+           rec,currrow,currcol:Integer;
+           FAM,NAM,OTC,SSumma:ShortString;
+       begin //----------------------
+           FName:=TemplateDIR+'PSB_Bank.xlt';
+           if not FileExists(FName) then
+              begin
+                   ShowMessage('Отсутствует шаблон '+FName);
+                   Exit;
+              end;
+           try
+              E:=CreateOleObject('Excel.Application');
+           except
+              ShowMessage('Ошибка запуска Excel');
+              Exit;
+           end;
+
+           sc:=0;
+           rec:=list.count;
+           ProgressBar1.Max:=Rec;
+           ProgressBar1.Min:=0;
+           ProgressBar1.Position:=0;
+           CurrRow:=0;
+           E.Visible:=true;
+           E.WorkBooks.Open(FName);
+           for i:=0 to list.count-1 do
+               begin
+                    sc:=sc+1;
+                    ProgressBar1.Position:=sc;
+                    Application.ProcessMessages;
+                    Inc(CurrRow);
+//                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1].Select;
+//                    E.Selection.EntireRow.Insert;
+//                    WC:=E.ActiveCell;
+                    if rezStr='21' then
+                       E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:=GET_PSBBANK_COUNT_REZ(pRec(list.Items[i]).tabno)
+                    else
+                       E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:=GET_PSBBANK_COUNT_NEREZ(pRec(list.Items[i]).tabno);
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:='810';
+                    SSumma:=trim(FormatFloatPoint(R10(pRec(list.Items[i]).summarub)));
+                    SSumma:=''''+SSumma;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3]:=SSumma;
+                    SplitFIO(pRec(list.Items[i]).fio,Fam,Nam,OTC);
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4]:=FAM;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5]:=NAM;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6]:=OTC;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,7]:=RezStr;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8]:=GET_PSBBANK_PASSPORT(pRec(list.Items[i]).tabno);
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9]:=pRec(list.Items[i]).tabno;
+              end;
+
+
+       end;  //-----------------------
+
      procedure ExportToBankForCardExcel(BankReason:STring);
        var FName:string;
            E,WC:Variant;
@@ -1337,7 +1394,7 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
                                Curr_Person:=Curr_Person^.NEXT;
                                Continue;
                           end;
-                       if (rgKassa.ItemIndex=2)
+                       if (rgKassa.ItemIndex=2)                  //Банк ЛНР
                           and
                           (not IsKassaPerson(Curr_Person))
                        then
@@ -1345,7 +1402,20 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
                                Curr_Person:=Curr_Person^.NEXT;
                                Continue;
                           end;
-
+                       if (rgKassa.ItemIndex=3)                 //ПСБ - рез
+                          and
+                          (length(trim(GET_PSBBANK_COUNT_REZ(Curr_Person^.TABNO)))<>20) then
+                          begin
+                               Curr_Person:=Curr_Person^.NEXT;
+                               Continue;
+                          end;
+                       if (rgKassa.ItemIndex=4)                 //ПСБ - нерез
+                          and
+                          (length(trim(GET_PSBBANK_COUNT_NEREZ(Curr_Person^.TABNO)))<>20) then
+                          begin
+                               Curr_Person:=Curr_Person^.NEXT;
+                               Continue;
+                          end;
                        if (
                            ((VIPMode=1) and (inVIPList(Curr_Person^.Tabno,kindVip)))
                            or
@@ -1401,7 +1471,13 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
                        cdsRubSUMMA.Value     := R10(prec(list.Items[i]).summagrn);
                        cdsRubSUMMA_RUB.Value := R10(prec(list.Items[i]).summarub);
                        cdsRubIDCODE.Value    := getPersonInn(prec(list.Items[i]).tabno);
-                       cdsRubBANKCOUNT.Value := getPersonBankCount(prec(list.Items[i]).tabno);
+                       if rgKassa.itemIndex=2 then
+                          cdsRubBANKCOUNT.Value := getPersonBankCount(prec(list.Items[i]).tabno)
+                       else
+                       if rgKassa.itemIndex=3 then
+                          cdsRubBANKCOUNT.Value := GET_PSBBANK_COUNT_REZ(prec(list.Items[i]).tabno);
+                       if rgKassa.itemIndex=4 then
+                          cdsRubBANKCOUNT.Value := GET_PSBBANK_COUNT_NEREZ(prec(list.Items[i]).tabno);
                        if (CURRYEAR=2015) and (NMES<9) then
                           cdsRubSUMMA_RUB.Value:=R10(cdsRubSUMMA_RUB.Value*2);
                           summaTotRub:=R10(R10(summaTotRub)+r10(cdsRubSUMMA_RUB.Value));
@@ -1440,19 +1516,27 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
               setDetailHeight;
               frxReportMem.ShowReport;
               if YesNo('Подготовить файл для банка?') then
-
                  begin
-                      BankReason:=InputBox('Название выплаты','Укажите название выплаты',ShifrList.GetName(wantedShifr));
-                      if YesNo('Для перечисления на карту?') then
-                              ExportToBankForCardExcel2018(BankReason)
-//                              ExportToBankForCardExcel(BankReason)
-                      else
+                      if (rgKassa.ItemIndex=1)  then
                          begin
-                              ExportToBankExcel(BankReason);
+                              BankReason:=InputBox('Название выплаты','Укажите название выплаты',ShifrList.GetName(wantedShifr));
+                              if YesNo('Для перечисления на карту?') then
+                                 ExportToBankForCardExcel2018(BankReason)
+//                                  ExportToBankForCardExcel(BankReason)
+                              else
+                                 begin
+                                    ExportToBankExcel(BankReason);
                 //      HatForDotReport:='Зарплата за '+getMonthRus(nmes)+' '+intToStr(CurrYear)+' г.';
-                              HatForDotReport:=InputBox('Название выплаты','Укажите название выплаты для распечатки банка','Зарплата за '+getMonthRus(nmes)+' '+intToStr(CurrYear)+' г.');
-                              frxReportDot.ShowReport;
+                                   HatForDotReport:=InputBox('Название выплаты','Укажите название выплаты для распечатки банка','Зарплата за '+getMonthRus(nmes)+' '+intToStr(CurrYear)+' г.');
+                                   frxReportDot.ShowReport;
+                                 end
                         end
+                      else
+                      if (rgKassa.ItemIndex=3)  then
+                          ExportToPSBBankExcel('21')  // Резиденты
+                      else
+                      if (rgKassa.ItemIndex=4)  then
+                          ExportToPSBBankExcel('10')  // Нерезиденты
                  end;
          end
       else

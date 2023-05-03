@@ -3,7 +3,7 @@
 unit ScrDef;
                            
 interface                 
-   uses Classes,SysUtils;
+   uses Classes,SysUtils,Forms,Math;
 CONST
 
          Nmb_Of_Col_Main_Screen    = 8;
@@ -664,6 +664,7 @@ var
 
     personList:TList;
     proc_nalog_LNR:Double;
+    screenWidth:integer;
 {$IFDEF SVDN}
 const LenBlSta=38;
 {$ELSE}
@@ -793,8 +794,10 @@ begin
     needUseIOSemaphore:=false;
     DDIR:='';
     proc_nalog_LNR := 0.13;
-    instantExeFileSize:=11204608;
+    instantExeFileSize:=11211776;
     enabledPSB:=True;
+    screenWidth:=Screen.DesktopWidth;
+//    Screen.DesktopHeight
 
 {$IFDEF SVDN}
     isSVDN := True  ;

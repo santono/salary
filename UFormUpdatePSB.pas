@@ -13,7 +13,7 @@ type
     cxDBTextEditNam: TcxDBTextEdit;
     cxDBTextEditOtc: TcxDBTextEdit;
     cxDBTextEditPassport: TcxDBTextEdit;
-    cxDBTextEditINN: TcxDBTextEdit;
+    cxDBTextEditINNOLD: TcxDBTextEdit;
     cxDBRadioGroup1: TcxDBRadioGroup;
     Label1: TLabel;
     Label2: TLabel;
@@ -27,10 +27,14 @@ type
     cxDBButtonEditTabno: TcxDBButtonEdit;
     cxDBTextEditNomerCount: TcxDBMaskEdit;
     cxDBTextEditSNILS: TcxDBMaskEdit;
+    cxDBTextEditINN: TcxDBMaskEdit;
     procedure BitBtn1Click(Sender: TObject);
     procedure cxDBButtonEdit1PropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure cxDBTextEditNomerCountPropertiesValidate(Sender: TObject;
+      var DisplayValue: Variant; var ErrorText: TCaption;
+      var Error: Boolean);
+    procedure cxDBTextEditSNILSPropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption;
       var Error: Boolean);
   private
@@ -171,7 +175,7 @@ function TFormUpdatePSB.ValidateSNILS:Boolean;
      i:Integer;
  begin
  //     s:=Trim(cxDBTextEditSNILS.Text);
-      showMessage(s);
+ //     showMessage(s);
       if s='' then
          begin
               ValidateSNILS:=true;
@@ -239,6 +243,14 @@ begin
              error:=True;
              ErrorText:='Неверный номер лицевого счета';
         end;
+end;
+
+procedure TFormUpdatePSB.cxDBTextEditSNILSPropertiesValidate(
+  Sender: TObject; var DisplayValue: Variant; var ErrorText: TCaption;
+  var Error: Boolean);
+begin
+      if DisplayValue='___-___-___ __' then
+         error:=false;
 end;
 
 end.

@@ -98,8 +98,8 @@ object FormUpdatePSB: TFormUpdatePSB
     TabOrder = 3
     Width = 201
   end
-  object cxDBTextEditINN: TcxDBTextEdit
-    Left = 168
+  object cxDBTextEditINNOLD: TcxDBTextEdit
+    Left = 440
     Top = 288
     DataBinding.DataField = 'INN'
     DataBinding.DataSource = FormBrowsePSB.dsoPSB
@@ -176,7 +176,18 @@ object FormUpdatePSB: TFormUpdatePSB
     DataBinding.DataSource = FormBrowsePSB.dsoPSB
     Properties.EditMask = '000\-000\-000\ 00;1;_'
     Properties.MaxLength = 0
+    Properties.OnValidate = cxDBTextEditSNILSPropertiesValidate
     TabOrder = 10
+    Width = 233
+  end
+  object cxDBTextEditINN: TcxDBMaskEdit
+    Left = 168
+    Top = 288
+    DataBinding.DataField = 'INN'
+    DataBinding.DataSource = FormBrowsePSB.dsoPSB
+    Properties.EditMask = '999999999999'
+    Properties.MaxLength = 0
+    TabOrder = 11
     Width = 233
   end
 end

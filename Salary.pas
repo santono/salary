@@ -803,7 +803,7 @@ var
   MainForm: TMainForm;
 
 implementation
-  uses UFormEditPodr,ScrLini,ScrIni, FormShifrU,FormNmesU,ScrDef,ScrUtil,ScrIO, ScrLists,DBUnit,
+  uses Math,UFormEditPodr,ScrLini,ScrIni, FormShifrU,FormNmesU,ScrDef,ScrUtil,ScrIO, ScrLists,DBUnit,
   UToSQL,udbf, uCKadry,FormAddUdU, FormSelShifrU,FormSortU,FormKadryU,FormSowmU,FormCnU,
   FormTabelU, SQlConnectU,ScrNalog, USelSwodMode,UFormArc,UFibModule,
   uFormBoln, uFormEditIPodr, UFORMEDITIKAT, UFORMEDITPRZB, UFormBolKoe,
@@ -1014,10 +1014,10 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
         s:='П.I.Б. спiвробiтника';
 
      StringGrid1.Cells[1,0]:=s;
-     StringGrid1.ColWidths[1]:=150;
+     StringGrid1.ColWidths[1]:=floor(ScreenWidth*0.150);
      for i:=1 to Nmb_Of_Col_Main_Screen do
          begin
-              StringGrid1.ColWidths[i+1]:=94;
+              StringGrid1.ColWidths[i+1]:=floor((screenWidth-StringGrid1.ColWidths[0]-screenWidth*0.150) / 8.00)-7;
               MainScreen[i].Summa:=0;
               S:=ShifrList.GetName(MainScreen[i].Shifr);
               if MainScreen[i].Shifr>M_Shifr then
@@ -1329,6 +1329,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
       end;
 
    InitInitialParamentersFromIniFile;
+//   kz:=Screen.DesktopWidth;
+//   kz:=Screen.DesktopHeight;
 
    Init_Dir_Name;
  //  testSVDNRec;

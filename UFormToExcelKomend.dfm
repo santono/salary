@@ -1,7 +1,7 @@
 object FormToExcelKomend: TFormToExcelKomend
   Left = 273
   Top = 73
-  Width = 608
+  Width = 697
   Height = 512
   Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1085#1080#1077' '#1074#1099#1087#1083#1072#1090' '#1074' Excel '
   Color = clBtnFace
@@ -144,8 +144,8 @@ object FormToExcelKomend: TFormToExcelKomend
     OnClick = btn4Click
   end
   object BitBtn5: TBitBtn
-    Left = 320
-    Top = 240
+    Left = 416
+    Top = 392
     Width = 265
     Height = 25
     Caption = #1057' '#1088#1072#1079#1073#1080#1074#1082#1086#1081' '#1087#1086' '#1089#1090#1088#1072#1085#1080#1094#1072#1084' VIP '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090' '
@@ -153,8 +153,8 @@ object FormToExcelKomend: TFormToExcelKomend
     OnClick = BitBtn5Click
   end
   object BitBtn6: TBitBtn
-    Left = 320
-    Top = 272
+    Left = 408
+    Top = 248
     Width = 265
     Height = 25
     Caption = #1057' '#1088#1072#1079#1073#1080#1074#1082#1086#1081' '#1087#1086' '#1089#1090#1088#1072#1085#1080#1094#1072#1084' '#1086#1089#1090#1072#1083#1100#1085#1086#1081' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090
@@ -207,8 +207,8 @@ object FormToExcelKomend: TFormToExcelKomend
     OnClick = BitBtn11Click
   end
   object BitBtn12: TBitBtn
-    Left = 320
-    Top = 320
+    Left = 408
+    Top = 288
     Width = 265
     Height = 25
     Caption = #1044#1077#1087#1086#1085#1077#1085#1090#1099
@@ -218,14 +218,16 @@ object FormToExcelKomend: TFormToExcelKomend
   object rgKassa: TRadioGroup
     Left = 8
     Top = 240
-    Width = 185
+    Width = 281
     Height = 33
     Caption = #1050#1072#1089#1089#1072
-    Columns = 3
+    Columns = 5
     Items.Strings = (
       #1042#1089#1077
       #1041#1072#1085#1082
-      #1050#1072#1089#1089#1072)
+      #1050#1072#1089#1089#1072
+      #1055#1057#1041' '#1056
+      #1055#1057#1041' '#1053)
     TabOrder = 19
   end
   object cxCalcEdit1: TcxCalcEdit
@@ -236,7 +238,7 @@ object FormToExcelKomend: TFormToExcelKomend
     Width = 105
   end
   object cbVypl: TCheckBox
-    Left = 208
+    Left = 304
     Top = 248
     Width = 97
     Height = 17
