@@ -794,7 +794,7 @@ begin
     needUseIOSemaphore:=false;
     DDIR:='';
     proc_nalog_LNR := 0.13;
-    instantExeFileSize:=11211776;
+    instantExeFileSize:=11217920;
     enabledPSB:=True;
     screenWidth:=Screen.DesktopWidth;
 //    Screen.DesktopHeight

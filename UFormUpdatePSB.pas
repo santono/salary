@@ -13,7 +13,6 @@ type
     cxDBTextEditNam: TcxDBTextEdit;
     cxDBTextEditOtc: TcxDBTextEdit;
     cxDBTextEditPassport: TcxDBTextEdit;
-    cxDBTextEditINNOLD: TcxDBTextEdit;
     cxDBRadioGroup1: TcxDBRadioGroup;
     Label1: TLabel;
     Label2: TLabel;

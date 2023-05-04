@@ -59,7 +59,7 @@ object FormUpdateKadryFB: TFormUpdateKadryFB
     Top = 0
     Width = 673
     Height = 513
-    ActivePage = TabSheet2
+    ActivePage = TabPSBSheet
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 4
     object TabSheet1: TTabSheet
@@ -393,6 +393,87 @@ object FormUpdateKadryFB: TFormUpdateKadryFB
         Caption = #1054#1095#1080#1089#1090#1080#1090#1100' '#1087#1088#1080#1095#1080#1085#1091' '#1091#1074#1086#1083#1100#1085#1077#1085#1080#1103
         TabOrder = 2
         OnClick = BitBtn4Click
+      end
+    end
+    object TabPSBSheet: TTabSheet
+      Caption = #1055#1057#1041
+      ImageIndex = 2
+      object Label18: TLabel
+        Left = 88
+        Top = 40
+        Width = 98
+        Height = 20
+        Caption = #1053#1086#1084#1077#1088' '#1089#1095#1077#1090#1072
+      end
+      object Label19: TLabel
+        Left = 64
+        Top = 96
+        Width = 125
+        Height = 20
+        Caption = #1053#1086#1084#1077#1088' '#1087#1072#1089#1087#1086#1088#1090#1072
+      end
+      object Label20: TLabel
+        Left = 136
+        Top = 240
+        Width = 57
+        Height = 20
+        Caption = #1057#1053#1048#1051#1057
+      end
+      object Label21: TLabel
+        Left = 152
+        Top = 288
+        Width = 35
+        Height = 20
+        Caption = #1048#1053#1053
+      end
+      object EditPSBPassport: TEdit
+        Left = 200
+        Top = 88
+        Width = 249
+        Height = 28
+        TabOrder = 0
+      end
+      object rgPSBRezident: TRadioGroup
+        Left = 200
+        Top = 128
+        Width = 297
+        Height = 89
+        Caption = #1056#1077#1079#1080#1076#1077#1085#1090'/'#1053#1077#1088#1077#1079#1080#1076#1077#1085#1090
+        Columns = 2
+        Items.Strings = (
+          #1056#1077#1079#1080#1076#1077#1085#1090
+          #1053#1077#1088#1077#1079#1080#1076#1077#1085#1090)
+        TabOrder = 1
+      end
+      object EditPSBNomerScheta: TMaskEdit
+        Left = 200
+        Top = 32
+        Width = 242
+        Height = 28
+        EditMask = '99999999999999999999;1;_'
+        MaxLength = 20
+        TabOrder = 2
+        Text = '                    '
+      end
+      object EditSNILS: TMaskEdit
+        Left = 200
+        Top = 232
+        Width = 256
+        Height = 28
+        EditMask = '000\-000\-000\ 00;1;_'
+        MaxLength = 14
+        TabOrder = 3
+        Text = '   -   -      '
+      end
+      object EditINN: TMaskEdit
+        Left = 200
+        Top = 280
+        Width = 254
+        Height = 28
+        EditMask = '999999999999;1;_'
+        MaxLength = 12
+        TabOrder = 4
+        Text = '            '
       end
     end
   end

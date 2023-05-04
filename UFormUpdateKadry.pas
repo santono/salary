@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, FIBDatabase, pFIBDatabase, DB, FIBDataSet, pFIBDataSet, StdCtrls,
   dxCntner, dxEditor, dxExEdtr, dxEdLib, dxDBELib, dxDBEdtr, Buttons,
-  ExtCtrls, ComCtrls;
+  ExtCtrls, ComCtrls, Mask;
 
 type TKadryRec=record
                TABNO       : INTEGER;
@@ -105,6 +105,16 @@ type TKadryRec=record
     dxEditBankCount: TdxEdit;
     BitBtn4: TBitBtn;
     BitBtnClearINN: TBitBtn;
+    TabPSBSheet: TTabSheet;
+    EditPSBPassport: TEdit;
+    rgPSBRezident: TRadioGroup;
+    Label18: TLabel;
+    Label19: TLabel;
+    Label20: TLabel;
+    Label21: TLabel;
+    EditPSBNomerScheta: TMaskEdit;
+    EditSNILS: TMaskEdit;
+    EditINN: TMaskEdit;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     constructor CreateUpdKadry(AOwner: TComponent;DBAction:Integer;Tabno:integer);
     procedure BitBtnSaveClick(Sender: TObject);
@@ -141,7 +151,11 @@ type TKadryRec=record
     kr       : TKadryRec;
     procedure SaveRecord;
     procedure RestoreRecord;
+    procedure RestorePSBRecord(Action:integer);
     procedure FillScreenData;
+    function ValidateNOMER_SCHETA:Boolean;
+    function ValidateSNILS:Boolean;
+    function ValidateINN:Boolean;
 
   public
     { Public declarations }
@@ -272,8 +286,66 @@ procedure TFormUpdateKadryFB.SaveRecord;
         TFormBrowseKadryFB(Owner).pFIBDataSetKadryDESCR_UWOL.Value     := Trim(kr.DESCR_UWOL)   ;
         TFormBrowseKadryFB(Owner).pFIBDataSetKadryBANK_COUNT.Value     := trim(kr.BANK_COUNT);
    end;
+procedure TFormUpdateKadryFB.restorePSBRecord(Action:integer);
+   var SQLStmnt:string;
+       fam,nam,otc:shortString;
+       rezStr:string;
+       v:variant;
+       finded:Boolean;
+   begin
+        if not isLNR then Exit;
+        if (rgPSBRezident.ItemIndex=0) then
+            rezStr:='21'
+        else
+        if (rgPSBRezident.ItemIndex=1) then
+            rezStr:='10'
+        else
+            rezStr:=' ';
+
+        SplitFIO(Trim(kr.PIB),FAM,NAM,OTC);
+        finded:=False;
+        if Action=2 then
+           begin
+                SQLStmnt:='select count(*) from tb_psb_rez where tabno='+intToStr(kr.tabno);
+                v:=SQLQueryValue(SQLStmnt);
+                if VarIsNumeric(v)
+                   and v>0    then
+                   finded:=True;
+           end;
+
+        if (Action=1) or ((Action=2) and (not finded)) then
+           begin
+                SQLStmnt:='insert into tb_psb_rez(NOMER_SCHETA,DUMMY,FAM,NAM,OTC,REZIDENT,PASSPORT,TABNO,SNILS,INN) VALUES (';
+                SQLStmnt:=Trim(SQLStmnt)+''''+Trim(EditPSBNomerScheta.text)+''',''810'','''+fam+''','''+nam+''','''+otc+''','''+rezStr+''','''+Trim(EditPSBPassport.text)+''','+intToStr(kr.tabno);
+                SQLStmnt:=Trim(SQLStmnt)+','''+Trim(EditSNILS.text)+''','''+Trim(EditSNILS.text)+''')';
+           end
+        else
+        if (Action=3) then
+           begin
+                SQLStmnt:='delete from tb_psb_rez where tabno='+IntToStr(kr.tabno);
+           end
+        else
+           begin
+                SQLStmnt:='update tb_psb_rez set ';
+                SQLStmnt:=trim(SQLStmnt)+' NOMER_SCHETA='''+trim(EditPSBNomerScheta.text)+''',';
+                SQLStmnt:=trim(SQLStmnt)+' DUMMY=''810'',';
+                SQLStmnt:=trim(SQLStmnt)+' FAM='''+trim(FAM)+''',';
+                SQLStmnt:=trim(SQLStmnt)+' NAM='''+trim(NAM)+''',';
+                SQLStmnt:=trim(SQLStmnt)+' OTC='''+trim(OTC)+''',';
+                SQLStmnt:=trim(SQLStmnt)+' SNILS='''+trim(EditSNILS.text)+''',';
+                SQLStmnt:=trim(SQLStmnt)+' INN='''+trim(EditINN.text)+''',';
+                SQLStmnt:=trim(SQLStmnt)+' REZIDENT='''+trim(rezStr)+''',';
+                SQLStmnt:=trim(SQLStmnt)+' PASSPORT='''+trim(EditPSBPassport.text)+''' WHERE TABNO=';
+                SQLStmnt:=trim(SQLStmnt)+intToStr(KR.tabno);
+           end;
+
+        SQLExecute(SQLStmnt);
+   end;
 
 procedure TFormUpdateKadryFB.FillScreenData;
+   var SQLStmnt:string;
+       v:Variant;
+
    begin
         dxCalcEditTabno.Text            := IntToStr(kr.Tabno) ;
         if kr.Tabno=0 then dxCalcEditTabno.Text:='';
@@ -309,9 +381,36 @@ procedure TFormUpdateKadryFB.FillScreenData;
            dxDatePasp_Data.Text:='';
         uwolMemo.Lines.Add(kr.DESCR_UWOL);
         dxEditBankCount.Text            := Trim(kr.BANK_COUNT);
-
+        EditPSBNomerScheta.Text:='408178100510';
+        EditPSBPassport.Text:='';
+        EditSNILS.Text:='';
+        EditINN.Text:='';
+        rgPSBRezident.ItemIndex:=-1;
+        if isLNR then
+        if kr.TABNO>0 then
+           begin
+                SQLStmnt:='select first 1 nomer_scheta,rezident,passport,snils,inn from tb_psb_rez where tabno='+intTostr(kr.tabno);
+                v:=SQLQueryRecValues(SQLStmnt);
+               if (not (VarIsNull(v))) then
+               if (VarIsArray(v)) then
+                   begin
+                        if not VarIsNull(v[0]) then
+                           EditPSBNomerScheta.Text:=Trim(v[0]);
+                        if not VarIsNull(v[2]) then
+                           EditPSBPassport.Text:=Trim(v[2]);
+                        if not VarIsNull(v[3]) then
+                           EditSNILS.Text:=Trim(v[3]);
+                        if not VarIsNull(v[4]) then
+                           EditINN.Text:=Trim(v[4]);
+                        if not VarIsNull(v[1]) then
+                        if (Trim(v[1])='21') then
+                            rgPSBRezident.ItemIndex:=0
+                        else
+                        if (Trim(v[1])='10') then
+                            rgPSBRezident.ItemIndex:=1;
+                   end;
+           end;
    end;
-
 
 procedure TFormUpdateKadryFB.FormClose(Sender: TObject;
   var Action: TCloseAction);
@@ -331,20 +430,132 @@ begin
 }
 end;
 
+function TFormUpdateKadryFB.ValidateNOMER_SCHETA:Boolean;
+ var s:String;
+     i:Integer;
+ begin
+      s:=Trim(EditPSBNomerScheta.Text);
+      if s='' then
+         begin
+              ValidateNOMER_SCHETA:=TRUE;
+              Exit;
+         end;
+      if Length(s)<>20 then
+         begin
+              ValidateNOMER_SCHETA:=false;
+              Exit;
+         end;
+       for i:=1 to 20 do
+         if not (s[i]  in ['0'..'9']) then
+            begin
+              ValidateNOMER_SCHETA:=false;
+              Exit;
+            end;
+       if Pos('408178',s)<>1 then
+            begin
+              ValidateNOMER_SCHETA:=false;
+              Exit;
+            end;
+       ValidateNOMER_SCHETA:=True;
+ end;
+
+function TFormUpdateKadryFB.ValidateSNILS:Boolean;
+ var s,ss:String;
+     i:Integer;
+ begin
+      s:=Trim(EditSNILS.Text);
+      ss:=s;
+      if Length(s)>0 then
+         begin
+              ss:= StringReplace(s, '-',' ',[rfReplaceAll]);
+              ss:=trim(ss);
+         end;     
+      if ss='' then
+         begin
+              ValidateSNILS:=true;
+              Exit;
+         end;
+      if Length(s)<>14 then
+         begin
+              ValidateSNILS:=false;
+              Exit;
+         end;
+       for i:=1 to 14 do
+         if not (s[i]  in ['0'..'9',' ','-']) then
+            begin
+              ValidateSNILS:=false;
+              Exit;
+            end;
+       if Pos('-',s)<>4 then
+            begin
+              ValidateSNILS:=false;
+              Exit;
+            end;
+       if Pos(' ',s)<>12 then
+            begin
+              ValidateSNILS:=false;
+              Exit;
+            end;
+       ValidateSNILS:=True;
+ end;
+function TFormUpdateKadryFB.ValidateINN:Boolean;
+ var s:String;
+     i:Integer;
+ begin
+      s:=Trim(EditINN.Text);
+      if s='' then
+         begin
+              ValidateINN:=true;
+              Exit;
+         end;
+      if Length(s)<>12 then
+         begin
+              ValidateINN:=false;
+              Exit;
+         end;
+       for i:=1 to 12 do
+         if not (s[i]  in ['0'..'9']) then
+            begin
+              ValidateINN:=false;
+              Exit;
+            end;
+       ValidateINN:=True;
+ end;
+
 procedure TFormUpdateKadryFB.BitBtnSaveClick(Sender: TObject);
  var S:String;
 begin
+      if isLNR then
+         begin
+              if not ValidateNOMER_SCHETA then
+                 begin
+                      ShowMessage('Неверный формат номера счета в ПСБ');
+                      Exit;
+                 end;
+              if not ValidateSNILS then
+                 begin
+                      ShowMessage('Неверный формат СНИЛС');
+                      Exit;
+                 end;
+              if not ValidateINN then
+                 begin
+                      ShowMessage('Неверный формат ИНН');
+                      Exit;
+                 end;
+         end;
      if DBAction=1 then
         begin
              S:='Добавлено';
              TFormBrowseKadryFB(Owner).pFIBDataSetKadry.Insert;
              RestoreRecord;
+             RestorePSBRecord(1);
         end
      else
         Begin
             S:='Изменено';
             TFormBrowseKadryFB(Owner).pFIBDataSetKadry.Edit;
             RestoreRecord;
+            RestorePSBRecord(2);
         end;
      if TFormBrowseKadryFB(Owner).pFIBDataSetKadry.UpdateTransaction.Active then
         TFormBrowseKadryFB(Owner).pFIBDataSetKadry.UpdateTransaction.Commit;
@@ -388,6 +599,8 @@ begin
      TFormBrowseKadryFB(Owner).pFIBDataSetKadry.Delete;
      if TFormBrowseKadryFB(Owner).pFIBDataSetKadry.UpdateTransaction.Active then
         TFormBrowseKadryFB(Owner).pFIBDataSetKadry.UpdateTransaction.Commit;
+
+     restorePSBRecord(3);
      TFormBrowseKadryFB(Owner).pFIBDataSetKadry.Refresh;
      FormWaitMess.SetMessage('Удалено');
      FormWaitMess.Show;
@@ -495,11 +708,16 @@ begin
         begin
              BitBtnClearINN.Visible:=false;
              BitBtnClearINN.Enabled:=false;
+             TabPSBSheet.Visible:=False;
+             TabPSBSheet.Enabled:=False;
         end
      else
         begin
              BitBtnClearINN.Visible:=true;
              BitBtnClearINN.Enabled:=true;
+             TabPSBSheet.Visible:=True;
+             TabPSBSheet.Enabled:=True;
+
         end;
 end;
 

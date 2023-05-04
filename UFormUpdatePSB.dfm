@@ -1,6 +1,6 @@
 object FormUpdatePSB: TFormUpdatePSB
-  Left = 273
-  Top = 190
+  Left = 285
+  Top = 208
   Width = 921
   Height = 501
   Caption = #1048#1079#1084#1077#1085#1077#1085#1080#1077' '#1088#1077#1082#1074#1080#1079#1080#1090#1086#1074
@@ -98,14 +98,6 @@ object FormUpdatePSB: TFormUpdatePSB
     TabOrder = 3
     Width = 201
   end
-  object cxDBTextEditINNOLD: TcxDBTextEdit
-    Left = 440
-    Top = 288
-    DataBinding.DataField = 'INN'
-    DataBinding.DataSource = FormBrowsePSB.dsoPSB
-    TabOrder = 4
-    Width = 209
-  end
   object cxDBRadioGroup1: TcxDBRadioGroup
     Left = 168
     Top = 336
@@ -122,7 +114,7 @@ object FormUpdatePSB: TFormUpdatePSB
         Caption = #1053#1077' '#1088#1077#1079#1080#1076#1077#1085#1090
         Value = '10'
       end>
-    TabOrder = 5
+    TabOrder = 4
     Height = 65
     Width = 337
   end
@@ -132,7 +124,7 @@ object FormUpdatePSB: TFormUpdatePSB
     Width = 129
     Height = 25
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
-    TabOrder = 6
+    TabOrder = 5
     OnClick = BitBtn1Click
     Kind = bkOK
   end
@@ -142,7 +134,7 @@ object FormUpdatePSB: TFormUpdatePSB
     Width = 113
     Height = 25
     Caption = '&'#1042#1099#1093#1086#1076
-    TabOrder = 7
+    TabOrder = 6
     Kind = bkClose
   end
   object cxDBButtonEditTabno: TcxDBButtonEdit
@@ -156,7 +148,7 @@ object FormUpdatePSB: TFormUpdatePSB
         Kind = bkEllipsis
       end>
     Properties.OnButtonClick = cxDBButtonEdit1PropertiesButtonClick
-    TabOrder = 8
+    TabOrder = 7
     Width = 201
   end
   object cxDBTextEditNomerCount: TcxDBMaskEdit
@@ -166,7 +158,7 @@ object FormUpdatePSB: TFormUpdatePSB
     DataBinding.DataSource = FormBrowsePSB.dsoPSB
     Properties.EditMask = '00000000000000000000'
     Properties.MaxLength = 0
-    TabOrder = 9
+    TabOrder = 8
     Width = 241
   end
   object cxDBTextEditSNILS: TcxDBMaskEdit
@@ -177,7 +169,7 @@ object FormUpdatePSB: TFormUpdatePSB
     Properties.EditMask = '000\-000\-000\ 00;1;_'
     Properties.MaxLength = 0
     Properties.OnValidate = cxDBTextEditSNILSPropertiesValidate
-    TabOrder = 10
+    TabOrder = 9
     Width = 233
   end
   object cxDBTextEditINN: TcxDBMaskEdit
@@ -187,7 +179,7 @@ object FormUpdatePSB: TFormUpdatePSB
     DataBinding.DataSource = FormBrowsePSB.dsoPSB
     Properties.EditMask = '999999999999'
     Properties.MaxLength = 0
-    TabOrder = 11
+    TabOrder = 10
     Width = 233
   end
 end
