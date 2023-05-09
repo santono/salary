@@ -864,7 +864,8 @@ implementation
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
   UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
   UFormExeSQLScript, UFormRepPodohByPerson, UFormPersonLgo,
-  UFormEditLgotniki, UFormBrowsePSB;
+  UFormEditLgotniki, UFormBrowsePSB,UVne122022List;
+
 {$R *.dfm}
 
 procedure TMainForm.SetUpRow(WantedTabno:integer;WantedWR:integer;WantedDolg:string;var WantedRow:integer);
@@ -1380,6 +1381,13 @@ procedure TMainForm.FormCreate(Sender: TObject);
       raise Exception.Create('LABEL.TXT initialization error');
    SetFormatSummaPltCharacter;
    SetTmpSaveFileMode;
+   if isLNR then
+   if CURRYEAR=2023 then
+   if NMES=4 then
+      begin
+           if Not initVne122023List then
+              raise Exception.Create('initVne122023List initialization error');
+      end;
 {
    if not InitFib then
       begin

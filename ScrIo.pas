@@ -6,7 +6,8 @@ interface
    PROCEDURE PUTINF;
 implementation
      Uses SysUtils,QDialogs,ScrDef,ScrUtil,UCrc32,UDuplTest,
-          ScrIOSQL,scrLists,Windows,UIOMonitor,uPersonService;
+          ScrIOSQL,scrLists,Windows,UIOMonitor,uPersonService,
+          UVne122022List;
 CONST LOW_IO_BUF_PTR = 2;
       PERSON_SIZE    = SIZEOF(PERSON);
 //type TBufClass=class
@@ -1292,6 +1293,11 @@ PROCEDURE GETINF_BLOCK(NEED_NET:BOOLEAN);
                           getInfSqlCurr(NMES,CURRYEAR);
                      end;
              end;
+          if ((CURRYEAR=2023)
+               and (NMES in [1,2,3])
+               and (FLOW_MONTH=4)) then
+                  convertGruForPodr;
+
       END;
 
 

@@ -413,7 +413,8 @@ uses
   UFormEditLgotniki in 'UFormEditLgotniki.pas' {FormEditLgotniki},
   UFormUpdateLgotnik in 'UFormUpdateLgotnik.pas' {FormUpdateLgotnik},
   UFormBrowsePSB in 'UFormBrowsePSB.pas' {FormBrowsePSB},
-  UFormUpdatePSB in 'UFormUpdatePSB.pas' {FormUpdatePSB};
+  UFormUpdatePSB in 'UFormUpdatePSB.pas' {FormUpdatePSB},
+  UVne122022List in 'UVne122022List.pas';
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 
