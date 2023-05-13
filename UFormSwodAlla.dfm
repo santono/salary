@@ -1,6 +1,6 @@
 object FormSwodAlla: TFormSwodAlla
-  Left = 192
-  Top = 124
+  Left = 223
+  Top = 161
   Width = 696
   Height = 279
   Caption = #1057#1074#1086#1076' '#1079#1072' '#1087#1077#1088#1080#1086#1076
@@ -15,89 +15,141 @@ object FormSwodAlla: TFormSwodAlla
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
-    Left = 24
-    Top = 16
-    Width = 7
-    Height = 13
-    Caption = 'C'
-  end
-  object Label2: TLabel
-    Left = 192
-    Top = 16
-    Width = 12
-    Height = 13
-    Caption = #1087#1086
-  end
-  object dtFR: TDateTimePicker
-    Left = 40
-    Top = 16
-    Width = 137
-    Height = 21
-    Date = 42754.968500995370000000
-    Time = 42754.968500995370000000
-    DateFormat = dfLong
-    TabOrder = 0
-    OnChange = dtFRChange
-  end
-  object dtTo: TDateTimePicker
-    Left = 216
-    Top = 16
-    Width = 129
-    Height = 21
-    Date = 42754.968985173610000000
-    Time = 42754.968985173610000000
-    DateFormat = dfLong
-    TabOrder = 1
-    OnChange = dtToChange
-  end
-  object btCreate: TBitBtn
-    Left = 24
-    Top = 56
-    Width = 137
-    Height = 25
-    Caption = #1057#1086#1079#1076#1072#1090#1100' '#1089#1074#1086#1076
-    TabOrder = 2
-    OnClick = btCreateClick
-  end
   object BitBtn1: TBitBtn
-    Left = 192
-    Top = 56
+    Left = 24
+    Top = 208
     Width = 75
     Height = 25
     Caption = '&'#1042#1099#1093#1086#1076
-    TabOrder = 3
+    TabOrder = 0
     Kind = bkClose
   end
-  object rgModeGru: TRadioGroup
-    Left = 352
+  object PageControl1: TPageControl
+    Left = 8
     Top = 8
-    Width = 257
-    Height = 41
-    Caption = #1056#1077#1078#1080#1084
-    Columns = 2
-    Items.Strings = (
-      #1042#1089#1077' '#1089#1095#1077#1090#1072
-      #1059#1082#1072#1079#1072#1085#1085#1099#1081' '#1089#1095#1077#1090)
-    TabOrder = 4
-    OnClick = rgModeGruClick
-  end
-  object cbShifrGru: TComboBox
-    Left = 280
-    Top = 56
-    Width = 145
-    Height = 21
-    ItemHeight = 13
-    TabOrder = 5
-    Text = 'cbShifrGru'
-  end
-  object cbPeriod: TCheckBox
-    Left = 440
-    Top = 56
-    Width = 153
-    Height = 17
-    Caption = #1056#1072#1079#1073#1080#1074#1072#1090#1100' '#1087#1086' '#1087#1077#1088#1080#1086#1076#1072#1084
-    TabOrder = 6
+    Width = 665
+    Height = 193
+    ActivePage = TabSheetKRU
+    TabOrder = 1
+    object TabSheetAlla: TTabSheet
+      Caption = #1057#1074#1086#1076' '#1074' '#1076#1074#1077' '#1082#1086#1083#1086#1085#1082#1080
+      object Label1: TLabel
+        Left = 24
+        Top = 24
+        Width = 7
+        Height = 13
+        Caption = 'C'
+      end
+      object Label2: TLabel
+        Left = 192
+        Top = 16
+        Width = 12
+        Height = 13
+        Caption = #1087#1086
+      end
+      object dtFR: TDateTimePicker
+        Left = 40
+        Top = 16
+        Width = 137
+        Height = 21
+        Date = 42754.968500995370000000
+        Time = 42754.968500995370000000
+        DateFormat = dfLong
+        TabOrder = 0
+        OnChange = dtFRChange
+      end
+      object dtTo: TDateTimePicker
+        Left = 208
+        Top = 16
+        Width = 129
+        Height = 21
+        Date = 42754.968985173610000000
+        Time = 42754.968985173610000000
+        DateFormat = dfLong
+        TabOrder = 1
+        OnChange = dtToChange
+      end
+      object rgModeGru: TRadioGroup
+        Left = 32
+        Top = 48
+        Width = 257
+        Height = 41
+        Caption = #1056#1077#1078#1080#1084
+        Columns = 2
+        Items.Strings = (
+          #1042#1089#1077' '#1089#1095#1077#1090#1072
+          #1059#1082#1072#1079#1072#1085#1085#1099#1081' '#1089#1095#1077#1090)
+        TabOrder = 2
+        OnClick = rgModeGruClick
+      end
+      object btCreate: TBitBtn
+        Left = 32
+        Top = 96
+        Width = 137
+        Height = 25
+        Caption = #1057#1086#1079#1076#1072#1090#1100' '#1089#1074#1086#1076' '#1082#1072#1082' '#1074' '#1047#1055
+        TabOrder = 3
+        OnClick = btCreateClick
+      end
+      object cbShifrGru: TComboBox
+        Left = 200
+        Top = 96
+        Width = 145
+        Height = 21
+        ItemHeight = 0
+        TabOrder = 4
+        Text = 'cbShifrGru'
+      end
+      object cbPeriod: TCheckBox
+        Left = 304
+        Top = 56
+        Width = 153
+        Height = 17
+        Caption = #1056#1072#1079#1073#1080#1074#1072#1090#1100' '#1087#1086' '#1087#1077#1088#1080#1086#1076#1072#1084
+        TabOrder = 5
+      end
+    end
+    object TabSheetKRU: TTabSheet
+      Caption = #1057#1074#1086#1076' '#1074' Excel '#1079#1072' '#1075#1086#1076
+      ImageIndex = 1
+      object Label3: TLabel
+        Left = 16
+        Top = 8
+        Width = 18
+        Height = 13
+        Caption = #1043#1086#1076
+      end
+      object btSelPKG: TButton
+        Left = 8
+        Top = 56
+        Width = 417
+        Height = 25
+        Caption = 
+          #1042#1099#1073#1086#1088' '#1087#1086#1076#1088#1072#1079#1076#1077#1083#1077#1085#1080#1081', '#1082#1072#1090#1077#1075#1086#1088#1080#1081' '#1080' '#1089#1095#1077#1090#1086#1074' ('#1076#1077#1081#1089#1090#1074#1091#1077#1090' '#1090#1086#1083#1100#1082#1086' '#1076#1083#1103' 2-' +
+          #1075#1086' '#1089#1074#1086#1076#1072')'
+        TabOrder = 0
+        OnClick = btSelPKGClick
+      end
+      object btSwodKRU: TButton
+        Left = 8
+        Top = 96
+        Width = 137
+        Height = 25
+        Caption = #1057#1074#1086#1076' '#1079#1072' '#1075#1086#1076' '#1087#1086' '#1084#1077#1089#1103#1094#1072#1084
+        TabOrder = 1
+        OnClick = btSwodKRUClick
+      end
+      object dtYearZa: TDateTimePicker
+        Left = 40
+        Top = 8
+        Width = 145
+        Height = 21
+        Date = 45058.926604583340000000
+        Time = 45058.926604583340000000
+        DateFormat = dfLong
+        TabOrder = 2
+      end
+    end
   end
   object dsSwod: TpFIBDataSet
     SelectSQL.Strings = (
@@ -187,8 +239,8 @@ object FormSwodAlla: TFormSwodAlla
       ''
       'end.')
     OnGetValue = frxReport1GetValue
-    Left = 24
-    Top = 96
+    Left = 16
+    Top = 160
     Datasets = <
       item
         DataSet = frxDBDataset1
@@ -643,6 +695,109 @@ object FormSwodAlla: TFormSwodAlla
     CloseDataSource = False
     DataSet = dsSwod
     Left = 64
-    Top = 96
+    Top = 160
+  end
+  object dsKRU: TpFIBDataSet
+    SelectSQL.Strings = (
+      'SELECT'
+      ' SHIFRSTA,'
+      ' NAMESTA,'
+      ' SUMMA01,'
+      ' SUMMA02,'
+      ' SUMMA03,'
+      ' SUMMA04,'
+      ' SUMMA05,'
+      ' SUMMA06,'
+      ' SUMMA07,'
+      ' SUMMA08,'
+      ' SUMMA09,'
+      ' SUMMA10,'
+      ' SUMMA11,'
+      ' SUMMA12,'
+      ' SUMMATOT,'
+      ' ISADD '
+      'FROM'
+      ' PR_SWOD_YEAR_KRU(:Y) '
+      'order by isadd desc,shifrsta')
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    Left = 168
+    Top = 144
+    object dsKRUSHIFRSTA: TFIBIntegerField
+      FieldName = 'SHIFRSTA'
+    end
+    object dsKRUNAMESTA: TFIBStringField
+      FieldName = 'NAMESTA'
+      Size = 128
+      EmptyStrToNull = True
+    end
+    object dsKRUSUMMA01: TFIBBCDField
+      FieldName = 'SUMMA01'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA02: TFIBBCDField
+      FieldName = 'SUMMA02'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA03: TFIBBCDField
+      FieldName = 'SUMMA03'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA04: TFIBBCDField
+      FieldName = 'SUMMA04'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA05: TFIBBCDField
+      FieldName = 'SUMMA05'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA06: TFIBBCDField
+      FieldName = 'SUMMA06'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA07: TFIBBCDField
+      FieldName = 'SUMMA07'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA08: TFIBBCDField
+      FieldName = 'SUMMA08'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA09: TFIBBCDField
+      FieldName = 'SUMMA09'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA10: TFIBBCDField
+      FieldName = 'SUMMA10'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA11: TFIBBCDField
+      FieldName = 'SUMMA11'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMA12: TFIBBCDField
+      FieldName = 'SUMMA12'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUSUMMATOT: TFIBBCDField
+      FieldName = 'SUMMATOT'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKRUISADD: TFIBIntegerField
+      FieldName = 'ISADD'
+    end
   end
 end

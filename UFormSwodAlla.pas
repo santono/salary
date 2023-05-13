@@ -33,6 +33,30 @@ type
     cbPeriod: TCheckBox;
     dsSwodAPERIOD: TFIBIntegerField;
     dsSwodBPERIOD: TFIBIntegerField;
+    btSwodKRU: TButton;
+    btSelPKG: TButton;
+    dsKRU: TpFIBDataSet;
+    dsKRUSHIFRSTA: TFIBIntegerField;
+    dsKRUNAMESTA: TFIBStringField;
+    dsKRUSUMMA01: TFIBBCDField;
+    dsKRUSUMMA02: TFIBBCDField;
+    dsKRUSUMMA03: TFIBBCDField;
+    dsKRUSUMMA04: TFIBBCDField;
+    dsKRUSUMMA05: TFIBBCDField;
+    dsKRUSUMMA06: TFIBBCDField;
+    dsKRUSUMMA07: TFIBBCDField;
+    dsKRUSUMMA08: TFIBBCDField;
+    dsKRUSUMMA09: TFIBBCDField;
+    dsKRUSUMMA10: TFIBBCDField;
+    dsKRUSUMMA11: TFIBBCDField;
+    dsKRUSUMMA12: TFIBBCDField;
+    dsKRUSUMMATOT: TFIBBCDField;
+    dsKRUISADD: TFIBIntegerField;
+    PageControl1: TPageControl;
+    TabSheetAlla: TTabSheet;
+    TabSheetKRU: TTabSheet;
+    dtYearZa: TDateTimePicker;
+    Label3: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btCreateClick(Sender: TObject);
     procedure frxReport1GetValue(const VarName: String;
@@ -41,6 +65,8 @@ type
     procedure rgModeGruClick(Sender: TObject);
     procedure dtFRChange(Sender: TObject);
     procedure dtToChange(Sender: TObject);
+    procedure btSwodKRUClick(Sender: TObject);
+    procedure btSelPKGClick(Sender: TObject);
   private
     { Private declarations }
       dateFr:TDateTime;
@@ -56,7 +82,8 @@ var
   FormSwodAlla: TFormSwodAlla;
 
 implementation
-  uses UFibModule,uFormWait,DateUtils,ScrDef,ScrLists,scrutil;
+  uses UFibModule,uFormWait,DateUtils,ScrDef,ScrLists,scrutil,UFormSelPKG
+       ,USQLUnit,ComObj;
 
 {$R *.dfm}
 
@@ -76,6 +103,9 @@ begin
             ShowMessage('Не верно заданы даты');
             Exit;
         end;
+     btCreate.Enabled:=False;
+     btSwodKRU.Enabled:=False;
+     Application.ProcessMessages;
      if rgModeGru.itemIndex=1 then
         wantedShifrGru:=cbShifrGru.ItemIndex+1
      else
@@ -104,6 +134,10 @@ begin
      frxReport1.ShowReport;
      dsSwod.Close;
      dsSwod.Transaction.Commit;
+     btCreate.Enabled:=True;
+     btSwodKRU.Enabled:=true;
+     Application.ProcessMessages;
+
 
 end;
 
@@ -116,7 +150,10 @@ begin
      if CompareText(Trim(VarName),'nameGru')=0 then
         begin
              if wantedShifrGru<1 then
-                Value:='по всiм рахункам'
+                if isSVDN then
+                   Value:='по всiм рахункам'
+                else
+                   Value:='по всем счетам'   
              else
                 Value:=Trim(GET_IST_NAME(wantedShifrGru));
         end
@@ -137,6 +174,7 @@ begin
       cbShifrGru.ItemIndex:=0;
       cbPeriod.Checked:=False;
       cbPeriod.Hide;
+      dtYearZa.Date:=Date;
 end;
 
 procedure TFormSwodAlla.rgModeGruClick(Sender: TObject);
@@ -175,6 +213,203 @@ begin
      else
         cbPeriod.Hide;
      Application.ProcessMessages;
+end;
+
+procedure TFormSwodAlla.btSwodKRUClick(Sender: TObject);
+ var SQLStmnt:string;
+     v:Variant;
+     E,WC:Variant;
+     sc,i:Integer;
+     rec,currrow,currcol:Integer;
+     wantedYear:Integer;
+     startRow,endRow:Integer;
+     formula:String;
+     currAddMode:Integer; // 0 - ud 1 - add
+ procedure saveParams;
+  var SQLStmnt:string;
+      i:Integer;
+  begin
+     SQLStmnt:='delete from test_add';
+     SQLExecute(SQLStmnt);
+     for i:=0 to NameServList.Count-1 do
+         if NameServList.IsSelected(i+1) then
+            begin
+                 SQLStmnt:='insert into test_add(shifr,nsrv) values (1,'+IntToStr(i+1)+')';
+                 SQLExecute(SQLStmnt);
+            end;
+     for i:=0 to GruppyList.Count-1 do
+         if GruppyList.IsSelected(i+1) then
+            begin
+                 SQLStmnt:='insert into test_add(shifr,shifrgru) values (2,'+IntToStr(i+1)+')';
+                 SQLExecute(SQLStmnt);
+            end;
+
+  end;
+ procedure printAddFooter;
+  var i:Integer;
+  begin
+     endRow:=currrow;
+     inc(currrow);
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:='Итого';
+     for i:=1 to 12 do
+         begin
+              formula:='=SUM(R'+intToStr(startRow)+'C'+intToStr(2+i)+':R'+intToStr(endRow)+'C'+intToStr(2+i)+')';
+              E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,i+2].formula:=formula;
+              E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,i+2].NumberFormat:=AnsiString('0,00');
+              E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,i+2].Font.Bold := true;
+         end;
+  end;
+begin
+     if NameServList.CountSelected<=0 then
+       begin
+            ShowMessage('Не выбраны подразделения');
+            Exit;
+       end;
+     if GruppyList.CountSelected<=0 then
+       begin
+            ShowMessage('Не выбраны счета');
+            Exit;
+       end;
+     saveParams;
+     wantedYear:=yearOf(dtYearZa.Date);
+     btCreate.Enabled  := false;
+     btSwodKRU.Enabled := false;
+     btSelPKG.Enabled  := false;
+     Application.ProcessMessages;
+     dsKRU.Params[0].Value:=wantedYear;
+     dsKRU.Transaction.StartTransaction;
+     FormWait.Show;
+     Application.ProcessMessages;
+     dsKRU.Open;
+     dsKRU.First;
+     FormWait.Hide;
+     Application.ProcessMessages;
+     try
+        E:=CreateOleObject('Excel.Application');
+     except
+        ShowMessage('Ошибка запуска Excel');
+        Exit;
+     end;
+     E.WorkBooks.Add;
+     E.Visible:=true;
+     CurrRow:=1;
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5]:='Свод за '+IntToStr(wantedYear);
+     CurrRow:=2;
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:='Шифр';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:='Название';
+     for i:=1 to 12 do
+         E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,i+2]:=GetMonthRus(i);
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,15]:='Итого';
+     startRow := currRow+1;
+     currAddMode:=1;
+     while not dsKRU.Eof do
+       begin
+            if (currAddMode=1) and (dsKRUISADD.value<>1) then
+               begin
+                    currAddMode:=0;
+                    PrintAddFooter;
+                    currrow:=currRow+5;
+                    startRow:=currrow;
+               end;
+            Inc(currRow);
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:=dsKRUSHIFRSTA.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:=dsKRUNAMESTA.Value;
+
+            if Abs(dsKRUSUMMA01.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3]:=dsKRUSUMMA01.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA02.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4]:=dsKRUSUMMA02.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA03.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5]:=dsKRUSUMMA03.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA04.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6]:=dsKRUSUMMA04.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA05.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,7]:=dsKRUSUMMA05.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,7].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA06.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8]:=dsKRUSUMMA06.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA07.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9]:=dsKRUSUMMA07.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA08.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,10]:=dsKRUSUMMA08.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,10].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA09.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,11]:=dsKRUSUMMA09.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,11].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA10.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,12]:=dsKRUSUMMA10.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,12].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA11.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,13]:=dsKRUSUMMA11.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,13].NumberFormat:=AnsiString('0,00');
+               end;
+            if Abs(dsKRUSUMMA12.Value)>0.01 then
+               begin
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,14]:=dsKRUSUMMA12.Value;
+                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,14].NumberFormat:=AnsiString('0,00');
+               end;
+//            if Abs(dsKRUSUMMATOT.Value)>0.01 then
+//               begin
+//                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,15]:=dsKRUSUMMATOT.Value;
+//                    E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,15].NumberFormat:=AnsiString('0,00');
+//               end;
+            formula:='=SUM(R'+intToStr(currRow)+'C3:R'+intToStr(currRow)+'C14)';
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,15].formula:=formula;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,15].NumberFormat:=AnsiString('0,00');
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,15].Font.Bold := true;
+            dsKRU.Next;
+       end;
+     printAddFooter;
+//     endRow:=currrow;
+//     inc(currrow);
+//     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:='Итого';
+//     for i:=1 to 12 do
+//         begin
+//              formula:='=SUM(R'+intToStr(startRow)+'C'+intToStr(2+i)+':R'+intToStr(endRow)+'C'+intToStr(2+i)+')';
+//              E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,i+2].formula:=formula;
+//              E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,i+2].NumberFormat:=AnsiString('0,00');
+//              E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,i+2].Font.Bold := true;
+//         end;
+     dsKRU.Close;
+     dsKRU.Transaction.Commit;
+     btCreate.Enabled  := True;
+     btSwodKRU.Enabled := true;
+     btSelPKG.Enabled  := true;
+     Application.ProcessMessages;
+
+end;
+
+procedure TFormSwodAlla.btSelPKGClick(Sender: TObject);
+begin
+    Application.CreateForm(TFormSelPKG, FormSelPKG);
+    FormSelPKG.ShowModal;
 end;
 
 end.

@@ -297,7 +297,7 @@ PROCEDURE MODI_INF;
                             if (
                                (not finded)
                                or (CURR_CN^.SHIFR=cn156_shifr+limit_cn_base)
-                               ) then
+                         ) then
                     //        IF CURR_CN^.Prim<>Wanted_Shifr  then
                                 BEGIN
                                      DEL_CN(CURR_CN,CURR_PERSON);
@@ -384,7 +384,30 @@ PROCEDURE MODI_INF;
                                                   break;
                                              END;
                                           Curr_Person:=Curr_Person^.Next;
-                                      END;
+                                     END;
+                             UNTIL NOT SEL;
+                             //Удаление перерасчетов
+                             // в мае 2023
+                             SEL:=false;
+                             if ((NMES=4) and (CURRYEAR=2023) and isLNR) then
+                             REPEAT
+                                   Curr_Person:=Head_Person;
+                                   SEL:=FALSE;
+                                   while (Curr_Person<>Nil) do
+                                     begin
+                                          IF ((Pos('Перерасчет',CURR_PERSON^.DOLG)>0)
+                                             or
+                                             (GET_DOL_CODE(curr_person)=4))  //Повышение
+                                             and
+                                             (curr_person^.gruppa in [27,28,29])
+                                           THEN
+                                             BEGIN
+                                                  DEL_PERSON(CURR_PERSON);
+                                                  SEL:=TRUE;
+                                                  break;
+                                             END;
+                                          Curr_Person:=Curr_Person^.Next;
+                                     END;
                              UNTIL NOT SEL;
                              Curr_Person:=Head_Person;
                              while (Curr_Person<>Nil) do

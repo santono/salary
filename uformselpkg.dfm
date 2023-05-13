@@ -46,7 +46,7 @@ object FormSelPKG: TFormSelPKG
     Top = 0
     Width = 769
     Height = 457
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     TabOrder = 2
     object TabSheet1: TTabSheet
       Caption = #1055#1086#1076#1088#1072#1079#1076#1077#1083#1077#1085#1080#1103
