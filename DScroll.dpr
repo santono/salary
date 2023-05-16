@@ -414,7 +414,8 @@ uses
   UFormUpdateLgotnik in 'UFormUpdateLgotnik.pas' {FormUpdateLgotnik},
   UFormBrowsePSB in 'UFormBrowsePSB.pas' {FormBrowsePSB},
   UFormUpdatePSB in 'UFormUpdatePSB.pas' {FormUpdatePSB},
-  UVne122022List in 'UVne122022List.pas';
+  UVne122022List in 'UVne122022List.pas',
+  UFormRepAbsentPSB in 'UFormRepAbsentPSB.pas' {FormRepAbsentPSB};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

@@ -1,6 +1,6 @@
 object FormBrowsePSB: TFormBrowsePSB
-  Left = 205
-  Top = 144
+  Left = 278
+  Top = 166
   Width = 696
   Height = 525
   Caption = #1057#1087#1080#1089#1086#1082' '#1089#1095#1077#1090#1086#1074' '#1055#1057#1041' '#1073#1072#1085#1082#1072
@@ -161,6 +161,11 @@ object FormBrowsePSB: TFormBrowsePSB
       Left = 78
       Top = 2
       Action = ActionDeleteRecord
+    end
+    object ToolButton4: TToolButton
+      Left = 117
+      Top = 2
+      Action = ActionAbsentToExcel
     end
   end
   object dsPSB: TpFIBDataSet
@@ -2459,6 +2464,11 @@ object FormBrowsePSB: TFormBrowsePSB
       Caption = #1059#1076#1072#1083#1080#1090#1100' '#1079#1072#1087#1080#1089#1100
       ImageIndex = 2
       OnExecute = ActionDeleteRecordExecute
+    end
+    object ActionAbsentToExcel: TAction
+      Caption = #1057#1087#1080#1089#1086#1082' '#1089#1086#1090#1088#1091#1076#1085#1080#1082#1086#1074'  '#1073#1077#1079' '#1089#1095#1077#1090#1072' '#1074' '#1055#1057#1041' '
+      ImageIndex = 8
+      OnExecute = ActionAbsentToExcelExecute
     end
   end
 end

@@ -45,12 +45,15 @@ type
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
+    ActionAbsentToExcel: TAction;
+    ToolButton4: TToolButton;
     procedure ActionAddRecordExecute(Sender: TObject);
     procedure ActionDeleteRecordExecute(Sender: TObject);
     procedure ActionUpdateRecordExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure dsPSBSNILSSetText(Sender: TField; const Text: String);
+    procedure ActionAbsentToExcelExecute(Sender: TObject);
   private
     { Private declarations }
     procedure seePSBRecord(ActionClarion:integer);
@@ -64,7 +67,7 @@ var
 
 implementation
 
-uses UFormUpdatePSB,ScrUtil;
+uses UFormUpdatePSB,ScrUtil, UFormRepAbsentPSB;
 
 {$R *.dfm}
 procedure TFormBrowsePSB.seePSBRecord(ActionClarion:integer);
@@ -120,6 +123,12 @@ begin
       else
 //     if not (maskutils.FormatMaskText(Sender.EditMask, '') = Text) then
         Sender.AsString := Text;
+end;
+
+procedure TFormBrowsePSB.ActionAbsentToExcelExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormRepAbsentPSB,FormRepAbsentPSB);
+     FormRepAbsentPSB.showModal;
 end;
 
 end.
