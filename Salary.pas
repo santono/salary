@@ -958,6 +958,7 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
      SecretWorker : boolean;
      prefix       : string;
      fio          : string;
+     summaPixels  : Integer;
  begin
 {    Caption:=AllTrim(Month[NMES])+' '+IntToStr(CurrYear)+' ã. '+FNINF+' '+iNTtOsTR(cOUNT_pERSON);}
      CurrWrk   := FIB.GetShifrWrk   ;
@@ -1019,6 +1020,13 @@ procedure TMainForm.MakeGrid(WantedRow:integer);
      for i:=1 to Nmb_Of_Col_Main_Screen do
          begin
               StringGrid1.ColWidths[i+1]:=floor((screenWidth-StringGrid1.ColWidths[0]-screenWidth*0.150) / 8.00)-7;
+              if i=Nmb_Of_Col_Main_Screen then
+                 begin
+                      summaPixels:=0;
+                      for j:= 1 to StringGrid1.ColCount-1 do
+                          summaPixels:=summaPixels+StringGrid1.ColWidths[j-1];
+                      StringGrid1.ColWidths[i+1]:=screenWidth-summaPixels-40;
+                 end;
               MainScreen[i].Summa:=0;
               S:=ShifrList.GetName(MainScreen[i].Shifr);
               if MainScreen[i].Shifr>M_Shifr then
