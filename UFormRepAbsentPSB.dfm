@@ -48,4 +48,13 @@ object FormRepAbsentPSB: TFormRepAbsentPSB
     TabOrder = 2
     Kind = bkClose
   end
+  object BitBtn3: TBitBtn
+    Left = 296
+    Top = 72
+    Width = 241
+    Height = 25
+    Caption = #1057#1075#1077#1085#1077#1088#1080#1088#1086#1074#1072#1090#1100'  '#1084#1085#1080#1084#1099#1077' '#1057#1053#1048#1051#1057
+    TabOrder = 3
+    OnClick = BitBtn3Click
+  end
 end

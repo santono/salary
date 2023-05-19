@@ -641,6 +641,8 @@ interface
   function getApplicationVersion:String;
   function GetAppVersionStr: string;
   function checkSNILS(SNILS:string):boolean;
+  function generateDummySNILS(tabno:Integer):string;
+  function generateDummyINN(tabno:integer):string;
 
 
 
@@ -14099,6 +14101,120 @@ function checkSNILS(SNILS:string):boolean;
       checkSNILS:=retval;
 
  end;
+function generateDummySNILS(tabno:Integer):string;
+ var retVal,retVal1:string;
+     i:Integer;
+     currDigit:integer;
+     summaInt:LongInt;
+     currAdding:integer;
+     controlDigits:integer;
+     ControlDigitsS:string;
+
+   function checkThreeSameDigit(SNILS:string):string;
+     var retVal:string;
+         i,j,k:Integer;
+         s,c:string;
+         finded:boolean;
+         newSNILS:string;
+     begin
+         newSNILS:=SNILS;
+         finded:=false;
+         while true do
+           begin
+             finded:=false;
+             for i:=0 to 9 do
+               begin
+                    s:=IntToStr(i)+IntToStr(i)+IntToStr(i);
+                    j:=pos(s,newSNILS);
+                    if j>0 then
+                       begin
+                          finded:=True;
+                          k:=i+1;
+                          if k>9 then k:=0;
+                          c:=IntToStr(i)+IntToStr(k)+IntToStr(i);
+                          newSNILS:=stringReplace(newSNILS,s,c,[rfReplaceAll]);
+                       end;
+               end;
+             if not finded then
+                break;
+           end;
+         checkThreeSameDigit:=newSNILS;
+     end;
+ begin
+      retVal:=trim(IntToStr(tabno));
+      retVal:=retVal+'9876543210';
+      retVal:=Copy(retVal,1,9);
+      retVal:=checkThreeSameDigit(retVal);
+      currDigit:=-1;
+      summaInt:=0;
+      for i:=1 to 9 do
+          begin
+               currDigit:=Ord(retVal[i])-ord('0');
+               currAdding:=currDigit*(9-i+1);
+               summaInt := summaInt + currAdding;
+          end;
+      if summaInt<100 then
+         controlDigits:=summaInt
+      else
+      if summaInt=100 then
+         controlDigits:=0
+      else
+         begin
+              summaInt:=summaInt mod 101;
+              if summaInt=100 then
+                 controlDigits:=0
+              else
+                 controlDigits:=summaInt;
+         end;
+      controlDigitSS:=trim(intToStr(controlDigits));
+      if Length(controlDigitSS)=1 then
+         controlDigitsS:='0'+controlDigitsS;
+      retVal1:=Copy(retVal,1,3)+'-'+Copy(retVal,4,3)+'-'+Copy(retVal,7,3)+' '+controlDigitsS;
+      generateDummySNILS:=retVal1;
+
+ end;
+function  generateDummyINN(tabno:integer):string;
+ const c1:array[1..10] of Integer=(7, 2, 4, 10, 3, 5, 9, 4, 6, 8);
+       c2:array[1..11] of Integer=(3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8);
+ var retVal:string;
+     nos:string;
+     si:string;
+     s:string;
+     d1,d2:Integer;
+     i,d:Integer;
+     summa:longInt;
+     d1s,d2s:string;
+ begin
+      nos:='3459';
+      s:=intToStr(tabno);
+      i:=length(s);
+      si:=copy('987654',1,6-i);
+      s:=si+s;
+      s:=nos+s;
+      summa:=0;
+      for i:=1 to 10 do
+         begin
+              d:=ord(s[i])-Ord('0');
+              summa:=summa+d*c1[i];
+         end;
+      d1:=summa div 11;
+      si:=intToStr(d1);
+      d1s:=copy(si,Length(si),1);
+      s:=s+d1s;
+      summa:=0;
+      for i:=1 to 11 do
+         begin
+              d:=ord(s[i])-Ord('0');
+              summa:=summa+d*c2[i];
+         end;
+      d2:=summa div 11;
+      si:=intToStr(d2);
+      d2s:=copy(si,Length(si),1);
+      s:=s+d2s;
+      retVal:=s;
+      generateDummyINN:=retVal;
+ end;
+
 
 end.
 
