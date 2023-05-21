@@ -415,7 +415,8 @@ uses
   UFormBrowsePSB in 'UFormBrowsePSB.pas' {FormBrowsePSB},
   UFormUpdatePSB in 'UFormUpdatePSB.pas' {FormUpdatePSB},
   UVne122022List in 'UVne122022List.pas',
-  UFormRepAbsentPSB in 'UFormRepAbsentPSB.pas' {FormRepAbsentPSB};
+  UFormRepAbsentPSB in 'UFormRepAbsentPSB.pas' {FormRepAbsentPSB},
+  UFormMakeNOPERSSVFL in 'UFormMakeNOPERSSVFL.pas' {FormMakeNOPERSSVFL};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

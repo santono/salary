@@ -1105,6 +1105,12 @@ object MainForm: TMainForm
         object NMoveDopl: TMenuItem
           Action = ActionMoveDopl
         end
+        object NNalogRus: TMenuItem
+          Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1085#1080#1077'  '#1076#1086#1082#1091#1084#1077#1085#1090#1086#1074' '#1076#1083#1103' '#1087#1077#1088#1077#1085#1086#1089#1072' '
+          object actNoPersSVFL: TMenuItem
+            Action = ActionRepNoPersSVFL
+          end
+        end
       end
       object N170: TMenuItem
         Caption = #1058#1077#1089#1090#1099
@@ -1847,6 +1853,10 @@ object MainForm: TMainForm
       Caption = #1057#1087#1080#1089#1086#1082' '#1089#1095#1077#1090#1086#1074' '#1055#1057#1041
       Hint = #1055#1088#1086#1089#1084#1086#1090#1088' '#1080' '#1088#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1089#1087#1089#1080#1082#1072' '#1089#1095#1077#1090#1086#1074' '#1055#1057#1041
       OnExecute = ActionEditPSBExecute
+    end
+    object ActionRepNoPersSVFL: TAction
+      Caption = #1055#1077#1088#1089#1086#1085#1086#1092#1080#1082#1072#1094#1080#1103' '
+      OnExecute = ActionRepNoPersSVFLExecute
     end
   end
   object ImageList1: TImageList

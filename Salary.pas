@@ -468,6 +468,9 @@ type
     N196: TMenuItem;
     ActionEditPSB: TAction;
     ToolButtonPSB: TToolButton;
+    ActionRepNoPersSVFL: TAction;
+    NNalogRus: TMenuItem;
+    actNoPersSVFL: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -764,6 +767,7 @@ type
     procedure ActionEditPersonLgotyExecute(Sender: TObject);
     procedure ActionEditLgotnikiExecute(Sender: TObject);
     procedure ActionEditPSBExecute(Sender: TObject);
+    procedure ActionRepNoPersSVFLExecute(Sender: TObject);
 
 
   private
@@ -864,7 +868,7 @@ implementation
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
   UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
   UFormExeSQLScript, UFormRepPodohByPerson, UFormPersonLgo,
-  UFormEditLgotniki, UFormBrowsePSB,UVne122022List;
+  UFormEditLgotniki, UFormBrowsePSB,UVne122022List, UFormMakeNOPERSSVFL;
 
 {$R *.dfm}
 
@@ -1561,6 +1565,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
           NClearTmpTableSRD.enabled:=False;
           ToolButtonPSB.Enabled := False;
           ToolButtonPSB.Visible := False;
+          NNalogRus.Enabled:=false;
+          actNoPersSVFL.Enabled:=False;
+          ActionRepNoPersSVFL.Enabled:=False;
 
       //    ActionImportNadbFromPlanoviy.Enabled:=false;
         end
@@ -5344,6 +5351,13 @@ begin
      Application.CreateForm(TFormBrowsePSB,FormBrowsePSB);
      FormBrowsePSB.showModal;
 
+end;
+
+procedure TMainForm.ActionRepNoPersSVFLExecute(Sender: TObject);
+begin
+     if not isLNR then Exit;
+     Application.CreateForm(TFormMakeNOPERSSVFL,FormMakeNOPERSSVFL);
+     FormMakeNOPERSSVFL.showModal;
 end;
 
 end.

@@ -1326,7 +1326,7 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
          begin
                tabno:=dsDolgiTabno.Value;
                summa:=dsDolgiSUMMA.Value;
-               if tabno=11095 then
+               if tabno=1356 then
                   i:=1;
                AddToList(tabno,summa);
                dsDolgi.Next;
