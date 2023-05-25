@@ -57,6 +57,25 @@ type
     TabSheetKRU: TTabSheet;
     dtYearZa: TDateTimePicker;
     Label3: TLabel;
+    TabSheet1: TTabSheet;
+    dtListZa: TDateTimePicker;
+    Label4: TLabel;
+    btSelPKGL: TButton;
+    btnMakeList: TBitBtn;
+    dsPersonList: TpFIBDataSet;
+    trReadList: TpFIBTransaction;
+    dsPersonListTABNO: TFIBIntegerField;
+    dsPersonListSHIFRGRU: TFIBIntegerField;
+    dsPersonListNAMEGRU: TFIBStringField;
+    dsPersonListFIO: TFIBStringField;
+    dsPersonListSHIFRPOD: TFIBIntegerField;
+    dsPersonListNAMEPOD: TFIBStringField;
+    dsPersonListDOLG: TFIBStringField;
+    dsPersonListOKLAD: TFIBBCDField;
+    dsPersonListSUMMAADD: TFIBBCDField;
+    dsPersonListKOEF: TFIBBCDField;
+    dsPersonListGUID: TFIBStringField;
+    Label5: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btCreateClick(Sender: TObject);
     procedure frxReport1GetValue(const VarName: String;
@@ -67,6 +86,8 @@ type
     procedure dtToChange(Sender: TObject);
     procedure btSwodKRUClick(Sender: TObject);
     procedure btSelPKGClick(Sender: TObject);
+    procedure btnMakeListClick(Sender: TObject);
+    procedure btSelPKGLClick(Sender: TObject);
   private
     { Private declarations }
       dateFr:TDateTime;
@@ -74,6 +95,8 @@ type
       dateFrS:string;
       dateToS:String;
       wantedShifrGru:Integer;
+      procedure saveParams;
+
   public
     { Public declarations }
   end;
@@ -162,6 +185,10 @@ end;
 procedure TFormSwodAlla.FormCreate(Sender: TObject);
 var i:Integer;
 begin
+      Label5.Caption:='';
+      dtListZa.Date:=EncodeDate(2022,12,1);
+      dtListZa.MinDate:=EncodeDate(2022,1,1);
+      dtListZa.MaxDate:=EncodeDate(2023,4,30);
       wantedShifrGru:=0;
       dtFR.date:=encodeDate(CurrYear,1,1);
       dtTo.date:=encodeDate(CurrYear,NMES,1);
@@ -215,17 +242,7 @@ begin
      Application.ProcessMessages;
 end;
 
-procedure TFormSwodAlla.btSwodKRUClick(Sender: TObject);
- var SQLStmnt:string;
-     v:Variant;
-     E,WC:Variant;
-     sc,i:Integer;
-     rec,currrow,currcol:Integer;
-     wantedYear:Integer;
-     startRow,endRow:Integer;
-     formula:String;
-     currAddMode:Integer; // 0 - ud 1 - add
- procedure saveParams;
+procedure TFormSwodAlla.saveParams;
   var SQLStmnt:string;
       i:Integer;
   begin
@@ -243,8 +260,25 @@ procedure TFormSwodAlla.btSwodKRUClick(Sender: TObject);
                  SQLStmnt:='insert into test_add(shifr,shifrgru) values (2,'+IntToStr(i+1)+')';
                  SQLExecute(SQLStmnt);
             end;
+     for i:=0 to KategList.Count-1 do
+         if KategList.IsSelected(i+1) then
+            begin
+                 SQLStmnt:='insert into test_add(shifr,shifrkat) values (3,'+IntToStr(i+1)+')';
+                 SQLExecute(SQLStmnt);
+            end;
 
   end;
+
+procedure TFormSwodAlla.btSwodKRUClick(Sender: TObject);
+ var SQLStmnt:string;
+     v:Variant;
+     E,WC:Variant;
+     sc,i:Integer;
+     rec,currrow,currcol:Integer;
+     wantedYear:Integer;
+     startRow,endRow:Integer;
+     formula:String;
+     currAddMode:Integer; // 0 - ud 1 - add
  procedure printAddFooter;
   var i:Integer;
   begin
@@ -410,6 +444,100 @@ procedure TFormSwodAlla.btSelPKGClick(Sender: TObject);
 begin
     Application.CreateForm(TFormSelPKG, FormSelPKG);
     FormSelPKG.ShowModal;
+end;
+
+procedure TFormSwodAlla.btnMakeListClick(Sender: TObject);
+var y,m:Integer;
+    e:Variant;
+    lineno,currRow:Integer;
+begin
+     Label5.Caption:='';
+     Application.ProcessMessages;
+     if NameServList.CountSelected<=0 then
+       begin
+            ShowMessage('Не выбраны подразделения');
+            Exit;
+       end;
+     if GruppyList.CountSelected<=0 then
+       begin
+            ShowMessage('Не выбраны счета');
+            Exit;
+       end;
+     if KategList.CountSelected<=0 then
+       begin
+            ShowMessage('Не выбраны категории');
+            Exit;
+       end;
+     saveParams;
+     btnMakeList.Enabled:=false;
+     btSelPKGL.Enabled:=False;
+     y:=YearOf(dtListZa.date);
+     m:=MonthOf(dtListZa.Date);
+     FormWait.Show;
+     Application.ProcessMessages;
+
+     try
+        E:=CreateOleObject('Excel.Application');
+     except
+        ShowMessage('Ошибка запуска Excel');
+        Exit;
+     end;
+     E.WorkBooks.Add;
+     E.Visible:=true;
+     lineno:=0;
+     currRow:=6;
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow-1,1]:=GetMonthRus(m)+' '+IntToStr(y)+' г.';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:='№ п.п.';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:='Т.н.';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3]:='Счет';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4]:='ФИО';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5]:='Подр';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6]:='Должность';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,7]:='Оклад';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8]:='Начислено';
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8].NumberFormat:=AnsiString('0,00');
+     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9]:='Доля ставки';
+     dsPersonList.Params[0].Value:=y;
+     dsPersonList.Params[1].Value:=m;
+     dsPersonList.Transaction.StartTransaction;
+     dsPersonList.Open;
+     dsPersonList.First;
+     FormWait.Hide;
+     Application.ProcessMessages;
+
+     while not dsPersonList.Eof do
+       begin
+            inc(lineno);
+            inc(currRow);
+            Label5.Caption:=intToStr(linenO);
+            Application.ProcessMessages;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:=lineno;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:=dsPersonListTABNO.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3]:=dsPersonListNAMEGRU.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4]:=dsPersonListFIO.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5]:=dsPersonListNAMEPOD.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6]:=dsPersonListDOLG.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,7]:=dsPersonListOKLAD.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,7].NumberFormat:=AnsiString('0,00');
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8]:=dsPersonListSUMMAADD.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8].NumberFormat:=AnsiString('0,00');
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9]:=dsPersonListKOEF.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9].NumberFormat:=AnsiString('0,0000');
+            dsPersonList.Next;
+       end;
+     dsPersonList.close;
+     dsPersonList.Transaction.Commit;
+
+     btSelPKGL.Enabled:=True;
+     btnMakeList.Enabled:=True;
+
+end;
+
+procedure TFormSwodAlla.btSelPKGLClick(Sender: TObject);
+begin
+    Application.CreateForm(TFormSelPKG, FormSelPKG);
+    FormSelPKG.ShowModal;
+
 end;
 
 end.

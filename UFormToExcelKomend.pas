@@ -1090,6 +1090,88 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
 
 
        end;  //-----------------------
+     procedure ExportToPSBBankTxt(RezStr:string);
+       var FName:string;
+           sc,i:Integer;
+           rec,currrow,currcol:Integer;
+           summaS,S:string;
+           FAM,NAM,OTC,SSumma:ShortString;
+           devo:TextFile;
+           bankName:string;
+       function makeFileDir:Boolean;
+        var ch:string;
+            cd:string;
+            s,ys,ms,ds,dts,fn:string;
+        begin
+
+              ch:=Copy(Bank_Dir,Length(bank_dir),1);
+              if not (ch[1] in ['\','/']) then
+                 bank_dir:=Bank_dir+'\';
+              s:=bank_dir+'PSB';
+              if not DirectoryExists(s) then
+                 CreateDir(s);
+              ys:=Trim(IntToStr(yearof(date)));
+              ms:=Trim(IntToStr(monthof(date)));
+              ds:=Trim(IntToStr(dayof(date)));
+              s:=s+'\'+ys;
+              if not DirectoryExists(s) then
+                 CreateDir(s);
+              if Length(ms)=1 then
+                 ms:='0'+ms;
+              if Length(ds)=1 then
+                 ds:='0'+ds;
+              dts:=ys+ms+ds;
+              s:=s+'\'+dts;
+              if not DirectoryExists(s) then
+                 CreateDir(s);
+              fn:='rez.txt';
+              if rezSTr<>'21' then
+                 fn:='neRez.txt';
+              FName:=s+'\'+fn;
+        end;
+       function buildString:string;
+        const separator='^';
+        var retVal:string;
+            bankCard:string;
+            fam,Nam,Otc:shortSTring;
+            passports,tabnos:string;
+        begin
+             summaS:=trim(FormatFloatPoint(R10(pRec(list.Items[i]).summarub)));
+             if rezStr='21' then
+                bankCard:=GET_PSBBANK_COUNT_REZ(pRec(list.Items[i]).tabno)
+             else
+                bankCard:=GET_PSBBANK_COUNT_NEREZ(pRec(list.Items[i]).tabno);
+             SplitFIO(pRec(list.Items[i]).fio,Fam,Nam,OTC);
+             passportS:=GET_PSBBANK_PASSPORT(pRec(list.Items[i]).tabno);
+             tabnoS:=IntToStr(pRec(list.Items[i]).tabno);
+             retVal:=bankCard+separator+'810'+separator+summaS+separator;
+             retVal:=retVal+fam+separator+nam+separator+otc+separator;
+             retVal:=retVal+rezstr+separator+passportS+separator+tabnoS+separator;
+             buildString:=retVal;
+        end;
+       begin //----------------------
+           makeFileDir;
+//           FName:=Bank_Dir+'PSB_Bank.txt';
+           AssignFile(devo,FName);
+           Rewrite(devo);
+           sc:=0;
+           rec:=list.count;
+           ProgressBar1.Max:=Rec;
+           ProgressBar1.Min:=0;
+           ProgressBar1.Position:=0;
+           CurrRow:=0;
+           for i:=0 to list.count-1 do
+               begin
+                    sc:=sc+1;
+                    ProgressBar1.Position:=sc;
+                    Application.ProcessMessages;
+                    Inc(CurrRow);
+                    s:=buildString;
+                    writeln(devo,s);
+               end;
+           CloseFile(devo);
+
+       end;  //-----------------------
      procedure ExportToPSBBankExcel(RezStr:string);
        var FName:string;
            E,WC:Variant;
@@ -1142,9 +1224,9 @@ procedure TFormToExcelKomend.MakeCurrentPlat(uMode:Integer;wantedShifr:integer;V
                     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,7]:=RezStr;
                     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8]:=GET_PSBBANK_PASSPORT(pRec(list.Items[i]).tabno);
                     E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9]:=pRec(list.Items[i]).tabno;
-              end;
+               end;
 
-
+              ExportToPSBBankTxt(RezStr);
        end;  //-----------------------
 
      procedure ExportToBankForCardExcel(BankReason:STring);
@@ -1754,8 +1836,19 @@ begin
              ShowMessage('”казан неверный код удержани€');
              Exit;
         end;
-
+     BitBtn7.Enabled:=False;
+     BitBtn8.Enabled:=False;
+     BitBtn9.Enabled:=False;
+     BitBtn10.Enabled:=False;
+     BitBtn11.Enabled:=False;
+     Application.ProcessMessages;
      MakeCurrentPlat(1,shifrSta,0);
+     BitBtn7.Enabled:=true;
+     BitBtn8.Enabled:=true;
+     BitBtn9.Enabled:=true;
+     BitBtn10.Enabled:=true;
+     BitBtn11.Enabled:=true;
+     Application.ProcessMessages;
 end;
 
 procedure TFormToExcelKomend.BitBtn8Click(Sender: TObject);

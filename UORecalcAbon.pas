@@ -664,8 +664,8 @@ procedure Del_Current_Nalogi(Curr_Person:PERSON_PTR;M:integer;Y:integer);
                    if ((not needHideGenerMessages)
                                  or
                                 (needHideGenerMessages)) then
-
-                      ShowMessage('Не найдено сотр. по осн. месту работы');
+                       if not needHideGenerMessages then
+                          ShowMessage('Не найдено сотр. по осн. месту работы');
                    Exit;
               end;
            i:=count_sowm(CurrPersonOsn);

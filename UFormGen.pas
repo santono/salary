@@ -247,17 +247,17 @@ PROCEDURE MODI_INF;
                          CURR_UD^.WHO        :=  0;
                      END;
                {$IFNDEF SVDN}
-               if not isGKH then
-               IF ((NMES=FLOW_MONTH-1) OR (NMES-FLOW_MONTH=11)) AND
-                   (Abs(SUMMA_DOLGA)>=0.01) THEN
-                    BEGIN
-                         MAKE_UD(CURR_UD,CURR_PERSON);
-                         CURR_UD^.SHIFR      :=  SALDO_SHIFR;
-                         CURR_UD^.SUMMA      := -SUMMA_DOLGA;
-                         CURR_UD^.PERIOD     :=  NMES;
-                         CURR_UD^.VYPLACHENO :=  NOT_GET_OUT;
-                         CURR_UD^.WHO        :=  0;
-                     END;
+//               if not isGKH then
+//               IF ((NMES=FLOW_MONTH-1) OR (NMES-FLOW_MONTH=11)) AND
+//                   (Abs(SUMMA_DOLGA)>=0.01) THEN
+//                    BEGIN
+//                         MAKE_UD(CURR_UD,CURR_PERSON);
+//                         CURR_UD^.SHIFR      :=  SALDO_SHIFR;
+//                         CURR_UD^.SUMMA      := -SUMMA_DOLGA;
+//                         CURR_UD^.PERIOD     :=  NMES;
+//                         CURR_UD^.VYPLACHENO :=  NOT_GET_OUT;
+//                         CURR_UD^.WHO        :=  0;
+//                     END;
                {$ENDIF}
                IF ((PERIOD_KOP=FLOW_MONTH-1) OR
                    (PERIOD_KOP-FLOW_MONTH=11)) THEN
