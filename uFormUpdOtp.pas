@@ -860,7 +860,7 @@ begin
      Data_Pri   := DateTimePickerData_Pri.Date;
      Data_Pri_Mem := Data_Pri;
      Nomer_Pri  := EditNomerPri.Text;
-     Period_Pri := EditPeriodPri.Text;
+     Period_Pri := Trim(Copy(EditPeriodPri.Text+space(30),1,30));
      Mode_25_07_2016:=rgMode_25_07_2016.ItemIndex;
      if Mode_25_07_2016<>1 then
        Mode_25_07_2016:=0;

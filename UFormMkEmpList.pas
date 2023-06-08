@@ -90,6 +90,7 @@ type
     procedure translateFIO;
     procedure CorrectTabelUwol;
     procedure Restore092014FromDBFirebird;
+    procedure OutPutVne_04_2023;
 
 
 
@@ -1806,7 +1807,8 @@ end;
 
 procedure TFormMkEmpList.BitBtn14Click(Sender: TObject);
 begin
-     SetProfSojuzForAll;
+  OutPutVne_04_2023;
+  //   SetProfSojuzForAll;
 end;
 
 procedure TFormMkEmpList.btn1Click(Sender: TObject);
@@ -2055,6 +2057,106 @@ begin
      if NMES<>4 then Exit;
      Application.CreateForm(TFormMoveRclcToVneCSV,FormMoveRclcToVneCSV);
      FormMoveRclcToVneCSV.showModal;
+end;
+procedure TFormMkEmpList.OutPutVne_04_2023;
+ var I_Podr,Cnt:Integer;
+     NSRVTmp,NMESTmp:Integer;
+     RetVal :Integer;
+     Curr_Person:PERSON_PTR;
+     dev:TextFile;
+     fname:string;
+     s:string;
+     guid:string;
+ procedure setGuid(curr_person:person_ptr;retval:person_ptr;wantedMonth:integer);
+    var curr_cn:CN_PTR;
+        finded:boolean;
+        prim_1:string;
+        Summa,Flow_Summa,Limit_Summa:Real;
+    begin
+       Curr_CN:=Curr_Person^.CN;
+       Finded:=false;
+       while (Curr_Cn<>Nil) do
+        begin
+             if Curr_Cn^.Shifr=GUIDShifr+Limit_Cn_Base then
+                begin
+                     Finded:=true;
+                     break;
+                end;
+             Curr_Cn:=Curr_Cn^.Next;
+        end;
+       if finded then
+          begin
+               Prim_1:=curr_cn^.prim_1;
+               summa:=curr_cn^.summa+wantedMonth;
+               Flow_Summa:=curr_cn^.flow_summa;
+               limit_Summa:=curr_cn^.limit_summa;
+               putGUIDToPerson(retval,summa,flow_summa,limit_summa);
+          end;
+    end;
+begin
+     if not ((NMES=04) and (CURRYEAR=2023)) then
+        begin
+             ShowMessage('Можно запустить только в апреле 2023');
+             Exit;
+        end;
+     if not YesNo('Сформировать профсоюз всем ?') then Exit;
+     NSRVTmp := NSRV;
+     NMESTmp := NMES;
+     PutInf;
+     LDEL_PERSON;
+     ProgressBar1.Max      := Count_Serv;
+     ProgressBar1.Min      := 0;
+     ProgressBar1.Position := 0;
+     Label1.Caption:='';
+     Label2.Caption:='';
+     Cnt           := 0;
+     fname:=cdoc+'vne042023.txt';
+     AssignFile(dev,fname);
+     Rewrite(dev);
+     for i_podr:=1 to Count_Serv do
+         begin
+              Inc(Cnt);
+              ProgressBar1.Position:=Cnt;
+              Label1.Caption:=Name_Serv(I_Podr);
+              Application.ProcessMessages;
+              if I_Podr in [81,102,105,106,140] then continue;
+              NSRV:=I_Podr;
+              MKFLNM;
+              if not FileExists(FNINF) then Continue;
+              GetInf(true);
+              Curr_Person:=HEAD_PERSON;
+              while (Curr_Person<>Nil) do
+               begin
+                    if Curr_Person.OKLAD>0.01 then
+                    if Curr_Person.gruppa>1 then
+                       begin
+                            setGuid(Curr_Person,Curr_Person,1);
+                            guid:=GetGUIDPersonToString(curr_person);
+                            S:=IntToStr(curr_person^.gruppa)+';'+GET_IST_NAME(curr_person^.gruppa)+';'+GUID+';'+IntToStr(curr_person^.tabno)+';'+Trim(curr_person^.fio);
+                            Writeln(dev,s);
+                            setGuid(Curr_Person,Curr_Person,1);
+                            guid:=GetGUIDPersonToString(curr_person);
+                            S:=IntToStr(curr_person^.gruppa)+';'+GET_IST_NAME(curr_person^.gruppa)+';'+GUID+';'+IntToStr(curr_person^.tabno)+';'+Trim(curr_person^.fio);
+                            Writeln(dev,s);
+                            setGuid(Curr_Person,Curr_Person,1);
+                            guid:=GetGUIDPersonToString(curr_person);
+                            S:=IntToStr(curr_person^.gruppa)+';'+GET_IST_NAME(curr_person^.gruppa)+';'+GUID+';'+IntToStr(curr_person^.tabno)+';'+Trim(curr_person^.fio);
+                            Writeln(dev,s);
+                       end;
+                    Curr_Person:=Curr_Person^.NEXT;
+               end;
+              if COUNT_PERSON>0 then
+                 PutInf;
+              LDEL_PERSON;
+
+
+         end;
+     CloseFile(dev);
+     NSRV := NSRVTmp;
+     NMES := NMESTmp;
+     MKFLNM;
+     GetInf(True);
+     ShowMessage('Сформировано');
 end;
 
 end.

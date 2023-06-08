@@ -134,7 +134,7 @@ object FormBrowsePSB: TFormBrowsePSB
     Width = 240
     Height = 25
     DataSource = dsoPSB
-    Anchors = [akLeft, akTop, akBottom]
+    Anchors = [akLeft, akBottom]
     TabOrder = 1
   end
   object ToolBar1: TToolBar

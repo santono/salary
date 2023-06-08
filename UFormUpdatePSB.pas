@@ -143,7 +143,11 @@ end;
 function TFormUpdatePSB.ValidateNOMER_SCHETA:Boolean;
  var s:String;
      i:Integer;
+     isRezident:Boolean;
  begin
+      isRezident:=True;
+      if cxDBRadioGroup1.ItemIndex=1 then
+         isRezident:=False;
       s:=Trim(cxDBTextEditNomerCount.Text);
       if s='' then
          begin
@@ -161,7 +165,8 @@ function TFormUpdatePSB.ValidateNOMER_SCHETA:Boolean;
               ValidateNOMER_SCHETA:=false;
               Exit;
             end;
-       if Pos('408178',s)<>1 then
+       if not (((Pos('408178',s)=1) and isRezident)
+            or ((Pos('408208',s)=1) and not isRezident)) then
             begin
               ValidateNOMER_SCHETA:=false;
               Exit;

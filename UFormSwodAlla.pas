@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, Buttons, DB, FIBDataSet, FIBDatabase,
-  pFIBDatabase, pFIBDataSet, frxClass, frxDBSet, ExtCtrls;
+  pFIBDatabase, pFIBDataSet, frxClass, frxDBSet, ExtCtrls, cxControls,
+  cxContainer, cxEdit, cxTextEdit, cxMaskEdit, cxSpinEdit;
 
 type
   TFormSwodAlla = class(TForm)
@@ -76,6 +77,17 @@ type
     dsPersonListKOEF: TFIBBCDField;
     dsPersonListGUID: TFIBStringField;
     Label5: TLabel;
+    tbByKateg: TTabSheet;
+    BitBtnSelPkgK: TBitBtn;
+    BitBtnMakeSwod: TBitBtn;
+    dsKateg: TpFIBDataSet;
+    dsKategNAME: TFIBStringField;
+    dsKategSUMMAOKL: TFIBBCDField;
+    dsKategSUMMAPRE: TFIBBCDField;
+    dsKategSUMMANADB: TFIBBCDField;
+    dsKategSUMMAOTH: TFIBBCDField;
+    cxSpinEditYear: TcxSpinEdit;
+    Label6: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btCreateClick(Sender: TObject);
     procedure frxReport1GetValue(const VarName: String;
@@ -88,6 +100,8 @@ type
     procedure btSelPKGClick(Sender: TObject);
     procedure btnMakeListClick(Sender: TObject);
     procedure btSelPKGLClick(Sender: TObject);
+    procedure BitBtnSelPkgKClick(Sender: TObject);
+    procedure BitBtnMakeSwodClick(Sender: TObject);
   private
     { Private declarations }
       dateFr:TDateTime;
@@ -202,6 +216,9 @@ begin
       cbPeriod.Checked:=False;
       cbPeriod.Hide;
       dtYearZa.Date:=Date;
+      cxSpinEditYear.Value:=YearOf(dtYearZa.Date);
+      cxSpinEditYear.Properties.MinValue:=1992;
+      cxSpinEditYear.Properties.MaxValue:=CURRYEAR;
 end;
 
 procedure TFormSwodAlla.rgModeGruClick(Sender: TObject);
@@ -447,10 +464,73 @@ begin
 end;
 
 procedure TFormSwodAlla.btnMakeListClick(Sender: TObject);
+type pRec=^TRec;
+     TRec=record
+           Guids:string;
+           shifrGru:Integer;
+          end;
 var y,m:Integer;
     e:Variant;
-    lineno,currRow:Integer;
+    lineno,currRow,linenoTotal:Integer;
+    isRecaLC:Boolean;
+    isBudRecalc:Boolean;
+    Listvne:TList;
+    shifrGru,shifrGru1:Integer;
+    nameGru,guids:string;
+  function initVneList:integer;
+   var fname:string;
+       dev:textfile;
+       arrStr:TArrOfString;
+       iVal,ierr:Integer;
+       guids,s:string;
+       shifrgrus:string;
+       rec:pRec;
+   begin
+        fname:=cdoc+'vne042023.txt';
+        AssignFile(dev,fname);
+        Reset(dev);
+        listVne:=TList.Create;
+        while not Eof(dev) do
+          begin
+               Readln(dev,s);
+               if Length(Trim(s))<10 then Continue;
+               s:=Trim(s);
+               arrStr:=Split(s,';');
+               iVal:=high(arrStr);
+               if high(arrStr)<4 then
+                 Continue;
+               guidS:=arrstr[2];
+               shifrGrus:=arrstr[0];
+               Val(shifrgrus,iVal,ierr);
+               if ierr<>0 then Continue;
+               shifrGru:=iVal;
+               New(Rec);
+               rec^.Guids:=Trim(Guids);
+               rec^.shifrGru:=ShifrGru;
+               Listvne.Add(rec);
+          end;
+        CloseFile(dev);
+        initVneList:=Listvne.Count;
+   end;
+  function getShifrGru(wantedGuids:string):Integer;
+   var
+      retVal:Integer;
+      i:Integer;
+   begin
+        retVal:=-1;
+        if Listvne.count>0 then
+        for i:=0 to Listvne.Count-1 do
+           begin
+                 if Trim(prec(Listvne.items[i])^.Guids)=Trim(wantedGuids) then
+                    begin
+                         retval:=prec(Listvne.items[i])^.shifrGru;
+                         Break;
+                    end;
+           end;
+        getShifrGru:=retVal;
+   end;
 begin
+     isRecalc:=False;
      Label5.Caption:='';
      Application.ProcessMessages;
      if NameServList.CountSelected<=0 then
@@ -473,6 +553,15 @@ begin
      btSelPKGL.Enabled:=False;
      y:=YearOf(dtListZa.date);
      m:=MonthOf(dtListZa.Date);
+     if ((m=4) and (y=2023)) then
+        begin
+             if GruppyList.CountSelected=3 then
+                begin
+                     isRecalc:=True;
+                     initVneList;
+                     isBudRecalc:=yesNO('Перерасчет по бюджету?');
+                end;
+        end;
      FormWait.Show;
      Application.ProcessMessages;
 
@@ -486,6 +575,7 @@ begin
      E.Visible:=true;
      lineno:=0;
      currRow:=6;
+     linenoTotal:=0;
      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow-1,1]:=GetMonthRus(m)+' '+IntToStr(y)+' г.';
      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:='№ п.п.';
      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:='Т.н.';
@@ -507,13 +597,39 @@ begin
 
      while not dsPersonList.Eof do
        begin
+            inc(linenoTotal);
+            Label5.Caption:=intToStr(linenoTotal);
+            Application.ProcessMessages;
+            shifrGru:=dsPersonListSHIFRGRU.Value;
+            nameGru:=dsPersonListNAMEGRU.Value;
+            guids:=dsPersonListGUID.Value;
+            if isRecaLC then
+               begin
+                    shifrGru1:=getShifrGru(guids);
+                    if shifrGru1>0 then
+                       begin
+                            shifrGru:=shifrGru1;
+                            nameGru:=GET_IST_NAME(shifrGru);
+                       end;
+                    if isBudRecalc then
+                       if not (ShifrGru in [1,27,28,29]) then
+                          begin
+                               dsPersonList.Next;
+                               continue;
+                          end
+                       else
+                    else
+                       if ShifrGru in [1,27,28,29] then
+                          begin
+                               dsPersonList.Next;
+                               continue;
+                          end;
+               end;
             inc(lineno);
             inc(currRow);
-            Label5.Caption:=intToStr(linenO);
-            Application.ProcessMessages;
             E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:=lineno;
             E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:=dsPersonListTABNO.Value;
-            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3]:=dsPersonListNAMEGRU.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3]:=nameGru;
             E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4]:=dsPersonListFIO.Value;
             E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5]:=dsPersonListNAMEPOD.Value;
             E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6]:=dsPersonListDOLG.Value;
@@ -523,6 +639,7 @@ begin
             E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8].NumberFormat:=AnsiString('0,00');
             E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9]:=dsPersonListKOEF.Value;
             E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,9].NumberFormat:=AnsiString('0,0000');
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,10]:=GUIDS;
             dsPersonList.Next;
        end;
      dsPersonList.close;
@@ -538,6 +655,87 @@ begin
     Application.CreateForm(TFormSelPKG, FormSelPKG);
     FormSelPKG.ShowModal;
 
+end;
+
+procedure TFormSwodAlla.BitBtnSelPkgKClick(Sender: TObject);
+begin
+    Application.CreateForm(TFormSelPKG, FormSelPKG);
+    FormSelPKG.ShowModal;
+
+end;
+
+procedure TFormSwodAlla.BitBtnMakeSwodClick(Sender: TObject);
+var
+    v:Variant;
+    wantedY:Integer;
+    E:Variant;
+    currRow:Integer;
+    lineno:Integer;
+begin
+     if NameServList.CountSelected<=0 then
+       begin
+            ShowMessage('Не выбраны подразделения');
+            Exit;
+       end;
+     if GruppyList.CountSelected<=0 then
+       begin
+            ShowMessage('Не выбраны счета');
+            Exit;
+       end;
+     if KategList.CountSelected<=0 then
+       begin
+            ShowMessage('Не выбраны категории');
+            Exit;
+       end;
+      saveParams;
+      wantedY:=cxSpinEditYear.Value;
+      BitBtnSelPkgK.Enabled:=false;
+      BitBtnMakeSwod.Enabled:=false;
+      FormWait.Show;
+      Application.ProcessMessages;
+      dsKateg.Params[0].Value:=2022;
+      dsKateg.Transaction.StartTransaction;
+      dsKateg.Open;
+      try
+         E:=CreateOleObject('Excel.Application');
+      except
+        ShowMessage('Ошибка запуска Excel');
+        Exit;
+      end;
+      E.WorkBooks.Add;
+      E.Visible:=true;
+      currRow:=5;
+      FormWait.Hide;
+      Application.ProcessMessages;
+      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow-1,1]:='Свод за '+IntToStr(wantedY)+' г.';
+      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:='№ п.п.';
+      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:='Категория';
+      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3]:='Оклад';
+      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4]:='Премия';
+      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5]:='Надбавка';
+      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6]:='Прочие';
+      E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,8].NumberFormat:=AnsiString('0,00');
+      dsKateg.First;
+      lineno:=0;
+      while not dsKateg.Eof do
+        begin
+            inc(lineno);
+            inc(currRow);
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,1]:=lineno;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,2]:=dsKategNAME.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3]:=dsKategSUMMAOKL.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4]:=dsKategSUMMAPRE.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5]:=dsKategSUMMANADB.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6]:=dsKategSUMMAOTH.Value;
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3].NumberFormat:=AnsiString('0,00');
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,3].NumberFormat:=AnsiString('0,00');
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,4].NumberFormat:=AnsiString('0,00');
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,5].NumberFormat:=AnsiString('0,00');
+            E.WorkBooks[1].WorkSheets[1].Cells[CurrRow,6].NumberFormat:=AnsiString('0,00');
+            dsKateg.Next;
+        end;
+      BitBtnSelPkgK.Enabled:=true;
+      BitBtnMakeSwod.Enabled:=true;
 end;
 
 end.

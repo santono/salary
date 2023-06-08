@@ -29,7 +29,7 @@ object FormSwodAlla: TFormSwodAlla
     Top = 8
     Width = 665
     Height = 193
-    ActivePage = TabSheetKRU
+    ActivePage = tbByKateg
     TabOrder = 1
     object TabSheetAlla: TTabSheet
       Caption = #1057#1074#1086#1076' '#1074' '#1076#1074#1077' '#1082#1086#1083#1086#1085#1082#1080
@@ -200,6 +200,41 @@ object FormSwodAlla: TFormSwodAlla
         Caption = #1057#1086#1079#1076#1072#1090#1100' '#1089#1087#1080#1089#1086#1082
         TabOrder = 2
         OnClick = btnMakeListClick
+      end
+    end
+    object tbByKateg: TTabSheet
+      Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1080
+      ImageIndex = 3
+      object Label6: TLabel
+        Left = 48
+        Top = 16
+        Width = 33
+        Height = 13
+        Caption = #1043#1086#1076' '#1079#1072
+      end
+      object BitBtnSelPkgK: TBitBtn
+        Left = 0
+        Top = 48
+        Width = 641
+        Height = 25
+        Caption = #1042#1099#1073#1086#1088' '#1087#1086#1076#1088#1072#1079#1076#1077#1083#1077#1085#1080#1081', '#1082#1072#1090#1077#1075#1086#1088#1080#1081' '#1080' '#1089#1095#1077#1090#1086#1074
+        TabOrder = 0
+        OnClick = BitBtnSelPkgKClick
+      end
+      object BitBtnMakeSwod: TBitBtn
+        Left = 8
+        Top = 96
+        Width = 169
+        Height = 25
+        Caption = #1057#1086#1079#1076#1072#1090#1100' '#1089#1074#1086#1076
+        TabOrder = 1
+        OnClick = BitBtnMakeSwodClick
+      end
+      object cxSpinEditYear: TcxSpinEdit
+        Left = 88
+        Top = 16
+        TabOrder = 2
+        Width = 121
       end
     end
   end
@@ -773,8 +808,8 @@ object FormSwodAlla: TFormSwodAlla
       'order by isadd desc,shifrsta')
     Transaction = trRead
     Database = FIB.pFIBDatabaseSal
-    Left = 128
-    Top = 168
+    Left = 120
+    Top = 160
     object dsKRUSHIFRSTA: TFIBIntegerField
       FieldName = 'SHIFRSTA'
     end
@@ -934,5 +969,66 @@ object FormSwodAlla: TFormSwodAlla
     TPBMode = tpbDefault
     Left = 500
     Top = 56
+  end
+  object dsKateg: TpFIBDataSet
+    SelectSQL.Strings = (
+      'select k.name,'
+      
+        '      sum(coalesce((select sum(a1.summa) from fadd a1 where a1.s' +
+        'hifridperson=p.shifrid and a1.shifrsta=1),0)) summaokl'
+      
+        '    , sum(coalesce((select sum(a2.summa) from fadd a2 where a2.s' +
+        'hifridperson=p.shifrid and a2.shifrsta in (2)),0)) summapre'
+      
+        '    , sum(coalesce((select sum(a3.summa) from fadd a3 where a3.s' +
+        'hifridperson=p.shifrid and a3.shifrsta in (17,30,45)),0)) summan' +
+        'adb'
+      
+        '    , sum(coalesce((select sum(a4.summa) from fadd a4 where a4.s' +
+        'hifridperson=p.shifrid and  not a4.shifrsta in (1,2,17,30,45,14,' +
+        '15,32)),0)) summaoth'
+      '    from kateg k'
+      '    join person p on p.shifrkat=k.shifr'
+      '    where p.yearvy=:Y'
+      '          and p.w_place in (select coalesce(ta1.nsrv,-1)'
+      '                                    from test_add ta1'
+      '                                    where ta1.shifr=1)'
+      '          and p.shifrkat in (select coalesce(ta2.shifrkat,-1)'
+      '                                    from test_add ta2'
+      '                                    where ta2.shifr=3)'
+      '          and p.shifrgru in (select coalesce(ta.shifrgru,-1)'
+      '                                    from test_add ta'
+      '                                    where ta.shifr=2)'
+      ''
+      'group by k.name')
+    Transaction = trRead
+    Database = FIB.pFIBDatabaseSal
+    Left = 164
+    Top = 160
+    object dsKategNAME: TFIBStringField
+      FieldName = 'NAME'
+      Size = 40
+      EmptyStrToNull = True
+    end
+    object dsKategSUMMAOKL: TFIBBCDField
+      FieldName = 'SUMMAOKL'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKategSUMMAPRE: TFIBBCDField
+      FieldName = 'SUMMAPRE'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKategSUMMANADB: TFIBBCDField
+      FieldName = 'SUMMANADB'
+      Size = 2
+      RoundByScale = True
+    end
+    object dsKategSUMMAOTH: TFIBBCDField
+      FieldName = 'SUMMAOTH'
+      Size = 2
+      RoundByScale = True
+    end
   end
 end

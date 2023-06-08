@@ -97,7 +97,12 @@ begin
    Label1.Caption:='Автоматизована система';
    ProductName.Caption:='розрахунку заробітної плати';
   {$ENDIF}
-   Version.Caption:=GetAppVersionStr+' от 25.05.2023';
+   if isLNR then
+      begin
+           Copyright.Font.Size:=12; 
+           Copyright.Caption:='Номер регистрации 2023661602 от 01.06.2023'
+      end;
+   Version.Caption:=GetAppVersionStr+' от 02.06.2023';
    currentSize:=getExeFileSize;
    if currentSize<>instantExeFileSize then
       begin

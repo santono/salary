@@ -1,6 +1,6 @@
 object FormUpdOtp: TFormUpdOtp
-  Left = 383
-  Top = 81
+  Left = 247
+  Top = 77
   Width = 780
   Height = 620
   Caption = #1056#1077#1082#1074#1080#1079#1080#1090#1099' '#1086#1090#1087#1091#1089#1082#1085#1086#1075#1086
@@ -53,7 +53,7 @@ object FormUpdOtp: TFormUpdOtp
     Top = 64
     Width = 749
     Height = 477
-    ActivePage = TabSheet4
+    ActivePage = TabSheet3
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     OnChange = PageControl1Change
