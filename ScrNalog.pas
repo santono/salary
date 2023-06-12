@@ -311,10 +311,11 @@ FUNCTION PODOH_2004_2011(SS,ECB_NALOG,ECB_ILL_NALOG:REAL;W_NMES,W_YEAR:INTEGER;C
 
         if isLNR then
           begin
-             summavy:=getLgotyPN2023(curr_person);
              summacalc:=Ss;
-             if (SS>summavy) then
-                summacalc:=ss-summavy;
+             summavy:=getLgotyPN2023(curr_person,summaCalc);
+             if summavy>0.00 then
+                if (SS>summavy) then
+                   summacalc:=ss-summavy;
              PODOH_2004_2011:=R10_PODOH(summaCalc*proc_nalog_LNR);
              Exit;
           end;

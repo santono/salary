@@ -665,6 +665,7 @@ var
     personList:TList;
     proc_nalog_LNR:Double;
     screenWidth:integer;
+    yearLimitForLgoty:Double;
 {$IFDEF SVDN}
 const LenBlSta=38;
 {$ELSE}
@@ -794,7 +795,8 @@ begin
     needUseIOSemaphore:=false;
     DDIR:='';
     proc_nalog_LNR := 0.13;
-    instantExeFileSize:=11264512;
+    yearLimitForLgoty:=350000;
+    instantExeFileSize:=11272704;
     enabledPSB:=True;
     screenWidth:=Screen.DesktopWidth;
 //    Screen.DesktopHeight

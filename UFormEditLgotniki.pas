@@ -49,6 +49,8 @@ type
     DBNavigator1: TDBNavigator;
     ActionExportToExcel: TAction;
     ToolButton4: TToolButton;
+    ActionCalculateTot: TAction;
+    ToolButton5: TToolButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ActionSelectLgotExecute(Sender: TObject);
     procedure ActionDelLgoExecute(Sender: TObject);
@@ -60,10 +62,13 @@ type
       ANewItemRow: Boolean; var AText: String; var AColor: TColor;
       AFont: TFont; var AAlignment: TAlignment; var ADone: Boolean);
     procedure ActionExportToExcelExecute(Sender: TObject);
+    procedure ActionCalculateTotExecute(Sender: TObject);
   private
     { Private declarations }
     procedure seeLgotnik(ActionClarion:integer);
     procedure exportToExcel;
+    procedure SetUpLgotniki;
+
   public
     { Public declarations }
   end;
@@ -72,7 +77,8 @@ var
   FormEditLgotniki: TFormEditLgotniki;
 
 implementation
- uses UFibModule,ScrDef,ScrUtil,UFormUpdateLgotnik,ComObj,DateUtils;
+ uses UFibModule,ScrDef,ScrUtil,UFormUpdateLgotnik,ComObj,DateUtils,USQLUnit
+      , uFormWait, UFormSetUpLgotniki;
 
 {$R *.dfm}
 
@@ -125,23 +131,56 @@ procedure TFormEditLgotniki.dxGridLgotnikiCustomDrawCell(Sender: TObject;
 var
   Value: Variant;
   i:integer;
+  colIndex:Integer;
 begin
-  i:=AColumn.Index;
-  if i<>10 then Exit;
+ // i := TdxDBGrid(Sender).ColumnByFieldName('SUMMAYEARLIMIT').Index;
+  colIndex:=AColumn.Index;
+  if not (colIndex in [2,4,10]) then Exit;
   if ANode.HasChildren then
     Exit;
   //if not ASelected and (AColumn = dxDBGrid2PaymentAmount) then
   if not ASelected then
   begin
-     i := TdxDBGrid(Sender).ColumnByFieldName('GUID').Index;
-     Value := ANode.Values[i];
-     if not VarIsNull(Value) then
+     if colIndex=10 then
         begin
-             if Length(Value)>10 then
-                AColor := clYellow;
+          i := TdxDBGrid(Sender).ColumnByFieldName('GUID').Index;
+          Value := ANode.Values[i];
+          if not VarIsNull(Value) then
+             begin
+               if Length(Value)>10 then
+                  AColor := clYellow;
 //             else if Value=2 then
 //                AColor := clInactiveCaptionText;
-        end;
+             end;
+        end
+     else
+     if (colIndex=2) then
+        begin
+          i := TdxDBGrid(Sender).ColumnByFieldName('ENABLED').Index;
+          Value := ANode.Values[i];
+          if not VarIsNull(Value) then
+          if VarIsNumeric(Value) then
+             begin
+                if Value<>1 then
+                   AColor := clYellow
+                else
+                   AColor := clLime;
+//                AColor := clInactiveCaptionText;
+             end;
+        end
+     else
+     if (colIndex=4) then
+        begin
+          i := TdxDBGrid(Sender).ColumnByFieldName('SUMMAYEARLIMIT').Index;
+          Value := ANode.Values[i];
+          if not VarIsNull(Value) then
+          if VarIsNumeric(Value) then
+             begin
+                if Value>yearLimitForLgoty then
+                   AColor := clRed;
+//                AColor := clInactiveCaptionText;
+             end;
+        end
   end;
 end;
 procedure TFormEditLgotniki.exportToExcel;
@@ -188,6 +227,42 @@ begin
      exportToExcel;
      ToolButton4.Enabled:=True;
      Application.ProcessMessages;
+end;
+
+procedure TFormEditLgotniki.SetUpLgotniki;
+ begin
+      Application.CreateForm(TFormSetUpLgotniki,FormSetUpLgotniki);
+      FormSetUpLgotniki.ShowModal;
+ end;
+
+procedure TFormEditLgotniki.ActionCalculateTotExecute(Sender: TObject);
+var SqlStmnt:string;
+    wantedMonth,wantedYear:Integer;
+begin
+     SetUpLgotniki;
+     Exit;
+     wantedYear:=WORK_YEAR_VAL;
+     wantedMonth:=FLOW_MONTH;
+     if not yesNo('Заполнить суммы дохода на начало месяца?') then
+        Exit;
+     if (wantedMonth>1) then
+        SQLStmnt:='update tb_lgotniki a '+
+                  'set summayearlimit=(' +
+                  'select sum(summa) from fadd b ' +
+                  'where b.tabno=a.tabno ' +
+                  'and b.year_vy='+intToStr(wantedYear)+' '+
+                  'and b.month_vy<'+intToStr(wantedMonth)+')'
+     else
+        SQLStmnt:='update tb_lgotniki a '+
+                  'set summayearlimit=0.00';
+     FormWait.Show;
+     Application.ProcessMessages;
+     SQLExecute(SQLStmnt);
+     FormWait.Hide;
+     dsLgotniki.Refresh;
+     dxGridLgotniki.Refresh;
+     Application.ProcessMessages;
+
 end;
 
 end.

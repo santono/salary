@@ -36,7 +36,7 @@ implementation
 procedure TFormExeSQLScript.BitBtn1Click(Sender: TObject);
  const
        CRLF = #$D#$A;
-       separator = '=^=';
+       separator = '=$=';
  var fName:string;
      SQLStmnt:AnsiString;
      s:string;

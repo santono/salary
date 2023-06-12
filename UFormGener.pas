@@ -34,6 +34,7 @@ type
     procedure moveDataToArchive;
     procedure makeGenerNewMonth;
     procedure makeRecalcNalogi;
+    procedure makeSetUpLgotniki;
     procedure makeNextData;
     function makeArchives(M:INTEGER=0):boolean;
     procedure GetFromDay(m:integer;var d5,d6,c:integer);
@@ -51,7 +52,7 @@ var
 implementation
   uses scrutil,UFormImportDayTxt,UToSQL, UFormRecalcNalCurr,UFormGen,ScrDef,ScrIni,
   UFormMakeOtpTableFromSQL, FormMakeAllChainU,uFormWait,
-  UFormClearBolnGenerators, UFibModule;
+  UFormClearBolnGenerators, UFibModule, UFormSetUpLgotniki;
 
 {$R *.dfm}
 
@@ -246,6 +247,24 @@ procedure TFormGener.makeGenerNewMonth;
 
 
   end;
+procedure TFormGener.makeSetUpLgotniki;
+  begin
+       if not isLNR then Exit;
+       Application.CreateForm(TFormSetUpLgotniki, FormSetUpLgotniki);
+       FormSetUpLgotniki.TransparentColor:=true;
+       FormSetUpLgotniki.TransparentColorValue:=clFuchsia;  // clLime;
+       FormSetUpLgotniki.AlphaBlend:=true;
+       FormSetUpLgotniki.AlphaBlendValue:=127;
+       FormSetUpLgotniki.Color:=clSkyBlue;
+       FormSetUpLgotniki.Show;
+       FormSetUpLgotniki.BitBtn1.Hide;
+       FormSetUpLgotniki.BitBtn2.Hide;
+       Application.ProcessMessages;
+       FormSetUpLgotniki.BitBtn1Click(Self);
+       FormSetUpLgotniki.Hide;
+       FormSetUpLgotniki.Close;
+  end;
+
 procedure TFormGener.makeRecalcNalogi;
   begin
        Application.CreateForm(TFormRecalcNalCurr, FormRecalcNalCurr);
@@ -266,6 +285,8 @@ procedure TFormGener.makeRecalcNalogi;
        FormRecalcNalCurr.BitBtn4Click(Self);
        FormRecalcNalCurr.Hide;
        FormRecalcNalCurr.Close;
+       //Корректировка данных для расчета налоговых вычетов
+       //по состоянию на чало месяца
   end;
 function TFormGener.makeArchives(M:integer=0):boolean;
   var ArcName:string;
@@ -378,6 +399,8 @@ begin
      makeGenerNewMonth;
      Label14.Caption:='Готово!';
      Application.ProcessMessages;
+     if isLNR then
+        makeSetUpLgotniki;
      makeRecalcNalogi;
      Label15.Caption:='Готово!';
      Application.ProcessMessages;

@@ -260,7 +260,7 @@ begin
      if (Abs(getLgotyPN2023(curr_person)-Self.summavy)>1.0)
      or (isEnabledLgotyPN2023(curr_person)<>Self.EnabledLgo) then
         begin
-             MakeLgotyPNInCN2023(Self.Curr_person,Self.summavy,Self.id,Self.EnabledLgo);
+             MakeLgotyPNInCN2023(Self.Curr_person,Self.summavy,Self.id,Self.EnabledLgo,Self.summaYearLimit);
              putInf;
         end;     
      Self.Close;

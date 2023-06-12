@@ -378,7 +378,7 @@ interface
    function DeCodeReasonILL(SrcCode:integer):integer;
    function CodeReasonILL(SrcCode:integer):integer;
    function IsLgotyPN2011(CURR_PERSON:PERSON_PTR):boolean;
-   function getLgotyPN2023(CURR_PERSON:PERSON_PTR):real;
+   function getLgotyPN2023(CURR_PERSON:PERSON_PTR;summaCurr:Real=0):real;
    function isEnabledLgotyPN2023(CURR_PERSON:PERSON_PTR):boolean;
    function IsSciPed(Curr_Person:Person_Ptr):boolean;
    function CalcECB(Curr_Person : Person_Ptr;
@@ -533,7 +533,7 @@ interface
 
   FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
   procedure MakeLgotyPNInCN(Curr_Person:Person_Ptr);
-  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;id:integer;Enabled:boolean);
+  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;id:integer;Enabled:boolean;SummaYearLimit:real);
   function CanModify:Boolean;
   function SavePodr : boolean;
   function RestorePodr : boolean;
@@ -9171,9 +9171,11 @@ function IsLgotyPN2011(CURR_PERSON:PERSON_PTR):boolean;
 {$ENDIF}
       IsLgotyPN2011:=RetVal;
   end;
-function getLgotyPN2023(CURR_PERSON:PERSON_PTR):real;
+function getLgotyPN2023(CURR_PERSON:PERSON_PTR;summaCurr:real):real;
   var retVal:real;
       curr_Cn:CN_PTR;
+      SQLStmnt:string;
+      v:Variant;
   begin
        retval:=0.00;
        if isLnr then
@@ -9191,6 +9193,8 @@ function getLgotyPN2023(CURR_PERSON:PERSON_PTR):real;
                       if AnsiCompareText(Trim(Curr_Cn^.PRIM_1),trim('Заблокирована'))<>0 then
                          begin
                              RetVal:=curr_cn^.summa;
+                             if (curr_Cn^.LIMIT_SUMMA+summaCurr)>yearLimitForLgoty then
+                                retVal:=0.00;
                              Break;
                          end;
                       Curr_Cn:=Curr_Cn^.Next;
@@ -10560,7 +10564,7 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
                      end;
              end
      end;
-  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;Id:integer;Enabled:boolean);
+  procedure MakeLgotyPNInCN2023(Curr_Person:Person_Ptr;summavy:real;Id:integer;Enabled:boolean;SummaYearLimit:real);
      var  isel:integer;
           Finded:boolean;
           Curr_cn:CN_PTR;
@@ -10575,6 +10579,7 @@ FUNCTION IS_ALL_BLOCKED(CURR_PERSON:PERSON_PTR):BOOLEAN;
                    begin
                         Finded:=true;
                         Curr_Cn^.SUMMA:=summavy;
+                        curr_cn^.LIMIT_SUMMA:=summaYearLimit;
                         if Enabled then
                            begin
                              Curr_Cn^.AUTOMATIC:=AUTOMATIC_MODE;

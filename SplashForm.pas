@@ -102,7 +102,7 @@ begin
            Copyright.Font.Size:=12; 
            Copyright.Caption:='Номер регистрации 2023661602 от 01.06.2023'
       end;
-   Version.Caption:=GetAppVersionStr+' от 02.06.2023';
+   Version.Caption:=GetAppVersionStr+' от 12.06.2023';
    currentSize:=getExeFileSize;
    if currentSize<>instantExeFileSize then
       begin
