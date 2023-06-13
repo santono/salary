@@ -44,6 +44,14 @@ begin
      if not needHideGenerMessages then
      if not YesNo('Выполнить актуализацию данных для расчета налоговых вычетов?') then
         Exit;
+     if not needHideGenerMessages then
+     if not ((NMES=FLOW_MONTH) and
+         (CURRYEAR=WORK_YEAR_VAL)) then
+        begin
+             ShowMessage('Выполнить процедуру актуализации налоговых вычетов можно только в '+GetMonthRus(FLOW_MONTH)+' '+intToStr(WORK_YEAR_VAL)+' г.');
+             Exit;
+        end;
+
      performSQLActions;
      performAllPersons;
 end;
@@ -269,6 +277,14 @@ procedure TFormSetUpLgotniki.FormCreate(Sender: TObject);
 begin
      LabelPodr.Caption:='';
      Caption:='Актуализация данных по налоговым вычетам за '+GetMonthRus(nmes)+' '+IntToStr(currYear)+' г.';
+     if not needHideGenerMessages then
+     if not ((NMES=FLOW_MONTH) and
+         (CURRYEAR=WORK_YEAR_VAL)) then
+         begin
+              BitBtn1.Enabled:=False;
+              BitBtn1.Hide;
+         end;
 end;
 
 end.
+

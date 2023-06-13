@@ -796,7 +796,7 @@ begin
     DDIR:='';
     proc_nalog_LNR := 0.13;
     yearLimitForLgoty:=350000;
-    instantExeFileSize:=11272704;
+    instantExeFileSize:=11273216;
     enabledPSB:=True;
     screenWidth:=Screen.DesktopWidth;
 //    Screen.DesktopHeight
