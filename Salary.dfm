@@ -1110,6 +1110,9 @@ object MainForm: TMainForm
           object actNoPersSVFL: TMenuItem
             Action = ActionRepNoPersSVFL
           end
+          object NNoRasCHS: TMenuItem
+            Action = ActionRepNoRasCHS
+          end
         end
       end
       object N170: TMenuItem
@@ -1131,6 +1134,9 @@ object MainForm: TMainForm
         end
         object NCheckKassBank: TMenuItem
           Action = ActionCheckKassaBank
+        end
+        object N197: TMenuItem
+          Action = ActionCheckOtpMovedFromSQL
         end
       end
     end
@@ -1857,6 +1863,14 @@ object MainForm: TMainForm
     object ActionRepNoPersSVFL: TAction
       Caption = #1055#1077#1088#1089#1086#1085#1086#1092#1080#1082#1072#1094#1080#1103' '
       OnExecute = ActionRepNoPersSVFLExecute
+    end
+    object ActionRepNoRasCHS: TAction
+      Caption = #1057#1086#1094#1080#1072#1083#1100#1085#1099#1077' '#1074#1079#1085#1086#1089#1099
+      OnExecute = ActionRepNoRasCHSExecute
+    end
+    object ActionCheckOtpMovedFromSQL: TAction
+      Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1087#1086#1083#1085#1086#1090#1099' '#1087#1077#1088#1077#1085#1077#1089#1077#1085#1080#1103' '#1090#1072#1073#1077#1083#1103' '#1086#1090#1087#1091#1089#1082#1085#1099#1093' '#1080#1079' '#1041#1044
+      OnExecute = ActionCheckOtpMovedFromSQLExecute
     end
   end
   object ImageList1: TImageList

@@ -74,6 +74,7 @@ type
     PanelList: TPanel;
     Splitter1: TSplitter;
     PanelForm: TPanel;
+    ComboBoxDolRus: TComboBox;
     function Execute: boolean;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -118,6 +119,7 @@ type
     procedure btSearchDolgClick(Sender: TObject);
     procedure BitBtnDogPodSowmClick(Sender: TObject);
     procedure PanelListResize(Sender: TObject);
+    procedure ComboBoxDolRusChange(Sender: TObject);
   private
     { Private declarations }
     Curr_Person : Person_Ptr;
@@ -292,6 +294,11 @@ var i:integer;
     Temy:TStringList;
     S:String;
 begin
+     if isSVDN then
+        begin
+             ComboBoxDolRus.Hide;
+             ComboBoxDolRus.Enabled:=False;
+        end;     
      Setted:=false;
      for i:=1 to max_kategorija do
          ComboBoxKat.Items.Add(Get_Kat_Name(i));
@@ -300,6 +307,9 @@ begin
      ComboBoxGru.Items.AddStrings(GruppyList.getActiveNames);
      for i:=1 to count_dolg do
          ComboBoxDol.Items.Add(Name_Dolg(i));
+     if isLNR then
+     for i:=1 to NameRusDolgList.count do
+         ComboBoxDolRus.Items.Add(Name_Rus_Dolg(i));
      for i:=1 to 2 do
          ComboBoxWR.Items.Add(Get_WR_Name(i));
      for i:=1 to 3 do
@@ -347,6 +357,7 @@ begin
             ChgTabno.Hide;
             ComboBoxBank.Enabled := False;
             ComboBoxDol.Enabled  := False;
+            ComboBoxDolRus.Enabled  := False;
             ComboBoxFrom.Enabled := False;
             ComboBoxGru.Enabled  := False;
             ComboBoxKat.Enabled  := False;
@@ -423,7 +434,9 @@ var i,TABNO:integer;
     FIO:STRING;
     NCode:string;
     Dol_Code:Integer;
+    Dol_Rus_Code:Integer;
     Nomer_Dolg_Val:integer;
+    Nomer_Dolg_Rus_Val:integer;
     FindedLineno:Integer;
 begin
      if count_person=0 then exit;
@@ -457,6 +470,25 @@ begin
                 Nomer_dolg_Val:=0;
              ComboBoxDol.ItemIndex:=Nomer_Dolg_Val;
              ComboBoxDol.Hint:=ComboBoxDol.Text;
+        end
+     else
+        ComboBoxDol.Text:='Не указана';
+
+     if isLNR then
+        begin
+             Dol_Rus_Code:= Get_Dol_Rus_Code(Curr_Person);
+             if (Dol_Rus_Code>0) then
+                begin
+                   ComboBoxDolRus.Text:=NAME_RUS_DOLG_BY_SHIFR(Dol_Rus_Code);
+                   Nomer_Dolg_Rus_Val:=Nomer_Dolg_Rus(Dol_Rus_Code)-1;
+                   if Nomer_dolg_Rus_Val<0 then
+                      Nomer_dolg_Rus_Val:=0;
+                   ComboBoxDolRus.ItemIndex:=Nomer_Dolg_Rus_Val;
+                   ComboBoxDolRus.Hint:=ComboBoxDolRus.Text;
+                end
+             else
+                ComboBoxDolRus.Text:='Не указана';
+
         end;
      ComboBoxWR.Text:=Get_WR_Name(Curr_Person^.Wid_Raboty);
      ComboBoxWR.ItemIndex:=Curr_Person^.Wid_Raboty-1;
@@ -1764,6 +1796,25 @@ begin
       StringGrid1.ColWidths[1]:=PanelList.Width-StringGrid1.ColWidths[0]-10;
 
       Application.ProcessMessages;
+end;
+
+procedure TFormKadry.ComboBoxDolRusChange(Sender: TObject);
+var shifrdol,shifrDolRus:Integer;
+    nameDol:string;
+begin
+      if Assigned(Curr_Person) then
+          begin
+               shifrDol:=ComboBoxDolRus.ItemIndex+1;
+               nameDol:=comboBoxDolRus.Text;
+               shifrDolRus:=Shifr_Dolg_RUS(shifrdol);
+               MAKE_RUS_DOL_PERSON(CURR_PERSON,shifrDolRus);
+               ComboBoxDolRus.Hint:=NAME_RUS_DOLG(ComboBoxDolRus.ItemIndex+1);
+           //    EditRazr.Text:=IntToStr(Razr_Dolg(ComboBoxDol.ItemIndex+1));
+           //    EditRazr.Repaint;
+           //    SetRazrjadPerson(Curr_Person,Shifr_Dolg(Razr_Dolg(ComboBoxDol.ItemIndex+1)));
+          end ;
+      TestChangePerson;
+
 end;
 
 end.

@@ -997,6 +997,8 @@ function TPersonO.GetLimitForECB(Y:Integer;M:integer):Real;
   var SQLStmnt:string;
       LimitSS:Real;
   begin
+       LimitSS:=1000;
+       Exit;
        if FIB.pFIBQuery.Open then
           FIB.pFIBQuery.Close;
        if FIB.pFIBQuery.Transaction.Active then

@@ -221,6 +221,7 @@ interface
     ShifrAddList      : TShifrList;
     ShifrUdList       : TShifrList;
     NameDolgList      : TDolgList;
+    NameRusDolgList   : TDolgList;
     TemyList          : TTemyList;
     PensList          : TPensList;
     GruppyList        : TGruppyList;

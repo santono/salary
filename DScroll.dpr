@@ -417,7 +417,10 @@ uses
   UVne122022List in 'UVne122022List.pas',
   UFormRepAbsentPSB in 'UFormRepAbsentPSB.pas' {FormRepAbsentPSB},
   UFormMakeNOPERSSVFL in 'UFormMakeNOPERSSVFL.pas' {FormMakeNOPERSSVFL},
-  UFormSetUpLgotniki in 'UFormSetUpLgotniki.pas' {FormSetUpLgotniki};
+  UFormSetUpLgotniki in 'UFormSetUpLgotniki.pas' {FormSetUpLgotniki},
+  UFormMakeNORASCHS in 'UFormMakeNORASCHS.pas' {FormMakeNORASCHS},
+  UFormMoveRussianOklady in 'UFormMoveRussianOklady.pas' {FormMoveRussianOklady},
+  UFormCheckMovedOtpFromSQL in 'UFormCheckMovedOtpFromSQL.pas' {FormCheckMovedOtpFromSQL};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

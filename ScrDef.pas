@@ -1,6 +1,6 @@
 {$WARNINGS OFF}
 {$HINTS OFF}
-unit ScrDef;
+unit ScrDef;   
                            
 interface                 
    uses Classes,SysUtils,Forms,Math;
@@ -796,7 +796,7 @@ begin
     DDIR:='';
     proc_nalog_LNR := 0.13;
     yearLimitForLgoty:=350000;
-    instantExeFileSize:=11273216;
+    instantExeFileSize:=11298816;
     enabledPSB:=True;
     screenWidth:=Screen.DesktopWidth;
 //    Screen.DesktopHeight

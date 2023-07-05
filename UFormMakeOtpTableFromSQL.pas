@@ -72,7 +72,7 @@ begin
              while (curr_person<>nil) do
               begin
                    shifrDol:=GET_DOL_CODE(curr_person);
-                   if (shifrDol>0)  and
+                   if (shifrDol>9)  and
                        (shifrDol<>1500) then
                    if curr_person^.oklad>0 then
 //                   if curr_person^.TABNO=11802 then

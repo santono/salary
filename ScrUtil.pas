@@ -87,16 +87,23 @@ interface
    FUNCTION GET_PERSON_OKLAD(CURR_PERSON:PERSON_PTR):REAL;
    FUNCTION GET_DOL_CODE(CURR_PERSON:PERSON_PTR):INTEGER;
    FUNCTION GET_DOL_NAME(CURR_PERSON:PERSON_PTR):STRING;
+   FUNCTION GET_DOL_RUS_CODE(CURR_PERSON:PERSON_PTR):INTEGER;
+   FUNCTION GET_DOL_Rus_NAME(CURR_PERSON:PERSON_PTR):STRING;
    PROCEDURE MAKE_DOL_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
+   PROCEDURE MAKE_RUS_DOL_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
    PROCEDURE MAKE_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
    FUNCTION GET_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR):INTEGER;
    FUNCTION GET_IDDOGPODFORSOWM_PERSON_FROM_SQL(CURR_PERSON:PERSON_PTR):INTEGER;
    FUNCTION NAME_DOLG(WANTED_DOLG:INTEGER):STRING;
+   FUNCTION NAME_RUS_DOLG(WANTED_DOLG:INTEGER):STRING;
    FUNCTION NAME_DOLG_BY_SHIFR(WANTED_DOLG:INTEGER):STRING;
+   FUNCTION NAME_RUS_DOLG_BY_SHIFR(WANTED_DOLG:INTEGER):STRING;
    FUNCTION RAZR_DOLG(WANTED_DOLG:INTEGER):INTEGER;
    FUNCTION OKLAD_DOLG(WANTED_DOLG:INTEGER):REAL;
    FUNCTION NOMER_DOLG(WANTED_DOLG:INTEGER):INTEGER;
+   FUNCTION NOMER_DOLG_RUS(WANTED_DOLG:INTEGER):INTEGER;
    FUNCTION SHIFR_DOLG(WANTED_DOLG:INTEGER):INTEGER;
+   FUNCTION SHIFR_DOLG_RUS(WANTED_DOLG:INTEGER):INTEGER;
    FUNCTION GET_WR_NAME(WANTED_WR:Integer):String;
    FUNCTION GET_SWM_NAME(WANTED_SWM:Integer):String;
    FUNCTION IS_OSN_WID_RABOTY(CURR_PERSON:PERSON_PTR):BOOLEAN;
@@ -283,6 +290,7 @@ interface
    PROCEDURE MAKE_KMD_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime;shifrTabel:integer);
    PROCEDURE MAKE_OTP_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
    PROCEDURE MAKE_OTP_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
+   function CHECK_OTP_TABEL_AGAINST_SQL(Curr_Person:Person_Ptr):boolean;
 //   PROCEDURE MAKE_OTO_TABEL(Curr_Person:Person_Ptr;DataFr,DataTo:TDateTime);
    PROCEDURE MAKE_OG_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
    PROCEDURE MAKE_OBO_TABEL_FROM_SQL(Curr_Person:Person_Ptr);
@@ -3607,6 +3615,26 @@ FUNCTION GET_KOEF_UW_OKLAD_PERSON(CURR_PERSON:PERSON_PTR):REAL;
       END;
      GET_DOL_NAME:=NAME_DOLG_BY_SHIFR(A);
    END;
+ FUNCTION GET_DOL_RUS_NAME(CURR_PERSON:PERSON_PTR):STRING;
+ VAR CURR_CN:CN_PTR;
+     FINDED:BOOLEAN;
+     A:INTEGER;
+ BEGIN
+     A:=1;
+     CURR_CN := CURR_PERSON^.CN;
+     FINDED  := FALSE;
+     WHILE (NOT FINDED) AND (CURR_CN<>NIL) DO
+      BEGIN
+           IF CURR_CN^.SHIFR=KOD_DOLG_SHIFR+LIMIT_CN_BASE THEN
+              BEGIN
+                   FINDED:=TRUE;
+                   A:=Round(CURR_CN^.PRIM);
+              END
+                                                          ELSE
+              CURR_CN:=CURR_CN^.NEXT;
+      END;
+     GET_DOL_RUS_NAME:=NAME_RUS_DOLG_BY_SHIFR(A);
+   END;
 
  FUNCTION GET_DOL_CODE(CURR_PERSON:PERSON_PTR):INTEGER;
  VAR CURR_CN:CN_PTR;
@@ -3628,6 +3656,26 @@ FUNCTION GET_KOEF_UW_OKLAD_PERSON(CURR_PERSON:PERSON_PTR):REAL;
       END;
      GET_DOL_CODE:=A;
    END;
+ FUNCTION GET_DOL_RUS_CODE(CURR_PERSON:PERSON_PTR):INTEGER;
+ VAR CURR_CN:CN_PTR;
+     FINDED:BOOLEAN;
+     A:INTEGER;
+ BEGIN
+     A:=1;
+     CURR_CN:=CURR_PERSON^.CN;
+     FINDED:=FALSE;
+     WHILE (NOT FINDED) AND (CURR_CN<>NIL) DO
+      BEGIN
+           IF CURR_CN^.SHIFR=KOD_DOLG_SHIFR+LIMIT_CN_BASE THEN
+              BEGIN
+                   FINDED:=TRUE;
+                   A:=round(CURR_CN^.SUMMA);
+              END
+                                                          ELSE
+              CURR_CN:=CURR_CN^.NEXT;
+      END;
+     GET_DOL_RUS_CODE:=A;
+   END;
 
 PROCEDURE MAKE_DOL_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
  VAR CURR_CN:CN_PTR;
@@ -3647,6 +3695,25 @@ PROCEDURE MAKE_DOL_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
              CURR_CN^.KOD:=100;
         END;
      CURR_CN^.PRIM:=A;
+ END;
+PROCEDURE MAKE_RUS_DOL_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
+ VAR CURR_CN:CN_PTR;
+     FINDED:BOOLEAN;
+ BEGIN
+     CURR_CN:=CURR_PERSON^.CN;
+     FINDED:=FALSE;
+     WHILE (NOT FINDED) AND (CURR_CN<>NIL) DO
+      IF CURR_CN^.SHIFR=KOD_DOLG_SHIFR+LIMIT_CN_BASE THEN
+         FINDED:=TRUE
+                                                       ELSE
+         CURR_CN:=CURR_CN^.NEXT;
+     IF NOT FINDED THEN
+        BEGIN
+             MAKE_CN(CURR_CN,CURR_PERSON);
+             CURR_CN^.SHIFR:=KOD_DOLG_SHIFR+LIMIT_CN_BASE;
+             CURR_CN^.KOD:=100;
+        END;
+     CURR_CN^.SUMMA:=A;
  END;
 PROCEDURE MAKE_IDDOGPODFORSOWM_PERSON(CURR_PERSON:PERSON_PTR;A:INTEGER);
  VAR CURR_CN:CN_PTR;
@@ -3730,6 +3797,20 @@ FUNCTION GET_IDDOGPODFORSOWM_PERSON_FROM_SQL(CURR_PERSON:PERSON_PTR):INTEGER;
        NAME_DOLG:=S;
 }
   END;
+ FUNCTION NAME_RUS_DOLG(WANTED_DOLG:INTEGER):STRING;
+  BEGIN
+       NAME_RUS_DOLG:=NAMERUSDOLGLIST.GetNameByNo(Wanted_Dolg);
+{
+       W_serv:=Shifr_Dolg(Wanted_Dolg);
+       IF NAMEDOLGLIST^.SEARCH(ADDR(W_SERV),JINDEX) THEN S:=PITEM(NAMEDOLGLIST^.AT(JINDEX))^.NAME^
+                                                    ELSE
+          begin
+               STR(WANTED_DOLG,S);
+               S:=S+' Не найден';
+          end;
+       NAME_DOLG:=S;
+}
+  END;
 
 FUNCTION RAZR_DOLG(WANTED_DOLG:INTEGER):INTEGER;
 {  VAR JINDEX:INTEGER;
@@ -3775,7 +3856,11 @@ FUNCTION OKLAD_DOLG(WANTED_DOLG:INTEGER):REAL;
                S:=S+' Не найден';
           end;
        NAME_DOLG_BY_SHIFR:=S;
-}       
+}
+  END;
+ FUNCTION NAME_RUS_DOLG_BY_SHIFR(WANTED_DOLG:INTEGER):STRING;
+  BEGIN
+       NAME_RUS_DOLG_BY_SHIFR:=NAMERUSDOLGLIST.GetName(Wanted_Dolg);
   END;
 
  FUNCTION SHIFR_DOLG(WANTED_DOLG:INTEGER):INTEGER;
@@ -3786,10 +3871,26 @@ FUNCTION OKLAD_DOLG(WANTED_DOLG:INTEGER):REAL;
                                            else Shifr_DOLG:=Wanted_DOLG;
 }                                           
   END;
+ FUNCTION SHIFR_DOLG_RUS(WANTED_DOLG:INTEGER):INTEGER;
+  BEGIN
+       Shifr_Dolg_RUS:=NameRusDolgList.GetShifrByNo(Wanted_DOlg);
+{
+       if wanted_DOLG<=NAMEDOLGLIST^.Count then Shifr_DOLG:=PItem(NameDolgList^.At(Wanted_DOLG-1))^.ShifrId
+                                           else Shifr_DOLG:=Wanted_DOLG;
+}                                           
+  END;
 
  FUNCTION NOMER_DOLG(WANTED_DOLG:INTEGER):INTEGER;
   BEGIN
        NOMER_DOLG:=NAMEDOLGLIST.GetNomerByShifr(Wanted_Dolg);
+{
+       IF NAMEDOLGLIST^.SEARCH(ADDR(WANTED_DOLG),JINDEX) THEN NOMER_DOLG:=JINDEX+1
+                                                         ELSE NOMER_DOLG:=999;
+}
+  END;
+ FUNCTION NOMER_DOLG_RUS(WANTED_DOLG:INTEGER):INTEGER;
+  BEGIN
+       NOMER_DOLG_RUS:=NameRusDolgList.GetNomerByShifr(Wanted_Dolg);
 {
        IF NAMEDOLGLIST^.SEARCH(ADDR(WANTED_DOLG),JINDEX) THEN NOMER_DOLG:=JINDEX+1
                                                          ELSE NOMER_DOLG:=999;
@@ -6808,6 +6909,181 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
                 curr_person^.AUTOMATIC:=MANUAL_MODE;
            end;
 
+  END;
+ function CHECK_OTP_TABEL_AGAINST_SQL(Curr_Person:Person_Ptr):boolean;
+  VAR L,U_BOUND,L_BOUND:INTEGER;
+      YFR,MFR,DFR:WORD;
+      YTO,MTO,DTO:WORD;
+      Template:array[1..31] of Byte;
+      corrected:boolean;
+      dtUw:TDateTime;
+      amntOfSowm:Integer;
+      shifrIdDol:Integer;
+      retval:boolean;
+  function countOtpDay(curr_person:person_ptr):Integer;
+   var retVal:Integer;
+       i:Integer;
+   begin
+        retVal:=0;
+        for i:=1 to 31 do
+           if curr_person^.TABEL[i]=TARIFN_OTPUSK then
+              Inc(RetVal);
+        countOtpDay:=retVal;
+   end;
+  function countSowm(curr_person:person_ptr):integer;
+    var retVal:Integer;
+        c_person:PERSON_PTR;
+        shifrdol:Integer;
+    begin
+         retVal:=0;
+         c_person:=HEAD_PERSON;
+         while (c_person<>nil) do
+          begin
+                shifrdol := GET_DOL_CODE(c_person);
+                if c_person^.TABNO=curr_person^.TABNO then
+                if c_person^.WID_RABOTY=2 then
+                if c_person^.oklad>0 then
+                if (shifrdol>9) and (shifrdol<>1500) then
+                   retVal:=retVal+1;
+                c_person:=c_person^.next;
+          end;
+         countSowm:=retVal;
+
+    end;
+  function SetTemplate:Boolean;
+    var RetVal:boolean;
+        SQLStmnt:widestring;
+        IsStarted:Boolean;
+        YS,DataFrS,DataToS:String;
+        DateFr,DateTo:TDateTime;
+        df,dt,i:integer;
+        modewr:integer;
+        GUIDPerson:string;
+     function getGuidFromOtpSQL:widestring;
+      var SQLStmnt:widestring;
+      begin
+  //         SQLStmnt:='++'+'--';
+           SQLStmnt:='select first 1 guid from ( ';
+           SQLStmnt:=Trim(SQLStmnt)+' select oa1.summa' ;
+           SQLStmnt:=Trim(SQLStmnt)+' ,(select first 1';
+           SQLStmnt:=Trim(SQLStmnt)+'    (select first 1 guid from pr_getguid(p.shifrid, 0)) guid';
+           SQLStmnt:=Trim(SQLStmnt)+' from fadd fad';
+           SQLStmnt:=Trim(SQLStmnt)+'           join person p on p.shifrid=fad.shifridperson';
+           SQLStmnt:=Trim(SQLStmnt)+'           where fad.tabno=a.tabno';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.year_vy=oa1.year_vy';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.month_vy=oa1.month_vy';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.w_place=oa1.w_place';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.year_za=oa1.year_za';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.month_za=oa1.month_za';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.shifrsta=oa1.shifrsta';
+           SQLStmnt:=Trim(SQLStmnt)+'           and fad.summa=oa1.summa';
+           SQLStmnt:=Trim(SQLStmnt)+' )';
+           SQLStmnt:=Trim(SQLStmnt)+' from otp_add oa1';
+       //    SQLStmnt:=Trim(SQLStmnt)+' --join otpuska ot on ot.shifrid=oa1.shifridotp';
+           SQLStmnt:=Trim(SQLStmnt)+' where oa1.shifridotp=a.shifrid';//+IntToStr(ShifrIdOtp);
+           SQLStmnt:=Trim(SQLStmnt)+'  and oa1.sel>0';
+           SQLStmnt:=Trim(SQLStmnt)+')';
+           SQLStmnt:=Trim(SQLStmnt)+' group by 1';
+           SQLStmnt:=Trim(SQLStmnt)+' order by count(*) desc';
+           getGuidFromOtpSQL:=SQLStmnt;
+      end;
+    begin
+         RetVal:=False;
+         FillChar(Template,SizeOf(Template),0);
+         YS:=IntToStr(Work_Year_Val);
+         DataFrS:=YS+'-'+IntToStr(NMES)+'-01';
+         DateFr:=EncodeDate(Word(Work_Year_Val),word(Nmes),1);
+         DataToS:=YS+'-'+IntToStr(NMES)+'-'+IntToStr(LenMonth(DateFr));
+         DateTo:=EncodeDate(Word(Work_Year_Val),word(Nmes),Word(LenMonth(DateFr)));
+         if IS_OSN_WID_RABOTY(curr_person) then
+            modewr:=1
+         else
+            modewr:=2;
+         GUIDperson:=Trim(GetGUIDPersonToString(curr_person));
+         if curr_person^.tabno=11648 then
+           isLNR:=true;
+
+         SQLStmnt:=         'select a.f_data,a.l_data,a.shifrid';
+         SQLStmnt:=SQLStmnt+' from otpuska a';
+         SQLStmnt:=SQLStmnt+' where not ((a.f_data>'''+DataToS+''') or (a.l_data<'''+DataFrS+'''))';
+         SQLStmnt:=SQLStmnt+' and a.tabno='+IntToStr(Curr_Person^.Tabno);
+         SQLStmnt:=SQLStmnt+' and coalesce(a.mode,0)<>1' ; //Компенсация на табель не должна влиять
+         SQLStmnt:=SQLStmnt+' and exists (select  * from otp_res b where b.shifridotp=a.shifrid';
+         if isLNR then
+            begin
+                SQLStmnt:=SQLStmnt + ' and coalesce(a.modewr,0)='+IntToStr(modewr);
+                SQLStmnt:=SQLStmnt+' and exists (select * from otp_add oa';
+                SQLStmnt:=SQLStmnt+'  where oa.shifridotp=a.shifrid';
+                SQLStmnt:=SQLStmnt+'     and coalesce(oa.sel,0)=1';
+                SQLStmnt:=SQLStmnt+'     and coalesce(oa.w_place,0)='+IntToStr(NSRV)+'))';
+//                SQLStmnt:=SQLStmnt+' and  ('+getGuidFromOtpSQL+')='''+GUIDperson+'''';
+
+
+ //               SQLStmnt:=SQLStmnt + ' and (CHAR_LENGTH(coalesce(a.guid,''1''))>5 and coalesce(a.guid,''1'')='''+GUIDPerson+''') ';
+            end
+         else
+             SQLStmnt:=Trim(SQLStmnt)+')';
+
+//         SQLStmnt='select first 1 s from pr_bld_otp_tabel('+IntToStr(Curr_Person^.Tabno)+','+ys+','+IntToStr
+         IsStarted:=false;
+         if not FIB.pFIBQuery.Transaction.Active then
+            begin
+                 FIB.pFIBQuery.Transaction.StartTransaction;
+                 IsStarted:=True;
+            end;
+         FIB.pFIBQuery.SQL.Clear;
+         FIB.pFIBQuery.SQL.Add(SQLStmnt);
+         FIB.pFIBQuery.ExecQuery;
+         while not FIB.pFIBQuery.Eof do
+              begin
+                    if DateFr>=FIB.pFIBQuery.Fields[0].AsDate then df:=1
+                       else df:=DayOf(FIB.pFIBQuery.Fields[0].AsDate);
+                    if FIB.pFIBQuery.Fields[1].AsDate>DateTo then dt:=DayOf(DateTo)
+                       else dt:=DayOf(FIB.pFIBQuery.Fields[1].AsDate);
+                    if (dt>=df) then
+                    for i:=df to dt do
+                        Template[i]:=1;
+
+                   FIB.pFIBQuery.Next;
+              end;
+         FIB.pFIBQuery.Close;
+         if IsStarted then
+            FIB.pFIBQuery.Transaction.Commit;
+         for i:=1 to 31 do
+             if Template[i]=1 then
+                begin
+                     RetVal:=true;
+                     Break;
+                end;
+         SetTemplate:=RetVal;
+    end;
+  BEGIN
+//<<<<<<< HEAD
+        shifridDol := GET_DOL_CODE(curr_person);
+        retVal:=True;
+        if not SetTemplate then
+           begin
+                CHECK_OTP_TABEL_AGAINST_SQL:=retval;
+                exit;
+           end;
+
+        U_BOUND:=LENMONTH(EnCodeDate(CurrYear,NMes,1));
+        IF NMES=MTO  THEN U_BOUND:=DTO;
+        L_BOUND:=1;
+        IF NMES=MFR  THEN L_BOUND:=DFR;
+        corrected:=false;
+        if curr_person^.tabno=1356 then
+           isLNR:=true;
+        if curr_person^.WID_RABOTY=2 then
+           amntOfSowm:=countSowm(curr_person);
+        for l:=1 to 31 do
+            if Template[l]=1 then
+            if CURR_PERSON^.TABEL[L]<>TARIFN_OTPUSK then
+                begin
+                     retVal:=false;
+                     Break;
+                end;
+        CHECK_OTP_TABEL_AGAINST_SQL:=retVal;
   END;
 
  PROCEDURE MAKE_OG_TABEL_FROM_SQL(Curr_Person:Person_Ptr);

@@ -471,6 +471,10 @@ type
     ActionRepNoPersSVFL: TAction;
     NNalogRus: TMenuItem;
     actNoPersSVFL: TMenuItem;
+    ActionRepNoRasCHS: TAction;
+    NNoRasCHS: TMenuItem;
+    ActionCheckOtpMovedFromSQL: TAction;
+    N197: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -768,6 +772,8 @@ type
     procedure ActionEditLgotnikiExecute(Sender: TObject);
     procedure ActionEditPSBExecute(Sender: TObject);
     procedure ActionRepNoPersSVFLExecute(Sender: TObject);
+    procedure ActionRepNoRasCHSExecute(Sender: TObject);
+    procedure ActionCheckOtpMovedFromSQLExecute(Sender: TObject);
 
 
   private
@@ -868,7 +874,8 @@ implementation
   UFormOtpBSListAbo, UFormRepWorkers2020, UFormRepPlanZP,
   UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
   UFormExeSQLScript, UFormRepPodohByPerson, UFormPersonLgo,
-  UFormEditLgotniki, UFormBrowsePSB,UVne122022List, UFormMakeNOPERSSVFL;
+  UFormEditLgotniki, UFormBrowsePSB,UVne122022List, UFormMakeNOPERSSVFL,
+  UFormMakeNORASCHS, UFormCheckMovedOtpFromSQL;
 
 {$R *.dfm}
 
@@ -1370,7 +1377,10 @@ procedure TMainForm.FormCreate(Sender: TObject);
       end;
    Fill_Shifr;
    if isLNR then
-      Fill_DOLG_SQL
+      begin
+           Fill_DOLG_SQL;
+           FILL_RUS_DOLG_SQL;
+      end
    else
       Fill_Dolg;
    Fill_temy;
@@ -5358,6 +5368,22 @@ begin
      if not isLNR then Exit;
      Application.CreateForm(TFormMakeNOPERSSVFL,FormMakeNOPERSSVFL);
      FormMakeNOPERSSVFL.showModal;
+end;
+
+procedure TMainForm.ActionRepNoRasCHSExecute(Sender: TObject);
+begin
+     if not isLNR then Exit;
+     Application.CreateForm(TFormMakeNORASCHS,FormMakeNORASCHS);
+     FormMakeNORASCHS.showModal;
+
+end;
+
+procedure TMainForm.ActionCheckOtpMovedFromSQLExecute(Sender: TObject);
+begin
+     if not isLNR then Exit;
+     Application.CreateForm(TFormCheckMovedOtpFromSQL,FormCheckMovedOtpFromSQL);
+     FormCheckMovedOtpFromSQL.showModal;
+
 end;
 
 end.

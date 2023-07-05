@@ -1,8 +1,8 @@
 object FormKadry: TFormKadry
-  Left = 470
-  Top = 98
+  Left = 67
+  Top = 131
   Width = 955
-  Height = 618
+  Height = 596
   Caption = #1057#1087#1080#1089#1086#1082' '#1082#1072#1092#1077#1076#1088#1099
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -21,25 +21,25 @@ object FormKadry: TFormKadry
   object Splitter1: TSplitter
     Left = 200
     Top = 0
-    Height = 580
+    Height = 558
   end
   object PanelList: TPanel
     Left = 0
     Top = 0
     Width = 200
-    Height = 580
+    Height = 558
     Align = alLeft
     Caption = 'PanelList'
     TabOrder = 0
     OnResize = PanelListResize
     DesignSize = (
       200
-      580)
+      558)
     object StringGrid1: TStringGrid
       Left = 1
       Top = 2
       Width = 194
-      Height = 560
+      Height = 538
       Anchors = [akLeft, akTop, akRight, akBottom]
       ColCount = 2
       DefaultRowHeight = 20
@@ -65,7 +65,7 @@ object FormKadry: TFormKadry
     Left = 203
     Top = 0
     Width = 736
-    Height = 580
+    Height = 558
     Align = alClient
     TabOrder = 1
     object LabelUw: TLabel
@@ -569,6 +569,16 @@ object FormKadry: TFormKadry
       Max = 15
       TabOrder = 28
       Visible = False
+    end
+    object ComboBoxDolRus: TComboBox
+      Left = 400
+      Top = 133
+      Width = 297
+      Height = 28
+      ItemHeight = 20
+      TabOrder = 29
+      Text = #1059#1082#1072#1078#1080#1090#1077' '#1076#1086#1083#1078#1085#1086#1089#1090#1100
+      OnChange = ComboBoxDolRusChange
     end
   end
   object ActionList1: TActionList

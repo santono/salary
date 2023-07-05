@@ -100,9 +100,9 @@ begin
    if isLNR then
       begin
            Copyright.Font.Size:=12; 
-           Copyright.Caption:='Номер регистрации 2023661602 от 01.06.2023'
+           Copyright.Caption:='Свидетельство о гос.регистрации №2023661602'
       end;
-   Version.Caption:=GetAppVersionStr+' от 13.06.2023';
+   Version.Caption:=GetAppVersionStr+' от 05.07.2023';
    currentSize:=getExeFileSize;
    if currentSize<>instantExeFileSize then
       begin

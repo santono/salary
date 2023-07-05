@@ -112,7 +112,7 @@ implementation
   UFormRepRecalcOtp2015,DateUtils,UFormMovePremFromSQL,
   UFormCalcPrem_11_2017,UFormMoveAwans2017_12,ScrIoSQL,
   UFormMakeVypl082020, UFormMoveDoplTo156, UFormMovePremFromCSV,
-  UFormMoveRclcToVneCSV;
+  UFormMoveRclcToVneCSV, UFormMoveRussianOklady;
 
 {$R *.dfm}
 
@@ -2054,9 +2054,14 @@ end;
 
 procedure TFormMkEmpList.BitBtn22Click(Sender: TObject);
 begin
+(*
      if NMES<>4 then Exit;
      Application.CreateForm(TFormMoveRclcToVneCSV,FormMoveRclcToVneCSV);
      FormMoveRclcToVneCSV.showModal;
+*)
+     if NMES<>6 then Exit;
+     Application.CreateForm(TFormMoveRussianOklady,FormMoveRussianOklady);
+     FormMoveRussianOklady.showModal;
 end;
 procedure TFormMkEmpList.OutPutVne_04_2023;
  var I_Podr,Cnt:Integer;
