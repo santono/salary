@@ -475,6 +475,8 @@ type
     NNoRasCHS: TMenuItem;
     ActionCheckOtpMovedFromSQL: TAction;
     N197: TMenuItem;
+    ActionBrowseRusPersHat: TAction;
+    N198: TMenuItem;
     procedure N4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N5Click(Sender: TObject);
@@ -774,6 +776,7 @@ type
     procedure ActionRepNoPersSVFLExecute(Sender: TObject);
     procedure ActionRepNoRasCHSExecute(Sender: TObject);
     procedure ActionCheckOtpMovedFromSQLExecute(Sender: TObject);
+    procedure ActionBrowseRusPersHatExecute(Sender: TObject);
 
 
   private
@@ -875,7 +878,7 @@ implementation
   UFormMoveDoplFromCSV, UFormMakeOkr, UFormRepPlanSowmVne,
   UFormExeSQLScript, UFormRepPodohByPerson, UFormPersonLgo,
   UFormEditLgotniki, UFormBrowsePSB,UVne122022List, UFormMakeNOPERSSVFL,
-  UFormMakeNORASCHS, UFormCheckMovedOtpFromSQL;
+  UFormMakeNORASCHS, UFormCheckMovedOtpFromSQL, UFormEditRusPersHat;
 
 {$R *.dfm}
 
@@ -5384,6 +5387,12 @@ begin
      Application.CreateForm(TFormCheckMovedOtpFromSQL,FormCheckMovedOtpFromSQL);
      FormCheckMovedOtpFromSQL.showModal;
 
+end;
+
+procedure TMainForm.ActionBrowseRusPersHatExecute(Sender: TObject);
+begin
+     Application.CreateForm(TFormEditRusPersHat,FormEditRusPersHat);
+     FormEditRusPersHat.showModal;
 end;
 
 end.

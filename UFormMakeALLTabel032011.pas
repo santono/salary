@@ -78,12 +78,12 @@ var savnsrv,i_nsrv : integer;
 
  procedure Fill_Tabel(var need:boolean);
   begin
-       if (Curr_Person^.Tabel[27]=JAWKA) Then
+       if (Curr_Person^.Tabel[30]=JAWKA) Then
 //          (Curr_Person^.Tabel[10]=JAWKA) and
 //          (Curr_Person^.Tabel[11]=VYHODN) then
           begin
 //               Curr_Person^.Tabel[8]:=JAWKA;
-               Curr_Person^.Tabel[27]:=VYHODN;
+               Curr_Person^.Tabel[30]:=VYHODN;
 //               Curr_Person^.Tabel[11]:=JAWKA;
                need:=true;
           end;
@@ -147,14 +147,14 @@ var savnsrv,i_nsrv : integer;
 begin
     if not isLNR then exit;
     BitBtn1.Enabled:=false;
-    if not YesNo('¬нести корректировки в табель университета в сент€бре 2022?'+#13+#10+'(≈сли не знаете , что это. Ћучше выйти.)') then
+    if not YesNo('¬нести корректировки в табель университета в сент€бре 2023?'+#13+#10+'(≈сли не знаете , что это. Ћучше выйти.)') then
        begin
             BitBtn1.Enabled:=true;
             Exit;
        end;
-    IF not ((CurrYear=2022) and (nmes=09)) THEN
+    IF not ((CurrYear=2023) and (nmes=09)) THEN
        begin
-            ShowMessage('¬нести корректировки можно только в сент€бре 2022');
+            ShowMessage('¬нести корректировки можно только в сент€бре 2023');
             BitBtn1.Enabled:=true;
             Exit;
        end;

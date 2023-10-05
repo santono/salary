@@ -904,7 +904,7 @@ object MainForm: TMainForm
           OnClick = GUIDSQL1Click
         end
         object N20112: TMenuItem
-          Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1072' '#1090#1072#1073#1077#1083#1103' '#1074' '#1089#1077#1085#1090#1103#1073#1088#1077' 2022 '#1076#1083#1103' '#1074#1089#1077#1075#1086' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090#1072
+          Caption = #1050#1086#1088#1088#1077#1082#1090#1080#1088#1086#1074#1082#1072' '#1090#1072#1073#1077#1083#1103' '#1074' '#1089#1077#1085#1090#1103#1073#1088#1077' 2023 '#1076#1083#1103' '#1074#1089#1077#1075#1086' '#1091#1085#1080#1074#1077#1088#1089#1080#1090#1077#1090#1072
           OnClick = N20112Click
         end
         object N107: TMenuItem
@@ -1112,6 +1112,9 @@ object MainForm: TMainForm
           end
           object NNoRasCHS: TMenuItem
             Action = ActionRepNoRasCHS
+          end
+          object N198: TMenuItem
+            Action = ActionBrowseRusPersHat
           end
         end
       end
@@ -1871,6 +1874,10 @@ object MainForm: TMainForm
     object ActionCheckOtpMovedFromSQL: TAction
       Caption = #1055#1088#1086#1074#1077#1088#1082#1072' '#1087#1086#1083#1085#1086#1090#1099' '#1087#1077#1088#1077#1085#1077#1089#1077#1085#1080#1103' '#1090#1072#1073#1077#1083#1103' '#1086#1090#1087#1091#1089#1082#1085#1099#1093' '#1080#1079' '#1041#1044
       OnExecute = ActionCheckOtpMovedFromSQLExecute
+    end
+    object ActionBrowseRusPersHat: TAction
+      Caption = #1055#1077#1088#1089#1086#1085#1086#1092#1080#1082#1072#1094#1080#1103' '#1088#1091#1089
+      OnExecute = ActionBrowseRusPersHatExecute
     end
   end
   object ImageList1: TImageList

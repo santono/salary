@@ -37,7 +37,9 @@ end;
 
 procedure TFormTestDuplicates.BitBtn1Click(Sender: TObject);
 begin
+     BitBtn1.Enabled:=False;
      ExecuteTestNadbDoublicates;
+     BitBtn1.Enabled:=true;
 end;
 
 procedure TFormTestDuplicates.ExecuteTestNadbDoublicates;
@@ -101,7 +103,7 @@ var NMES_Sav,NSRV_Sav:Integer;
         Curr_Add:=Curr_Person^.Add;
         while (Curr_Add<>Nil) do
           begin
-               if IsInCN(Curr_Add,Curr_Person) then
+               if not IsInCN(Curr_Add,Curr_Person) then
                   begin
                        Finded:=false;
                        if List.Count>0 then
@@ -110,8 +112,10 @@ var NMES_Sav,NSRV_Sav:Integer;
                                    if (
                                        (Curr_Add^.Shifr     = PRec(List.Items[i]).Shifrsta) and
                                        (Curr_Add^.Period    = PRec(List.Items[i]).Period) and
-                                       (Curr_Add^.Vyplacheno = PRec(List.Items[i]).Vyplacheno) and
-                                       (abs(Curr_Add^.Summa-PRec(List.Items[i]).Summa)<0.01)
+                                       (not (Curr_Add^.shifr in [5,13]))
+//                                       and
+//                                       (Curr_Add^.Vyplacheno = PRec(List.Items[i]).Vyplacheno) and
+//                                       (abs(Curr_Add^.Summa-PRec(List.Items[i]).Summa)<0.01)
                                       ) then
                                     begin
                                          Finded:=True;
@@ -168,6 +172,7 @@ begin
               Label1.Caption:=Name_Serv(NSRV);
               Application.ProcessMessages;
               if not FileExists(fninf) then Continue;
+            //  if I_NSRV<>124 then Continue;
               GetInf(False);
               Curr_Person:=Head_Person;
               while (Curr_Person<>NIl) do

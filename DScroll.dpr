@@ -420,7 +420,10 @@ uses
   UFormSetUpLgotniki in 'UFormSetUpLgotniki.pas' {FormSetUpLgotniki},
   UFormMakeNORASCHS in 'UFormMakeNORASCHS.pas' {FormMakeNORASCHS},
   UFormMoveRussianOklady in 'UFormMoveRussianOklady.pas' {FormMoveRussianOklady},
-  UFormCheckMovedOtpFromSQL in 'UFormCheckMovedOtpFromSQL.pas' {FormCheckMovedOtpFromSQL};
+  UFormCheckMovedOtpFromSQL in 'UFormCheckMovedOtpFromSQL.pas' {FormCheckMovedOtpFromSQL},
+  UFormEditRusPersHat in 'UFormEditRusPersHat.pas' {FormEditRusPersHat},
+  UFormMakeRusPersForMonthYear in 'UFormMakeRusPersForMonthYear.pas' {FormMakeRusPersForMonthYear},
+  UFormBrowseRusPersDet in 'UFormBrowseRusPersDet.pas' {FormBrowseRusPersDet};
 
 //  UFormSelDogPodSowm in '..\SVDN\ib\UFormSelDogPodSowm.pas'} {FormSelDogPodSowm};
 

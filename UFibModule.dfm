@@ -1,17 +1,16 @@
 object FIB: TFIB
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Left = 215
-  Top = 523
+  Left = 234
+  Top = 264
   Height = 490
   Width = 697
   object pFIBDatabaseSal: TpFIBDatabase
-    DBName = 'E:\Projects\ZARPLATA\VUGU\IB\SAL_01_06_2023.FDB'
+    DBName = 'E:\Projects\ZARPLATA\VUGU\IB\SAL_29_09_2023.FDB'
     DBParams.Strings = (
       'user_name=SYSDBA'
       'password=masterkey'
-      'lc_ctype=WIN1251'
-      'sql_role_name=')
+      'lc_ctype=WIN1251')
     DefaultTransaction = pFIBTransactionSAL
     DefaultUpdateTransaction = pFIBTransactionSAL
     SQLDialect = 3

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, Buttons;
+  Dialogs, StdCtrls, ComCtrls, Buttons, DB, DBClient, frxClass, frxDBSet;
 
 type
   TFormCheckMovedOtpFromSQL = class(TForm)
@@ -12,6 +12,13 @@ type
     LabelPodr: TLabel;
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
+    cdsCheck: TClientDataSet;
+    cdsChecknsrv: TIntegerField;
+    cdsChecktabno: TIntegerField;
+    cdsCheckFIO: TStringField;
+    cdsCheckdolg: TStringField;
+    frxReport1: TfrxReport;
+    frxDBDataset1: TfrxDBDataset;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -30,6 +37,14 @@ implementation
 
 {$R *.dfm}
   USeS scrdef,ScrUtil,ScrIo;
+  type pRec=^TRec;
+       TRec=record
+             tabno:Integer;
+             Fio:string;
+             nsrv:Integer;
+             dolg:string;
+            end;
+  var list:TList;
 
 procedure TFormCheckMovedOtpFromSQL.FormClose(Sender: TObject;
   var Action: TCloseAction);
@@ -57,6 +72,7 @@ procedure TFormCheckMovedOtpFromSQL.performChecking;
   var curr_Person:PERSON_PTR;
       shifrdol:Integer;
       summaAdd:Real;
+      rec:pRec;
   begin
        curr_person:=head_person;
        while (curr_PERSON<>nil) do
@@ -70,7 +86,13 @@ procedure TFormCheckMovedOtpFromSQL.performChecking;
               if curr_person.Automatic=automatic_mode then
                  if not CHECK_OTP_TABEL_AGAINST_SQL(curr_person) then
                     begin
-                         ShowMessage('Подразделение - '+IntToStr(nsrv)+' т.н. '+IntToStr(curr_person^.tabno)+' '+Trim(curr_person^.fio));
+                         New(Rec);
+                         Rec^.tabno:=curr_person^.TABNO;
+                         rec^.nsrv:=NSRV;
+                         rec^.fio:=Trim(curr_person^.FIO);
+                         rec^.dolg:=Trim(curr_person^.DOLG);
+                         list.Add(rec);
+                //         ShowMessage('Подразделение - '+IntToStr(nsrv)+' т.н. '+IntToStr(curr_person^.tabno)+' '+Trim(curr_person^.fio));
                          Inc(nmbOfFinded);
                     end;
 
@@ -90,11 +112,13 @@ procedure TFormCheckMovedOtpFromSQL.performChecking;
       ProgressBar1.Step     := 1;
       Application.ProcessMessages;
       nmbOfFinded:=0;
+      list:=TList.Create;
       for i_nsrv:=1 to count_serv do
         begin
              ProgressBar1.StepIt;
              LabelPodr.Caption:=trim(Name_Serv(i_nsrv));
              Application.ProcessMessages;
+             if i_NSRV in [81,82,105,106,122,140] then Continue;
              nsrv:=i_NSRV;
              MKFLNM;
              if not FileExists(fninf) then Continue;
@@ -105,7 +129,24 @@ procedure TFormCheckMovedOtpFromSQL.performChecking;
       if nmbOfFinded=0 then
          ShowMessage('Не найдено неперенесенных в табель дат отпускных ')
       else
-         ShowMessage('Найдено '+intToStr(nmbOfFinded)+' строк неперенесенных в табель дат отпускных !');
+         begin
+              cdsCheck.Open;
+              for i_nsrv:=0 to list.Count-1 do
+                  begin
+                       cdsCheck.Append;
+                       cdsCheckFIO.Value:=pRec(list.Items[i_NSRV]).Fio;
+                       cdsCheckDolg.Value:=pRec(list.Items[i_NSRV]).Dolg;
+                       cdsCheckNsrv.Value:=pRec(list.Items[i_NSRV]).nsrv;
+                       cdsCheckTabno.Value:=pRec(list.Items[i_NSRV]).tabno;
+                       cdsCheck.Post;
+                  end;
+              for i_nsrv:=0 to list.Count-1 do
+                  Dispose(pRec(list.items[i_nsrv]));
+              list.Clear;
+              frxReport1.ShowReport;
+              cdsCheck.Close;
+  //            ShowMessage('Найдено '+intToStr(nmbOfFinded)+' строк неперенесенных в табель дат отпускных !');
+         end;
       NMES:=savNMES;
       NSRV:=savNSRV;
       MKFLNM;

@@ -7009,6 +7009,7 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
          SQLStmnt:=SQLStmnt+' and a.tabno='+IntToStr(Curr_Person^.Tabno);
          SQLStmnt:=SQLStmnt+' and coalesce(a.mode,0)<>1' ; //Компенсация на табель не должна влиять
          SQLStmnt:=SQLStmnt+' and exists (select  * from otp_res b where b.shifridotp=a.shifrid';
+(*
          if isLNR then
             begin
                 SQLStmnt:=SQLStmnt + ' and coalesce(a.modewr,0)='+IntToStr(modewr);
@@ -7021,7 +7022,9 @@ FUNCTION GET_MEM_PAR(SWODMODE:WORD):BOOLEAN;
 
  //               SQLStmnt:=SQLStmnt + ' and (CHAR_LENGTH(coalesce(a.guid,''1''))>5 and coalesce(a.guid,''1'')='''+GUIDPerson+''') ';
             end
+
          else
+*)
              SQLStmnt:=Trim(SQLStmnt)+')';
 
 //         SQLStmnt='select first 1 s from pr_bld_otp_tabel('+IntToStr(Curr_Person^.Tabno)+','+ys+','+IntToStr

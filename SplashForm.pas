@@ -102,7 +102,7 @@ begin
            Copyright.Font.Size:=12; 
            Copyright.Caption:='Свидетельство о гос.регистрации №2023661602'
       end;
-   Version.Caption:=GetAppVersionStr+' от 05.07.2023';
+   Version.Caption:=GetAppVersionStr+' от 30.08.2023';
    currentSize:=getExeFileSize;
    if currentSize<>instantExeFileSize then
       begin
